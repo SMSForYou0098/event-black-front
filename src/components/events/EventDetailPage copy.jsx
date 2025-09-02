@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect, useRef, useState } from "react";
+import React, { Fragment, memo, useState } from "react";
 
 // react-bootstrap
 import {
@@ -21,14 +21,13 @@ import Link from "next/link";
 import { Ticket } from "lucide-react";
 import LoginModal from "../auth/LoginModal";
 import { useRouter } from "next/router";
-import EnhancedTicketsSection from "./EnhancedTicketsSection";
 
 const EventDetailPage = memo(({ eventData, event_key }) => {
   // --- Data Processing ---
   const [startDate, endDate] = eventData?.date_range?.split(",") || [];
   const [showLoginModal, setShowLoginModal] = useState(false);
   const router = useRouter();
-  const { isLoggedIn, setShowHeaderBookBtn } = useMyContext();
+  const { isLoggedIn } = useMyContext();
   const tickets =
     eventData?.tickets?.map((ticket) => ({
       id: ticket.id,
@@ -38,7 +37,6 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
       onSale: ticket.sale === 1,
       soldOut: ticket.sold_out === 1,
     })) || [];
-
   const handleBookNow = () => {
     if (!isLoggedIn) {
       setShowLoginModal(true);
@@ -46,7 +44,6 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
       router.push(`/events/process/${event_key}`);
     }
   };
-
   const metaInfo = [
     {
       label: "Category",
@@ -65,18 +62,6 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
     },
   ];
 
-  const bookBtnRef = useRef(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (bookBtnRef.current) {
-        const rect = bookBtnRef.current.getBoundingClientRect();
-        setShowHeaderBookBtn(rect.top < 0);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [setShowHeaderBookBtn]);
   return (
     <Fragment>
       <div className="section-padding-top product-detail py-4">
@@ -89,9 +74,9 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
               eventKey={event_key}
               redirectPath={`/events/process/${event_key}`}
             />
-            <Col lg="3" md="12" className="mb-4 mb-lg-0">
+            <Col lg="6" md="12" className="mb-4 mb-lg-0">
               {/* --- Single Event Image --- */}
-              <div className="product-image-container d-flex justify-content-center align-items-center">
+              <div className="product-image-container">
                 <img
                   src={eventData?.thumbnail}
                   alt={eventData?.name}
@@ -100,7 +85,7 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
                 />
               </div>
             </Col>
-            <Col lg="9" md="12" className="ps-lg-4">
+            <Col lg="6" md="12" className="ps-lg-4">
               {/* --- Main Event Info --- */}
               <h2 className="mb-3">{capitalize(eventData?.name)}</h2>
 
@@ -135,32 +120,70 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
                     </Col>
                   ))}
                 </Row>
-                <Row>
-                  <Col sm="12" className="d-flex justify-content-end">
-                    <Button
-                      ref={bookBtnRef}
-                      onClick={handleBookNow}
-                      className="btn btn-primary btn-lg px-5 py-3"
-                    >
-                      <span className="me-2">Book Now</span>
-                      <i className="fa-solid fa-arrow-right"></i>
-                    </Button>
-                  </Col>
-                </Row>
               </div>
             </Col>
           </Row>
 
           {/* --- Tickets Section --- */}
-          <Row id="tickets-section">
+          <Row id="tickets-section" className="my-5">
             <Col>
               <h2 className="mb-4">Available Tickets</h2>
-              <EnhancedTicketsSection tickets={tickets} />
+              <Row xs={1} md={2} lg={3} className="g-4">
+                {tickets.map((ticket) => (
+                  <Col key={ticket?.id}>
+                    <Card className="h-100 shadow-sm border-0">
+                      <Card.Body className="d-flex flex-column p-4">
+                        <div className="d-flex justify-content-between align-items-start mb-3">
+                          <Card.Title className="h5 mb-0">
+                            {ticket?.name}
+                          </Card.Title>
+                          {ticket.soldOut ? (
+                            <Badge bg="danger">Sold Out</Badge>
+                          ) : ticket.onSale ? (
+                            <Badge bg="success">On Sale</Badge>
+                          ) : null}
+                        </div>
+
+                        <Card.Text className="mb-4">
+                          {ticket?.onSale ? (
+                            <div>
+                              <span className="text-decoration-line-through text-muted me-2">
+                                ₹{ticket?.price}
+                              </span>
+                              <strong className="text-primary fs-4">
+                                ₹{ticket?.salePrice}
+                              </strong>
+                              <div className="text-success small mt-1">
+                                Save ₹{ticket?.price - ticket?.salePrice}
+                              </div>
+                            </div>
+                          ) : (
+                            <strong className="text-primary fs-4">
+                              ₹{ticket?.price}
+                            </strong>
+                          )}
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+
+              {/* Single Book Now Button */}
+              <div className="text-center mt-4">
+                <Button
+                  onClick={handleBookNow}
+                  className="btn btn-primary btn-lg px-5 py-3"
+                >
+                  <span className="me-2">Book Now</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </Button>
+              </div>
             </Col>
           </Row>
 
           {/* --- Tabs Section --- */}
-          <div className="px-0">
+          <div className="section-padding px-0">
             <div className="product-detail-tab">
               <Tab.Container defaultActiveKey="description">
                 <Nav

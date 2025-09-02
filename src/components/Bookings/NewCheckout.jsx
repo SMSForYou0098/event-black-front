@@ -14,10 +14,7 @@ import CheckUserMailComp from "../../User/CheckUserMailComp";
 import DuolicateAttendeeError from "./OrderComps/DuplicateAttendeeError";
 import { checkForDuplicateAttendees, sanitizeData, sanitizeInput, validateAttendeeData } from "../../CustomComponents/AttendeeStroreUtils";
 import { cancelToken } from "../../CustomUtils/Consts";
-import ExpiredEvent from "./ExpiredEvent";  //done
-import LoaderComp from "../../CustomUtils/LoaderComp";
-    import paymentLoader from '../../../../../assets/event/stock/payment_processing.gif';
-    import paymentFailedLoader from '../../../../../assets/event/stock/payment_fail_loader.svg';
+import ExpiredEvent from "./ExpiredEvent"; 
 
 const NewChekout = memo(() => {
     const { api, UserData, isMobile, authToken, formateTemplateTime, ErrorAlert, convertTo12HourFormat, formatDateRange, successAlert, getCurrencySymbol, showLoading, fetchCategoryData, loader, systemSetting } = useMyContext();

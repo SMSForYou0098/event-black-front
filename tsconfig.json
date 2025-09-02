@@ -48,7 +48,7 @@
     "src/pages/design-system/typography.tsx",
     "src/components/custom.d.ts",
     ".next/types/**/*.ts"
-, "src/pages/index.jsx", "src/components/cards/CardStyle.jsx", "src/pages/auth/verify-password.jsx", "src/pages/auth/lost-password.jsx", "src/pages/auth/sign-up.jsx", "src/pages/auth/login.jsx", "src/pages/auth/auth-success.jsx", "src/pages/auth/two-factor.jsx"  ],
+, "src/pages/index.jsx", "src/components/cards/CardStyle.jsx", "src/pages/auth/verify-password.jsx", "src/pages/auth/lost-password.jsx", "src/pages/auth/sign-up.jsx", "src/pages/auth/login.jsx", "src/pages/auth/auth-success.jsx", "src/pages/auth/two-factor.jsx", "src/lib/axiosInterceptor.js"  ],
   "exclude": [
     "node_modules"
   ]

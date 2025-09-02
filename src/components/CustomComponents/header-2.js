@@ -74,7 +74,7 @@ const Header2 = memo(() => {
                 loading="lazy"
                 width={130}
                 className="p-0"
-                style={{height:'60px', width:'auto'}}
+                style={{ height: '60px', width: 'auto' }}
                 onError={(e) => {
                   e.target.src = Dlogo;
                   e.target.onerror = null;
@@ -100,6 +100,14 @@ const Header2 = memo(() => {
             </div>
 
             <div className="right-action d-flex align-items-center">
+              {isScrolled && (
+                <Button
+                  className="btn-gradient-primary ms-3 d-none d-xl-block"
+                  onClick={() => window.scrollTo({ top: document.getElementById('tickets-section').offsetTop, behavior: 'smooth' })}
+                >
+                  Book Now <i className="fa-solid fa-arrow-right ms-2"></i>
+                </Button>
+              )}
               <ul className="d-block d-xl-none list-unstyled m-0">
                 <Dropdown as="li" className="nav-item iq-responsive-menu">
                   <Dropdown.Toggle as={CustomToggle} variant="btn btn-sm bg-body">

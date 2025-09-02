@@ -1,12 +1,11 @@
 import { logout } from '@/store/auth/authSlice';
-import { AppStore } from '@/store';
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
 
 const baseURL = process.env.NEXT_PUBLIC_API_PATH;
 
 // --- Public API Instance ---
 // Use this for requests that DO NOT need authentication (e.g., login, signup, verify-user).
-export const publicApi: AxiosInstance = axios.create({
+export const publicApi = axios.create({
   baseURL,
   headers: {
     'Content-Type': 'application/json',
@@ -15,17 +14,16 @@ export const publicApi: AxiosInstance = axios.create({
 
 // --- Protected API Instance ---
 // Use this for all requests that need an authentication token.
-export const api: AxiosInstance = axios.create({
+export const api = axios.create({
   baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-
 // --- Interceptor Setup ---
 // This function adds the interceptors ONLY to the protected `api` instance.
-export const setupInterceptors = (store: AppStore) => {
+export const setupInterceptors = (store) => {
   // Request Interceptor: Adds the auth token to headers
   api.interceptors.request.use(
     (config) => {
@@ -56,4 +54,3 @@ export const setupInterceptors = (store: AppStore) => {
     }
   );
 };
-
