@@ -1,0 +1,103 @@
+@import '../assets/scss/streamit.scss';
+@import '../assets/scss/custom.scss';
+@import '../assets/scss/rtl.scss';
+
+.streamit-block .swiper-wrapper {
+    margin: 0 !important;
+}
+
+.top-ten-block .swiper-wrapper {
+    margin-bottom: 3rem;
+}
+
+.swiper-backface-hidden .swiper-slide {
+    transform: unset !important;
+    backface-visibility: visible !important;
+}
+
+.video-js {
+    height: 70vh;
+    width: 100%;
+}
+
+.vjs-poster img {
+    object-fit: cover !important;
+    display: none;
+}
+
+// File: src/styles/components/_login.scss (example path)
+
+// Main glassmorphism card with a red glow effect
+.card-glassmorphism {
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 0 15px rgba(229, 9, 20, 0.3),  // inner glow
+    0 0 30px rgba(229, 9, 20, 0.2),  // middle fade
+    0 0 50px rgba(229, 9, 20, 0.1);   // outer smooth fade
+}
+
+// Styled input fields for the glassmorphism card
+.card-glassmorphism__input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+
+  // Style for placeholder text
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  // Override Bootstrap's focus style to maintain the look
+  &:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: white;
+    box-shadow: none; // Remove default Bootstrap glow
+  }
+}
+
+
+
+// this all are for auth component
+// Styled checkbox for the glassmorphism card
+.card-glassmorphism__checkbox {
+  accent-color: #e50914; // Netflix red for the checkmark
+}
+
+// Glowing, translucent button
+.btn-glow {
+  border-radius: 8px;
+  background: rgba(229, 9, 20, 0.7); // Netflix red with transparency
+  border: none;
+  color: white;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background: rgba(229, 9, 20, 0.9);
+    box-shadow: 0 0 15px rgba(229, 9, 20, 0.8);
+    color: white;
+  }
+}
+
+// Main action button with a gradient and strong shadow
+.btn-gradient-primary {
+  background: linear-gradient(90deg, #b51515 0%, #ff4a58 100%);
+  border: none;
+  box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(229, 9, 20, 0.5);
+  }
+
+  &:disabled {
+    background: #555;
+    box-shadow: none;
+  }
+}
