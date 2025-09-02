@@ -25,20 +25,18 @@
     display: none;
 }
 
-// File: src/styles/components/_login.scss (example path)
 
-// Main glassmorphism card with a red glow effect
 .card-glassmorphism {
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 0 15px rgba(229, 9, 20, 0.3),  // inner glow
-    0 0 30px rgba(229, 9, 20, 0.2),  // middle fade
-    0 0 50px rgba(229, 9, 20, 0.1);   // outer smooth fade
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(40, 40, 40, 0.1) 0%, rgba(80, 80, 80, 0.25) 100%);
+ box-shadow:
+      0 16px 48px 0 rgba(0, 0, 0, 0.55),    // deeper black shadow
+      0 4px 16px 0 rgba(0, 0, 0, 0.65),     // secondary black shadow
+      0 2px 8px rgba(229, 9, 20, 0.18);     // subtle red accent
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  transition: box-shadow 0.3s, background 0.3s;
 }
-
 // Styled input fields for the glassmorphism card
 .card-glassmorphism__input {
   background: rgba(255, 255, 255, 0.1);

@@ -1,25 +1,14 @@
-import React, { Fragment, useState } from "react";
-import {
-  Col,
-  Container,
-  Form,
-  Row,
-  Button,
-  Alert,
-  Image,
-  Card,
-} from "react-bootstrap";
+import React, { useState } from "react";
+import { Form, Button, Alert } from "react-bootstrap";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { Formik, Field, Form as FormikForm, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
-import { RootState } from "@/store";
 import { publicApi } from "@/lib/axiosInterceptor";
 import { useMyContext } from "@/Context/MyContextProvider";
+import AuthLayout from "@/layouts/AuthLayout";
 import { Home } from "lucide-react";
-// Import your SCSS module if you are using CSS Modules, 
-// otherwise, ensure it's imported globally.
 
 // Validation Schema using Yup
 const LoginSchema = Yup.object().shape({
@@ -79,111 +68,83 @@ const Login = () => {
   };
 
   return (
-    <Fragment>
-      <main className="main-content">
-        <div
-          className="vh-100"
-          style={{
-            backgroundImage: "url(/assets/images/pages/01.webp)",
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            position: "relative",
-            minHeight: "500px",
-          }}
-        >
-          <Container>
-            <Row className="justify-content-center align-items-center height-self-center vh-100">
-              <Col lg="5" md="12" className="align-self-center">
-                <Card className="user-login-card p-4 card-glassmorphism">
-                  <div className="text-center mb-3">
-                    <Image
-                      height={150}
-                      src={systemSetting?.auth_logo || "/path/to/default/logo.png"}
-                      alt="Logo"
-                    />
-                  </div>
-                  <Formik
-                    initialValues={{
-                      email: "",
-                      rememberMe: false,
-                    }}
-                    validationSchema={LoginSchema}
-                    onSubmit={handleLogin}
-                  >
-                    {({ isSubmitting, errors, touched }) => (
-                      <FormikForm noValidate>
-                        <h4 className="text-center mb-4 text-white">Login</h4>
-                        {error && <Alert variant="primary">{error}</Alert>}
-                        <Form.Group className="mb-3">
-                          <Form.Label className="text-white fw-500 mb-2">
-                            Username or Email Address
-                          </Form.Label>
-                          <Field
-                            name="email"
-                            type="text"
-                            as={Form.Control}
-                            placeholder="Enter your username or email"
-                            className={`rounded-0 card-glassmorphism__input ${
-                              errors.email && touched.email ? "is-invalid" : ""
-                            }`}
-                          />
-                          <ErrorMessage
-                            name="email"
-                            component="div"
-                            className="invalid-feedback"
-                          />
-                        </Form.Group>
-                        <Form.Group className="mb-3 d-flex justify-content-between align-items-center">
-                          <Field
-                            as={Form.Check}
-                            type="checkbox"
-                            name="rememberMe"
-                            id="rememberMe"
-                            className="card-glassmorphism__checkbox"
-                            label={
-                              <span className="text-white fw-500">
-                                Remember Me
-                              </span>
-                            }
-                          />
-                          <Button
-                            onClick={() => router.push("/")}
-                            className="d-flex align-items-center px-3 py-2 btn-glow"
-                          >
-                            <Home size={16} className="me-1" />
-                            Home
-                          </Button>
-                        </Form.Group>
-                        <div className="full-button">
-                          <Button
-                            type="submit"
-                            className="btn text-uppercase position-relative w-100"
-                            disabled={isSubmitting || loading}
-                          >
-                            <span className="button-text">
-                              {isSubmitting || loading
-                                ? "Processing..."
-                                : "Next"}
-                            </span>
-                            <i className="fa-solid fa-play ms-2"></i>
-                          </Button>
-                        </div>
-                      </FormikForm>
-                    )}
-                  </Formik>
-                  <p className="my-4 text-center fw-500 text-white">
-                    New to Streamit?{" "}
-                    <Link href="/auth/sign-up" className="text-primary ms-1">
-                      Register
-                    </Link>
-                  </p>
-                </Card>
-              </Col>
-            </Row>
-          </Container>
-        </div>
-      </main>
-    </Fragment>
+    <AuthLayout>
+      <Formik
+        initialValues={{
+          email: "",
+          rememberMe: false,
+        }}
+        validationSchema={LoginSchema}
+        onSubmit={handleLogin}
+      >
+        {({ isSubmitting, errors, touched }) => (
+          <FormikForm noValidate>
+            <h4 className="text-center mb-4 text-white">Login</h4>
+            {error && <Alert variant="primary">{error}</Alert>}
+            <Form.Group className="mb-3">
+              <Form.Label className="text-white fw-500 mb-2">
+                Username or Email Address
+              </Form.Label>
+              <Field
+                name="email"
+                type="text"
+                as={Form.Control}
+                placeholder="Enter your username or email"
+                className={`rounded-0 card-glassmorphism__input ${
+                  errors.email && touched.email ? "is-invalid" : ""
+                }`}
+              />
+              <ErrorMessage
+                name="email"
+                component="div"
+                className="invalid-feedback"
+              />
+            </Form.Group>
+            <Form.Group className="mb-3 d-flex justify-content-between align-items-center">
+              <Field
+                as={Form.Check}
+                type="checkbox"
+                name="rememberMe"
+                id="rememberMe"
+                className="card-glassmorphism__checkbox"
+                label={
+                  <span className="text-white fw-500">
+                    Remember Me
+                  </span>
+                }
+              />
+              <Button
+                onClick={() => router.push("/")}
+                className="d-flex align-items-center px-3 py-2 btn-glow"
+              >
+                <Home size={16} className="me-1" />
+                Home
+              </Button>
+            </Form.Group>
+            <div className="full-button">
+              <Button
+                type="submit"
+                className="btn text-uppercase position-relative w-100"
+                disabled={isSubmitting || loading}
+              >
+                <span className="button-text">
+                  {isSubmitting || loading
+                    ? "Processing..."
+                    : "Next"}
+                </span>
+                <i className="fa-solid fa-play ms-2"></i>
+              </Button>
+            </div>
+          </FormikForm>
+        )}
+      </Formik>
+      <p className="my-4 text-center fw-500 text-white">
+        New to Streamit?{" "}
+        <Link href="/auth/sign-up" className="text-primary ms-1">
+          Register
+        </Link>
+      </p>
+    </AuthLayout>
   );
 };
 
