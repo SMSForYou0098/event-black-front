@@ -47,7 +47,7 @@ const LostPassword = () => {
                   <p className="text-white text-center mb-4">
                     Please enter your username or email address. You will receive a link to create a new password via email.
                   </p>
-                   {error && <Alert variant="danger">{error}</Alert>}
+                   {error && <Alert variant="primary">{error}</Alert>}
                   {success && <Alert variant="success">{success}</Alert>}
                   <Form onSubmit={handleSubmit}>
                     <Form.Group className='mb-3'>

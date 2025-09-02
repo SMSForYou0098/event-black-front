@@ -1,4 +1,4 @@
-import React, { Fragment, memo } from "react";
+import React, { Fragment, memo, useState } from "react";
 
 // react-bootstrap
 import { Container, Row, Col, Tab, Nav, Form, Button, Card, Badge, ListGroup, Table } from "react-bootstrap";
@@ -7,11 +7,15 @@ import { useMyContext } from "@/Context/MyContextProvider";
 // next/link
 import Link from 'next/link';
 import { Ticket } from "lucide-react";
+import LoginModal from "../auth/LoginModal";
+import { useRouter } from "next/router";
 
 const EventDetailPage = memo(({ eventData, event_key }) => {
 
     // --- Data Processing ---
     const [startDate, endDate] = eventData?.date_range?.split(',') || [];
+      const [showLoginModal, setShowLoginModal] = useState(false);
+    const router = useRouter();
     const {isLoggedIn} = useMyContext();
     const tickets = eventData?.tickets?.map((ticket) => ({
         id: ticket.id,
@@ -21,7 +25,13 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
         onSale: ticket.sale === 1,
         soldOut: ticket.sold_out === 1,
     })) || [];
-
+const handleBookNow = () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+    } else {
+      router.push(`/events/process/${event_key}`);
+    }
+  };
 
 
     return (
@@ -29,6 +39,13 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
             <div className="section-padding-top product-detail py-4">
                 <Container>
                     <Row>
+      {/* Login Modal */}
+      <LoginModal
+        show={showLoginModal} 
+        onHide={() => setShowLoginModal(false)} 
+        eventKey={event_key}
+        redirectPath={`/events/process/${event_key}`}
+      />
                         <Col lg="6" md="12" className="mb-4 mb-lg-0">
                             {/* --- Single Event Image --- */}
                             <div className="product-image-container">
@@ -116,13 +133,14 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
                             
                             {/* Single Book Now Button */}
                             <div className="text-center mt-4">
-                                <Link href={`/events/${event_key}/process`} passHref legacyBehavior>
-                                    <a className="btn btn-primary btn-lg px-5 py-3">
-                                        <span className="me-2">Book Now</span>
-                                        <i className="fa-solid fa-arrow-right"></i>
-                                    </a>
-                                </Link>
-                            </div>
+        <Button 
+          onClick={handleBookNow}
+          className="btn btn-primary btn-lg px-5 py-3"
+        >
+          <span className="me-2">Book Now</span>
+          <i className="fa-solid fa-arrow-right"></i>
+        </Button>
+      </div>
                         </Col>
                     </Row>
 
@@ -158,7 +176,7 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
                                 </Nav>
                                 
                                 <Tab.Content className="tab-content">
-                                    <Tab.Pane eventKey="description" className="p-4 bg-secondary rounded">
+                                    <Tab.Pane eventKey="description" className="p-4  rounded">
                                         <Row>
                                             <Col md="12">
                                                 <Card className="border-0 shadow-sm">
@@ -171,7 +189,7 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
                                         </Row>
                                     </Tab.Pane>
                                     
-                                    <Tab.Pane eventKey="additional-info" className="p-4 bg-secondary rounded">
+                                    <Tab.Pane eventKey="additional-info" className="p-4  rounded">
                                         <Row className="g-3">
                                             <Col md="6">
                                                 <Card className="border-0 shadow-sm">
@@ -223,7 +241,7 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
                                         </Row>
                                     </Tab.Pane>
                                     
-                                    <Tab.Pane eventKey="organizer" className="p-4 bg-secondary rounded">
+                                    <Tab.Pane eventKey="organizer" className="p-4  rounded">
                                         <Card className="border-0 shadow-sm">
                                             <Card.Body>
                                                 <h4 className="text-primary mb-4">
@@ -264,7 +282,7 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
                                         </Card>
                                     </Tab.Pane>
                                     
-                                    <Tab.Pane eventKey="terms" className="p-4 bg-secondary rounded">
+                                    <Tab.Pane eventKey="terms" className="p-4  rounded">
   <Card className="border-0 shadow-sm">
     <Card.Body>
       <h4 className="text-primary mb-4">

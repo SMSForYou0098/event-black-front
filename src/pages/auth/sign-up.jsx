@@ -94,7 +94,7 @@ const SignUp = () => {
                   <h4 className='text-center mb-5 text-white'>Create Your Account</h4>
                    {error && (
                        <div>
-                           <Alert variant="danger">{error}</Alert>
+                           <Alert variant="primary">{error}</Alert>
                        </div>
                    )}
                   <Form noValidate validated={validated} onSubmit={handleSubmit}>

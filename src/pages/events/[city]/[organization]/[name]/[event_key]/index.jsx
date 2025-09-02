@@ -1,12 +1,12 @@
 import { useRouter } from 'next/router';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getEventById } from '../../../../../../../services/events';
-import EventDetailPage from '../../../../../../../components/events/EventDetailPage';
+import { getEventById } from '../../../../../../services/events';
+import EventDetailPage from '../../../../../../components/events/EventDetailPage';
 
 const EventbyId = () => {
   const router = useRouter();
-  const { event_key } = router.query;
+  const { city, event_key } = router.query;
 
   const {
     data: event,    // Renamed 'data' to 'event' for clarity

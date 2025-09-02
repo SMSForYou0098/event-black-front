@@ -47,7 +47,7 @@ const BestOfInternationalShows = memo(()=> {
             title={data.name}
             movieTime={data.date_range}
             watchlistLink="/play-list"
-            link={`/events/by-city/${createSlug(data?.city)}/${createSlug(
+            link={`/events/${createSlug(data?.city)}/${createSlug(
               data?.user?.organisation
             )}/${createSlug(data?.name)}/${data?.event_key}`}
             lowest_ticket_price={data.lowest_ticket_price}

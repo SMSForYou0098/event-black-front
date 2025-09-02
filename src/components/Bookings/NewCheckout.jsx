@@ -2,7 +2,7 @@ import React, { useState, memo, Fragment, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button, Row, Image, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
-import confirmImage from "../../../../../assets/event/stock/confirm.gif";
+import confirmImage from "../../assets/event/stock/confirm.gif"; //done
 import axios from "axios";
 import { useMyContext } from "@/Context/MyContextProvider"; //done
 

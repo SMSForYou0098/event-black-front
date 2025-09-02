@@ -113,7 +113,7 @@ const Login = () => {
                     {({ isSubmitting, errors, touched }) => (
                       <FormikForm noValidate>
                         <h4 className="text-center mb-4 text-white">Login</h4>
-                        {error && <Alert variant="danger">{error}</Alert>}
+                        {error && <Alert variant="primary">{error}</Alert>}
                         <Form.Group className="mb-3">
                           <Form.Label className="text-white fw-500 mb-2">
                             Username or Email Address

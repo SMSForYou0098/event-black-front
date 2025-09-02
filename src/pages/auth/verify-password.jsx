@@ -75,13 +75,13 @@ const VerifyPassword = memo(() => {
                     <Container>
                         <Row className='justify-content-center align-items-center height-self-center vh-100'>
                             <Col lg="5" md="12" className='align-self-center'>
-                                <Card className="user-login-card bg-body">
+                                <Card className="user-login-card bg-body card-glassmorphism">
                                     <Card.Body className="p-4 p-md-5">
                                         <div className="mb-4 text-center">
                                             <h2 className="text-dark mb-3">Enter Password</h2>
                                             <p>Enter your password for {data}</p>
                                         </div>
-                                         {error && <Alert variant="danger">{error}</Alert>}
+                                         {error && <Alert variant="primary">{error}</Alert>}
                                         <Form.Group className="mb-4">
                                             <Form.Label htmlFor="password-field">Password</Form.Label>
                                             {/* --- REPLACED WITH PasswordField COMPONENT --- */}

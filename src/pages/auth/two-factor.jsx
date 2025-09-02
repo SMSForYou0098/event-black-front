@@ -107,7 +107,7 @@ const TwoFactor = memo(() => {
                                         <h2 className="text-white mb-3">Two-Factor Verification</h2>
                                         <p className="text-white-75">Enter the 6-digit OTP sent to your device.</p>
                                     </div>
-                                    {error && <Alert variant="danger">{error}</Alert>}
+                                    {error && <Alert variant="primary">{error}</Alert>}
                                     <Form.Group className="mb-4">
                                         {/* Applied the input style */}
                                         <Form.Control
