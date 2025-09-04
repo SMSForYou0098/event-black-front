@@ -99,6 +99,7 @@ const BookingTickets = ({ cartItems, onQuantityChange, isMobile }) => {
                 price={item?.sale === 1 ? item?.sale_price : item?.price}
                 limit={10}
                 ticketID={item.id}
+                selectedTickets={selectedTickets}
               />
             </td>
             {!isMobile && (

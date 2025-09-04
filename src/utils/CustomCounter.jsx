@@ -18,8 +18,9 @@ const CustomCounter = memo((props) => {
     useEffect(() => {
         if (selectedTickets?.id === ticketID) {
             setCount(selectedTickets?.quantity || 0);
-        } else {
-            setCount(0);
+        } 
+        else {
+            // setCount();
         }
     }, [selectedTickets, ticketID]);
 
