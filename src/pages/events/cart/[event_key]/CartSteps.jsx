@@ -1,10 +1,12 @@
 import { ChevronRightCircle } from "lucide-react";
-const CartSteps = ({id}) => {
+const CartSteps = ({id,showAttendee}) => {
   const CART_STEPS = [
     { number: 1, title: "Cart", id: 1, active: id === 1 },
-    { number: 2, title: "Checkout", id: 2, active: id === 2 },
-    { number: 3, title: "Summary", id: 3, active: id === 3 },
+    ...(showAttendee ? [{ number: 2, title: "Attendee", id: 2, active: id === 2 }] : []),
+    { number: 3, title: "Checkout", id: 3, active: id === 3 },
+    { number: 4, title: "Summary", id: 4, active: id === 4 },
   ];
+ 
 
   const CartStep = ({ step, isLast }) => (
     <>
