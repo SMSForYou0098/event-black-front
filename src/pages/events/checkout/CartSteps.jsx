@@ -19,8 +19,8 @@ const CartSteps = ({id}) => {
         <span className="cart-page-link">{step.title}</span>
       </li>
       {!isLast && (
-        <li>
-          <ChevronRightCircle />
+        <li className="d-flex justify-content-center align-items-center">
+          <ChevronRightCircle size={20}/>
         </li>
       )}
     </>

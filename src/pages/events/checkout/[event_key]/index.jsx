@@ -11,42 +11,8 @@ import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFoo
 import { publicApi } from "@/lib/axiosInterceptor";
 import { useRouter } from "next/router";
 import CommonPricingComp from "../../../../components/Tickets/CommonPricingComp";
+import BookingTickets from "../../../../utils/BookingUtils/BookingTickets";
 
-const CartItem = ({ item, onQuantityChange, onDelete, isMobile }) => {
-  const subtotal = (item.price * item.quantity).toFixed(2);
-
-  const handleQuantityChange = useCallback(
-    (newQuantity) => {
-      onQuantityChange(item.id, newQuantity);
-    },
-    [item.id, onQuantityChange]
-  );
-
-  return (
-    <tr data-item="list">
-      <td>
-        <span className="fw-500 d-flex d-flex flex-column justify-content-start">
-          {item.name}
-          <span>Price : <CommonPricingComp price={item.price} salePrice={item.sale_price} currency={item.currency} /></span>
-        </span>
-      </td>
-      <td className={`${isMobile && "text-end"}`}>
-        <CustomCounter
-          value={item.quantity}
-          onChange={handleQuantityChange}
-          min={1}
-          max={99}
-        />
-      </td>
-      {!isMobile && (
-        <td>
-          <span className="fw-500">${subtotal}</span>
-        </td>
-      )}
-
-    </tr>
-  );
-};
 
 const CartPage = () => {
   const { event_key } = useRouter().query;
@@ -55,35 +21,37 @@ const CartPage = () => {
   const [couponCode, setCouponCode] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
-const FetchTickets = async () => {
-  if(!event_key) return;
-  
-  // Define only the fields you need
-  const requiredFields = [
-    'id',
-    'name', 
-    'price',
-    'sale_price',
-    'currency',
-    'ticket_quantity',
-    'sale',
-    'sold_out',
-    'status'
-  ];
-  
-  try {
-    const response = await publicApi.get(`/tickets/${event_key}`, {
-      params: {
-        fields: requiredFields.join(',')
-      }
-    });
-    // console.log(response);
-    const data = await response.data;
-    setCartItems(data.tickets);
-  } catch (error) {
-    console.error("Error fetching tickets:", error);
-  }
-};
+  const FetchTickets = async () => {
+    if (!event_key) return;
+
+    // Define only the fields you need
+    const requiredFields = [
+      'id',
+      'name',
+      'price',
+      'sale_price',
+      'currency',
+      'ticket_quantity',
+      'sale',
+      'sold_out',
+      'status',
+      'description',
+      'user_booking_limit'
+    ];
+
+    try {
+      const response = await publicApi.get(`/tickets/${event_key}`, {
+        params: {
+          fields: requiredFields.join(',')
+        }
+      });
+      // console.log(response);
+      const data = await response.data;
+      setCartItems(data.tickets);
+    } catch (error) {
+      console.error("Error fetching tickets:", error);
+    }
+  };
 
   useEffect(() => {
     FetchTickets();
@@ -177,36 +145,7 @@ const FetchTickets = async () => {
         <Row>
           {/* Cart Items */}
           <Col lg="8">
-            <Table responsive className="cart-table">
-              <thead className="border-bottom">
-                <tr>
-                  <th scope="col" className="font-size-18 fw-500">
-                    Title
-                  </th>
-                  <th
-                    scope="col"
-                    className={`font-size-18 fw-500 ${isMobile && "text-end"}`}
-                  >
-                    Quantity
-                  </th>
-                  {!isMobile && (
-                    <th scope="col" className={`font-size-18 fw-500`}>
-                      Subtotal
-                    </th>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {cartItems.map((item) => (
-                  <CartItem
-                    key={item.id}
-                    item={item}
-                    isMobile={isMobile}
-                    onQuantityChange={handleQuantityChange}
-                  />
-                ))}
-              </tbody>
-            </Table>
+            <BookingTickets cartItems={cartItems} onQuantityChange={handleQuantityChange} isMobile={isMobile} />
 
             {/* Coupon and Update Section */}
             {/* <div className="coupon-main d-flex justify-content-between gap-5 flex-wrap align-items-center pt-4 pb-5 border-bottom">
