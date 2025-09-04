@@ -3,7 +3,7 @@ import StickyBottom from "../StickyBottom";
 import { Button } from "react-bootstrap";
 import Link from "next/link";
 
-const BookingMobileFooter = ({}) => {
+const BookingMobileFooter = ({handleClick}) => {
   return (
     <StickyBottom>
       <div className="d-flex justify-content-between align-items-center">
@@ -15,6 +15,7 @@ const BookingMobileFooter = ({}) => {
         </div>
         <div className="nxt-btn">
           <Button
+            onClick={handleClick}
             className="btn-lg d-flex align-items-center justify-content-center gap-3"
           >
             Next

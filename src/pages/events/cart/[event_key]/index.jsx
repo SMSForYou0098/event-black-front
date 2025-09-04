@@ -166,7 +166,7 @@ const CartPage = () => {
                   </tbody>
                 </Table>
                 {isMobile ? (
-                  <BookingMobileFooter />
+                  <BookingMobileFooter handleClick={handleProcess} />
                 ) : (
                   <div className="button-primary">
                     {/* <CustomButton

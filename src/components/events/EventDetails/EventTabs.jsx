@@ -12,7 +12,7 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
   return (
     <div className="px-0">
       <div className="product-detail-tab" id="event-details">
-        <Tab.Container defaultActiveKey="description ">
+        <Tab.Container defaultActiveKey="description">
           <Nav
             variant="pills"
             className="iq-custom-tab tab-bg-gredient-center d-flex nav nav-pills align-items-center text-center mb-5 justify-content-center list-inline"

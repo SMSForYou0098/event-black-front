@@ -13,7 +13,7 @@ const EventMetaInfo = ({ metaInfo, event_key }) => {
   const handleContinue = () => {
     // Continue logic here (e.g., navigate to checkout)
     setShowOffcanvas(false);
-    router.push(`/events/checkout/${event_key}`);
+    router.push(`/events/cart/${event_key}`);
   };
 
   useEffect(() => {

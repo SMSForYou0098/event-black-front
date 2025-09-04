@@ -116,7 +116,7 @@ const HeaderDefault = memo(() => {
   // Book button handler
   const handleBookClick = () => {
     if (event_key) {
-      router.push(`/events/checkout/${event_key}`);
+      router.push(`/events/cart/${event_key}`);
     }
   };
 
