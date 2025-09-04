@@ -8,7 +8,7 @@ const CommonPricingComp = ({currency, isSale, price, salePrice }) => {
             {
                 isSale === 1 ?
                     <>
-                        <span className="mb-0 text-muted" style={{ textDecorationLine: 'line-through', textDecorationStyle: 'solid' }}>
+                        <span className="mb-0 text-muted me-1" style={{ textDecorationLine: 'line-through', textDecorationStyle: 'solid' }}>
                             {getCurrencySymbol(currency)+price}
                         </span>
                         <span className="mb-0">
