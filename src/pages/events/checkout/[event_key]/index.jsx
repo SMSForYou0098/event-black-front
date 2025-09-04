@@ -77,7 +77,7 @@ const FetchTickets = async () => {
         fields: requiredFields.join(',')
       }
     });
-    console.log(response);
+    // console.log(response);
     const data = await response.data;
     setCartItems(data.tickets);
   } catch (error) {

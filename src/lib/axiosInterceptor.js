@@ -1,56 +1,51 @@
-import { logout } from '@/store/auth/authSlice';
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout, signIn } from '@/store/auth/authSlice';
 import axios from 'axios';
+import { store } from "@/store"; // your Redux store
 
-const baseURL = process.env.NEXT_PUBLIC_API_PATH;
+const baseURL = process.env.NEXT_PUBLIC_API_PATH || 'https://jsonplaceholder.typicode.com';
 
-// --- Public API Instance ---
-// Use this for requests that DO NOT need authentication (e.g., login, signup, verify-user).
+// Public API instance
 export const publicApi = axios.create({
   baseURL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// --- Protected API Instance ---
-// Use this for all requests that need an authentication token.
+
 export const api = axios.create({
-  baseURL,
+  baseURL: process.env.NEXT_PUBLIC_API_PATH,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
-// --- Interceptor Setup ---
-// This function adds the interceptors ONLY to the protected `api` instance.
-export const setupInterceptors = (store) => {
-  // Request Interceptor: Adds the auth token to headers
-  api.interceptors.request.use(
-    (config) => {
-      const token = store.getState().auth.token;
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => Promise.reject(error)
-  );
-
-  // Response Interceptor: Handles 401 Unauthorized and other common errors
-  api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      const status = error.response?.status;
-
-      if (status === 401) {
-        console.warn('Unauthorized request. Logging out...');
-        store.dispatch(logout());
-      } else if (status === 429) {
-        console.error('Too many requests, please try again later.');
-        // Consider dispatching an action to show a notification to the user
-      }
-
-      return Promise.reject(error);
+// Add token to each request
+api.interceptors.request.use(
+  (config) => {
+    const token = store.getState().auth.token; // read token from Redux state
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-  );
-};
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Handle unauthorized + rate-limit responses
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    if (status === 401) {
+      // Unauthorized → log out
+      store.dispatch(logout());
+    } else if (status === 429) {
+      // Too Many Requests → notify user
+      console.error("Too many requests, please try again later.");
+      // You can also trigger a toast or global error handler
+      // e.g. showToast("Too many requests, please slow down.");
+    }
+    return Promise.reject(error);
+  }
+);

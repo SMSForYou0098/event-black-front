@@ -1,4 +1,4 @@
-import { api, publicApi } from "@/lib/axiosInterceptor";
+import  { api, publicApi } from "@/lib/axiosInterceptor";
 
 export interface Page {
   id: number;
