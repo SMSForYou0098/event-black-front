@@ -24,7 +24,7 @@ const CartPage = () => {
   const [couponCode, setCouponCode] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-
+  const router = useRouter();
 
   const {
     data: event,    // Renamed 'data' to 'event' for clarity
