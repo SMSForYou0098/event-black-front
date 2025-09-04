@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import type { NextPage } from 'next'
-import type { AppProps } from 'next/app'
 import 'swiper/css'
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -25,23 +23,15 @@ import AppContent from '@/lib/AppContent';
 import { MyContextProvider } from '@/Context/MyContextProvider';
 import { Toaster } from 'react-hot-toast';
 
-const layouts: any = {
+const layouts = {
   "Blank": Blank,
   "Frontend": Frontend,
   "Merchandise": Merchandise
 };
 
-export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-  layout: string
-}
-
-type AppPropsWithLayout = AppProps & {
-  Component: NextPageWithLayout
-}
-
-export default function App({ Component, ...rest }: AppPropsWithLayout) {
+export default function App({ Component, ...rest }) {
   const layoutName = layouts[Component.layout] || layouts['Frontend']
-  const Layout = layoutName || ((children: any) => <>{children}</>);
+  const Layout = layoutName || ((children) => <>{children}</>);
   const { store, props } = wrapperStore.useWrappedStore(rest);
   const { pageProps } = props;
 
@@ -59,7 +49,7 @@ export default function App({ Component, ...rest }: AppPropsWithLayout) {
     // Provide the query client to your entire app
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        <PersistGate loading={null} persistor={(store as any).__persistor}>
+        <PersistGate loading={null} persistor={store.__persistor}>
           <MyContextProvider>
             <AppLayout>
               <AppContent>
@@ -74,8 +64,7 @@ export default function App({ Component, ...rest }: AppPropsWithLayout) {
       </Provider>
 
       {/* The Devtools are great for debugging! */}
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   )
 }
-

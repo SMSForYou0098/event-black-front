@@ -4,8 +4,8 @@ import React, { useState, memo, Fragment } from 'react'
 //React-bootstrap
 import { Button } from 'react-bootstrap'
 
-const Counter = memo(() => {
-    const [counter, setCount] = useState(2);
+const CustomCounter = memo(() => {
+    const [counter, setCount] = useState(0);
     const increase = () => setCount(counter + 1);
     const decrease = () => setCount((counter > 0) ? counter - 1 : 0);
     return (
@@ -23,5 +23,5 @@ const Counter = memo(() => {
     )
 })
 
-Counter.displayName = "Counter"
-export default Counter
+CustomCounter.displayName = "CustomCounter"
+export default CustomCounter

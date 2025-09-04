@@ -14,7 +14,7 @@ import CheckUserMailComp from "../../User/CheckUserMailComp";
 import DuolicateAttendeeError from "./OrderComps/DuplicateAttendeeError";
 import { checkForDuplicateAttendees, sanitizeData, sanitizeInput, validateAttendeeData } from "../../CustomComponents/AttendeeStroreUtils";
 import { cancelToken } from "../../CustomUtils/Consts";
-import ExpiredEvent from "./ExpiredEvent"; 
+import ExpiredEvent from "./ExpiredEvent";
 
 const NewChekout = memo(() => {
     const { api, UserData, isMobile, authToken, formateTemplateTime, ErrorAlert, convertTo12HourFormat, formatDateRange, successAlert, getCurrencySymbol, showLoading, fetchCategoryData, loader, systemSetting } = useMyContext();
@@ -30,7 +30,7 @@ const NewChekout = memo(() => {
     };
     const [event, setEvent] = useState([]);
     const [selectedTickets, setSelectedTickets] = useState();
-    const [ticketType,setTicketType] = useState('');
+    const [ticketType, setTicketType] = useState('');
     const [bookingHistory, setBookingHistory] = useState([]);
     const [ticketData, setTicketData] = useState();
     const [code, setCode] = useState('');
@@ -61,11 +61,11 @@ const NewChekout = memo(() => {
     const [discountType, setDiscountType] = useState();
     const [isExpired, setIsExpired] = useState(false);
     const [tikcets, setTikcets] = useState([]);
-    const [isProceed,setIsProceed] = useState(false)
+    const [isProceed, setIsProceed] = useState(false)
     const [convenienceFees, setConvenienceFees] = useState(0);
     const [taxData, setTaxData] = useState(null);
     const [commissionData, setCommissionData] = useState(null);
-    
+
     const getTicketData = async () => {
         setLoading(true);
         await axios.get(`${api}event-detail/${id}`, {
@@ -200,86 +200,86 @@ const NewChekout = memo(() => {
         setCode('')
     };
 
-// const fetchChargesData = async () => {
-//   try {
-//     // 1. Get GST
-//     const taxRes = await axios.get(`${api}taxes/1`, {
-//       headers: { 'Authorization': 'Bearer ' + authToken }
-//     });
-//     setTaxData(taxRes.data?.taxes || null);
+    // const fetchChargesData = async () => {
+    //   try {
+    //     // 1. Get GST
+    //     const taxRes = await axios.get(`${api}taxes/1`, {
+    //       headers: { 'Authorization': 'Bearer ' + authToken }
+    //     });
+    //     setTaxData(taxRes.data?.taxes || null);
 
-//     // 2. Get Commission
-//     const commRes = await axios.get(`${api}commissions/1`, {
-//       headers: { 'Authorization': 'Bearer ' + authToken }
-//     });
-//     setCommissionData(commRes.data?.commission || null);
-//   } catch (error) {
-//     console.error("Error fetching tax/commission data:", error);
-//   }
-// };
+    //     // 2. Get Commission
+    //     const commRes = await axios.get(`${api}commissions/1`, {
+    //       headers: { 'Authorization': 'Bearer ' + authToken }
+    //     });
+    //     setCommissionData(commRes.data?.commission || null);
+    //   } catch (error) {
+    //     console.error("Error fetching tax/commission data:", error);
+    //   }
+    // };
 
-// const calculateCharges = () => {
-//   if (!taxData || !commissionData) return;
+    // const calculateCharges = () => {
+    //   if (!taxData || !commissionData) return;
 
-//   const quantity = Number(selectedTickets?.quantity) || 0;
-//   const price = Number(selectedTickets?.price) || 0;
+    //   const quantity = Number(selectedTickets?.quantity) || 0;
+    //   const price = Number(selectedTickets?.price) || 0;
 
-//   if (quantity <= 0 || price <= 0) {
-//     // Reset everything if no tickets selected
-//     setCentralGST(0);
-//     setStateGST(0);
-//     setConvenienceFees(0);
-//     return;
-//   }
+    //   if (quantity <= 0 || price <= 0) {
+    //     // Reset everything if no tickets selected
+    //     setCentralGST(0);
+    //     setStateGST(0);
+    //     setConvenienceFees(0);
+    //     return;
+    //   }
 
-//   const ticketTotal = price * quantity;
+    //   const ticketTotal = price * quantity;
 
-//   // GST Calculation
-//   let gstValue = Number(taxData.rate) || 0;
-//   if (taxData.rate_type === "Percentage") {
-//     gstValue = (ticketTotal * gstValue) / 100;
-//   } else if (taxData.rate_type === "Fixed") {
-//     gstValue = gstValue * quantity; // fixed per ticket
-//   }
-//   const halfGST = gstValue / 2;
-//   setCentralGST(halfGST);
-//   setStateGST(halfGST);
+    //   // GST Calculation
+    //   let gstValue = Number(taxData.rate) || 0;
+    //   if (taxData.rate_type === "Percentage") {
+    //     gstValue = (ticketTotal * gstValue) / 100;
+    //   } else if (taxData.rate_type === "Fixed") {
+    //     gstValue = gstValue * quantity; // fixed per ticket
+    //   }
+    //   const halfGST = gstValue / 2;
+    //   setCentralGST(halfGST);
+    //   setStateGST(halfGST);
 
-//   // Commission Calculation
-//   let commissionValue = Number(commissionData.commission_rate) || 0;
-//   if (commissionData.commission_type === "Percentage") {
-//     commissionValue = (ticketTotal * commissionValue) / 100;
-//   } else if (commissionData.commission_type === "Fixed") {
-//     commissionValue = commissionValue * quantity; // fixed per ticket
-//   }
-//   setConvenienceFees(commissionValue);
-// };
+    //   // Commission Calculation
+    //   let commissionValue = Number(commissionData.commission_rate) || 0;
+    //   if (commissionData.commission_type === "Percentage") {
+    //     commissionValue = (ticketTotal * commissionValue) / 100;
+    //   } else if (commissionData.commission_type === "Fixed") {
+    //     commissionValue = commissionValue * quantity; // fixed per ticket
+    //   }
+    //   setConvenienceFees(commissionValue);
+    // };
 
 
-// // ✅ Fetch data only once
-// useEffect(() => {
-//   fetchChargesData();
-// }, []);
+    // // ✅ Fetch data only once
+    // useEffect(() => {
+    //   fetchChargesData();
+    // }, []);
 
-// // ✅ Recalculate only when quantity/price changes
-// useEffect(() => {
-//   calculateCharges();
-// }, [selectedTickets, taxData, commissionData]);
+    // // ✅ Recalculate only when quantity/price changes
+    // useEffect(() => {
+    //   calculateCharges();
+    // }, [selectedTickets, taxData, commissionData]);
 
     useEffect(() => {
         // if (subtotal) {
-            let baseAmount = subtotal;
-            setBaseAmount(baseAmount);
+        let baseAmount = subtotal;
+        setBaseAmount(baseAmount);
 
-            // let centralGST = baseAmount * 9 / 100;
-            let centralGST = 0;
-            // let stateGST = baseAmount * 9 / 100;
-            let stateGST = 0;
-            setCentralGST(centralGST);
-            setStateGST(stateGST);
+        // let centralGST = baseAmount * 9 / 100;
+        let centralGST = 0;
+        // let stateGST = baseAmount * 9 / 100;
+        let stateGST = 0;
+        setCentralGST(centralGST);
+        setStateGST(stateGST);
 
-            let tax = centralGST + stateGST;
-            setTotalTax(tax > 0 ? tax?.toFixed(2) : 0);
+        let tax = centralGST + stateGST;
+        setTotalTax(tax > 0 ? tax?.toFixed(2) : 0);
         // }
 
         // Apply discount as a percentage if a discount is present
@@ -302,9 +302,9 @@ const NewChekout = memo(() => {
             setTotalDiscount(discountAmount)
             setGrandTotal(total > 0 ? total.toFixed(2) : '0.00');
         }
-        else{
+        else {
             // setGrandTotal(subtotal > 0 ? subtotal.toFixed(2) : '0.00');
-            setGrandTotal(subtotal );
+            setGrandTotal(subtotal);
         }
     }, [subtotal, totalTax, discount, discountType]);
 
@@ -560,26 +560,26 @@ const NewChekout = memo(() => {
         }
     };
 
-const checkTicketStatus = async () => {
-    try {
-        const response = await axios.get(`${api}user-ticket-info/${UserData.id}/${selectedTickets.id}`, {
-            headers: {
-                Authorization: `Bearer ${authToken}`
-            }
-        });
+    const checkTicketStatus = async () => {
+        try {
+            const response = await axios.get(`${api}user-ticket-info/${UserData.id}/${selectedTickets.id}`, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`
+                }
+            });
 
-        if (!response.data.status) {
-            // Show the actual message from the API
-            ErrorAlert(response.data.message || 'You have already booked this ticket. Please check your booking history.');
+            if (!response.data.status) {
+                // Show the actual message from the API
+                ErrorAlert(response.data.message || 'You have already booked this ticket. Please check your booking history.');
+                return false;
+            }
+            return true; // allowed
+        } catch (error) {
+            console.error('Error checking ticket status:', error);
+            ErrorAlert('Unable to check ticket status. Please try again.');
             return false;
         }
-        return true; // allowed
-    } catch (error) {
-        console.error('Error checking ticket status:', error);
-        ErrorAlert('Unable to check ticket status. Please try again.');
-        return false;
-    }
-};
+    };
 
 
     const handlePayment = async () => {
@@ -591,31 +591,31 @@ const checkTicketStatus = async () => {
             return ErrorAlert('Please select a ticket first');
         }
 
-    if (categoryData?.categoryData?.attendy_required === 1) {
-        if (!attendeeState) {
-            setIsAttendeeRequired(false);
-            setDisable(true);
+        if (categoryData?.categoryData?.attendy_required === 1) {
+            if (!attendeeState) {
+                setIsAttendeeRequired(false);
+                setDisable(true);
 
-            // ✅ Check ticket status before proceeding
-            const canProceed = await checkTicketStatus();
-            if (!canProceed) {
-                setDisable(false);
-                return;
-            };
+                // ✅ Check ticket status before proceeding
+                const canProceed = await checkTicketStatus();
+                if (!canProceed) {
+                    setDisable(false);
+                    return;
+                };
 
-            setAttendeeState(true);
+                setAttendeeState(true);
+            } else {
+                await HandleAttendeeSubmit();
+            }
         } else {
-            await HandleAttendeeSubmit();
-        }
-    } else {
-        // ✅ Check ticket status before booking
-        const canProceed = await checkTicketStatus();
-        if (!canProceed) return;
+            // ✅ Check ticket status before booking
+            const canProceed = await checkTicketStatus();
+            if (!canProceed) return;
 
-        const loader = showLoading('Payment');
-        await ProcessBooking(loader);
-    }
-};
+            const loader = showLoading('Payment');
+            await ProcessBooking(loader);
+        }
+    };
 
     const handleBooking = async () => {
         setLoading(true);
@@ -633,7 +633,7 @@ const checkTicketStatus = async () => {
             }
             if (sessionId && payment_status === 'success') {
                 try {
-                    
+
                     const isAmuseMentPark = booking_category === 'Amusement'
                     const url = isAmuseMentPark ? `${api}verify-amusement-booking` : `${api}verify-booking`;
                     const res = await axios.post(url, { session_id: sessionId }, {
@@ -648,19 +648,19 @@ const checkTicketStatus = async () => {
                     }
                 } catch (err) {
                     Swal.fire({
-                html: `
+                        html: `
                     <div style="text-align: center; margin-bottom: 0;">
                     <img src="${paymentFailedLoader}" style="width: 220px; height: auto; display: block; margin: 0 auto 0.5rem auto;" />
                     </div>
                 `,
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                showConfirmButton: true,
-                customClass: {
-                    htmlContainer: 'swal2-html-container-custom',
-                    actions: 'swal2-actions-custom'
-                }
-                });
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                        customClass: {
+                            htmlContainer: 'swal2-html-container-custom',
+                            actions: 'swal2-actions-custom'
+                        }
+                    });
 
                 }
             }
@@ -678,7 +678,7 @@ const checkTicketStatus = async () => {
                     htmlContainer: 'swal2-html-container-custom',
                     actions: 'swal2-actions-custom'
                 }
-                });
+            });
 
         } finally {
             setLoading(false);
@@ -796,20 +796,20 @@ const checkTicketStatus = async () => {
             // API call logic in function so it can be retried
             const initiatePayment = async () => {
                 const response = await axios.post(
-            `${api}initiate-payment`,
-            formData,
-            {
-                headers: { 'Authorization': 'Bearer ' + authToken },
-                cancelToken: cancelToken
-            }
-        );
+                    `${api}initiate-payment`,
+                    formData,
+                    {
+                        headers: { 'Authorization': 'Bearer ' + authToken },
+                        cancelToken: cancelToken
+                    }
+                );
 
-        AttendyView?.();
-        setAttendeeState?.(false);
-        setIsProceed(false)
+                AttendyView?.();
+                setAttendeeState?.(false);
+                setIsProceed(false)
 
-        return response;
-            };  
+                return response;
+            };
 
             // // Show alert before hitting API
             // if(selectedTickets?.price !== 0){
@@ -819,7 +819,7 @@ const checkTicketStatus = async () => {
             let response;
             try {
                 response = await initiatePayment();
-                
+
             } catch (error) {
                 console.warn('Initial payment initiation failed, retrying...');
                 try {
@@ -857,36 +857,36 @@ const checkTicketStatus = async () => {
                 };
                 localStorage.setItem('ticketSession', JSON.stringify(sessionData));
 
-                const paymentUrl = response.data?.url ;
+                const paymentUrl = response.data?.url;
                 // const paymentUrl = response.data?.url || response.data.payment_url;
-                
+
                 const orderData = response.data;
-                    const openCheckout = () => {
+                const openCheckout = () => {
                     const options = {
-                    key: orderData.key,
-                    amount: orderData.amount,
-                    currency: orderData.currency,
-                    name: `${systemSetting?.app_name}`,
-                    description: "Ticket Booking",
-                    order_id: orderData.order_id,
-                    prefill: orderData.prefill,
-                    callback_url: orderData.callback_url,
-                    theme: {
-                        color: '#481fa8',
-                    },
+                        key: orderData.key,
+                        amount: orderData.amount,
+                        currency: orderData.currency,
+                        name: `${systemSetting?.app_name}`,
+                        description: "Ticket Booking",
+                        order_id: orderData.order_id,
+                        prefill: orderData.prefill,
+                        callback_url: orderData.callback_url,
+                        theme: {
+                            color: '#481fa8',
+                        },
                     };
-                
+
                     const rzp = new window.Razorpay(options);
                     rzp.open();
                 };
                 // const paymentUrl = response.data?.url || response.data?.payment_url;
-                if(response.data.callback_url){
+                if (response.data.callback_url) {
                     openCheckout();
                     return
                 }
                 if (paymentUrl) {
                     window.location.href = paymentUrl;
-                } 
+                }
                 // else {
                 //     setError('Payment URL missing from response.');
                 //     ErrorAlert('Payment URL missing from response.');
@@ -960,51 +960,51 @@ const checkTicketStatus = async () => {
                         }
 
                         {isExpired ?
-                                <div className="d-flex flex-column justify-content-center align-items-center" style={{ height: '50vh' }}>
-                                    <ExpiredEvent />
-                                </div>
-                                :
-                                isCheckOut &&
-                                <CheckOutData
-                                    bookingdate={selectedDate}
-                                    isAgent={false}
-                                    loading={loading}
-                                    getAttendees={getSelectedAttendees}
-                                    categoryData={categoryData}
-                                    setDisable={setDisable}
-                                    disable={disable}
-                                    setAttendees={setAttendees}
-                                    AttendyView={AttendyView}
-                                    attendeeState={attendeeState}
-                                    setAttendeeState={setAttendeeState}
-                                    event={event}
-                                    tickets={tikcets}
-                                    selectedTickets={selectedTickets}
-                                    currentStep={currentStep}
-                                    error={error}
-                                    isMobile={isMobile}
-                                    resetCounterTrigger={resetCounterTrigger}
-                                    getTicketCount={getTicketCount}
-                                    getCurrencySymbol={getCurrencySymbol}
-                                    code={code}
-                                    setCode={setCode}
-                                    applyPromode={applyPromode}
-                                    discount={discount}
-                                    appliedPromoCode={appliedPromoCode}
-                                    ticketCurrency={ticketCurrency}
-                                    subtotal={subtotal}
-                                    convenienceFees={convenienceFees}
-                                    handleRemovePromocode={handleRemovePromocode}
-                                    totalDiscount={totalDiscount}
-                                    baseAmount={baseAmount}
-                                    centralGST={centralGST}
-                                    totalTax={totalTax}
-                                    grandTotal={grandTotal}
-                                    handlePayment={handlePayment}
-                                    isAttendeeRequired={isAttendeeRequired}
-                                    isProceed={isProceed}
-                                    setIsProceed={setIsProceed}
-                                />
+                            <div className="d-flex flex-column justify-content-center align-items-center" style={{ height: '50vh' }}>
+                                <ExpiredEvent />
+                            </div>
+                            :
+                            isCheckOut &&
+                            <CheckOutData
+                                bookingdate={selectedDate}
+                                isAgent={false}
+                                loading={loading}
+                                getAttendees={getSelectedAttendees}
+                                categoryData={categoryData}
+                                setDisable={setDisable}
+                                disable={disable}
+                                setAttendees={setAttendees}
+                                AttendyView={AttendyView}
+                                attendeeState={attendeeState}
+                                setAttendeeState={setAttendeeState}
+                                event={event}
+                                tickets={tikcets}
+                                selectedTickets={selectedTickets}
+                                currentStep={currentStep}
+                                error={error}
+                                isMobile={isMobile}
+                                resetCounterTrigger={resetCounterTrigger}
+                                getTicketCount={getTicketCount}
+                                getCurrencySymbol={getCurrencySymbol}
+                                code={code}
+                                setCode={setCode}
+                                applyPromode={applyPromode}
+                                discount={discount}
+                                appliedPromoCode={appliedPromoCode}
+                                ticketCurrency={ticketCurrency}
+                                subtotal={subtotal}
+                                convenienceFees={convenienceFees}
+                                handleRemovePromocode={handleRemovePromocode}
+                                totalDiscount={totalDiscount}
+                                baseAmount={baseAmount}
+                                centralGST={centralGST}
+                                totalTax={totalTax}
+                                grandTotal={grandTotal}
+                                handlePayment={handlePayment}
+                                isAttendeeRequired={isAttendeeRequired}
+                                isProceed={isProceed}
+                                setIsProceed={setIsProceed}
+                            />
                         }
                         {
                             currentStep === 'orderSummary' &&

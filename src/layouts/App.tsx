@@ -8,11 +8,6 @@ interface LayoutProps {
 }
 
 const AppLayout = ({ children }: LayoutProps) => {
-    const dispatch = useDispatch()
-
-    useEffect(() => {
-    })
-
     return <>{children}</>;
 };
 export default AppLayout;

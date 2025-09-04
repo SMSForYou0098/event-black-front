@@ -47,7 +47,7 @@ const Merchandise = (({ children }: any) => {
                 {children}
             </main>
             <FooterDefault />
-            <div
+            {/* <div
                 id="back-to-top"
                 style={{ display: "none" }}
                 className={`animate__animated ${animationClass}`}
@@ -60,7 +60,7 @@ const Merchandise = (({ children }: any) => {
                 >
                     <i className="fa-solid fa-chevron-up"></i>
                 </Link>
-            </div>
+            </div> */}
             <SettingOffCanvas />
         </>
     )

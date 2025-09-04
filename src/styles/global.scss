@@ -7,6 +7,36 @@
   background-color: transparent !important;
 }
 
+.iq-qty-btn input,.btn:disabled, .btn.disabled, fieldset:disabled .btn{
+  color: var(--bs-white) !important;
+  font-size: medium;
+}
+.iq-qty-btn input{
+  pointer-events: none !important;
+  padding: 0 !important;
+}
+
+.iq-qty-btn{
+  position: relative;
+    display: inline-block;
+    border: none;
+    background: var(--bs-gray-900);
+    // color: var(--bs-white);
+    padding-right: 0;
+}
+.iq-qty-btn button {
+    padding: 0;
+    height: 2.5em;
+    width: 2.5em;
+    line-height: 0;
+    text-align: center;
+    background: transparent;
+    outline: 0;
+    font-size: .875em;
+}
+
+
+
 
 .modal-glass-bg .modal-content {
   background: rgba(30, 30, 30, 0.25);

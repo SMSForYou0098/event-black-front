@@ -212,20 +212,20 @@ const FooterMega = memo(() => {
               </div>
             </Container>
           </footer>
-          <div
+          {/* <div
             id="back-to-top"
             style={{ display: "block" }} // Logic for display is handled by animation
             className={`animate__animated ${animationClass}`}
             onClick={scrollToTop}
           >
             <Link
-              className="p-0 btn bg-primary btn-sm position-fixed top border-0 rounded-circle"
+              className="mb-5 p-0 btn bg-primary btn-sm position-fixed top border-0 rounded-circle"
               id="top"
               href="#top"
             >
               <i className="fa-solid fa-chevron-up"></i>
             </Link>
-          </div>
+          </div> */}
         </Fragment>
       )}
     </>

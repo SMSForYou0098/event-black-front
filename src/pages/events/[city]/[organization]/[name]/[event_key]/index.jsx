@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getEventById } from '../../../../../../services/events';
-import EventDetailPage from '../../../../../../components/events/EventDetailPage';
+import EventDetailPage from '../../../../../../components/events/EventDetails/EventDetailPage';
 
 const EventbyId = () => {
   const router = useRouter();

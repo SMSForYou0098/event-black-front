@@ -105,6 +105,20 @@ const HeaderDefault = memo(() => {
     dispatch(logout());
     location.push("/auth/login");
   };
+  // ...existing code...
+  const router = useRouter();
+
+  // Extract event_key from the URL
+  const { event_key } = router.query;
+
+  // ...existing code...
+
+  // Book button handler
+  const handleBookClick = () => {
+    if (event_key) {
+      router.push(`/events/checkout/${event_key}`);
+    }
+  };
 
   return (
     <Fragment>
@@ -211,9 +225,7 @@ const HeaderDefault = memo(() => {
                         variant="outline-primary"
                         size="sm"
                         className="me-4"
-                        onClick={() =>
-                          location.push(`/events/process/${event_key}`)
-                        }
+                        onClick={handleBookClick}
                       >
                         Book Now{" "}
                         <i className="fa-solid fa-arrow-right ms-2"></i>

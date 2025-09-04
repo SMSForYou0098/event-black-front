@@ -620,19 +620,29 @@ export const MyContextProvider = ({ children }) => {
       // console.error('Error sending SMS:', error);
     }
   };
+  const formatDateDDMMYYYY = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+};
 
-  const formatDateRange = (dateRange) => {
-    if (!dateRange) return "";
-    const dates = dateRange.split(",").map((date) => date.trim());
-    if (dates.length === 1) {
-      return dates[0];
-    } else if (dates.length === 2) {
-      const [startDate, endDate] = dates;
-      return `${startDate} to ${endDate}`;
-    } else {
-      return dateRange;
-    }
-  };
+
+const formatDateRange = (dateRange) => {
+  if (!dateRange) return '';
+ 
+  const dates = dateRange.split(',').map(date => date.trim());
+ 
+  if (dates.length === 1) {
+    return formatDateDDMMYYYY(dates[0]);  // Format single date too
+  } else if (dates.length === 2) {
+    const [startDate, endDate] = dates;
+    return `${formatDateDDMMYYYY(startDate)} to ${formatDateDDMMYYYY(endDate)}`;
+  } else {
+    return dateRange;  // fallback
+  }
+};
   const convertTo12HourFormat = (time24) => {
     if (!time24) return "";
 

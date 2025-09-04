@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -20,18 +16,10 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     },
-    "typeRoots": [
-      "./typings",
-      "./node_modules/@types"
-    ],
-    "types": [
-      "jquery",
-      "datatables.net"
-    ],
+    "typeRoots": ["./typings", "./node_modules/@types"],
+    "types": ["jquery", "datatables.net"],
     "plugins": [
       {
         "name": "next"
@@ -47,9 +35,17 @@
     "src/components/DataTable.tsx",
     "src/pages/design-system/typography.tsx",
     "src/components/custom.d.ts",
-    ".next/types/**/*.ts"
-, "src/pages/index.jsx", "src/components/cards/CardStyle.jsx", "src/pages/auth/verify-password.jsx", "src/pages/auth/lost-password.jsx", "src/pages/auth/sign-up.jsx", "src/pages/auth/login.jsx", "src/pages/auth/auth-success.jsx", "src/pages/auth/two-factor.jsx", "src/lib/axiosInterceptor.js"  ],
-  "exclude": [
-    "node_modules"
-  ]
+    ".next/types/**/*.ts",
+    "src/pages/index.jsx",
+    "src/components/cards/CardStyle.jsx",
+    "src/pages/auth/verify-password.jsx",
+    "src/pages/auth/lost-password.jsx",
+    "src/pages/auth/sign-up.jsx",
+    "src/pages/auth/login.jsx",
+    "src/pages/auth/auth-success.jsx",
+    "src/pages/auth/two-factor.jsx",
+    "src/lib/axiosInterceptor.js",
+    "src/pages/_app.jsx"
+, "src/layouts/Frontend.jsx"  ],
+  "exclude": ["node_modules"]
 }
