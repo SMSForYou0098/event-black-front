@@ -28,6 +28,7 @@ const BookingTickets = ({ cartItems, onQuantityChange, isMobile }) => {
             setResetCounterTrigger((prev) => prev + 1);
         }
         setSelectedTicketID(id);
+        onQuantityChange(id, numQuantity, subtotal);
         setSelectedTickets({ category, quantity: numQuantity, price: numPrice, id, subtotal });
     };
 

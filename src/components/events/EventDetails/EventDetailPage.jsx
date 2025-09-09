@@ -20,8 +20,6 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
   const descRef = useRef(null);
   const { convertTo12HourFormat, formatDateRange } = useMyContext();
 
-
-
   const tickets =
     eventData?.tickets?.map((ticket) => ({
       id: ticket.id,
@@ -34,24 +32,22 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
 
   const metaInfo = [
     {
-      label: "Category",
-      colSm: 6,
+      icon: "fa-regular fa-bookmark", // Category icon
       value: eventData?.category?.title,
-      valueClass: "text-primary fw-semibold",
+      valueClass: "fw-semibold",
     },
     {
-      label: "Event Type",
+      icon: "fa-regular fa-calendar", // Event Type icon
       value: eventData?.event_type,
-      colSm: 6,
-      valueClass: "text-primary fw-semibold text-capitalize",
+      valueClass: "fw-semibold text-capitalize",
     },
     {
-      label: "Location",
+      icon: "fa-solid fa-location-dot", // Location icon
       value: `${eventData?.city}, ${eventData?.state}`,
       valueClass: "fw-semibold",
     },
     {
-      label: "Date & Time",
+      icon: "fa-regular fa-clock", // Date & Time icon
       value:
         formatDateRange(eventData?.date_range) +
         " | " +
@@ -102,17 +98,8 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
               {/* --- Main Event Info --- */}
               <h2 className="mb-3">{capitalize(eventData?.name)}</h2>
 
-              <h4 className="price mt-3 mb-3">
-                Starts from{" "}
-                <span className="text-primary fw-bold">
-                  ₹
-                  {eventData?.lowest_sale_price ||
-                    eventData?.lowest_ticket_price}
-                </span>
-              </h4>
-
               {/* Event Description */}
-              <h2 className="text-primary">About The Event</h2>
+              <h4 className="text-primary">About The Event</h4>
               <div ref={descRef}>
                 <div
                   className="mt-3 mb-4"
@@ -137,7 +124,7 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
               </div>
 
               {/* Event Meta Information */}
-              <EventMetaInfo metaInfo={metaInfo} event_key={event_key} />
+              <EventMetaInfo metaInfo={metaInfo} event_key={event_key} eventData={eventData}/>
             </Col>
           </Row>
 

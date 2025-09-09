@@ -48,7 +48,7 @@ export const PasswordField = ({ value, setPassword, handleKeyDown, className, au
                 onKeyDown={handleKeyDown}
                 value={value}
                 onChange={handleChange}
-                className={`pe-5 ${className}`} // Ensures padding so text doesn't overlap the icon
+                className={`pe-5 ${className} card-glassmorphism__input`} // Ensures padding so text doesn't overlap the icon
                 autoFocus={autoFocus}
             />
             <span

@@ -1,13 +1,12 @@
 import React, { Fragment, memo, useEffect, useState } from "react";
 import { Modal, Row, Col, Form, Button, Alert, Card } from "react-bootstrap";
-import { Formik, Field, Form as FormikForm, ErrorMessage } from "formik";
-import * as Yup from "yup";
 import { publicApi } from "@/lib/axiosInterceptor";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 import { signIn, logout } from "@/store/auth/authSlice";
 import { PasswordField } from "../../components/CustomComponents/CustomFormFields";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, LoaderCircle } from "lucide-react";
+import CustomBtn from "../../utils/CustomBtn";
 
 const MODAL_VIEWS = {
   SIGN_IN: "SIGN_IN",
@@ -30,12 +29,17 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
   const [number, setNumber] = useState("");
   const [credential, setCredential] = useState("");
   const [otp, setOTP] = useState("");
-  const [error, setError] = useState("");
   const [attempts, setAttempts] = useState(0);
   const [password, setPassword] = useState("");
   const [countdown, setCountdown] = useState(30);
   const [resendCount, setResendCount] = useState(0);
   const [sessionData, setSessionData] = useState(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
+  // Validation states
+  const [validated, setValidated] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
+  const [serverError, setServerError] = useState("");
 
   const MAX_RESEND_ATTEMPTS = 3;
   const RESEND_COOLDOWN = 60; // seconds
@@ -56,14 +60,31 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     }
   }, [countdown]);
 
-  // Clear error on tab change
+  // Clear validation errors on tab change
   useEffect(() => {
-    setError("");
+    setValidationErrors({});
+    setValidated(false);
+    setServerError("");
   }, [currentView]);
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    return phone.length >= 10 && phone.length <= 12 && /^\d+$/.test(phone);
+  };
+
+  const validateCredential = (credential) => {
+    return validateEmail(credential) || validatePhone(credential);
+  };
 
   const handleModalClose = () => {
     // Reset all form fields and states
-    setError("");
+    setServerError("");
+    setValidationErrors({});
+    setValidated(false);
     setOTP("");
     setEmail("");
     setNumber("");
@@ -78,6 +99,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     setAttempts(0);
     setPassword("");
     setSessionData(null);
+    setTermsAccepted(false);
 
     // Only remove OTP timer for current number if it exists
     if (credential) {
@@ -87,14 +109,31 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     onHide();
   };
 
-  const handleLogin = async (data) => {
-    let crd = credential || data;
-    if (!crd) {
-      setError("Please Enter The Mobile No / Email Address");
-      return;
+  const handleLogin = async (event) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
     }
 
-    const lastResendKey = `lastOtpResendTime_${crd}`;
+    const form = event?.currentTarget;
+    let isValid = true;
+    const errors = {};
+
+    // Validate credential
+    if (!credential.trim()) {
+      errors.credential = "Email or mobile number is required";
+      isValid = false;
+    } else if (!validateCredential(credential)) {
+      errors.credential = "Please enter a valid email or mobile number";
+      isValid = false;
+    }
+
+    setValidationErrors(errors);
+    setValidated(true);
+
+    if (!isValid) return;
+
+    const lastResendKey = `lastOtpResendTime_${credential}`;
     const lastResendTime = localStorage.getItem(lastResendKey);
     const currentTime = Date.now();
 
@@ -102,64 +141,85 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
       lastResendTime &&
       currentTime - parseInt(lastResendTime) < RESEND_COOLDOWN * 1000
     ) {
-      setError(
+      setServerError(
         `Please wait ${RESEND_COOLDOWN} seconds before requesting new OTP`
       );
       return;
     }
 
     if (resendCount >= MAX_RESEND_ATTEMPTS) {
-      setError("Maximum OTP resend attempts reached. Please try again later.");
+      setServerError(
+        "Maximum OTP resend attempts reached. Please try again later."
+      );
       return;
     }
 
     setLoading(true);
+    setServerError("");
+
     try {
-      const response = await publicApi.post("/verify-user", { data: crd });
+      const response = await publicApi.post("/verify-user", {
+        data: credential,
+      });
       if (response.data.status) {
         if (response.data.pass_req) {
           setCurrentView(MODAL_VIEWS.PASSWORD);
           setSessionData({
-            data: crd,
+            data: credential,
             session_id: response.data.session_id,
             auth_session: response.data.auth_session,
           });
         } else {
-          setError("");
           setTimerVisible(true);
           setCountdown(30);
           setCurrentView(MODAL_VIEWS.OTP);
           setOtpSent(true);
           setOTP("");
           setResendCount((prev) => prev + 1);
-          setCredential(crd);
           localStorage.setItem(lastResendKey, currentTime?.toString());
         }
       }
     } catch (err) {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      const isEmail = emailRegex.test(crd);
+      const isEmail = emailRegex.test(credential);
       if (isEmail) {
-        setEmail(crd);
+        setEmail(credential);
         setNumber("");
       } else {
-        setNumber(crd);
+        setNumber(credential);
         setEmail("");
       }
-      setError("");
       setCurrentView(MODAL_VIEWS.SIGN_UP);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyOtp = async () => {
-    if (!otp) {
-      setError("Please enter OTP");
-      return;
+  const handleVerifyOtp = async (event) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
     }
 
+    const errors = {};
+    let isValid = true;
+
+    if (!otp.trim()) {
+      errors.otp = "OTP is required";
+      isValid = false;
+    } else if (otp.length !== 6) {
+      errors.otp = "OTP must be 6 digits";
+      isValid = false;
+    }
+
+    setValidationErrors(errors);
+    setValidated(true);
+
+    if (!isValid) return;
+
     setLoading(true);
+    setServerError("");
+
     try {
       const loginData = { otp, number: credential };
       const resultAction = await dispatch(signIn(loginData));
@@ -168,7 +228,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
         handleModalClose();
         router.push(redirectPath || `/events/${eventKey}/process`);
       } else {
-        setError(resultAction.payload || "OTP verification failed");
+        setServerError(resultAction.payload || "OTP verification failed");
         setAttempts((prev) => prev + 1);
         if (attempts >= 2) {
           dispatch(logout());
@@ -176,7 +236,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
         }
       }
     } catch (err) {
-      setError(err.response?.data?.error || "An error occurred");
+      setServerError(err.response?.data?.error || "An error occurred");
       setAttempts((prev) => prev + 1);
       if (attempts >= 2) {
         dispatch(logout());
@@ -187,20 +247,49 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     }
   };
 
-  const handleSignUp = async () => {
-    setLoading(true);
-    if (!name || !number) {
-      setError("Please fill in all required fields.");
-      return;
+  const handleSignUp = async (event) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
     }
 
-    if (email) {
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailRegex.test(email)) {
-        setError("Please enter a valid email address.");
-        return;
-      }
+    const errors = {};
+    let isValid = true;
+
+    // Validate name
+    if (!name.trim()) {
+      errors.name = "Full name is required";
+      isValid = false;
     }
+
+    // Validate phone number
+    if (!number.trim()) {
+      errors.number = "Phone number is required";
+      isValid = false;
+    } else if (!validatePhone(number)) {
+      errors.number = "Please enter a valid phone number (10-12 digits)";
+      isValid = false;
+    }
+
+    // Validate email (optional)
+    if (email.trim() && !validateEmail(email)) {
+      errors.email = "Please enter a valid email address";
+      isValid = false;
+    }
+
+    // Validate terms
+    if (!termsAccepted) {
+      errors.terms = "You must agree to the terms of use";
+      isValid = false;
+    }
+
+    setValidationErrors(errors);
+    setValidated(true);
+
+    if (!isValid) return;
+
+    setLoading(true);
+    setServerError("");
 
     try {
       const response = await publicApi.post("/create-user", {
@@ -212,31 +301,46 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
 
       if (response.data.status) {
         setCredential(number || email);
-        await handleLogin(number || email);
+        await handleLogin();
       }
     } catch (err) {
-      setError(
+      setServerError(
         err.response?.data?.error ||
-          err.response?.data?.message ||
-          "Something went wrong"
+        err.response?.data?.message ||
+        "Something went wrong"
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyPassword = async () => {
-    if (!password) {
-      setError("Password is required");
-      return;
+  const handleVerifyPassword = async (event) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const errors = {};
+    let isValid = true;
+
+    if (!password.trim()) {
+      errors.password = "Password is required";
+      isValid = false;
     }
 
     if (!sessionData) {
-      setError("Session expired. Please try again.");
+      setServerError("Session expired. Please try again.");
       return;
     }
 
+    setValidationErrors(errors);
+    setValidated(true);
+
+    if (!isValid) return;
+
     setLoading(true);
+    setServerError("");
+
     try {
       const loginData = {
         password,
@@ -252,7 +356,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
         handleModalClose();
         router.push(redirectPath || `/events/${eventKey}/process`);
       } else {
-        setError(resultAction.payload || "Password verification failed");
+        setServerError(resultAction.payload || "Password verification failed");
         setAttempts((prev) => prev + 1);
         if (attempts >= 2) {
           dispatch(logout());
@@ -260,7 +364,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
         }
       }
     } catch (err) {
-      setError(err.response?.data?.error || "An error occurred");
+      setServerError(err.response?.data?.error || "An error occurred");
       setAttempts((prev) => prev + 1);
       if (attempts >= 2) {
         dispatch(logout());
@@ -273,7 +377,9 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
 
   const handleBack = () => {
     setCurrentView(MODAL_VIEWS.SIGN_IN);
-    setError("");
+    setValidationErrors({});
+    setValidated(false);
+    setServerError("");
   };
 
   return (
@@ -295,118 +401,167 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
       </Modal.Header>
 
       <Modal.Body className="pt-0">
-        {error && (
-          <Alert variant="primary" className="mb-3">
-            {error}
+        {serverError && (
+          <Alert variant="primary" className="mt-2">
+            {serverError}
           </Alert>
         )}
 
         {currentView === MODAL_VIEWS.OTP ? (
-          <div className="p-3">
-            <div className="form-group">
-              <Form.Group controlId="otp">
+          <Form noValidate validated={validated} onSubmit={handleVerifyOtp}>
+            <div className="">
+              <Form.Group controlId="otp" className="mb-3">
                 <Form.Label>Enter OTP</Form.Label>
                 <Form.Control
                   type="text"
                   value={otp}
                   autoFocus
-                  className="form-control-lg text-center"
+                  className="card-glassmorphism__input"
                   placeholder="Enter 6-digit OTP"
-                  onChange={(e) => setOTP(e.target.value)}
+                  onChange={(e) =>
+                    setOTP(e.target.value.replace(/\D/g, "").slice(0, 6))
+                  }
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") handleVerifyOtp();
+                    if (e.key === "Enter") handleVerifyOtp(e);
                   }}
+                  isInvalid={!!validationErrors.otp}
+                  required
                 />
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.otp || "Please enter a valid 6-digit OTP"}
+                </Form.Control.Feedback>
               </Form.Group>
-            </div>
 
-            <div className="d-flex gap-3 justify-content-center my-3">
-              <Button
-                variant="primary"
-                onClick={handleVerifyOtp}
-                disabled={loading || !otp}
-              >
-                {loading ? "Verifying..." : "Verify OTP"}
-              </Button>
-              <Button variant="outline-secondary" onClick={handleBack}>
-                Change Number
-              </Button>
-            </div>
-
-            <div className="text-center pb-3">
-              <p className="my-3">OTP sent to your mobile number and email</p>
-              {timerVisible && otpSent ? (
-                <p className="text-muted">Resend OTP in {countdown} seconds</p>
-              ) : (
-                <Button
-                  variant="link"
-                  onClick={() => handleLogin(credential)}
-                  disabled={loading}
-                >
-                  {loading ? "Sending..." : "Resend OTP"}
-                </Button>
-              )}
-            </div>
-          </div>
-        ) : currentView === MODAL_VIEWS.SIGN_UP ? (
-          <>
-            <div className="p-3">
-              <Row className="mb-3 g-3">
-                <Col sm={12}>
-                  <Form.Group controlId="name">
-                    <Form.Label>Full Name *</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter your name"
-                      value={name}
-                      required
-                      onChange={(e) => setName(e.target.value)}
-                      autoFocus
-                    />
-                  </Form.Group>
-                </Col>
-                <Col sm={12} md={6}>
-                  <Form.Group controlId="number">
-                    <Form.Label>Phone Number *</Form.Label>
-                    <Form.Control
-                      type="tel"
-                      placeholder="Enter phone number"
-                      value={number}
-                      required
-                      onChange={(e) => setNumber(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col sm={12} md={6}>
-                  <Form.Group controlId="email">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                      type="email"
-                      placeholder="Enter email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value.toLowerCase())}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <div className="d-flex align-items-center gap-3 pb-3">
-                <Form.Check
-                  type="checkbox"
-                  id="terms-agreement"
-                  label="I agree with the terms of use"
-                  className="mb-0"
-                />
-                <Button
+              <div className="d-flex gap-3 justify-content-center my-3">
+                <CustomBtn
+                  type="submit"
                   variant="primary"
-                  onClick={handleSignUp}
-                  disabled={loading || !name || !number}
-                  className="ms-auto"
-                >
-                  {loading ? "Creating Account..." : "Sign Up"}
-                </Button>
+                  disabled={loading}
+                  icon={loading ? <LoaderCircle className="spin" /> : null}
+                  buttonText={loading ? "Verifying..." : "Verify OTP"}
+                />
+                <CustomBtn
+                  type="button"
+                  variant="secondary"
+                  onClick={handleBack}
+                  icon={loading ? <LoaderCircle className="spin" /> : null}
+                  buttonText="Back"
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="text-center pb-3">
+                <p className="my-3">OTP sent to your mobile number and email</p>
+                {timerVisible && otpSent ? (
+                  <p className="text-muted">
+                    Resend OTP in {countdown} seconds
+                  </p>
+                ) : (
+                  <CustomBtn
+                    variant="link"
+                    className="p-0"
+                    onClick={() => handleLogin()}
+                    disabled={loading}
+                    icon={loading ? <LoaderCircle className="spin" /> : null}
+                    type="button"
+                    buttonText={loading ? "Sending..." : "Resend OTP"}
+                  />
+                )}
               </div>
             </div>
+          </Form>
+        ) : currentView === MODAL_VIEWS.SIGN_UP ? (
+          <>
+            <Form noValidate validated={validated} onSubmit={handleSignUp}>
+              <div className="p-3">
+                <Row className="mb-3 g-3">
+                  <Col sm={12}>
+                    <Form.Group controlId="name">
+                      <Form.Label>Full Name *</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Enter your name"
+                        value={name}
+                        required
+                        className="card-glassmorphism__input"
+                        onChange={(e) => setName(e.target.value)}
+                        autoFocus
+                        isInvalid={!!validationErrors.name}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {validationErrors.name || "Full name is required"}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                  <Col sm={12} md={6}>
+                    <Form.Group controlId="number">
+                      <Form.Label>Phone Number *</Form.Label>
+                      <Form.Control
+                        type="tel"
+                        placeholder="Enter phone number"
+                        value={number}
+                        className="card-glassmorphism__input"
+                        maxLength={12}
+                        required
+                        onChange={(e) =>
+                          setNumber(e.target.value.replace(/\D/g, ""))
+                        }
+                        isInvalid={!!validationErrors.number}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {validationErrors.number || "Phone number is required"}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                  <Col sm={12} md={6}>
+                    <Form.Group controlId="email">
+                      <Form.Label>Email</Form.Label>
+                      <Form.Control
+                        type="email"
+                        className="card-glassmorphism__input"
+                        placeholder="Enter email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value.toLowerCase())}
+                        isInvalid={!!validationErrors.email}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {validationErrors.email}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <div className="mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    id="terms-agreement"
+                    label="I agree with the terms of use"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    isInvalid={!!validationErrors.terms}
+                    required
+                  />
+                  <Form.Control.Feedback
+                    type="invalid"
+                    style={{
+                      display: validationErrors.terms ? "block" : "none",
+                    }}
+                  >
+                    {validationErrors.terms}
+                  </Form.Control.Feedback>
+                </div>
+
+                <div className="d-flex justify-content-end pb-3">
+                  <CustomBtn
+                    type="submit"
+                    variant="primary"
+                    disabled={loading}
+                    icon={loading ? <LoaderCircle className="spin" /> : null}
+                    buttonText={loading ? "Creating Account..." : "Sign Up"}
+                  />
+                </div>
+              </div>
+            </Form>
             <p className="text-center">
               Already have an account?{" "}
               <Button
@@ -419,72 +574,100 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
             </p>
           </>
         ) : currentView === MODAL_VIEWS.PASSWORD ? (
-          <div className="p-3">
-            <div className="form-group">
-              <Form.Group controlId="password">
+          <Form
+            noValidate
+            validated={validated}
+            onSubmit={handleVerifyPassword}
+          >
+            <div className="p-3">
+              <Form.Group controlId="password" className="mb-3">
                 <Form.Label>Password</Form.Label>
                 <PasswordField
                   value={password}
                   setPassword={setPassword}
                   handleKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      handleVerifyPassword();
+                      handleVerifyPassword(e);
                     }
                   }}
+                  isInvalid={!!validationErrors.password}
                 />
+                <Form.Control.Feedback
+                  type="invalid"
+                  style={{
+                    display: validationErrors.password ? "block" : "none",
+                  }}
+                >
+                  {validationErrors.password}
+                </Form.Control.Feedback>
               </Form.Group>
-            </div>
 
-            <div className="text-center pb-3">
-              <Button
-                variant="primary"
-                disabled={loading || !password}
-                onClick={handleVerifyPassword}
-              >
-                {loading ? "Verifying..." : "Login"}
-              </Button>
-            </div>
-
-            <div className="text-center">
-              <Button variant="link" onClick={handleBack}>
-                <ChevronLeft size={16} /> Back to Login
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="p-3">
-              <div className="form-group">
-                <Form.Group controlId="credential">
-                  <Form.Label>Email or Mobile Number</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter email or mobile number"
-                    onChange={(e) => setCredential(e.target.value)}
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleLogin();
-                    }}
-                  />
-                </Form.Group>
+              <div className="text-end pb-3">
+                <CustomBtn
+                  type="submit"
+                  variant="primary"
+                  disabled={loading}
+                  icon={loading ? <LoaderCircle className="spin" /> : null}
+                  buttonText={loading ? "Verifying..." : "Login"}
+                />
               </div>
 
-              <div className="d-flex align-items-center justify-content-between mb-3">
-                <Form.Check
-                  type="checkbox"
-                  id="remember-me"
-                  label="Remember Me"
-                  className="mb-0"
-                />
+              <div className="text-center">
                 <Button
-                  variant="primary"
-                  disabled={loading || !credential}
-                  onClick={() => handleLogin()}
+                  variant="link"
+                  onClick={handleBack}
+                  type="button"
+                  className="p-0"
+                  disabled={loading}
                 >
-                  {loading ? "Processing..." : "Next"}
+                  {loading ? "Processing..." : "Back to Login"}
+                  <ChevronLeft size={16} className="me-1" />
                 </Button>
               </div>
             </div>
+          </Form>
+        ) : (
+          <>
+            <Form noValidate validated={validated} onSubmit={handleLogin}>
+              <div className="p-3">
+                <Form.Group controlId="credential" className="mb-3">
+                  <Form.Label>Email or Mobile Number</Form.Label>
+                  <Form.Control
+                    type="text"
+                    className="card-glassmorphism__input"
+                    placeholder="Enter email or mobile number"
+                    value={credential}
+                    onChange={(e) => setCredential(e.target.value)}
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleLogin(e);
+                    }}
+                    isInvalid={!!validationErrors.credential}
+                    required
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.credential ||
+                      "Email or mobile number is required"}
+                  </Form.Control.Feedback>
+                </Form.Group>
+
+                <div className="d-flex align-items-center justify-content-between mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    id="remember-me"
+                    label="Remember Me"
+                    className="mb-0"
+                  />
+                  <CustomBtn
+                    type="submit"
+                    variant="primary"
+                    disabled={loading}
+                    icon={loading ? <LoaderCircle className="spin" /> : null}
+                    buttonText={loading ? "Processing..." : "Next"}
+                  />
+                </div>
+              </div>
+            </Form>
 
             <p className="text-center">
               Don't have an account?{" "}

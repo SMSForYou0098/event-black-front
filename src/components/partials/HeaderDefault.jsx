@@ -25,6 +25,7 @@ import {
   Star as StarIcon,
   CreditCard as CreditCardIcon,
   LogOut as LogOutIcon,
+  Fingerprint,
 } from "lucide-react";
 
 // components
@@ -35,6 +36,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getActiveMenu } from "@/services/home";
 import { useDispatch } from "react-redux";
 import { logout } from "@/store/auth/authSlice";
+import CustomBtn from "@/utils/CustomBtn";
 
 const HeaderDefault = memo(() => {
   const { UserData, createSlug, isLoggedIn, systemSetting, showHeaderBookBtn } =
@@ -340,12 +342,13 @@ const HeaderDefault = memo(() => {
                         </Dropdown.Menu>
                       </Dropdown>
                     ) : (
-                      <Button
-                        className="btn-sm rounded p-2 ms-3"
-                        onClick={() => location.push("/auth/login")}
-                      >
-                        Login
-                      </Button>
+                      <CustomBtn
+                        style={{ padding: "8px 16px" }}
+                        buttonText={"Login"}
+                        className={'ms-3'}
+                        icon={<Fingerprint size={20} />}
+                        HandleClick={() => location.push("/auth/login")}
+                      />
                     )}
                   </ul>
                 </div>

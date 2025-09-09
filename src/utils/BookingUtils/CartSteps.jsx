@@ -1,16 +1,34 @@
 import { ChevronRightCircle } from "lucide-react";
-const CartSteps = ({id,showAttendee}) => {
-  const CART_STEPS = [
-    { number: 1, title: "Cart", id: 1, active: id === 1 },
-    ...(showAttendee ? [{ number: 2, title: "Attendee", id: 2, active: id === 2 }] : []),
-    { number: 3, title: "Checkout", id: 3, active: id === 3 },
-    { number: 4, title: "Summary", id: 4, active: id === 4 },
+const CartSteps = ({ id, showAttendee }) => {
+  // Define steps without 'number'
+  const steps = [
+    { title: "Cart", id: 1, active: id === 1 },
+    ...(showAttendee ? [{ title: "Attendee", id: 2, active: id === 2 }] : []),
+    {
+      title: "Checkout",
+      id: showAttendee ? 3 : 2,
+      active: id === (showAttendee ? 3 : 2),
+    },
+    {
+      title: "Summary",
+      id: showAttendee ? 4 : 3,
+      active: id === (showAttendee ? 4 : 3),
+    },
   ];
- 
+
+  // Add sequential numbers
+  const CART_STEPS = steps.map((step, idx) => ({
+    ...step,
+    number: idx + 1,
+  }));
 
   const CartStep = ({ step, isLast }) => (
     <>
-      <li className={`d-flex justify-content-center align-items-center gap-2 cart-page-item ${step.active ? "active" : ""}`}>
+      <li
+        className={`d-flex justify-content-center align-items-center gap-2 cart-page-item ${
+          step.active ? "active" : ""
+        }`}
+      >
         <span
           className={`cart-pre-heading badge cart-pre-number border-radius rounded-circle me-1 ${
             step.active ? "bg-primary" : ""
@@ -22,7 +40,7 @@ const CartSteps = ({id,showAttendee}) => {
       </li>
       {!isLast && (
         <li className="d-flex justify-content-center align-items-center">
-          <ChevronRightCircle size={20}/>
+          <ChevronRightCircle size={20} />
         </li>
       )}
     </>

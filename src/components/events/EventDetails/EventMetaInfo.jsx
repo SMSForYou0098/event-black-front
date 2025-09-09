@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button, Col, Offcanvas, Row } from "react-bootstrap";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useRouter } from "next/router";
-import StickyBottom from "../../../utils/StickyBottom";
+import BookingFooterLayout from "../../../utils/BookingFooterLayout";
+import Link from "next/link";
 
-const EventMetaInfo = ({ metaInfo, event_key }) => {
+const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const { setShowHeaderBookBtn, isMobile } = useMyContext();
   const bookBtnRef = useRef(null);
   const [showOffcanvas, setShowOffcanvas] = useState(false);
@@ -41,25 +42,55 @@ const EventMetaInfo = ({ metaInfo, event_key }) => {
   return (
     <>
       <div className="product-meta-wrapper mt-4">
-        <Row>
-          {metaInfo.map((info, idx) => (
-            <Col sm="6" xs={info.colSm ?? 12} className="mb-3" key={info.label}>
-              <div className="border rounded-4 p-3 h-100">
-                <h6 className="text-muted mb-1">{info.label}</h6>
-                <p className={`mb-0 ${info.valueClass}`}>{info.value}</p>
-              </div>
-            </Col>
+        <div className="event-meta-compact d-flex flex-wrap gap-3 mt-3">
+          {metaInfo.map((info) => (
+            <div
+              key={info.label}
+              className="d-flex align-items-start px-3 py-2 rounded-3 border"
+              style={{ background: "#181818" }}
+            >
+              <span className="me-3">
+                {" "}
+                <i className={info.icon}></i>
+              </span>
+              <span className="text-muted" style={{ fontSize: "13px" }}>
+                {info.label}
+              </span>
+              <span
+                className={info.valueClass}
+                style={{ fontSize: "15px", fontWeight: 500 }}
+              >
+                {info.value}
+              </span>
+            </div>
           ))}
-        </Row>
+        </div>
 
         {/* Desktop Button - only show on non-mobile */}
         {!isMobile && (
-          <Row>
-            <Col sm="12" className="d-flex">
+          <Row className="mt-4 mb-5">
+            <Col
+              sm="12"
+              className="d-flex justify-content-between align-items-center border-dashed p-3 rounded-3"
+            >
+              <h4 className="price mt-3 mb-3 d-flex gap-2">
+                <div className="text-primary">Pricing </div>
+                <span className=" fw-bold">
+                  ₹
+                  {eventData?.lowest_sale_price ||
+                    eventData?.lowest_ticket_price}
+                </span>{" "}
+                Onwards
+              </h4>
               <Button
                 ref={bookBtnRef}
+                size="sm"
+                className="fw-bold px-5 py-2 d-flex align-items-center rounded-3"
                 onClick={handleBookNow}
-                className="btn btn-primary btn-lg px-5 py-3"
+                style={{
+                  height: "3rem",
+                  fontSize: "16px",
+                }}
               >
                 <span className="me-2">Book Now</span>
                 <i className="fa-solid fa-arrow-right"></i>
@@ -74,16 +105,27 @@ const EventMetaInfo = ({ metaInfo, event_key }) => {
 
       {/* Mobile Sticky Button */}
       {isMobile && (
-        <StickyBottom>
-          <Button
-            onClick={handleBookNow}
-            className="btn btn-primary btn-lg w-100 py-3"
-            style={{ fontSize: "16px", fontWeight: "600" }}
-          >
-            <span className="me-2">Book Now</span>
-            <i className="fa-solid fa-arrow-right"></i>
-          </Button>
-        </StickyBottom>
+        <BookingFooterLayout
+          left={
+            <span className="p-0 m-0">
+              Starts From{" "}
+              <h5 className=" fw-bold">
+                ₹
+                {eventData?.lowest_sale_price || eventData?.lowest_ticket_price}
+              </h5>
+            </span>
+          }
+          right={
+            <Button
+              onClick={handleBookNow}
+              className="btn btn-primary btn-lg px-3"
+              style={{ fontSize: "16px", fontWeight: "600" }}
+            >
+              <span className="me-2">Book Now</span>
+              <i className="fa-solid fa-arrow-right"></i>
+            </Button>
+          }
+        />
       )}
 
       <Offcanvas

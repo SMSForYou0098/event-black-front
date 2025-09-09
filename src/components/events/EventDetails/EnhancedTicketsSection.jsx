@@ -30,32 +30,6 @@ import {
 
 const EnhancedTicketsSection = ({ tickets }) => {
   const [selectedTickets, setSelectedTickets] = useState({});
-  const [showBookingModal, setShowBookingModal] = useState(false);
-
-  const handleQuantityChange = (ticketId, quantity) => {
-    setSelectedTickets((prev) => ({
-      ...prev,
-      [ticketId]: Math.max(0, quantity),
-    }));
-  };
-
-  const getTotalPrice = () => {
-    return Object.entries(selectedTickets).reduce(
-      (total, [ticketId, quantity]) => {
-        const ticket = tickets.find((t) => t.id === parseInt(ticketId));
-        if (ticket && quantity > 0) {
-          const price = ticket.onSale ? ticket.salePrice : ticket.price;
-          return total + price * quantity;
-        }
-        return total;
-      },
-      0
-    );
-  };
-
-  const getSelectedCount = () => {
-    return Object.values(selectedTickets).reduce((sum, qty) => sum + qty, 0);
-  };
 
   return (
     <Container>

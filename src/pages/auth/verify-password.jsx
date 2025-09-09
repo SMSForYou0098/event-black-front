@@ -88,7 +88,7 @@ const VerifyPassword = memo(() => {
           value={password}
           setPassword={setPassword}
           handleKeyDown={handleKeyDown}
-          className="rounded-0 mb-2"
+          className="rounded-0 mb-2 card-glassmorphism__input"
           autoFocus
         />
         <Form.Text className="text-muted" as="small">
