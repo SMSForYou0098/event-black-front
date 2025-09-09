@@ -2,10 +2,32 @@
 @import '../assets/scss/custom.scss';
 @import '../assets/scss/rtl.scss';
 
+//checkout page order summary theme
+.order-summary-theme {
+  background: var(--bs-body-bg, #fff);
+  /* fallback to white if not set */
+  border: 1px solid var(--bs-border-color, #e0e0e0);
+  color: var(--bs-body-color, #212529);
+}
+
+.order-summary-theme .fw-bold {
+  color: var(--bs-heading-color, #111);
+}
+
+.order-summary-theme .text-primary {
+  color: var(--bs-primary, #003366) !important;
+}
+
+.order-summary-theme .text-secondary {
+  color: var(--bs-secondary, #666) !important;
+}
+// checkout page order summary theme end
+
 .swal2-container {
   background: rgba(0, 0, 0, 0.6) !important;
 }
-.swal2-popup{
+
+.swal2-popup {
   background: transparent !important;
   backdrop-filter: blur(5px) saturate(180%);
   -webkit-backdrop-filter: blur(5px) saturate(180%);
@@ -19,8 +41,11 @@
 .spin {
   animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
-  100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .alert {

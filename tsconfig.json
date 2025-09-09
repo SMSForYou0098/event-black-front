@@ -46,6 +46,6 @@
     "src/pages/auth/two-factor.jsx",
     "src/lib/axiosInterceptor.js",
     "src/pages/_app.jsx"
-, "src/layouts/Frontend.jsx"  ],
+, "src/layouts/Frontend.jsx", "src/store/auth/authSlice.js"  ],
   "exclude": ["node_modules"]
 }

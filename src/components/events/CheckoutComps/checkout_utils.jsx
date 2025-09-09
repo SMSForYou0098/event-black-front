@@ -122,6 +122,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Alert, Form, Button, Table } from 'react-bootstrap';
 import { Receipt, Tag, ChevronDown } from 'lucide-react';
 import { ANIMATION_TIMINGS, ANIMATION_VARIANTS } from '../../../utils/consts';
+import { decrypt } from '../../../utils/crypto';
 
 export const MotionWrapper = ({ 
   children, 
@@ -226,15 +227,15 @@ export const BreakdownTable = ({ orderData }) => {
   );
 };
 
-export const parseUrlData = (data, ticket,edata) => {
+export const parseUrlData = (data, ticket, edata) => {
   try {
     return {
-      data: data ? JSON.parse(data) : null,
-      ticket: ticket ? JSON.parse(ticket) : null,
-      edata: edata ? JSON.parse(edata) : null,
+      data: data ? decrypt(data) : null,
+      ticket: ticket ? decrypt(ticket) : null,
+      edata: edata ? decrypt(edata) : null,
     };
   } catch (error) {
     console.error("Error parsing URL data:", error);
-    return { data: null, ticket: null };
+    return { data: null, ticket: null, edata: null };
   }
 };

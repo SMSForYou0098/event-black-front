@@ -8,15 +8,16 @@ import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFoo
 import { publicApi } from "@/lib/axiosInterceptor";
 import { useRouter } from "next/router";
 import BookingTickets from "../../../../utils/BookingUtils/BookingTickets";
-import { useQuery } from "@tanstack/react-query";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
 import LoginModal from "../../../../components/auth/LoginModal";
 import { getEventById, useEventData } from "../../../../services/events";
 import CustomBtn from "../../../../utils/CustomBtn";
+import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 
 const CartPage = () => {
   const { event_key } = useRouter().query;
   const { isMobile, isLoggedIn, fetchCategoryData } = useMyContext();
+  const { storeCheckoutData, navigateWithKey } = useCheckoutData();
   const [cartItems, setCartItems] = useState([]);
   const [couponCode, setCouponCode] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
@@ -26,6 +27,7 @@ const CartPage = () => {
   const router = useRouter();
 
   const { data: event, isLoading, isError, error } = useEventData(event_key);
+
   useEffect(() => {
     const getCategoryData = async () => {
       let data = await fetchCategoryData(event?.category?.id);
@@ -36,28 +38,32 @@ const CartPage = () => {
     }
     return () => {};
   }, [event]);
+
   // console.log(event)
   const handleProcess = () => {
     const eventSummary = {
       name: event?.name,
       id: event?.id,
       city: event?.city,
-      // organization: event?.organization?.name,
-      category: categoryData?.categoryData, // or any specific field you want
+      category: categoryData?.categoryData,
     };
+
     if (!isLoggedIn) {
       setShowLoginModal(true);
     } else {
-      router.push({
-        pathname: `/events/checkout/${event_key}/`,
-        query: {
-          data: JSON.stringify(selectedTickets),
-          ticket: JSON.stringify(
-            cartItems.find((ticket) => ticket.id === selectedTickets?.itemId)
-          ),
-          edata: JSON.stringify(eventSummary),
-        },
+      const selectedTicket = cartItems.find(
+        (ticket) => ticket.id === selectedTickets?.itemId
+      );
+
+      // Store data and get key
+      const dataKey = storeCheckoutData({
+        data: selectedTickets,
+        ticket: selectedTicket,
+        edata: eventSummary,
       });
+
+      // Alternative: Manual navigation
+      router.push(`/events/checkout/${event_key}/?k=${dataKey}`);
     }
   };
 

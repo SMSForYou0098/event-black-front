@@ -17,7 +17,7 @@ import streamitReducer from './streamit/reducers';
 import streamitShop from './shop/reducers';
 import streamitMedia from './media/reducers';
 import { authSlice } from './auth/authSlice';
-
+import checkoutDataReducer from './customSlices/checkoutDataSlice'; 
 // 1. Combine Reducers
 const rootReducer = combineReducers({
     setting: settingReducer,
@@ -25,13 +25,14 @@ const rootReducer = combineReducers({
     shop: streamitShop,
     media: streamitMedia,
     auth: authSlice.reducer,
+    checkoutData: checkoutDataReducer,
 });
 
 // 2. Persist Config
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth', 'setting'],
+    whitelist: ['auth', 'setting', 'checkoutData'], // only auth and setting will be persisted
 };
 
 // 3. Persisted Reducer
