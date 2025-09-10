@@ -43,14 +43,14 @@ export const CheckoutSummarySection = ({
               exit="collapsed"
               className="mt-3 overflow-hidden"
             >
-              <BreakdownTable orderData={orderData} />
+              <BreakdownTable orderData={orderData}  calculatedTotal={calculatedTotal}/>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {orderData.totalSavings > 0 && (
-        <SavingsHighlight totalSavings={orderData.totalSavings} />
+      {orderData?.discount > 0 && (
+        <SavingsHighlight totalSavings={orderData.discount} />
       )}
     </MotionWrapper>
   </div>

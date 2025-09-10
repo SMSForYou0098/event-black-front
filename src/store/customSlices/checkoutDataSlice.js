@@ -11,7 +11,7 @@ const checkoutDataSlice = createSlice({
     storeCheckoutData: (state, action) => {
       const { key, data } = action.payload;
       state.checkoutData[key] = {
-        data,
+        data : data?.data,
         ticket: data?.ticket,
         event: data?.edata,
         timestamp: Date.now(),

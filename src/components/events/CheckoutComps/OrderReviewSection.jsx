@@ -1,8 +1,10 @@
+import { Ticket } from "lucide-react";
 import { MotionWrapper } from "./checkout_utils";
 
 export const OrderReviewSection = ({
   isMobile,
   validatedData,
+  calculatedTotal,
   handleProcess,
   BookingMobileFooter,
   CustomBtn,
@@ -11,33 +13,68 @@ export const OrderReviewSection = ({
   <MotionWrapper
     variant="fadeInRight"
     delay={0.3}
-    className="order_review-box border rounded-3 p-4 mt-2"
+    className="order_review-box rounded-3"
   >
-    <div className="checkout-review-order">
-      <h5 className="mb-4 font-size-18 fw-500">Your Order</h5>
-      <div className="order-summary order-summary-theme p-3 rounded-3 mb-3">
-        <div className="fw-bold mb-1" style={{ fontSize: "1.1rem" }}>
-          {validatedData?.event?.name}
+    <div className="checkout-review-order shadow-sm overflow-hidden">
+      <div className="rounded-4" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+        <div className="title d-flex justify-content-center p-4">
+          <h4 className="mb-4 fw-500 text-center border-bottom  pb-2 text-primary border-primary">Your Order</h4>
         </div>
-        <div className="mb-2" style={{ fontSize: "1rem" }}>
-          {validatedData?.ticket?.name}
-        </div>
-        <div className="d-flex justify-content-between align-items-center">
-          <span className="text-muted" style={{ fontSize: "0.95rem" }}>
-            {validatedData?.data?.newQuantity} ticket
-            {validatedData?.data?.newQuantity > 1 ? "s" : ""}
-          </span>
-          <span className="fw-bold text-primary" style={{ fontSize: "1.1rem" }}>
-            ₹{validatedData?.ticket?.sale_price || validatedData?.ticket?.price}
-          </span>
+
+        <div className="p-4">
+          {/* Event Name and Price */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <div className="fs-5 fw-bold text-white">
+              {validatedData?.event?.name}
+            </div>
+            <div className="fs-5 fw-bold text-primary">
+              ₹{validatedData?.data?.subtotal}
+            </div>
+          </div>
+
+          {/* Ticket Type with Crown Icon INLINE */}
+          <div className="d-flex align-items-center mb-4">
+            <span className="me-2 fs-6">👑</span>
+            <span className="fs-6 text-warning">
+              {validatedData?.ticket?.name}
+            </span>
+          </div>
+
+          {/* Tickets Count */}
+          <div style={{ background: '#141314' }} className="d-flex justify-content-between align-items-center  p-3 rounded-4">
+            <div className="d-flex align-items-center">
+              <span className="p-0 m-0 ms-2 fw-semibold d-flex"><Ticket size={20} /></span>
+              <span className="p-0 m-0 ms-2 text-warning">Tickets</span>
+            </div>
+            <span className="fs-6 fw-bold text-white">
+              {validatedData?.data?.newQuantity}
+            </span>
+          </div>
+
+          {/* Another Separator Line */}
+          <hr className="border-secondary my-4" />
+
+          {/* Total */}
+          <div className="d-flex justify-content-between align-items-center">
+            <div className="fs-5 fw-bold text-white">
+              Total
+            </div>
+            <div className="fs-5 fw-bold text-end">
+              ₹{calculatedTotal}
+              <br />
+              <small className="text-muted" style={{ fontSize: "0.95rem", marginTop: "-2px", display: "inline-block" }}>
+                Includes taxes
+              </small>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="checkout-payment">
-        <p>
+      <div className=" d-flex flex-column align-items-center p-4">
+        <small className="text-center mb-2">
           Your personal data will be used to process your order, support your
           experience throughout this website, and for other purposes described
           in our <Link href="/extra/privacy-policy">privacy policy</Link>.
-        </p>
+        </small>
         {isMobile ? (
           <BookingMobileFooter
             handleClick={handleProcess}
@@ -46,7 +83,7 @@ export const OrderReviewSection = ({
         ) : (
           <div className="d-flex align-items-center justify-content-between gap-3">
             <CustomBtn
-              style={{background: 'rgba(255, 255, 255, 0.1)'}}
+              style={{ background: 'rgba(255, 255, 255, 0.1)' }}
               variant="secondary"
               disabled={!validatedData?.data}
               HandleClick={() => window.history.back()}

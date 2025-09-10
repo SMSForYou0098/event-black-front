@@ -2,17 +2,15 @@ import { ChevronRightCircle } from "lucide-react";
 const CartSteps = ({ id, showAttendee }) => {
   // Define steps without 'number'
   const steps = [
-    { title: "Cart", id: 1, active: id === 1 },
-    ...(showAttendee ? [{ title: "Attendee", id: 2, active: id === 2 }] : []),
+    { title: "Cart", id: 1 },
+    ...(showAttendee ? [{ title: "Attendee", id: 2 }] : []),
     {
       title: "Checkout",
       id: showAttendee ? 3 : 2,
-      active: id === (showAttendee ? 3 : 2),
     },
     {
       title: "Summary",
       id: showAttendee ? 4 : 3,
-      active: id === (showAttendee ? 4 : 3),
     },
   ];
 
@@ -22,16 +20,22 @@ const CartSteps = ({ id, showAttendee }) => {
     number: idx + 1,
   }));
 
-  const CartStep = ({ step, isLast }) => (
+  // Determine which step is active
+  const activeStepIndex =
+    id === "last"
+      ? CART_STEPS.length - 1
+      : CART_STEPS.findIndex((step) => step.id === id);
+
+  const CartStep = ({ step, isLast, index }) => (
     <>
       <li
         className={`d-flex justify-content-center align-items-center gap-2 cart-page-item ${
-          step.active ? "active" : ""
+          index === activeStepIndex ? "active" : ""
         }`}
       >
         <span
           className={`cart-pre-heading badge cart-pre-number border-radius rounded-circle me-1 ${
-            step.active ? "bg-primary" : ""
+            index === activeStepIndex ? "bg-primary" : ""
           }`}
         >
           {step.number}
@@ -46,12 +50,13 @@ const CartSteps = ({ id, showAttendee }) => {
     </>
   );
   return (
-    <div className="main-cart mb-3 mb-md-5 pb-0 pb-md-5">
+    <div className="main-cart pb-0 pb-md-5">
       <ul className="cart-page-items d-flex justify-content-center list-inline align-items-center gap-3 gap-md-5 flex-wrap">
         {CART_STEPS.map((step, index) => (
           <CartStep
             key={step.number}
             step={step}
+            index={index}
             isLast={index === CART_STEPS.length - 1}
           />
         ))}

@@ -1,9 +1,25 @@
-import React from 'react'
 import { useMyContext } from "@/Context/MyContextProvider";
 export const useIsMobile = () => {
-    const { isMobile } = useMyContext();
-    return isMobile;
+  const { isMobile } = useMyContext();
+  return isMobile;
 };
+
+export const CUSTOM_SECONDORY = '#ff4757';
+export const setCookie = (name, value, maxAge = null) => {
+  const ageParam = maxAge ? `; max-age=${maxAge}` : '';
+  document.cookie = `${name}=${value}; path=/${ageParam}`;
+};
+
+export const ErrorExtractor = (error) => {
+  if (error.response) {
+    return error.response.data.message || error.response.data.error || 'An error occurred';
+  } else if (error.request) {
+    return 'No response received from the server';
+  } else {
+    return error.message || 'An unexpected error occurred';
+  }
+}
+
 
 export const ANIMATION_TIMINGS = {
   fast: 0.2,

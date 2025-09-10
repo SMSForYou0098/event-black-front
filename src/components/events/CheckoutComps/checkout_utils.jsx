@@ -1,22 +1,22 @@
 
-export const createOrderData = (data ,overrides = {}) => ({
-  baseAmount: data?.subtotal || 0,
-  subTotal: data?.subtotal || 0,
+export const createOrderData = (data, charges) => ({
+  baseAmount: Number((data?.subtotal || 0).toFixed(2)),
+  // subTotal:   || 0,
   totalTickets: data?.newQuantity || 0,
-  discount: data?.discount || 0,
-  cgst: data?.cgst || 0,
-  sgst: 121.5,
-  convenienceFees: 50,
-  totalSavings: 150,
-  ...overrides
+  discount: Number((data?.discount || 0).toFixed(2)),
+  cgst: Number((charges?.centralGST || 0).toFixed(2)),
+  sgst: Number((charges?.stateGST || 0).toFixed(2)),
+  convenienceFees: Number((charges?.convenienceFees || 0).toFixed(2)),
+  totalSavings: 150
 });
 
 
 
-export const getBreakdownData = (orderData) => [
+
+export const getBreakdownData = (orderData , calculatedTotal) => [
   { 
     label: "Sub Total", 
-    value: orderData.subTotal, 
+    value: calculatedTotal, 
     className: "text-primary fw-semibold" 
   },
   { 
@@ -93,18 +93,18 @@ export const TotalAmountHeader = ({
   >
     <div>
       <h5 className="mb-1 fw-bold">Total Amount</h5>
-      <small className="text-muted">
+      <small className="">
         {orderData.totalTickets} ticket{orderData.totalTickets > 1 ? 's' : ''}
-        {orderData.totalSavings > 0 && (
+        {orderData?.discount > 0 && (
           <span className="text-success ms-2">
-            • You save ₹{orderData.totalSavings.toLocaleString()}
+            • You save ₹{orderData?.discount?.toLocaleString()}
           </span>
         )}
       </small>
     </div>
     <div className="d-flex align-items-center gap-2">
       <h4 className="mb-0 text-primary fw-bold">
-        ₹{calculatedTotal.toLocaleString()}
+        ₹{calculatedTotal?.toLocaleString()}
       </h4>
       <motion.div
         variants={ANIMATION_VARIANTS.chevron}
@@ -115,9 +115,6 @@ export const TotalAmountHeader = ({
     </div>
   </motion.div>
 );
-
-
-import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Alert, Form, Button, Table } from 'react-bootstrap';
 import { Receipt, Tag, ChevronDown } from 'lucide-react';
@@ -206,13 +203,13 @@ export const BreakdownRow = ({ item, index }) => (
     <td className={`border-0 py-${item.isBorder ? "2" : "1"} text-end ${item.className}`}>
       {item.isNumber === false
         ? item.value
-        : `${item.prefix || ""}₹${item.value.toLocaleString()}`}
+        : `${item.prefix || ""}₹${item?.value?.toLocaleString()}`}
     </td>
   </motion.tr>
 );
 
-export const BreakdownTable = ({ orderData }) => {
-  const breakdownData = getBreakdownData(orderData);
+export const BreakdownTable = ({ orderData,calculatedTotal }) => {
+  const breakdownData = getBreakdownData(orderData,calculatedTotal);
   
   return (
     <div className="rounded-2">

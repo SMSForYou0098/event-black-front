@@ -17,10 +17,8 @@ import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 const CartPage = () => {
   const { event_key } = useRouter().query;
   const { isMobile, isLoggedIn, fetchCategoryData } = useMyContext();
-  const { storeCheckoutData, navigateWithKey } = useCheckoutData();
+  const { storeCheckoutData } = useCheckoutData();
   const [cartItems, setCartItems] = useState([]);
-  const [couponCode, setCouponCode] = useState("");
-  const [isUpdating, setIsUpdating] = useState(false);
   const [categoryData, setCategoryData] = useState(null);
   const [selectedTickets, setSelectedTickets] = useState({});
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -45,6 +43,7 @@ const CartPage = () => {
       name: event?.name,
       id: event?.id,
       city: event?.city,
+      user_id : event?.user_id, 
       category: categoryData?.categoryData,
     };
 

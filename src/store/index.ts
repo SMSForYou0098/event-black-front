@@ -32,7 +32,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth', 'setting', 'checkoutData'], // only auth and setting will be persisted
+    whitelist: ['auth', 'setting'], // only this will be persisted
 };
 
 // 3. Persisted Reducer
