@@ -17,7 +17,7 @@ import Merchandise from '@/layouts/MerchandiseLayout';
 //store
 import { Provider } from 'react-redux';
 //reducer
-import { wrapperStore } from '@/store'
+import { store, persistor } from '@/store'
 import { PersistGate } from 'redux-persist/integration/react';
 import AppContent from '@/lib/AppContent';
 import { MyContextProvider } from '@/Context/MyContextProvider';
@@ -29,11 +29,11 @@ const layouts = {
   "Merchandise": Merchandise
 };
 
-export default function App({ Component, ...rest }) {
+export default function App({ Component, pageProps }) {
   const layoutName = layouts[Component.layout] || layouts['Frontend']
   const Layout = layoutName || ((children) => <>{children}</>);
-  const { store, props } = wrapperStore.useWrappedStore(rest);
-  const { pageProps } = props;
+  // const { store, props } = wrapperStore.useWrappedStore(rest);
+  //const { pageProps } = props;
 
   // Create a client instance once per application lifecycle.
   const [queryClient] = useState(() => new QueryClient({
@@ -49,7 +49,7 @@ export default function App({ Component, ...rest }) {
     // Provide the query client to your entire app
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        <PersistGate loading={null} persistor={store.__persistor}>
+        <PersistGate loading={null} persistor={persistor}>
           <MyContextProvider>
             <AppLayout>
               <AppContent>

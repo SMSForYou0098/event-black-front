@@ -18,7 +18,7 @@ import { setCookie } from "../../../../utils/consts";
 const CartPage = () => {
   const router = useRouter();
   const { event_key, k } = router.query;
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { isMobile, isLoggedIn, ErrorAlert, successAlert } = useMyContext();
   const [checkoutData, setCheckoutData] = useState(null);
   // State management
@@ -40,46 +40,46 @@ const CartPage = () => {
     k ? selectCheckoutDataByKey(state, k) : null
   );
 
-  const getCookie = (name) => {
-    return document.cookie
-      .split(';')
-      .find(cookie => cookie.trim().startsWith(`${name}=`))
-      ?.split('=')[1];
-  };
-  useEffect(() => {
-    if (event_key) {
-      setCookie('currentEventKey', event_key);
-    }
+  // const getCookie = (name) => {
+  //   return document.cookie
+  //     .split(';')
+  //     .find(cookie => cookie.trim().startsWith(`${name}=`))
+  //     ?.split('=')[1];
+  // };
+  // useEffect(() => {
+  //   if (event_key) {
+  //     setCookie('currentEventKey', event_key);
+  //   }
 
-    // Check for reload
-    if (getCookie('wasReloaded') === 'true') {
-      setIsLoading(true); // Show loading state
+  //   // Check for reload
+  //   if (getCookie('wasReloaded') === 'true') {
+  //     setIsLoading(true); // Show loading state
 
-      const eventKeyToUse = event_key || getCookie('currentEventKey');
+  //     const eventKeyToUse = event_key || getCookie('currentEventKey');
 
-      if (eventKeyToUse) {
-        router.replace(`/events/cart/${eventKeyToUse}`);
-      }
-    } else {
-      setIsLoading(false); // Not a reload, stop loading state
-    }
-  }, [event_key]);
+  //     if (eventKeyToUse) {
+  //       router.replace(`/events/cart/${eventKeyToUse}`);
+  //     }
+  //   } else {
+  //     setIsLoading(false); // Not a reload, stop loading state
+  //   }
+  // }, [event_key]);
 
-  useEffect(() => {
-    // Warn on reload/close
-    const handleBeforeUnload = (e) => {
-      // Set cookie that expires in 5 seconds
-      document.cookie = "wasReloaded=true; max-age=5; path=/";
-      e.preventDefault();
-      e.returnValue = "";
-    };
+  // useEffect(() => {
+  //   // Warn on reload/close
+  //   const handleBeforeUnload = (e) => {
+  //     // Set cookie that expires in 5 seconds
+  //     document.cookie = "wasReloaded=true; max-age=5; path=/";
+  //     e.preventDefault();
+  //     e.returnValue = "";
+  //   };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
 
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("beforeunload", handleBeforeUnload);
+  //   };
+  // }, []);
 
   useEffect(() => {
     if (data) {
