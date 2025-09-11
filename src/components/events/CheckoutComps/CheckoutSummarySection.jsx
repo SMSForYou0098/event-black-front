@@ -17,7 +17,7 @@ export const CheckoutSummarySection = ({
     <MotionWrapper
       variant="fadeInUp" 
       delay={0.2} 
-      className="summary-card border rounded-3 shadow-sm overflow-hidden"
+      className="custom-dark-bg summary-card border rounded-3 shadow-sm overflow-hidden"
     >
       <PromoCodeSection
         couponCode={couponCode}

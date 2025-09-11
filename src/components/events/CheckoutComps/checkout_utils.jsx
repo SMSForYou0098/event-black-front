@@ -13,17 +13,17 @@ export const createOrderData = (data, charges) => ({
 
 
 
-export const getBreakdownData = (orderData , calculatedTotal) => [
-  { 
-    label: "Sub Total", 
-    value: calculatedTotal, 
-    className: "text-primary fw-semibold" 
+export const getBreakdownData = (orderData, calculatedTotal) => [
+  {
+    label: "Sub Total",
+    value: calculatedTotal,
+    className: "custom-text-secondary fw-semibold"
   },
-  { 
-    label: "Total Tickets", 
-    value: orderData.totalTickets, 
-    className: "text-primary fw-semibold",
-    isNumber: false 
+  {
+    label: "Total Tickets",
+    value: orderData.totalTickets,
+    className: "custom-text-secondary fw-semibold",
+    isNumber: false
   },
   ...(orderData.discount > 0 ? [{
     label: "Discount",
@@ -38,28 +38,30 @@ export const getBreakdownData = (orderData , calculatedTotal) => [
     isBorder: true
   },
   {
+    label: "Convenience fees",
+    value: orderData.convenienceFees,
+    className: "small",
+    labelClass: "small"
+  },
+  {
     label: "Central GST (CGST) @ 9%",
     value: orderData.cgst,
     className: "small",
-    labelClass: "small text-muted"
+    labelClass: "ms-2 ps-3 small text-muted",
+    lableStyle: { fontSize: '0.65rem' }
   },
   {
     label: "State GST (SGST) @ 9%",
     value: orderData.sgst,
     className: "small",
-    labelClass: "small text-muted"
+    labelClass: "ms-2 ps-3 small text-muted",
+    lableStyle: { fontSize: '0.65rem' }
   },
-  {
-    label: "Convenience fees",
-    value: orderData.convenienceFees,
-    className: "small",
-    labelClass: "small text-muted"
-  }
 ];
 export const SavingsHighlight = ({ totalSavings }) => (
-  <MotionWrapper 
-    variant="scale" 
-    delay={0.6} 
+  <MotionWrapper
+    variant="scale"
+    delay={0.6}
     className="rounded-2 p-3 border-top"
   >
     <div className="d-flex justify-content-between align-items-center">
@@ -73,11 +75,11 @@ export const SavingsHighlight = ({ totalSavings }) => (
   </MotionWrapper>
 );
 
-export const TotalAmountHeader = ({ 
-  orderData, 
-  calculatedTotal, 
-  isExpanded, 
-  setIsExpanded 
+export const TotalAmountHeader = ({
+  orderData,
+  calculatedTotal,
+  isExpanded,
+  setIsExpanded
 }) => (
   <motion.div
     className="d-flex justify-content-between align-items-center cursor-pointer"
@@ -103,7 +105,7 @@ export const TotalAmountHeader = ({
       </small>
     </div>
     <div className="d-flex align-items-center gap-2">
-      <h4 className="mb-0 text-primary fw-bold">
+      <h4 className="mb-0 custom-text-secondary fw-bold">
         ₹{calculatedTotal?.toLocaleString()}
       </h4>
       <motion.div
@@ -116,17 +118,17 @@ export const TotalAmountHeader = ({
   </motion.div>
 );
 import { motion, AnimatePresence } from 'framer-motion';
-import { Alert, Form, Button, Table } from 'react-bootstrap';
-import { Receipt, Tag, ChevronDown } from 'lucide-react';
-import { ANIMATION_TIMINGS, ANIMATION_VARIANTS } from '../../../utils/consts';
+import { Alert, Form, Button, Table, Card, InputGroup } from 'react-bootstrap';
+import { Receipt, Tag, ChevronDown, Ticket, Crown } from 'lucide-react';
+import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY } from '../../../utils/consts';
 import { decrypt } from '../../../utils/crypto';
 
-export const MotionWrapper = ({ 
-  children, 
-  variant = "fadeInUp", 
-  delay = 0, 
-  className = "", 
-  ...props 
+export const MotionWrapper = ({
+  children,
+  variant = "fadeInUp",
+  delay = 0,
+  className = "",
+  ...props
 }) => (
   <motion.div
     {...ANIMATION_VARIANTS[variant]}
@@ -163,16 +165,19 @@ export const ETicketAlert = () => (
   </MotionWrapper>
 );
 
-export const PromoCodeSection = ({ 
-  couponCode, 
-  setCouponCode, 
-  handleApplyCoupon 
+export const PromoCodeSection = ({
+  couponCode,
+  setCouponCode,
+  handleApplyCoupon
 }) => (
   <MotionWrapper variant="fadeIn" delay={0.4} className="p-4 border-bottom">
-    <div className="d-flex align-items-center gap-2">
-      <Tag size={18} className="text-primary" />
+    <InputGroup>
+      <InputGroup.Text className="custom-dark-content-bg border-0 rounded-3 rounded-end-0">
+        <Tag size={18} />
+      </InputGroup.Text>
       <Form.Control
         type="text"
+        className="custom-dark-content-bg rounded-3 rounded-start-0 border-0"
         placeholder="Enter promo code"
         value={couponCode}
         onChange={(e) => setCouponCode(e.target.value)}
@@ -180,12 +185,12 @@ export const PromoCodeSection = ({
       <Button
         variant="primary"
         size="sm"
+        className="rounded-3 rounded-start-0"
         onClick={handleApplyCoupon}
-        className="px-3"
       >
         Apply
       </Button>
-    </div>
+    </InputGroup>
   </MotionWrapper>
 );
 
@@ -195,12 +200,12 @@ export const BreakdownRow = ({ item, index }) => (
     variants={ANIMATION_VARIANTS.tableRow}
     initial="hidden"
     animate="visible"
-    className={item.isBorder ? "border-top" : ""}
+    className={item.isBorder ? "border-top " : ""}
   >
-    <td className={`border-0 py-${item.isBorder ? "2" : "1"} ${item.labelClass || ""}`}>
+    <td style={item?.lableStyle} className={`border-0 py-${item.isBorder ? "2" : "1"} ${item.labelClass || ""} bg-transparent`}>
       {item.label}
     </td>
-    <td className={`border-0 py-${item.isBorder ? "2" : "1"} text-end ${item.className}`}>
+    <td className={` border-0 py-${item.isBorder ? "2" : "1"} text-end ${item.className} bg-transparent`}>
       {item.isNumber === false
         ? item.value
         : `${item.prefix || ""}₹${item?.value?.toLocaleString()}`}
@@ -208,13 +213,13 @@ export const BreakdownRow = ({ item, index }) => (
   </motion.tr>
 );
 
-export const BreakdownTable = ({ orderData,calculatedTotal }) => {
-  const breakdownData = getBreakdownData(orderData,calculatedTotal);
-  
+export const BreakdownTable = ({ orderData, calculatedTotal }) => {
+  const breakdownData = getBreakdownData(orderData, calculatedTotal);
+
   return (
     <div className="rounded-2">
       <Table className="table-sm mb-0" style={{ fontSize: "14px" }}>
-        <tbody>
+        <tbody className='bg-transparent'>
           {breakdownData.map((item, index) => (
             <BreakdownRow key={item.label} item={item} index={index} />
           ))}
@@ -236,3 +241,63 @@ export const parseUrlData = (data, ticket, edata) => {
     return { data: null, ticket: null, edata: null };
   }
 };
+
+export const TicketDataSummary = (props) => {
+  const { eventName, ticketName, price, quantity, subTotal, processingFee, total } = props;
+  const sectionIconStyle = {
+    color: CUSTOM_SECONDORY,
+    size: 20,
+    style: { marginRight: '10px' }
+  };
+
+  return (
+    <Card className="mb-4 custom-dark-bg">
+      <Card.Body className="p-4">
+        <div className="d-flex align-items-center mb-3">
+          <Ticket {...sectionIconStyle} />
+          <h5 className="text-white mb-0 fw-bold">Ticket Details</h5>
+        </div>
+
+        <div className="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <div className="text-white fw-bold fs-5">
+              {eventName}
+            </div>
+            <div className="d-flex align-items-center mt-1">
+              <Crown size={18} className='text-warning fw-bold me-2' />
+              <span className='text-warning fw-bold'>{ticketName}</span>
+            </div>
+          </div>
+          <div className="text-end">
+            <div className='custom-text-secondary h5 fw-bold'>₹{price}</div>
+            <small>per ticket</small>
+          </div>
+        </div>
+
+        <div className="custom-dark-content-bg d-flex justify-content-between align-items-center my-3 p-3 rounded-3">
+          <div className="d-flex align-items-center">
+            <Ticket size={18} style={{ marginRight: '10px' }} />
+            <span style={{ color: '#b0b0b0' }}>Quantity</span>
+          </div>
+          <span className="text-white fw-bold fs-6">{quantity}</span>
+        </div>
+
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <span>Subtotal</span>
+          <span className="text-white fw-bold">₹{subTotal}</span>
+        </div>
+
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <span>Processing Fee</span>
+          <span className="text-white fw-bold">₹{processingFee || 0}</span>
+        </div>
+        <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' />
+
+        <div className="d-flex justify-content-between align-items-center">
+          <span className="text-white fw-bold fs-5">Total Amount</span>
+          <span className='custom-text-secondary h5 fw-bold'>₹{total}</span>
+        </div>
+      </Card.Body>
+    </Card>
+  )
+}

@@ -37,7 +37,7 @@ const BookingTickets = ({ cartItems, onQuantityChange, isMobile }) => {
     //   };
 
     return (
-        <Table responsive className="cart-table">
+        <Table responsive className="cart-table rounded-3">
             <thead className="border-bottom">
                 <tr>
                     <th scope="col" className="font-size-18 fw-500">

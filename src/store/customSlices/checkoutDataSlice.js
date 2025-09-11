@@ -1,3 +1,4 @@
+import { removeCookie, setCookie } from '@/utils/cookieUtils';
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
@@ -16,7 +17,8 @@ const checkoutDataSlice = createSlice({
         event: data?.edata,
         timestamp: Date.now(),
       };
-      //console.log('📦 Stored checkout data for key slice:', key, state.checkoutData[key]);
+      // storeCheckoutData in cookie for 7 days
+      setCookie(`checkoutDataKey_${key}`, key, { days: 7 });
     },
     retrieveCheckoutData: (state, action) => {
       return state.checkoutData[action.payload] || null;
@@ -24,6 +26,8 @@ const checkoutDataSlice = createSlice({
     clearCheckoutData: (state, action) => {
       const { key } = action.payload;
       delete state.checkoutData[key];
+      // Remove cookie
+      removeCookie(`checkoutDataKey_${key}`);
     },
     clearExpiredCheckoutData: (state) => {
       const now = Date.now();

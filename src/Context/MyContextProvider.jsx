@@ -18,6 +18,7 @@ const MyContext = createContext();
 export const MyContextProvider = ({ children }) => {
   const [showHeaderBookBtn, setShowHeaderBookBtn] = useState(false);
   const [smsConfig, setSmsConfig] = useState([]);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [currencyMaster, setCurrencyMaster] = useState([]);
   const [UserList, setUserList] = useState([]);
   const [amount, setAmount] = useState(0);
@@ -153,7 +154,7 @@ export const MyContextProvider = ({ children }) => {
           },
         }
       );
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const formatDateTime = (dateTime) => {
@@ -217,6 +218,7 @@ export const MyContextProvider = ({ children }) => {
       backdrop: `rgba(60,60,60,0.8)`,
     });
   }, []);
+
   const AskAlert = (title, buttonText, SuccessMessage) => {
     Swal.fire({
       title: "Are you sure?",
@@ -231,6 +233,7 @@ export const MyContextProvider = ({ children }) => {
       }
     });
   };
+
   const showLoading = (processName) => {
     return Swal.fire({
       title: `${processName} in Progress`,
@@ -250,6 +253,7 @@ export const MyContextProvider = ({ children }) => {
       },
     });
   };
+
   function modifyNumber(number) {
     let mob_number = String(number);
     if (mob_number.length === 10) {
@@ -580,6 +584,7 @@ export const MyContextProvider = ({ children }) => {
     const { protocol, host } = window.location;
     return `${protocol}//${host}`;
   };
+
   const HandleSendSMS = async (
     number,
     message,
@@ -620,29 +625,31 @@ export const MyContextProvider = ({ children }) => {
       // console.error('Error sending SMS:', error);
     }
   };
+
   const formatDateDDMMYYYY = (dateString) => {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
-};
+  };
 
 
-const formatDateRange = (dateRange) => {
-  if (!dateRange) return '';
- 
-  const dates = dateRange.split(',').map(date => date.trim());
- 
-  if (dates.length === 1) {
-    return formatDateDDMMYYYY(dates[0]);  // Format single date too
-  } else if (dates.length === 2) {
-    const [startDate, endDate] = dates;
-    return `${formatDateDDMMYYYY(startDate)} to ${formatDateDDMMYYYY(endDate)}`;
-  } else {
-    return dateRange;  // fallback
-  }
-};
+  const formatDateRange = (dateRange) => {
+    if (!dateRange) return '';
+
+    const dates = dateRange.split(',').map(date => date.trim());
+
+    if (dates.length === 1) {
+      return formatDateDDMMYYYY(dates[0]);  // Format single date too
+    } else if (dates.length === 2) {
+      const [startDate, endDate] = dates;
+      return `${formatDateDDMMYYYY(startDate)} to ${formatDateDDMMYYYY(endDate)}`;
+    } else {
+      return dateRange;  // fallback
+    }
+  };
+
   const convertTo12HourFormat = (time24) => {
     if (!time24) return "";
 
@@ -670,6 +677,7 @@ const formatDateRange = (dateRange) => {
     }
     return "";
   };
+
   const convertSlugToTitle = (slug) => {
     if (slug) {
       return slug.replace(/-/g, " ").replace(/\b\w/g);
@@ -737,7 +745,7 @@ const formatDateRange = (dateRange) => {
   const HandleBack = () => {
     window.history.back();
   };
-  const [isScrolled, setIsScrolled] = useState(false);
+  
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {

@@ -26,7 +26,6 @@ export const useCheckoutData = () => {
   // Store checkout data and get key
   const storeData = (data) => {
     const key = generateUUIDKey();
-    console.log('📦 Storing checkout data for key:', key,data );
     dispatch(storeCheckoutData({
       key,
       data

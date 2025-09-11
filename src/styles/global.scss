@@ -2,6 +2,19 @@
 @import '../assets/scss/custom.scss';
 @import '../assets/scss/rtl.scss';
 
+.custom-text-secondary {
+  color: #ff4757 !important;
+}
+.custom-dark-content-bg {
+  background-color: #161619a9 !important;
+  // background-color: #141314 !important;
+  color: var(--bs-white) !important;
+}
+.custom-dark-bg {
+  border : none !important;
+  border-radius: 1rem !important;
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
 //checkout page order summary theme
 .order-summary-theme {
   background: var(--bs-body-bg, #fff);

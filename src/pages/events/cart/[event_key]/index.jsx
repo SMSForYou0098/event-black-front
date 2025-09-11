@@ -22,6 +22,7 @@ const CartPage = () => {
   const [categoryData, setCategoryData] = useState(null);
   const [selectedTickets, setSelectedTickets] = useState({});
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [path, setPath] = useState("");
   const router = useRouter();
 
   const { data: event, isLoading, isError, error } = useEventData(event_key);
@@ -34,37 +35,43 @@ const CartPage = () => {
     if (event?.category?.id) {
       getCategoryData();
     }
-    return () => {};
+    return () => { };
   }, [event]);
 
   // console.log(event)
   const handleProcess = () => {
+    const path = prepareRedirect();
+    setPath(path);
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+    } else {
+      router.push(path);
+    }
+  };
+
+  const prepareRedirect = () => {
     const eventSummary = {
       name: event?.name,
       id: event?.id,
       city: event?.city,
-      user_id : event?.user_id, 
+      user_id: event?.user_id,
       category: categoryData?.categoryData,
     };
+    
+    const selectedTicket = cartItems.find(
+      (ticket) => ticket.id === selectedTickets?.itemId
+    );
 
-    if (!isLoggedIn) {
-      setShowLoginModal(true);
-    } else {
-      const selectedTicket = cartItems.find(
-        (ticket) => ticket.id === selectedTickets?.itemId
-      );
-
-      // Store data and get key
-      const dataKey = storeCheckoutData({
-        data: selectedTickets,
-        ticket: selectedTicket,
-        edata: eventSummary,
-      });
-
-      // Alternative: Manual navigation
-      router.push(`/events/checkout/${event_key}/?k=${dataKey}`);
-    }
-  };
+    // Store data and get key
+    const dataKey = storeCheckoutData({
+      data: selectedTickets,
+      ticket: selectedTicket,
+      edata: eventSummary,
+    });
+    
+    // Alternative: Manual navigation
+    return `/events/checkout/${event_key}/?k=${dataKey}`;
+  }
 
   const FetchTickets = async () => {
     if (!event_key) return;
@@ -147,7 +154,7 @@ const CartPage = () => {
 
           {/* Cart Totals */}
           <Col lg="4">
-            <div className="cart_totals p-4">
+            <div className="cart_totals p-4 rounded-3">
               <h5 className="mb-3 font-size-18 fw-500">Cart Overview</h5>
               <div className="css_prefix-woocommerce-cart-box table-responsive">
                 <Table className="table">
@@ -191,7 +198,7 @@ const CartPage = () => {
           </Col>
         </Row>
         <LoginModal
-          redirectPath={`/events/checkout/${event_key}`}
+          redirectPath={path}
           show={showLoginModal}
           onHide={() => setShowLoginModal(false)}
           eventKey={event_key}

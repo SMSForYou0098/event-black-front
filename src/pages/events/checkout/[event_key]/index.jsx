@@ -155,8 +155,6 @@ const CartPage = () => {
     },
   });
 
-
-
   const orderDataBase = createOrderData(checkoutData?.data, charges);
 
   const discountAmount = useMemo(() => {
@@ -170,25 +168,24 @@ const CartPage = () => {
     }
     if (amount < 0) amount = 0;
     if (amount > total) amount = total;
-    console.log('orderDataBase Details:', orderDataBase);
-    console.log('Calculated Discount Amount:', amount);
     return amount;
   }, [promo, orderDataBase]);
+
+
+
+  const calculatedTotal = Number(
+    orderDataBase.baseAmount +
+    orderDataBase.cgst +
+    orderDataBase.sgst +
+    orderDataBase.convenienceFees
+    - discountAmount
+  ).toFixed(2);
 
   const orderData = {
     ...orderDataBase,
     discount: discountAmount,
+    total : Number(calculatedTotal),
   };
-
-  const calculatedTotal = Number(
-    orderData.baseAmount +
-    orderData.cgst +
-    orderData.sgst +
-    orderData.convenienceFees
-    - discountAmount
-  ).toFixed(2);
-
-
 
   useEffect(() => {
     if (!taxData || !commissionData || !checkoutData?.data) return;
@@ -232,9 +229,6 @@ const CartPage = () => {
     });
   }, [taxData, commissionData, checkoutData]);
 
-  useEffect(() => {
-    console.log('Order Data:', orderData);
-  }, [orderData]);
   return (
     <div className="cart-page section-padding">
       {isLoading && (
@@ -274,6 +268,7 @@ const CartPage = () => {
           <Col lg="4" md="5">
             <OrderReviewSection
               isMobile={isMobile}
+              orderData={orderData}
               event={checkoutData?.event}
               ticketdata={checkoutData?.ticket}
               calculatedTotal={calculatedTotal}
