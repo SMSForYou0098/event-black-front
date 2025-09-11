@@ -149,7 +149,7 @@ const AttendeePage = () => {
           Back
         </Button>
 
-        <Button variant="primary" onClick={handleSaveAttendees} disabled={hasMissingFields || attendeeList.length === 0}>
+        <Button variant="primary" onClick={handleSaveAttendees} disabled={hasMissingFields || attendeeList.length !== quantity}>
           Save Attendees
         </Button>
       </div>

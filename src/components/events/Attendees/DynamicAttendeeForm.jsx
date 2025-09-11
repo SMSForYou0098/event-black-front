@@ -2,6 +2,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Col, Row, Button, Card, Form, Modal, InputGroup } from "react-bootstrap";
 import Select from "react-select";
+import { api } from "@/lib/axiosInterceptor";
+
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useMyContext } from "@/Context/MyContextProvider";
@@ -12,6 +14,8 @@ import BookingsAttendee from "./BookingsAttendee";
 import { processImageFile } from "../../CustomComponents/AttendeeStroreUtils";
 import FaceDetector from "./FaceDetector";
 import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
+import { selectCheckoutDataByKey, updateAttendees } from "@/store/customSlices/checkoutDataSlice";
 
 const DynamicAttendeeForm = ({
   apiData = [],
@@ -34,7 +38,9 @@ const DynamicAttendeeForm = ({
   requiredFields = [],
   
 }) => {
-  const { api: baseApi, UserData, isMobile, authToken, successAlert, ErrorAlert, AskAlert } = useMyContext();
+  const {  UserData, isMobile, authToken, successAlert, ErrorAlert, AskAlert } = useMyContext();
+  const router = useRouter();
+  const {  k, event_key } = router.query ?? {};
 
   // Local state
   const [existingAttendee, setExistingAttendee] = useState([]);
@@ -44,26 +50,29 @@ const DynamicAttendeeForm = ({
   const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false);
   const [errors, setErrors] = useState({});
   const [showSuggestionPanel, setShowSuggestionPanel] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
 
   // React Query: fetch existing attendees (React Query owns fetch; we update local state in onSuccess safely)
   const fetchExistingAttendees = async () => {
     if (!UserData?.id || !categoryId) return [];
 
     const url = isCorporate
-      ? `${baseApi}corporate-attendee/${UserData.id}/${categoryId}`
-      : `${baseApi}user-attendee/${UserData.id}/${categoryId}?isAgent=${isAgent ? 1 : 0}`;
+      ? `/corporate-attendee/${UserData.id}/${categoryId}`
+      : `/user-attendee/${UserData.id}/${categoryId}?isAgent=${isAgent ? 1 : 0}`;
 
-    const config = isCorporate
-      ? { headers: { Authorization: `Bearer ${authToken}` } }
-      : {};
-
-    const resp = await axios.get(url, config);
+    const resp = await api.get(url);
     // return attendees array or empty
     const { status, attendees = [] } = resp.data ?? {};
     return status && Array.isArray(attendees) ? attendees : [];
   };
 
+  const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
+  const attendeesFromRedux =
+        Array.isArray(data.attendees)
+          ? data.attendees
+          : Array.isArray(data?.data?.attendees)
+          ? data.data.attendees
+          : [];
 const { data: fetchedAttendees = [], refetch: refetchExisting } = useQuery({
   queryKey: ["existingAttendees", UserData?.id, categoryId, isCorporate, isAgent],
   queryFn: fetchExistingAttendees,
@@ -75,21 +84,24 @@ const { data: fetchedAttendees = [], refetch: refetchExisting } = useQuery({
       existingAttendee.length === data.length &&
       existingAttendee.every((e, i) => e.id === data[i]?.id);
   },
-});
-useEffect(()=>{
-  if (fetchedAttendees && Array.isArray(fetchedAttendees)) {
-    setShowAddAttendeeModal(true)
+  onError: (err) => {
+    console.error("Failed to fetch existing attendees", err);
+    ErrorAlert( err?.response?.data?.message ||"Failed to fetch existing attendees");
   }
-},[fetchedAttendees])
-  // When parent wants suggestion panel initially
-  useEffect(() => {
-    if (showAttendeeSuggetion && UserData && categoryId && selectedTickets?.newQuantity > 0) {
-      // query will run due to enabled flag
-      setShowSuggestionPanel(true);
-    } else {
-      setShowSuggestionPanel(false);
+});
+
+useEffect(()=>{
+  if(attendeesFromRedux.length===0){
+    if (fetchedAttendees && Array.isArray(fetchedAttendees)) {
+      setShowAddAttendeeModal(true)
     }
-  }, [showAttendeeSuggetion, UserData?.id, categoryId, selectedTickets?.newQuantity]);
+    else{
+      setShowAddAttendeeModal(false)
+    }
+
+  }
+},[fetchedAttendees]);
+  // When parent wants suggestion panel initially
 
   // keep parent updated whenever attendeeList changes
   useEffect(() => {
@@ -365,7 +377,7 @@ const Back = () => {
       </Card>
 
       {/* Suggested attendees panel */}
-      {showSuggestionPanel && (
+      {/* {showSuggestionPanel && ( */}
         <AttendySugettion
           quantity={quantity}
           totalAttendee={attendeeList?.length}
@@ -377,7 +389,7 @@ const Back = () => {
           requiredFields={requiredFields}
           setAttendeesList={setAttendeesList}
         />
-      )}
+      {/* )} */}
 
       {/* Modal for add/edit attendee */}
       <Modal show={showModal} onHide={handleCloseModal} size="xl">
