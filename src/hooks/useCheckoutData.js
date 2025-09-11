@@ -46,9 +46,9 @@ export const useCheckoutData = () => {
       console.warn('Invalid checkout key format:', key);
       return null;
     }
-    console.log('🔍 Retrieving checkout data for key:', key);
+    // console.log('🔍 Retrieving checkout data for key:', key);
    const checkoutData = useCheckoutDataByKey(key);
-   console.log('✅ Found checkout data:', checkoutData);
+  //  console.log('✅ Found checkout data:', checkoutData);
     return checkoutData;
 
   };
@@ -89,7 +89,7 @@ export const useCheckoutData = () => {
     if (currentCheckoutKey === key) {
       setCurrentCheckoutKey(null);
     }
-    console.log('🗑️ Cleared checkout data for key:', key);
+    // console.log('🗑️ Cleared checkout data for key:', key);
   };
 
   return {

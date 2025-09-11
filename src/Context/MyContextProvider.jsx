@@ -60,7 +60,7 @@ export const MyContextProvider = ({ children }) => {
         setUserList(data);
         return data;
       } else {
-        console.log("Unexpected API status:", response.data.status);
+        // console.log("Unexpected API status:", response.data.status);
       }
     } catch (error) {
       console.error("API Error:", error);
@@ -219,20 +219,23 @@ export const MyContextProvider = ({ children }) => {
     });
   }, []);
 
-  const AskAlert = (title, buttonText, SuccessMessage) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: title,
-      icon: "warning",
-      showCancelButton: true,
-      backdrop: `rgba(60,60,60,0.8)`,
-      confirmButtonText: buttonText,
-    }).then((result) => {
-      if (result.isConfirmed && SuccessMessage) {
-        Swal.fire(SuccessMessage);
-      }
-    });
-  };
+   const AskAlert = (title, buttonText, SuccessMessage) => {
+     return Swal.fire({
+       title: "Are you sure?",
+       text: title,
+       icon: "warning",
+       showCancelButton: true,
+       backdrop: `rgba(60,60,60,0.8)`,
+       confirmButtonText: buttonText,
+       cancelButtonText: "Cancel",
+     }).then((result) => {
+       if (result.isConfirmed && SuccessMessage) {
+         Swal.fire("Success", SuccessMessage, "success");
+         return true;
+       }
+       return false;
+     });
+   };
 
   const showLoading = (processName) => {
     return Swal.fire({
@@ -535,7 +538,7 @@ export const MyContextProvider = ({ children }) => {
     let apiKey = config?.api_key;
     let template = apiData?.template_name;
     let vars = apiData?.variables;
-    console.log("values", values);
+    // console.log("values", values);
 
     const valueMap = {
       ":C_Name": values?.name,

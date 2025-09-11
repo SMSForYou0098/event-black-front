@@ -16,6 +16,7 @@ const checkoutDataSlice = createSlice({
         ticket: data?.ticket,
         event: data?.edata,
         timestamp: Date.now(),
+        attendees: data?.attendees || [],  // attendee data
       };
       // storeCheckoutData in cookie for 7 days
       setCookie(`checkoutDataKey_${key}`, key, { days: 7 });
@@ -28,6 +29,31 @@ const checkoutDataSlice = createSlice({
       delete state.checkoutData[key];
       // Remove cookie
       removeCookie(`checkoutDataKey_${key}`);
+    },
+    updateAttendees: (state, action) => {
+      const { key, attendees, merge = false } = action.payload;
+      const existing = state.checkoutData[key];
+
+      if (existing) {
+        if (merge) {
+          // append + dedupe
+          const old = existing.attendees || [];
+          const merged = [...old, ...attendees];
+          existing.attendees = Array.from(new Set(merged.map(a => JSON.stringify(a))))
+            .map(str => JSON.parse(str));
+        } else {
+          // replace
+          existing.attendees = attendees;
+        }
+        existing.timestamp = Date.now();
+      } else {
+        state.checkoutData[key] = {
+          attendees,
+          ticket: null,
+          event: null,
+          timestamp: Date.now(),
+        };
+      }
     },
     clearExpiredCheckoutData: (state) => {
       const now = Date.now();
@@ -50,6 +76,7 @@ export const {
   clearCheckoutData,
   clearExpiredCheckoutData,
   clearAllCheckoutData,
+  updateAttendees
 } = checkoutDataSlice.actions;
 
 export default checkoutDataSlice.reducer;

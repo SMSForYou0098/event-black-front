@@ -57,7 +57,7 @@ const CartPage = () => {
       user_id: event?.user_id,
       category: categoryData?.categoryData,
     };
-    
+
     const selectedTicket = cartItems.find(
       (ticket) => ticket.id === selectedTickets?.itemId
     );
@@ -68,9 +68,17 @@ const CartPage = () => {
       ticket: selectedTicket,
       edata: eventSummary,
     });
-    
+
     // Alternative: Manual navigation
-    return `/events/checkout/${event_key}/?k=${dataKey}`;
+
+    if (categoryData?.categoryData?.attendy_required === 1) {
+      return `/events/attendee/${event_key}/?k=${dataKey}&categoryId=${event?.category?.id}`;
+    } else {
+      // Alternative: Manual navigation
+      return `/events/checkout/${event_key}/?k=${dataKey}`;
+    }
+
+    // return `/events/checkout/${event_key}/?k=${dataKey}`;
   }
 
   const FetchTickets = async () => {

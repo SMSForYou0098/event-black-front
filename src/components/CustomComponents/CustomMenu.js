@@ -1,25 +1,36 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
-import { Button, Col, Form, Image, Modal, Nav, Row } from "react-bootstrap";
-import { Link, useLocation } from "react-router-dom";
+import { Button, Col, Form, Modal, Nav, Row } from "react-bootstrap";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import axios from "axios";
-import Mumbai from "../../../../assets/event/stock/cities/mumbai.png";
-import Delhi from "../../../../assets/event/stock/cities/delhi.png";
-import Bengaluru from "../../../../assets/event/stock/cities/bangluru.png";
-import Hyderabad from "../../../../assets/event/stock/cities/hydrabad.png";
-import Chandigarh from "../../../../assets/event/stock/cities/chandigargh.png";
-import Ahmedabad from "../../../../assets/event/stock/cities/ahmedabad.png";
-import { useMyContext } from "../../../../Context/MyContextProvider";
+
+import Mumbai from "../../assets/event/stock/cities/mumbai.png";
+import Delhi from "../../assets/event/stock/cities/delhi.png";
+import Bengaluru from "../../assets/event/stock/cities/bangluru.png";
+import Hyderabad from "../../assets/event/stock/cities/hydrabad.png";
+import Chandigarh from "../../assets/event/stock/cities/chandigargh.png";
+import Ahmedabad from "../../assets/event/stock/cities/ahmedabad.png";
+
 import { MapPin } from "lucide-react";
+import { useMyContext } from "@/Context/MyContextProvider";
+
+/**
+ * CustomMenu (Next.js + client)
+ * - Uses Bootstrap theme colors/variants
+ * - Uses next/link + useRouter
+ * - Client-only for geolocation and localStorage
+ */
 
 const CustomMenu = ({ handleClose }) => {
   const { UserData, userRole, isMobile, api, createSlug, systemSetting } = useMyContext();
-  let location = useLocation();
+  const router = useRouter();
+
   const home = userRole === "User" ? "/dashboard/bookings" : "/dashboard";
 
   const CloseMenu = () => {
-    if (handleClose) {
-      handleClose();
-    }
+    if (typeof handleClose === "function") handleClose();
   };
 
   const popularCities = [
@@ -33,37 +44,11 @@ const CustomMenu = ({ handleClose }) => {
 
   const [show, setShow] = useState(false);
   const [menu, setMenu] = useState(null);
-  const handleCloseModel = () => setShow(false);
-  const handleShowMode = () => setShow(true);
-
   const [userLocation, setUserLocation] = useState(null);
   const [error, setError] = useState(null);
 
-  const detectLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          try {
-            const response = await axios.get(
-              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-            );
-            const city = response.data.city || "City not found";
-            console.log(city);
-            setUserLocation(city);
-            setError(null);
-          } catch (err) {
-            setError("Error retrieving city name.");
-          }
-        },
-        (error) => {
-          setError("Unable to retrieve your location.");
-        }
-      );
-    } else {
-      setError("Geolocation is not supported by this browser.");
-    }
-  };
+  const handleCloseModel = () => setShow(false);
+  const handleShowMode = () => setShow(true);
 
   const cityIconStyle = {
     width: "60px",
@@ -71,15 +56,18 @@ const CustomMenu = ({ handleClose }) => {
     objectFit: "cover",
   };
 
-  // Helper: Compare two menus deeply (simple JSON stringify compare)
+  // Simple deep-compare via JSON.stringify (ok for menu objects)
   const isMenuDataEqual = (menuA, menuB) => {
-    return JSON.stringify(menuA) === JSON.stringify(menuB);
+    try {
+      return JSON.stringify(menuA) === JSON.stringify(menuB);
+    } catch (e) {
+      return false;
+    }
   };
 
-  // Updated GetMenu with caching logic
+  // Fetch menu with localStorage caching
   const GetMenu = async () => {
     try {
-      // First try to get menu data from localStorage cache
       const cachedMenuString = localStorage.getItem("cachedMenu");
       let cachedMenu = null;
 
@@ -93,44 +81,85 @@ const CustomMenu = ({ handleClose }) => {
         }
       }
 
-      // Fetch latest menu from API
+      // Fetch latest
       const res = await axios.get(`${api}active-menu`);
-      const latestMenu = res.data?.menu?.navigation_menu;
+      const latestMenu = res?.data?.menu?.navigation_menu ?? null;
 
       if (!cachedMenu || !isMenuDataEqual(cachedMenu, latestMenu)) {
-        // If no cached data or data changed, update localStorage and state
         setMenu(latestMenu);
-        localStorage.setItem("cachedMenu", JSON.stringify(latestMenu));
+        try {
+          localStorage.setItem("cachedMenu", JSON.stringify(latestMenu));
+        } catch (e) {
+          console.warn("Could not cache menu:", e);
+        }
       }
-    } catch (error) {
-      console.log(error);
-      // Optionally, handle error - e.g., fallback to cached data or show error message
+    } catch (err) {
+      console.error("GetMenu error:", err);
+      // fallback to cached menu already set above
     }
   };
 
   useEffect(() => {
+    // only run on client
     GetMenu();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getClassName = (menu, location) => {
-    const isActive =
-      location.pathname === `/home/dashboard/bookings/${createSlug(menu?.title)}` ||
-      location.pathname === `/home/dashboard/${createSlug(menu?.title)}`;
-    return `${isActive ? "active" : ""} `;
+  // Geolocation + reverse-geocode using BigDataCloud
+  const detectLocation = () => {
+    if (!navigator || !navigator.geolocation) {
+      setError("Geolocation is not supported by this browser.");
+      return;
+    }
+
+    setError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await axios.get(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+          );
+          const city = response?.data?.city || response?.data?.locality || "City not found";
+          setUserLocation(city);
+          setError(null);
+        } catch (err) {
+          console.error("reverse geocode error", err);
+          setError("Error retrieving city name.");
+        }
+      },
+      (geolocErr) => {
+        console.error("geolocation error", geolocErr);
+        setError("Unable to retrieve your location.");
+      }
+    );
   };
 
-  const getLinkTo = (menu) => {
-    let isHome = menu?.title?.toLowerCase() === "home";
-    if (isHome) {
-      return menu?.type === 1 ? menu?.external_url : `home`;
-    } else {
-      return menu?.type === 1 ? menu?.external_url : `home/${createSlug(menu?.title)}`;
+  // Active class calculation using router.pathname
+  const getClassName = (menuItem) => {
+    const slug = createSlug?.(menuItem?.title) ?? menuItem?.title?.toLowerCase?.();
+    const path1 = `/home/dashboard/bookings/${slug}`;
+    const path2 = `/home/dashboard/${slug}`;
+    const isActive = router?.pathname === path1 || router?.pathname === path2;
+    return isActive ? "active" : "";
+  };
+
+  const getLinkTo = (menuItem) => {
+    const isHome = menuItem?.title?.toLowerCase?.() === "home";
+    if (menuItem?.type === 1) {
+      // external link
+      return menuItem?.external_url || "#";
     }
+    if (isHome) {
+      return "/home";
+    }
+    return `/home/${createSlug(menuItem?.title)}`;
   };
 
   return (
     <>
-      {/* modal */}
+      {/* City selector modal */}
       <Modal show={show} onHide={handleCloseModel} centered size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Select Your City</Modal.Title>
@@ -140,76 +169,86 @@ const CustomMenu = ({ handleClose }) => {
             <Form.Group controlId="citySearch">
               <Form.Control type="text" placeholder="Search for your city" />
             </Form.Group>
-            <Button variant="primary" className="w-100 my-3" onClick={() => detectLocation()}>
+
+            <Button variant="primary" className="w-100 my-3" onClick={detectLocation} aria-label="Detect my location">
               Detect my location
             </Button>
+
+            {error && <div className="text-danger small mb-2">{error}</div>}
+            {userLocation && <div className="text-success small mb-2">Detected: {userLocation}</div>}
           </Form>
-          <h5 className="text-center">Popular Cities</h5>
-          <Row>
+
+          <h5 className="text-center mt-3">Popular Cities</h5>
+          <Row className="mt-2">
             {popularCities.map((city, index) => (
-              <Col xs={4} md={3} lg={2} key={index} className="text-center">
-                <Image src={city.icon} alt={city.name} fluid className="mb-2" style={cityIconStyle} />
-                <p>{city.name}</p>
+              <Col xs={4} md={3} lg={2} key={index} className="text-center mb-3">
+                <img src={city.icon.src ?? city.icon} alt={city.name} style={cityIconStyle} className="mb-2 rounded" />
+                <p className="mb-0 small">{city.name}</p>
               </Col>
             ))}
           </Row>
-          {/* <div className="text-center mt-3">
-                        <Button variant="link">View All Cities</Button>
-                        {popularCities.map((city, index) => (
-                            <Col xs={4} md={3} lg={2} key={index} className="text-center">
-                                <Image src={city.icon} alt={city.name} fluid className="mb-2" style={cityIconStyle}/>
-                                <p>{city.name}</p>
-                            </Col>
-                        ))}
-                    </div> */}
         </Modal.Body>
       </Modal>
-      {/* end modal */}
 
-      {menu?.map((menu, index) => (
-        <Nav.Item as="li" key={index}>
-          <Link
-            target={menu?.new_tab === 1 ? "_blank" : "_self"}
-            className={getClassName(menu, location)}
-            style={{ color: systemSetting?.fontColor }}
-            to={getLinkTo(menu)}
-            onClick={() => CloseMenu()}
-          >
-            {menu?.title}
-          </Link>
-        </Nav.Item>
-      ))}
+      {/* Render navigation menu items */}
+      {Array.isArray(menu) &&
+        menu.map((menuItem, index) => {
+          const href = getLinkTo(menuItem);
+          const target = menuItem?.new_tab === 1 ? "_blank" : "_self";
+          const isActive = getClassName(menuItem) === "active";
+          const linkClass = `nav-link ${isActive ? "active text-primary" : "text-muted"}`;
 
-      <div className="alt d-flex justify-content-center gap-1 align-items-center">
+          return (
+            <Nav.Item as="li" key={index}>
+              {/* If external, still use Link but add rel for safety */}
+              <Link
+                href={href}
+                target={target}
+                className={linkClass}
+                style={{ color: isActive ? undefined : systemSetting?.fontColor ?? undefined, textDecoration: "none" }}
+                onClick={CloseMenu}
+                rel={target === "_blank" ? "noopener noreferrer" : undefined}
+                aria-current={isActive ? "page" : undefined}
+              >
+                {menuItem?.title}
+              </Link>
+            </Nav.Item>
+          );
+        })}
+
+      {/* City + Dashboard/Login controls */}
+      <div className="alt d-flex justify-content-center gap-2 align-items-center mt-3">
         {!isMobile && <hr className="hr-horizontal" style={{ width: "35px", transform: "rotate(90deg)" }} />}
+
         <Nav.Item
           as="li"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             handleShowMode();
-            // if (handleClose) {
-                        //     handleClose();
-                        // }
           }}
         >
           <div style={{ cursor: "pointer" }} className="d-flex align-items-center">
-            <MapPin size={16} color={systemSetting?.fontColor} />
-            <Link className={`nav-link `} style={{ color: systemSetting?.fontColor }} to="#">
-              {" "}
-              City{" "}
-            </Link>
+            <MapPin size={16} color="var(--bs-primary)" aria-hidden />
+            <a
+              className="nav-link ms-2 p-0"
+              // style={{ color: systemSetting?.fontColor ?? "var(--bs-light)" }}
+              href="#"
+              onClick={(ev) => ev.preventDefault()}
+              aria-label="Select city"
+            >
+              City
+            </a>
           </div>
         </Nav.Item>
+
         <hr className="hr-horizontal" style={{ width: "35px", transform: "rotate(90deg)" }} />
-        <Nav.Item as="li" onClick={() => CloseMenu()} className="">
-          <Link
-            className={`${
-              location.pathname === ("/sign-in" || home) ? "active" : ""
-            } nav-link btn btn-secondary text-white px-3 py-1`}
-            to={UserData && Object.keys(UserData)?.length > 0 ? home : "/sign-in"}
-          >
-            {UserData && Object.keys(UserData)?.length > 0 ? "Dashboard" : "Login"}
+
+        <Nav.Item as="li" onClick={() => CloseMenu()}>
+          <Link href={UserData && Object.keys(UserData)?.length > 0 ? home : "/sign-in"} className="text-decoration-none">
+            <Button variant="secondary" size="sm" className="px-3 py-1">
+              {UserData && Object.keys(UserData)?.length > 0 ? "Dashboard" : "Login"}
+            </Button>
           </Link>
         </Nav.Item>
       </div>

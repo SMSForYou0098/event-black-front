@@ -6,6 +6,7 @@ import HeaderDefault from "../components/partials/HeaderDefault";
 
 // footer
 import FooterDefault from "../components/partials/FooterDefault";
+import MobileBottomMenu from "../components/partials/MobileBottonMenu";
 
 //breadcrumb
 import BreadCrumbWidget from "@/components/BreadcrumbWidget";
@@ -14,8 +15,9 @@ import BreadCrumbWidget from "@/components/BreadcrumbWidget";
 import SettingOffCanvas from "../components/setting/SettingOffCanvas";
 
 import StickyContent from "../utils/StickyContent";
+import { useMyContext } from "@/Context/MyContextProvider";
 const Frontend = (({ children }) => {
-
+const {isMobile, isTablet} = useMyContext();
   return (
     <>
       <main className="main-content">
@@ -24,7 +26,8 @@ const Frontend = (({ children }) => {
 
         {children}
       </main>
-      <FooterDefault />
+
+      {isMobile || isTablet ? <MobileBottomMenu /> : <FooterDefault />}
       <StickyContent />
       <SettingOffCanvas />
     </>

@@ -118,8 +118,8 @@ const FAQPage = memo(() => {
                         onClick={() => toggleAccordion(faqItem.id)}
                       >
                         <div className="iq-accordian-title">
-                          <div className="iq-icon-right">
-                            <i aria-hidden="true" className="fa fa-minus active"></i>
+                          <div className="iq-icon-right"   style={{ backgroundColor: "var(--bs-body-bg)" }}>
+                            <i aria-hidden="true" className="fa fa-minus active bd"></i>
                             <i aria-hidden="true" className="fa fa-plus inactive"></i>
                           </div>
                           <h4 className="mb-0 accordian-title iq-heading-title fs-6">
