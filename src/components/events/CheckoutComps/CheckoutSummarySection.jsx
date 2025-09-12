@@ -8,12 +8,12 @@ export const CheckoutSummarySection = ({
   couponCode,
   setCouponCode,
   handleApplyCoupon,
+  promoCodeLoading,
   isExpanded,
   setIsExpanded
 }) => (
   <div className="modern-checkout-summary">
     <ETicketAlert />
-    
     <MotionWrapper
       variant="fadeInUp" 
       delay={0.2} 
@@ -23,6 +23,7 @@ export const CheckoutSummarySection = ({
         couponCode={couponCode}
         setCouponCode={setCouponCode}
         handleApplyCoupon={handleApplyCoupon}
+        promoCodeLoading={promoCodeLoading}
       />
 
       <div className="p-4">

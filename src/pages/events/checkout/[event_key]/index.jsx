@@ -12,7 +12,7 @@ import { createOrderData } from "../../../../components/events/CheckoutComps/che
 import { useSelector } from "react-redux";
 import { selectCheckoutDataByKey } from "@/store/customSlices/checkoutDataSlice";
 import { api } from "@/lib/axiosInterceptor";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ErrorExtractor } from "@/utils/consts";
 import paymentLoader from "../../../../assets/event/stock/payment_processing.gif";
 import { checkForDuplicateAttendees, sanitizeInput, validateAttendeeData } from "../../../../components/CustomComponents/AttendeeStroreUtils";
@@ -98,48 +98,66 @@ const CartPage = () => {
 
 
 
-  const handleApplyCoupon = async () => {
-    if (!checkoutData?.event?.user_id) {
-      ErrorAlert('Event organizer information is missing');
-      return;
-    }
+  const applyCouponMutation = useMutation({
+  // mutation function as option
+  mutationFn: ({ userId, payload }) => api.post(`/check-promo-code/${userId}`, payload),
 
-    if (!checkoutData?.data?.itemId) {
-      ErrorAlert('Please select a ticket first');
-      return;
-    }
+  onSuccess: (res) => {
+    const resp = res?.data;
+    if (resp?.status) {
+      const promoData = resp.promo_data ?? {};
 
-    if (!calculatedTotal) {
-      ErrorAlert('Total amount cannot be zero');
-      return;
-    }
-
-    if (!couponCode || couponCode.trim() === '') {
-      ErrorAlert('Please enter a promo code');
-      return;
-    }
-    try {
-      const res = await api.post(`/check-promo-code/${checkoutData?.event?.user_id}`, {
-        ticket_id: checkoutData?.ticket?.id,
-        amount: calculatedTotal,
-        promo_code: couponCode,
+      setPromo({
+        discount: Number(promoData?.discount_value ?? 0),
+        discountType: promoData?.discount_type ?? null,
+        appliedCode: promoData?.code ?? couponCode,
       });
-      if (res.data.status) {
-        // console.log(res.data);
-        const data = res.data.promo_data
-        setPromo({
-          discount: Number(data?.discount_value),
-          discountType: data?.discount_type,
-          appliedCode: data?.promo_data?.code,
-        });
-        successAlert(res.data.message)
-      } else {
-        ErrorAlert(res.data.message)
-      }
-    } catch (err) {
-      ErrorAlert(ErrorExtractor(err))
+
+      successAlert(resp.message || 'Promo applied successfully');
+
+      // optional: refresh any queries relying on checkout/pricing
+      // queryClient.invalidateQueries(['checkout', checkoutKey]);
+    } else {
+      ErrorAlert(resp?.message || 'Failed to apply promo code');
     }
-  };
+  },
+
+  onError: (err) => {
+    ErrorAlert(ErrorExtractor(err));
+  },
+});
+
+const handleApplyCoupon = () => {
+  // validations (unchanged)
+  if (!checkoutData?.event?.user_id) {
+    ErrorAlert('Event organizer information is missing');
+    return;
+  }
+
+  if (!checkoutData?.ticket?.id && !checkoutData?.data?.itemId) {
+    ErrorAlert('Please select a ticket first');
+    return;
+  }
+
+  if (!calculatedTotal) {
+    ErrorAlert('Total amount cannot be zero');
+    return;
+  }
+
+  if (!couponCode || couponCode.trim() === '') {
+    ErrorAlert('Please enter a promo code');
+    return;
+  }
+
+  applyCouponMutation.mutate({
+    userId: checkoutData.event.user_id,
+    payload: {
+      ticket_id: checkoutData?.ticket?.id ?? checkoutData?.data?.itemId,
+      amount: calculatedTotal,
+      promo_code: couponCode.trim(),
+    },
+  });
+};
 
   const { data: taxData } = useQuery({
     queryKey: ["taxes", 1],
@@ -525,6 +543,7 @@ const CartPage = () => {
               handleApplyCoupon={handleApplyCoupon}
               isExpanded={isExpanded}
               setIsExpanded={setIsExpanded}
+              promoCodeLoading={applyCouponMutation.isPending}
             />
           </Col>
           <Col lg="4" md="5">

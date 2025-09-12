@@ -1,83 +1,82 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Modal, Button, Row, Col, Card, Image, Form, InputGroup } from 'react-bootstrap';
-import { useMyContext } from "@/Context/MyContextProvider"; //done
+import { useMyContext } from "@/Context/MyContextProvider";
 import { PlusIcon, Search } from 'lucide-react';
-import { CustomCheckbox } from '../../CustomComponents/CustomFormFields';
 import CustomBtn from '../../../utils/CustomBtn';
+
 const AttendySugettion = (props) => {
   const { requiredFields, data, showAddAttendeeModal, setShowAddAttendeeModal, setAttendeesList, quantity, openAddModal, totalAttendee } = props;
   const [selectedAttendees, setSelectedAttendees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const { ErrorAlert, isMobile } = useMyContext()
 
-  const handleSelectAttendee = (e, attendee, index) => {
-    const isChecked = e.target.checked;
-
-    // helper to extract a stable id from attendee object (try common fields)
-    const getId = (a) => a?.id ?? a?._id ?? a?.iud ?? a?.uuid ?? null;
+  // Helper function to get a stable ID from attendee object
+  const getId = (a) => a?.id ?? a?._id ?? a?.iud ?? a?.uuid ?? null;
+  
+  // Check if an attendee is selected
+  const isAttendeeSelected = (attendee) => {
     const attId = getId(attendee);
+    return attId 
+      ? selectedAttendees.some(s => getId(s) === attId)
+      : selectedAttendees.includes(attendee);
+  };
 
+  const handleSelectAttendee = (attendee, index) => {
+    const attId = getId(attendee);
+    const isSelected = isAttendeeSelected(attendee);
+    
+    // If already selected, deselect it
+    if (isSelected) {
+      setSelectedAttendees(prev => 
+        attId 
+          ? prev.filter(item => getId(item) !== attId)
+          : prev.filter(item => item !== attendee)
+      );
+      
+      setAttendeesList(prevList => 
+        attId 
+          ? prevList.filter(item => getId(item) !== attId)
+          : prevList.filter(item => item !== attendee)
+      );
+      return;
+    }
+    
+    // If not selected, check if we can add more
+    if (selectedAttendees.length >= quantity) {
+      ErrorAlert("Maximum number of attendees reached");
+      return;
+    }
+    
+    // Add to selected attendees
     const missingFields = requiredFields
       .filter((field) => attendee[field] == null)
       .map((field) => field);
 
-    setSelectedAttendees((prevSelected) => {
-      // find-by-id helpers
-      const alreadySelected = attId
-        ? prevSelected.some((s) => getId(s) === attId)
-        : prevSelected.includes(attendee);
-
-      if (isChecked) {
-        if (alreadySelected) {
-          // already present — no change
-          return prevSelected;
-        }
-
-        if (prevSelected.length < quantity) {
-          const updatedSelected = [...prevSelected, attendee];
-
-          // also add to attendeeList but avoid duplicates there too (compare by id)
-          setAttendeesList((prevList) => {
-            const existsInList = attId
-              ? prevList.some((p) => getId(p) === attId)
-              : prevList.some((p) => p === attendee);
-
-            if (existsInList) return prevList;
-
-            return [...prevList, { ...attendee, missingFields, index }];
-          });
-
-          return updatedSelected;
-        } else {
-          ErrorAlert("Maximum number of attendees reached");
-          return prevSelected;
-        }
-      } else {
-        // unchecked -> remove by id (if available) or by reference fallback
-        const updatedSelected = attId
-          ? prevSelected.filter((item) => getId(item) !== attId)
-          : prevSelected.filter((item) => item !== attendee);
-
-        setAttendeesList((prevList) =>
-          attId ? prevList.filter((item) => getId(item) !== attId) : prevList.filter((item) => item !== attendee)
-        );
-
-        return updatedSelected;
-      }
+    setSelectedAttendees(prev => [...prev, attendee]);
+    
+    // Add to attendees list if not already there
+    setAttendeesList(prevList => {
+      const existsInList = attId
+        ? prevList.some(p => getId(p) === attId)
+        : prevList.includes(attendee);
+      
+      if (existsInList) return prevList;
+      
+      return [...prevList, { ...attendee, missingFields, index }];
     });
   };
 
   const handleConfirmAttendees = () => {
-
     setShowAddAttendeeModal(false);
   };
+  
   const HandleClose = () => {
-    console.log('Selected Attendees:', selectedAttendees);
     if (quantity !== totalAttendee) {
       openAddModal(true)
     }
     setShowAddAttendeeModal(false);
   }
+  
   const filteredAttendees = useMemo(() => {
     if (!searchTerm.trim()) return data;
     const searchLower = searchTerm.toLowerCase();
@@ -89,7 +88,7 @@ const AttendySugettion = (props) => {
       )
     );
   }, [searchTerm, data]);
-  // console.log('isMobile', isMobile);
+
   return (
     <Modal show={showAddAttendeeModal} onHide={() => HandleClose()} size='xl' centered>
       <Modal.Header className="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-between p-2 px-4">
@@ -116,27 +115,34 @@ const AttendySugettion = (props) => {
       </Modal.Header>
       <Modal.Body className="p-3">
         <Row className='g-3 overflow-auto' style={{ maxHeight: isMobile ? '25rem' : '40rem' }}>
-          {filteredAttendees?.map((attendee, index) => (
-            <Col md={4} key={index}>
-              <Card className='p-0 card-glassmorphism cursor-pointer shadow-none'>
-                <Card.Body>
-                  <div className=" d-flex align-items-center gap-2">
-                    <CustomCheckbox
-                      disabled={
-                        selectedAttendees.length >= quantity &&
-                        !selectedAttendees.includes(attendee)
-                      }
-                      validationMessage="Checkbox is required"
-                      onChange={(e) => handleSelectAttendee(e, attendee, index)}
-                    />
-                    <div className="custom-checkbox-label">
-                      <div className="d-flex align-items-center gap-2">
+          {filteredAttendees?.map((attendee, index) => {
+            const isSelected = isAttendeeSelected(attendee);
+            const isDisabled = selectedAttendees.length >= quantity && !isSelected;
+            
+            return (
+              <Col md={4} key={index}>
+                <Card 
+                  className={`p-0 card-glassmorphism cursor-pointer shadow-none ${isSelected ? 'border-primary' : ''} ${isDisabled ? 'opacity-50' : ''}`}
+                  onClick={() => !isDisabled && handleSelectAttendee(attendee, index)}
+                  style={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}
+                >
+                  <Card.Body>
+                    <div className="d-flex align-items-center gap-2">
+                      <Form.Check 
+                        type="checkbox"
+                        checked={isSelected}
+                        disabled={isDisabled}
+                        onChange={() => {}} // Empty handler to prevent React warning
+                        // className="me-2"
+                        style={{ cursor: isDisabled ? 'not-allowed' : 'pointer' , width: '1.5rem', height: '1.5rem' , transform: 'scale(1.3)'}}
+                      />
+                      <div className="d-flex align-items-center gap-2 w-100">
                         <div className="d-flex">
                           {attendee?.Photo &&
                             <Image
                               loading='lazy'
                               style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }}
-                              src={`${attendee?.Photo}?v=${new Date().getTime()}`} // forces reload
+                              src={`${attendee?.Photo}?v=${new Date().getTime()}`}
                               alt='attendee Image'
                             />
                           }
@@ -148,24 +154,22 @@ const AttendySugettion = (props) => {
                           <p className='m-0 p-0'>
                             <strong>Number:</strong> {attendee?.Mo}
                           </p>
-                          {
-                            attendee?.Email &&
-                            <p>
+                          {attendee?.Email &&
+                            <p className='m-0 p-0'>
                               <strong>Email:</strong> {attendee?.Email}
                             </p>
                           }
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
+                  </Card.Body>
+                </Card>
+              </Col>
+            );
+          })}
         </Row>
         <div className="d-flex justify-content-center m-3">
           <CustomBtn
-            // variant="secondary"
             className="me-2 custom-dark-content-bg border-0"
             HandleClick={() => HandleClose()}
             icon={<PlusIcon />}

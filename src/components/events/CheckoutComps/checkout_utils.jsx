@@ -118,7 +118,7 @@ export const TotalAmountHeader = ({
   </motion.div>
 );
 import { motion, AnimatePresence } from 'framer-motion';
-import { Alert, Form, Button, Table, Card, InputGroup } from 'react-bootstrap';
+import { Alert, Form, Button, Table, Card, InputGroup, Spinner } from 'react-bootstrap';
 import { Receipt, Tag, ChevronDown, Ticket, Crown } from 'lucide-react';
 import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY } from '../../../utils/consts';
 import { decrypt } from '../../../utils/crypto';
@@ -168,7 +168,8 @@ export const ETicketAlert = () => (
 export const PromoCodeSection = ({
   couponCode,
   setCouponCode,
-  handleApplyCoupon
+  handleApplyCoupon,
+  promoCodeLoading,
 }) => (
   <MotionWrapper variant="fadeIn" delay={0.4} className="p-4 border-bottom">
     <InputGroup>
@@ -187,8 +188,24 @@ export const PromoCodeSection = ({
         size="sm"
         className="rounded-3 rounded-start-0"
         onClick={handleApplyCoupon}
+        disabled={promoCodeLoading}
+        aria-disabled={promoCodeLoading}
+        aria-busy={promoCodeLoading}
       >
-        Apply
+        {promoCodeLoading ? (
+          <>
+            <Spinner
+              animation="border"
+              size="sm"
+              role="status"
+              aria-hidden="true"
+              className="me-2"
+            />
+            <span>Applying…</span>
+          </>
+        ) : (
+          <>Apply</>
+        )}
       </Button>
     </InputGroup>
   </MotionWrapper>

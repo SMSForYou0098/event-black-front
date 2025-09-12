@@ -53,7 +53,6 @@ const DynamicAttendeeForm = ({
   const [errors, setErrors] = useState({});
   const [showSuggestionPanel, setShowSuggestionPanel] = useState(false);
   // const router = useRouter();
-
   // React Query: fetch existing attendees (React Query owns fetch; we update local state in onSuccess safely)
   const fetchExistingAttendees = async () => {
     if (!UserData?.id || !categoryId) return [];
@@ -390,7 +389,7 @@ const DynamicAttendeeForm = ({
           )}
         </Card.Body>
       </Card>
-      {attendeeList?.length < quantity && showAttendeeSuggetion && attendeeList?.length === 0 &&
+      {/* {attendeeList?.length < quantity && showAttendeeSuggetion && attendeeList?.length === 0 && */}
         <AttendySugettion
           quantity={quantity}
           totalAttendee={attendeeList?.length}
@@ -402,7 +401,7 @@ const DynamicAttendeeForm = ({
           requiredFields={requiredFields}
           setAttendeesList={setAttendeesList}
         />
-      }
+      {/* }  */}
       {/* )} */}
 
       {/* Modal for add/edit attendee */}
