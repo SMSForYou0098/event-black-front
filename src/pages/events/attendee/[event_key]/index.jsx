@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectCheckoutDataByKey, updateAttendees } from "@/store/customSlices/checkoutDataSlice";
 import { useMyContext } from "@/Context/MyContextProvider";
-import { Button, Col, Row, Spinner } from "react-bootstrap";
+import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
 import DynamicAttendeeForm from "../../../../components/events/Attendees/DynamicAttendeeForm";
 import { useDispatch } from "react-redux";
@@ -15,7 +15,7 @@ import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFoo
 const AttendeePage = () => {
   const router = useRouter();
   const { categoryId, k, event_key } = router.query ?? {};
-  const { fetchCategoryData ,isMobile} = useMyContext();
+  const { fetchCategoryData, isMobile } = useMyContext();
   const [categoryData, setCategoryData] = useState(null);
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [attendeeList, setAttendeesList] = useState([]);
@@ -127,58 +127,59 @@ const AttendeePage = () => {
 
   return (
     <div className="mt-5 pt-5">
-      <CartSteps id={2} showAttendee={true} />
-
-      <Row className="m-0 p-0">
-        <Col lg="8">
-          <DynamicAttendeeForm
-            loadingCategory={loadingCategory}
-            requiredFields={requiredFieldNames}
-            setAttendeesList={onSetAttendeesList}
-            attendeeList={attendeeList}
-            apiData={categoryData}
-            categoryId={categoryId}
-            data={data}
-            selectedTickets={data?.data}
-            quantity={quantity}
-            event_key={event_key}
-          />
-          {hasMissingFields && (
-            <div className="mt-2 text-danger">
-              Please fill all required fields for each attendee before saving.
-            </div>
-          )}
-        </Col>
-        <Col lg="4">
-          <TicketDataSummary
-            eventName={data?.event.name}
-            ticketName={data?.ticket.name}
-            price={data?.ticket.price}
-            quantity={quantity}
-            hidePrices={true}
-          />
-          {isMobile ? (
-            <BookingMobileFooter
-              HandleClick={handleSaveAttendees}
+      <Container>
+        <CartSteps id={2} showAttendee={true} />
+        <Row className="m-0 p-0">
+          <Col lg="8">
+            <DynamicAttendeeForm
+              loadingCategory={loadingCategory}
+              requiredFields={requiredFieldNames}
+              setAttendeesList={onSetAttendeesList}
+              attendeeList={attendeeList}
+              apiData={categoryData}
+              categoryId={categoryId}
+              data={data}
               selectedTickets={data?.data}
+              quantity={quantity}
+              event_key={event_key}
             />
-          ) : (
-            <div className="d-flex align-items-center justify-content-between gap-3">
-              <CustomBtn
-                className="custom-dark-content-bg border-secondary"
-                HandleClick={() => window.history.back()}
-                buttonText={"Back to Tickets"}
-                icon={<i className="fa-solid fa-arrow-left"></i>}
-              />
-              <CustomBtn
-                disabled={hasMissingFields || (attendeeList?.length !== quantity)}
+            {hasMissingFields && (
+              <div className="mt-2 text-danger">
+                Please fill all required fields for each attendee before saving.
+              </div>
+            )}
+          </Col>
+          <Col lg="4">
+            <TicketDataSummary
+              eventName={data?.event.name}
+              ticketName={data?.ticket.name}
+              price={data?.ticket.price}
+              quantity={quantity}
+              hidePrices={true}
+            />
+            {isMobile ? (
+              <BookingMobileFooter
                 HandleClick={handleSaveAttendees}
-                buttonText={"Save & Continue"}
+                selectedTickets={data?.data}
               />
-            </div>
-          )}
-        </Col>
-      </Row>
+            ) : (
+              <div className="d-flex align-items-center justify-content-between gap-3">
+                <CustomBtn
+                  className="custom-dark-content-bg border-secondary"
+                  HandleClick={() => window.history.back()}
+                  buttonText={"Back to Tickets"}
+                  icon={<i className="fa-solid fa-arrow-left"></i>}
+                />
+                <CustomBtn
+                  disabled={hasMissingFields || (attendeeList?.length !== quantity)}
+                  HandleClick={handleSaveAttendees}
+                  buttonText={"Save & Continue"}
+                />
+              </div>
+            )}
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 };

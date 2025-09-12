@@ -44,7 +44,7 @@
     "src/pages/auth/login.jsx",
     "src/pages/auth/auth-success.jsx",
     "src/pages/auth/two-factor.jsx",
-    "src/lib/axiosInterceptor.js",
+    "src/lib/axiosInterceptor.jsx",
     "src/pages/_app.jsx"
 , "src/layouts/Frontend.jsx", "src/store/auth/authSlice.js", "src/store/index.js"  ],
   "exclude": ["node_modules"]

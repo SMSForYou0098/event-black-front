@@ -1,42 +1,36 @@
 import { ChevronRightCircle } from "lucide-react";
+import { useRouter } from "next/router";
 const CartSteps = ({ id, showAttendee }) => {
   // Define steps without 'number'
   const steps = [
-    { title: "Cart", id: 1 },
-    ...(showAttendee ? [{ title: "Attendee", id: 2 }] : []),
-    {
-      title: "Checkout",
-      id: showAttendee ? 3 : 2,
-    },
-    {
-      title: "Summary",
-      id: showAttendee ? 4 : 3,
-    },
+    { title: "Cart", id: 1, path: "cart" },
+    ...(showAttendee ? [{ title: "Attendee", id: 2, path: "attendee" }] : []),
+    { title: "Checkout", id: showAttendee ? 3 : 2, path: "checkout" },
+    { title: "Summary", id: showAttendee ? 4 : 3, path: "summary" },
   ];
 
-  // Add sequential numbers
+
   const CART_STEPS = steps.map((step, idx) => ({
     ...step,
     number: idx + 1,
   }));
 
-  // Determine which step is active
-  const activeStepIndex =
-    id === "last"
-      ? CART_STEPS.length - 1
-      : CART_STEPS.findIndex((step) => step.id === id);
+  // Add sequential numbers
+  const router = useRouter();
+  const pathname = router.asPath || router.pathname;
+  const activeStepIndex = CART_STEPS.findIndex((step) =>
+    pathname.includes(`/events/${step.path}/`)
+  );
 
   const CartStep = ({ step, isLast, index }) => (
     <>
       <li
-        className={`d-flex justify-content-center align-items-center gap-2 cart-page-item ${
-          index === activeStepIndex ? "active" : ""
-        }`}
+        className={`d-flex justify-content-center align-items-center gap-2 cart-page-item ${index === activeStepIndex ? "active" : ""
+          }`}
       >
         <span
-          className={`cart-pre-heading badge cart-pre-number border-radius rounded-circle me-1 ${
-            index === activeStepIndex ? "bg-primary" : ""
-          }`}
+          className={`cart-pre-heading badge cart-pre-number border-radius rounded-circle me-1 ${index === activeStepIndex ? "bg-primary" : ""
+            }`}
         >
           {step.number}
         </span>
