@@ -243,7 +243,7 @@ export const parseUrlData = (data, ticket, edata) => {
 };
 
 export const TicketDataSummary = (props) => {
-  const { eventName, ticketName, price, quantity, subTotal, processingFee, total } = props;
+  const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices = false } = props;
   const sectionIconStyle = {
     color: CUSTOM_SECONDORY,
     size: 20,
@@ -281,22 +281,25 @@ export const TicketDataSummary = (props) => {
           </div>
           <span className="text-white fw-bold fs-6">{quantity}</span>
         </div>
+        {!hidePrices &&
+          <>
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <span>Subtotal</span>
+              <span className="text-white fw-bold">₹{subTotal}</span>
+            </div>
 
-        <div className="d-flex justify-content-between align-items-center mb-2">
-          <span>Subtotal</span>
-          <span className="text-white fw-bold">₹{subTotal}</span>
-        </div>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <span>Processing Fee</span>
+              <span className="text-white fw-bold">₹{processingFee || 0}</span>
+            </div>
+            <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' />
 
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <span>Processing Fee</span>
-          <span className="text-white fw-bold">₹{processingFee || 0}</span>
-        </div>
-        <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' />
-
-        <div className="d-flex justify-content-between align-items-center">
-          <span className="text-white fw-bold fs-5">Total Amount</span>
-          <span className='custom-text-secondary h5 fw-bold'>₹{total}</span>
-        </div>
+            <div className="d-flex justify-content-between align-items-center">
+              <span className="text-white fw-bold fs-5">Total Amount</span>
+              <span className='custom-text-secondary h5 fw-bold'>₹{total}</span>
+            </div>
+          </>
+        }
       </Card.Body>
     </Card>
   )

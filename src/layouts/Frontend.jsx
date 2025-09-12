@@ -27,7 +27,7 @@ const {isMobile, isTablet} = useMyContext();
         {children}
       </main>
 
-      {isMobile || isTablet ? <MobileBottomMenu /> : <FooterDefault />}
+      {/* {isMobile || isTablet ? <MobileBottomMenu /> : <FooterDefault />} */}
       <StickyContent />
       <SettingOffCanvas />
     </>

@@ -2,6 +2,15 @@
 @import '../assets/scss/custom.scss';
 @import '../assets/scss/rtl.scss';
 
+
+input,
+select,
+textarea,
+.form-control,
+.form-select {
+  border-radius: 0.5rem;
+}
+
 .custom-text-secondary {
   color: #ff4757 !important;
 }
@@ -9,7 +18,13 @@
   background-color: #161619a9 !important;
   // background-color: #141314 !important;
   color: var(--bs-white) !important;
+  transition: 0.3s all;
+  // & :hover {
+  //   color: var(--bs-white) !important;
+  //     background-color: #232328a9 !important;
+  // }
 }
+
 .custom-dark-bg {
   border : none !important;
   border-radius: 1rem !important;
@@ -37,7 +52,7 @@
 // checkout page order summary theme end
 
 .swal2-container {
-  background: rgba(0, 0, 0, 0.6) !important;
+  background: rgba(0, 0, 0, 0.8) !important;
 }
 
 .swal2-popup {
@@ -69,6 +84,12 @@
 
 .border-dashed {
   border-width: 2px !important;
+  border-style: dashed !important;
+  border-color: rgba(255, 255, 255, 0.2) !important; // semi-transparent white
+  border-radius: 1rem !important; // optional, for rounded corners
+}
+.border-dashed-thin {
+  border-width: 1px !important;
   border-style: dashed !important;
   border-color: rgba(255, 255, 255, 0.2) !important; // semi-transparent white
   border-radius: 1rem !important; // optional, for rounded corners
@@ -146,6 +167,10 @@ fieldset:disabled .btn {
   display: none;
 }
 
+.card-footer {
+  background: transparent;
+  border: none;
+}
 
 .card-glassmorphism {
   border-radius: 16px;
@@ -161,7 +186,7 @@ fieldset:disabled .btn {
 
 // Styled input fields for the glassmorphism card
 .card-glassmorphism__input {
-  border-radius: .25rem !important;
+  // border-radius: .25rem !important;
   background: rgba(20, 20, 20, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff !important;
@@ -242,4 +267,21 @@ fieldset:disabled .btn {
     background: #555;
     box-shadow: none;
   }
+}
+
+.modal-content {
+  @extend .card-glassmorphism;
+}
+
+.modal-backdrop {
+  opacity : 0.7 !important;
+}
+
+//table
+.table thead tr {
+  background: transparent !important;
+}
+
+table.cart-table thead tr th {
+  @extend .custom-dark-content-bg;
 }

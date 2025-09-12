@@ -1,6 +1,6 @@
 // DynamicAttendeeForm.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import { Col, Row, Button, Card, Form, Modal, InputGroup } from "react-bootstrap";
+import { Col, Row, Button, Card, Form, Modal, InputGroup, Spinner } from "react-bootstrap";
 import Select from "react-select";
 import { api } from "@/lib/axiosInterceptor";
 
@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useMyContext } from "@/Context/MyContextProvider";
 import AttendySugettion from "./AttendySugettion";
-import { Plus as PlusIcon } from "lucide-react";
+import { Plus as PlusIcon, Users } from "lucide-react";
 import Swal from "sweetalert2";
 import BookingsAttendee from "./BookingsAttendee";
 import { processImageFile } from "../../CustomComponents/AttendeeStroreUtils";
@@ -16,6 +16,7 @@ import FaceDetector from "./FaceDetector";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { selectCheckoutDataByKey, updateAttendees } from "@/store/customSlices/checkoutDataSlice";
+import CustomBtn from "../../../utils/CustomBtn";
 
 const DynamicAttendeeForm = ({
   apiData = [],
@@ -27,7 +28,7 @@ const DynamicAttendeeForm = ({
   setAttendees,
   setDisable,
   categoryId,
-  getAttendees = () => {},
+  getAttendees = () => { },
   isAgent = false,
   isCorporate = false,
   showAttendeeSuggetion = true,
@@ -36,11 +37,12 @@ const DynamicAttendeeForm = ({
   disable = false,
   showActions = true,
   requiredFields = [],
-  
+  loadingCategory
+
 }) => {
-  const {  UserData, isMobile, authToken, successAlert, ErrorAlert, AskAlert } = useMyContext();
+  const { UserData, isMobile, authToken, successAlert, ErrorAlert, AskAlert } = useMyContext();
   const router = useRouter();
-  const {  k, event_key } = router.query ?? {};
+  const { k, event_key } = router.query ?? {};
 
   // Local state
   const [existingAttendee, setExistingAttendee] = useState([]);
@@ -68,39 +70,39 @@ const DynamicAttendeeForm = ({
 
   const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
   const attendeesFromRedux =
-        Array.isArray(data.attendees)
-          ? data.attendees
-          : Array.isArray(data?.data?.attendees)
-          ? data.data.attendees
-          : [];
-const { data: fetchedAttendees = [], refetch: refetchExisting } = useQuery({
-  queryKey: ["existingAttendees", UserData?.id, categoryId, isCorporate, isAgent],
-  queryFn: fetchExistingAttendees,
-  enabled: !!UserData?.id && !!categoryId && showAttendeeSuggetion,
-  staleTime: 5 * 60 * 1000,
-  onSuccess: (data) => {
-    // Only update if changed to avoid extra renders
-    const same =
-      existingAttendee.length === data.length &&
-      existingAttendee.every((e, i) => e.id === data[i]?.id);
-  },
-  onError: (err) => {
-    console.error("Failed to fetch existing attendees", err);
-    ErrorAlert( err?.response?.data?.message ||"Failed to fetch existing attendees");
-  }
-});
-
-useEffect(()=>{
-  if(attendeesFromRedux.length===0){
-    if (fetchedAttendees && Array.isArray(fetchedAttendees)) {
-      setShowAddAttendeeModal(true)
+    Array.isArray(data?.attendees)
+      ? data?.attendees
+      : Array.isArray(data?.data?.attendees)
+        ? data.data?.attendees
+        : [];
+  const { data: fetchedAttendees = [], refetch: refetchExisting } = useQuery({
+    queryKey: ["existingAttendees", UserData?.id, categoryId, isCorporate, isAgent],
+    queryFn: fetchExistingAttendees,
+    enabled: !!UserData?.id && !!categoryId && showAttendeeSuggetion,
+    staleTime: 5 * 60 * 1000,
+    onSuccess: (data) => {
+      // Only update if changed to avoid extra renders
+      const same =
+        existingAttendee.length === data.length &&
+        existingAttendee.every((e, i) => e.id === data[i]?.id);
+    },
+    onError: (err) => {
+      console.error("Failed to fetch existing attendees", err);
+      ErrorAlert(err?.response?.data?.message || "Failed to fetch existing attendees");
     }
-    else{
-      setShowAddAttendeeModal(false)
-    }
+  });
 
-  }
-},[fetchedAttendees]);
+  useEffect(() => {
+    if (attendeesFromRedux.length === 0 && fetchedAttendees.length > 0) {
+      if (fetchedAttendees && Array.isArray(fetchedAttendees)) {
+        setShowAddAttendeeModal(true)
+      }
+      else {
+        setShowAddAttendeeModal(false)
+      }
+
+    }
+  }, [fetchedAttendees]);
   // When parent wants suggestion panel initially
 
   // keep parent updated whenever attendeeList changes
@@ -190,16 +192,16 @@ useEffect(()=>{
     handleCloseModal();
   };
 
-const handleDeleteAttendee = (index) => {
-  AskAlert("You won't be able to revert this!", "Yes, delete it!", "The attendee has been deleted.")
-    .then((confirmed) => {
-      if (confirmed) {
-        const updatedList = attendeeList.filter((_, i) => i !== index);
-        setAttendeesList(updatedList);
-        successAlert?.("The attendee has been deleted.");
-      }
-    });
-};
+  const handleDeleteAttendee = (index) => {
+    AskAlert("You won't be able to revert this!", "Yes, delete it!", "The attendee has been deleted.")
+      .then((confirmed) => {
+        if (confirmed) {
+          const updatedList = attendeeList.filter((_, i) => i !== index);
+          setAttendeesList(updatedList);
+          successAlert?.("The attendee has been deleted.");
+        }
+      });
+  };
 
 
 
@@ -209,7 +211,7 @@ const handleDeleteAttendee = (index) => {
     const { field_name, lable, field_type, field_options = [], field_required } = field;
     const required = field_required === 1;
     const value = attendeeData[field_name] ?? "";
-    const lbl = required ? `${lable} <span class="text-danger">*</span>` : lable;
+    const lbl = required ? `${lable} <span class="text-primary">*</span>` : lable;
 
     const onChange = async (e) => {
       // handle react-select option or native input
@@ -266,10 +268,10 @@ const handleDeleteAttendee = (index) => {
         return (
           <>
             <Form.Group>
-              <Form.Label dangerouslySetInnerHTML={{ __html: lbl }} />
-              <Form.Control type={field_type} value={value} onChange={onChange} required={required} />
+              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Control className="card-glassmorphism__input" type={field_type} value={value} onChange={onChange} required={required} />
             </Form.Group>
-            <Form.Text className="text-danger fw-bold">{errors[field_name] || ""}</Form.Text>
+            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
           </>
         );
 
@@ -277,7 +279,7 @@ const handleDeleteAttendee = (index) => {
         return (
           <>
             <Form.Group>
-              <Form.Label dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
               <Select
                 value={value ? { label: value, value } : null}
                 options={(() => {
@@ -287,11 +289,12 @@ const handleDeleteAttendee = (index) => {
                     return [];
                   }
                 })()}
+                className="card-glassmorphism__input"
                 onChange={(opt) => onChange(opt)}
                 isRequired={required}
               />
             </Form.Group>
-            <Form.Text className="text-danger fw-bold">{errors[field_name] || ""}</Form.Text>
+            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
           </>
         );
 
@@ -299,10 +302,10 @@ const handleDeleteAttendee = (index) => {
         return (
           <>
             <Form.Group>
-              <Form.Label dangerouslySetInnerHTML={{ __html: lbl }} />
-              <Form.Control as="textarea" rows={3} value={value} onChange={onChange} required={required} />
+              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Control className="card-glassmorphism__input" as="textarea" rows={3} value={value} onChange={onChange} required={required} />
             </Form.Group>
-            <Form.Text className="text-danger fw-bold">{errors[field_name] || ""}</Form.Text>
+            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
           </>
         );
 
@@ -310,10 +313,10 @@ const handleDeleteAttendee = (index) => {
         return (
           <>
             <Form.Group>
-              <Form.Label dangerouslySetInnerHTML={{ __html: lbl }} />
-              <Form.Control type="number" value={value} onChange={onChange} required={required} />
+              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Control className="card-glassmorphism__input" type="number" value={value} onChange={onChange} required={required} />
             </Form.Group>
-            <Form.Text className="text-danger fw-bold">{errors[field_name] || ""}</Form.Text>
+            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
           </>
         );
 
@@ -321,10 +324,10 @@ const handleDeleteAttendee = (index) => {
         return (
           <>
             <Form.Group>
-              <Form.Label dangerouslySetInnerHTML={{ __html: lbl }} />
-              <Form.Control type="date" value={value} onChange={onChange} required={required} />
+              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Control className="card-glassmorphism__input" type="date" value={value} onChange={onChange} required={required} />
             </Form.Group>
-            <Form.Text className="text-danger fw-bold">{errors[field_name] || ""}</Form.Text>
+            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
           </>
         );
 
@@ -332,10 +335,10 @@ const handleDeleteAttendee = (index) => {
         return (
           <>
             <Form.Group>
-              <Form.Label dangerouslySetInnerHTML={{ __html: lbl }} />
-              <Form.Control type="file" accept="image/*" onChange={onChange} required={required} />
+              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Control className="card-glassmorphism__input" type="file" accept="image/*" onChange={onChange} required={required} />
             </Form.Group>
-            <Form.Text className="text-danger fw-bold">{errors[field_name] || ""}</Form.Text>
+            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
           </>
         );
 
@@ -345,39 +348,49 @@ const handleDeleteAttendee = (index) => {
   };
 
   // Back button
-const Back = () => {
-  router.back();
-};
+  const Back = () => {
+    router.back();
+  };
 
   return (
-    <Col lg="8">
-      <Card className="mb-4">
-        <Card.Header className="d-flex bg-dark justify-content-between align-items-center">
-          <h5>Attendees {`${attendeeList.length}/${quantity || 0}`}</h5>
-          <Button variant="secondary" onClick={Back}>
-            Back
-          </Button>
+    <>
+      <Card className="mb-4 custom-dark-bg">
+        <Card.Header className="d-flex custom-dark-bg justify-content-between align-items-center">
+          <h5 className="d-flex align-items-center gap-2"><Users className="custom-text-secondary" /> Attendees {`${attendeeList.length}/${quantity || 0}`}</h5>
+          <CustomBtn
+            variant="outline-secondary"
+            className="d-flex align-items-center gap-2  border-secondary"
+            HandleClick={Back}
+            icon={<i className="fa-solid fa-arrow-left"></i>}
+          />
         </Card.Header>
-
-        {attendeeList?.length < quantity && (
-          <Card.Footer className="d-flex justify-content-center">
-            <Button variant="primary" className="d-flex align-items-center gap-2" onClick={() => handleOpenModal()}>
-              <PlusIcon size={20} /> Add Attendee
-            </Button>
-          </Card.Footer>
-        )}
-
-        <BookingsAttendee
-          attendeeList={attendeeList}
-          apiData={apiData}
-          handleOpenModal={handleOpenModal}
-          handleDeleteAttendee={handleDeleteAttendee}
-          ShowAction={showActions}
-        />
+        <Card.Body className="custom-dark-bg">
+          {loadingCategory ? (
+            <div className="d-flex align-items-center justify-content-center gap-2 py-4">
+              <Spinner animation="border" size="sm" />
+              <span className="text-muted">Loading attendee fields…</span>
+            </div>
+          ) : null}
+          <BookingsAttendee
+            attendeeList={attendeeList}
+            apiData={apiData}
+            handleOpenModal={handleOpenModal}
+            handleDeleteAttendee={handleDeleteAttendee}
+            ShowAction={showActions}
+          />
+          {attendeeList?.length < quantity && (
+            <div className="d-flex justify-content-center">
+              <CustomBtn
+                HandleClick={() => handleOpenModal()}
+                className="d-flex align-items-center gap-2 custom-primary-bg border-0"
+                icon={<PlusIcon size={20} />}
+                buttonText="Add Attendee"
+              />
+            </div>
+          )}
+        </Card.Body>
       </Card>
-
-      {/* Suggested attendees panel */}
-      {/* {showSuggestionPanel && ( */}
+      {attendeeList?.length < quantity && showAttendeeSuggetion && attendeeList?.length === 0 &&
         <AttendySugettion
           quantity={quantity}
           totalAttendee={attendeeList?.length}
@@ -389,15 +402,16 @@ const Back = () => {
           requiredFields={requiredFields}
           setAttendeesList={setAttendeesList}
         />
+      }
       {/* )} */}
 
       {/* Modal for add/edit attendee */}
       <Modal show={showModal} onHide={handleCloseModal} size="xl">
-        <Modal.Header closeButton>
-          <Modal.Title>{editingIndex !== null ? "Edit Attendee" : "Add Attendee Details"}</Modal.Title>
+        <Modal.Header className="border-0 p-0 p-4" closeButton>
+          <h4>{editingIndex !== null ? "Edit Attendee" : "Add Attendee Details"}</h4>
         </Modal.Header>
         <Modal.Body>
-          <Row>
+          <Row className="g-3">
             {Array.isArray(apiData) && apiData.length > 0 ? (
               apiData.map((field, idx) => (
                 <Col md={6} key={idx} className="text-black mb-2">
@@ -411,17 +425,23 @@ const Back = () => {
             )}
           </Row>
 
-          <div className="text-end mt-3">
-            <Button variant="secondary" onClick={handleCloseModal} className="me-2">
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleAddAttendee}>
-              {editingIndex !== null ? "Update" : "Save"}
-            </Button>
+          <div className="d-flex gap-3 justify-content-end mt-3">
+            <CustomBtn
+              HandleClick={handleCloseModal}
+              className="me-2 custom-dark-content-bg border-0"
+              icon={<i className="bi bi-x-lg"></i>}
+              buttonText="Cancel"
+            />
+            <CustomBtn
+              HandleClick={handleAddAttendee}
+              className="custom-primary-bg border-0"
+              icon={<i className="fa-solid fa-check"></i>}
+              buttonText={editingIndex !== null ? "Update" : "Save"}
+            />
           </div>
         </Modal.Body>
       </Modal>
-    </Col>
+    </>
   );
 };
 

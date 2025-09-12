@@ -48,7 +48,7 @@ const CustomCounter = memo((props) => {
     return (
         <Fragment>
             <div
-                className="btn-group iq-qty-btn custom-qty-btn rounded-3"
+                className="btn-group iq-qty-btn custom-qty-btn rounded-3 custom-dark-content-bg"
                 data-qty="btn"
                 role="group"
                 style={{
@@ -60,6 +60,7 @@ const CustomCounter = memo((props) => {
                 <button
                     className='iq-quantity-minus border-0 btn-sm'
                     onClick={decrease}
+                    disabled={counter === 0}
                     style={{
                         lineHeight: 'initial',
                     }}

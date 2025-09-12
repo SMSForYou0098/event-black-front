@@ -4,20 +4,23 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectCheckoutDataByKey, updateAttendees } from "@/store/customSlices/checkoutDataSlice";
 import { useMyContext } from "@/Context/MyContextProvider";
-import { Button, Spinner } from "react-bootstrap";
+import { Button, Col, Row, Spinner } from "react-bootstrap";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
 import DynamicAttendeeForm from "../../../../components/events/Attendees/DynamicAttendeeForm";
 import { useDispatch } from "react-redux";
+import { TicketDataSummary } from "../../../../components/events/CheckoutComps/checkout_utils";
+import CustomBtn from "../../../../utils/CustomBtn";
+import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
 
 const AttendeePage = () => {
   const router = useRouter();
   const { categoryId, k, event_key } = router.query ?? {};
+  const { fetchCategoryData ,isMobile} = useMyContext();
   const [categoryData, setCategoryData] = useState(null);
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [attendeeList, setAttendeesList] = useState([]);
   const dispatch = useDispatch();
   const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
-  const { fetchCategoryData } = useMyContext();
 
   // --- NEW: initialize local attendeeList from redux `data` (if present).
   // This is defensive: supports both `data.attendees` (new slice shape)
@@ -30,8 +33,8 @@ const AttendeePage = () => {
       Array.isArray(data.attendees)
         ? data.attendees
         : Array.isArray(data?.data?.attendees)
-        ? data.data.attendees
-        : [];
+          ? data.data.attendees
+          : [];
 
     // Only set initial attendees if local list is empty to avoid overwriting edits
     setAttendeesList((prev) => (prev && prev.length > 0 ? prev : attendeesFromRedux));
@@ -125,40 +128,57 @@ const AttendeePage = () => {
   return (
     <div className="mt-5 pt-5">
       <CartSteps id={2} showAttendee={true} />
-      {loadingCategory ? (
-        <div className="d-flex align-items-center gap-2">
-          <Spinner animation="border" size="sm" />
-          <span className="text-muted">Loading attendee fields…</span>
-        </div>
-      ) : null}
 
-      <DynamicAttendeeForm
-        requiredFields={requiredFieldNames}
-        setAttendeesList={onSetAttendeesList}
-        attendeeList={attendeeList}
-        apiData={categoryData}
-        categoryId={categoryId}
-        data={data}
-        selectedTickets={data?.data}
-        quantity={quantity}
-        event_key={event_key}
-      />
-
-      <div className="mt-4 d-flex justify-content-end gap-2">
-        <Button variant="secondary" onClick={() => router.back()} aria-label="Go back">
-          Back
-        </Button>
-
-        <Button variant="primary" onClick={handleSaveAttendees} disabled={hasMissingFields || attendeeList.length !== quantity}>
-          Save Attendees
-        </Button>
-      </div>
-
-      {hasMissingFields && (
-        <div className="mt-2 text-danger">
-          Please fill all required fields for each attendee before saving.
-        </div>
-      )}
+      <Row className="m-0 p-0">
+        <Col lg="8">
+          <DynamicAttendeeForm
+            loadingCategory={loadingCategory}
+            requiredFields={requiredFieldNames}
+            setAttendeesList={onSetAttendeesList}
+            attendeeList={attendeeList}
+            apiData={categoryData}
+            categoryId={categoryId}
+            data={data}
+            selectedTickets={data?.data}
+            quantity={quantity}
+            event_key={event_key}
+          />
+          {hasMissingFields && (
+            <div className="mt-2 text-danger">
+              Please fill all required fields for each attendee before saving.
+            </div>
+          )}
+        </Col>
+        <Col lg="4">
+          <TicketDataSummary
+            eventName={data?.event.name}
+            ticketName={data?.ticket.name}
+            price={data?.ticket.price}
+            quantity={quantity}
+            hidePrices={true}
+          />
+          {isMobile ? (
+            <BookingMobileFooter
+              HandleClick={handleSaveAttendees}
+              selectedTickets={data?.data}
+            />
+          ) : (
+            <div className="d-flex align-items-center justify-content-between gap-3">
+              <CustomBtn
+                className="custom-dark-content-bg border-secondary"
+                HandleClick={() => window.history.back()}
+                buttonText={"Back to Tickets"}
+                icon={<i className="fa-solid fa-arrow-left"></i>}
+              />
+              <CustomBtn
+                disabled={hasMissingFields || (attendeeList?.length !== quantity)}
+                HandleClick={handleSaveAttendees}
+                buttonText={"Save & Continue"}
+              />
+            </div>
+          )}
+        </Col>
+      </Row>
     </div>
   );
 };

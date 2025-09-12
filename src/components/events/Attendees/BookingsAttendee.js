@@ -1,5 +1,5 @@
 import { Card, Row, Col, Carousel, Image, Button } from "react-bootstrap";
-import { Edit as EditIcon, Trash as DeleteIcon, ChevronRight, ChevronLeft } from "lucide-react";
+import { Edit as EditIcon, Trash as DeleteIcon, ChevronRight, ChevronLeft, User, MailIcon, PhoneIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
 const formatFieldName = (name) => {
@@ -10,44 +10,21 @@ const formatFieldName = (name) => {
 };
 
 const AttendeeCard = ({ attendee, index, apiData, handleOpenModal, handleDeleteAttendee, ShowAction }) => (
-    <Card 
-      className={`mb-3 shadow-sm custom-dotted-border ${attendee?.missingFields?.length > 0 ? 'border-danger' : 'border-secondary'}`} 
-      style={{ minWidth: '280px', borderWidth: '2px', backgroundColor: '#212529' }} // dark background
+    <Card
+        className={`rounded-3 shadow-sm custom-dark-content-bg ${attendee?.missingFields?.length > 0 ? 'border-primary' : 'border-dashed-thin'}`}
+        style={{ minWidth: '280px', borderWidth: '2px', backgroundColor: '#212529' }}
     >
-        <Card.Header className="d-flex justify-content-end bg-dark text-white border-bottom-0 py-2">
-            {ShowAction && (
-                <div className="d-flex gap-3">
-                    <Button 
-                      variant="outline-light" 
-                      size="sm" 
-                      className="d-flex align-items-center justify-content-center p-1"
-                      onClick={() => handleOpenModal(index)}
-                      title="Edit Attendee"
-                    >
-                        <EditIcon size={16} />
-                    </Button>
-                    <Button 
-                      variant="outline-danger" 
-                      size="sm" 
-                      className="d-flex align-items-center justify-content-center p-1"
-                      onClick={() => handleDeleteAttendee(index)}
-                      title="Delete Attendee"
-                    >
-                        <DeleteIcon size={16} />
-                    </Button>
-                </div>
-            )}
-        </Card.Header>
-        <Card.Body className="pt-0">
-            <Row className="mb-3">
-                {apiData?.some(field =>
-                    attendee[field?.field_name] instanceof File ||
-                    (typeof attendee[field?.field_name] === "string" &&
-                        (attendee[field?.field_name].startsWith("http://") || attendee[field?.field_name].startsWith("https://")) &&
-                        /\.(jpe?g|png|gif|bmp|webp|ico)$/i.test(attendee[field?.field_name]))
-                ) && (
-                    <Col xs={12} className="d-flex justify-content-center mb-3">
-                        {apiData?.map((field, fieldIndex) => {
+        <Card.Body className="py-3 border-0">
+            <Row className="align-items-center">
+                {/* Profile Image - Left Side */}
+                <Col xs="auto">
+                    {apiData?.some(field =>
+                        attendee[field?.field_name] instanceof File ||
+                        (typeof attendee[field?.field_name] === "string" &&
+                            (attendee[field?.field_name].startsWith("http://") || attendee[field?.field_name].startsWith("https://")) &&
+                            /\.(jpe?g|png|gif|bmp|webp|ico)$/i.test(attendee[field?.field_name]))
+                    ) ? (
+                        apiData?.map((field, fieldIndex) => {
                             const imageUrl =
                                 attendee[field?.field_name] instanceof File
                                     ? URL.createObjectURL(attendee[field?.field_name])
@@ -58,46 +35,183 @@ const AttendeeCard = ({ attendee, index, apiData, handleOpenModal, handleDeleteA
                                         : null;
 
                             return imageUrl ? (
-                                <Image
-                                    key={fieldIndex}
-                                    src={imageUrl}
-                                    alt={`${field?.field_name} preview`}
-                                    rounded
-                                    style={{ width: '200px', height: '200px', objectFit: 'cover' }}
-                                />
+                                <a
+                                    href={imageUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="Click to view full image"
+                                    style={{ display: 'inline-block' }}
+                                >
+                                    <Image
+                                        key={fieldIndex}
+                                        src={imageUrl}
+                                        alt={`${field?.field_name} preview`}
+                                        className="rounded-circle"
+                                        style={{
+                                            width: '90px',
+                                            height: '90px',
+                                            objectFit: 'cover'
+                                        }}
+                                    />
+                                </a>
+                            ) : null;
+                        })
+                    ) : (
+                        // Default avatar with initials if no image
+                        <div
+                            className="rounded-circle d-flex align-items-center justify-content-center bg-secondary text-light fw-bold"
+                            style={{
+                                width: '90px',
+                                height: '90px',
+                                objectFit: 'cover'
+                            }}
+                        >
+                            {apiData?.find(field => field?.field_name?.toLowerCase().includes('name'))?.field_name ?
+                                String(attendee[apiData.find(field => field?.field_name?.toLowerCase().includes('name'))?.field_name] || '??').charAt(0).toUpperCase() +
+                                String(attendee[apiData.find(field => field?.field_name?.toLowerCase().includes('name'))?.field_name] || '??').split(' ').pop()?.charAt(0).toUpperCase() || ''
+                                : '??'
+                            }
+                        </div>
+                    )}
+                </Col>
+
+                {/* Content - Middle Section */}
+                <Col>
+                    {/* Name and Badges Row */}
+                    <div className="d-flex align-items-center flex-wrap mb-2">
+                        {/* Display Name */}
+                        {apiData?.map((field, fieldIndex) => {
+                            const isImage =
+                                attendee[field?.field_name] instanceof File ||
+                                (typeof attendee[field?.field_name] === "string" &&
+                                    (attendee[field?.field_name].startsWith("http://") || attendee[field?.field_name].startsWith("https://")) &&
+                                    /\.(jpe?g|png|gif|bmp|webp|ico)$/i.test(attendee[field?.field_name]));
+
+                            const fieldNameLower = field?.field_name?.toLowerCase();
+                            const isName = fieldNameLower === 'name' || fieldNameLower === 'full_name';
+
+                            return !isImage && isName ? (
+                                <h5 key={fieldIndex} className="mb-0 me-3 text-light d-flex align-items-center gap-2">
+                                    <User size={20} className="custom-text-secondary" /> {attendee[field?.field_name] || 'Unknown'}
+                                </h5>
                             ) : null;
                         })}
+
+                        {/* Status Badges - you can customize these based on your data */}
+                        {apiData?.map((field, fieldIndex) => {
+                            const isImage =
+                                attendee[field?.field_name] instanceof File ||
+                                (typeof attendee[field?.field_name] === "string" &&
+                                    (attendee[field?.field_name].startsWith("http://") || attendee[field?.field_name].startsWith("https://")) &&
+                                    /\.(jpe?g|png|gif|bmp|webp|ico)$/i.test(attendee[field?.field_name]));
+
+                            const isStatus = field?.field_name?.toLowerCase().includes('status') ||
+                                field?.field_name?.toLowerCase().includes('type') ||
+                                field?.field_name?.toLowerCase().includes('category');
+
+                            return !isImage && isStatus ? (
+                                <span key={fieldIndex} className="badge bg-warning text-dark me-2">
+                                    {attendee[field?.field_name]}
+                                </span>
+                            ) : null;
+                        })}
+                    </div>
+
+                    {/* Contact Information Row */}
+                    <div className="d-flex flex-column flex-sm-row text-muted small">
+                        {apiData?.map((field, fieldIndex) => {
+                            const isImage =
+                                attendee[field?.field_name] instanceof File ||
+                                (typeof attendee[field?.field_name] === "string" &&
+                                    (attendee[field?.field_name].startsWith("http://") || attendee[field?.field_name].startsWith("https://")) &&
+                                    /\.(jpe?g|png|gif|bmp|webp|ico)$/i.test(attendee[field?.field_name]));
+
+                            const isEmail = field?.field_name?.toLowerCase().includes('email') ||
+                                field?.field_name?.toLowerCase().includes('mail');
+                            const isPhone = field?.field_name?.toLowerCase().includes('phone') ||
+                                field?.field_name?.toLowerCase().includes('mobile') ||
+                                field?.field_name?.toLowerCase().includes('mo') ||
+                                field?.field_name?.toLowerCase().includes('number') ||
+                                field?.field_name?.toLowerCase().includes('contact');
+
+                            if (!isImage && (isEmail || isPhone)) {
+                                return (
+                                    <div key={fieldIndex} className="d-flex align-items-center gap-2">
+                                        {isEmail && <MailIcon size={14} className="text-info" />}
+                                        {isPhone && <PhoneIcon size={14} className="text-warning" />}
+                                        <span>{attendee[field?.field_name] || '—'}</span>
+                                    </div>
+                                );
+                            }
+                            return null;
+                        })}
+
+                        {/* Other non-contact, non-name, non-status fields */}
+                        {/* {apiData?.map((field, fieldIndex) => {
+                            const isImage =
+                                attendee[field?.field_name] instanceof File ||
+                                (typeof attendee[field?.field_name] === "string" &&
+                                    (attendee[field?.field_name].startsWith("http://") || attendee[field?.field_name].startsWith("https://")) &&
+                                    /\.(jpe?g|png|gif|bmp|webp|ico)$/i.test(attendee[field?.field_name]));
+
+                            const isName = field?.field_name?.toLowerCase().includes('name');
+                            const isEmail = field?.field_name?.toLowerCase().includes('email') ||
+                                field?.field_name?.toLowerCase().includes('mail');
+                            const isPhone = field?.field_name?.toLowerCase().includes('phone') ||
+                                field?.field_name?.toLowerCase().includes('mobile') ||
+                                field?.field_name?.toLowerCase().includes('contact');
+                            const isStatus = field?.field_name?.toLowerCase().includes('status') ||
+                                field?.field_name?.toLowerCase().includes('type') ||
+                                field?.field_name?.toLowerCase().includes('category');
+
+                            return !isImage && !isName && !isEmail && !isPhone && !isStatus ? (
+                                <div key={fieldIndex} className="d-flex align-items-center me-4 mb-1 mb-sm-0">
+                                    <small className="text-muted me-1">{formatFieldName(field?.field_name)}:</small>
+                                    <span>{attendee[field?.field_name] || '—'}</span>
+                                </div>
+                            ) : null;
+                        })} */}
+                    </div>
+                </Col>
+
+                {/* Action Buttons - Right Side */}
+                {ShowAction && (
+                    <Col xs="auto">
+                        <div className="d-flex gap-2">
+                            <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                className="rounded-3 d-flex align-items-center justify-content-center p-1"
+                                onClick={() => handleOpenModal(index)}
+                                title="Edit Attendee"
+                            >
+                                <EditIcon size={16} />
+                            </Button>
+                            <Button
+                                variant="outline-primary"
+                                size="sm"
+                                className="rounded-3 d-flex align-items-center justify-content-center p-1"
+                                onClick={() => handleDeleteAttendee(index)}
+                                title="Delete Attendee"
+                            >
+                                <DeleteIcon size={16} />
+                            </Button>
+                        </div>
                     </Col>
                 )}
             </Row>
 
-            <Row xs={1} md={3} className="g-3">
-                {apiData?.map((field, fieldIndex) => {
-                    const isImage =
-                        attendee[field?.field_name] instanceof File ||
-                        (typeof attendee[field?.field_name] === "string" &&
-                            (attendee[field?.field_name].startsWith("http://") || attendee[field?.field_name].startsWith("https://")) &&
-                            /\.(jpe?g|png|gif|bmp|webp|ico)$/i.test(attendee[field?.field_name]));
-
-                    return !isImage ? (
-                        <Col key={fieldIndex} className="text-white">
-                            <small className="text-muted">{formatFieldName(field?.field_name)}:</small>
-                            <div className="fw-semibold text-truncate" title={String(attendee[field?.field_name])}>
-                                {typeof attendee[field?.field_name] !== 'object' ? (
-                                    attendee[field?.field_name] !== null ? attendee[field?.field_name] : <span className="text-muted">—</span>
-                                ) : (
-                                    <span className="text-muted">[File]</span>
-                                )}
-                            </div>
-                        </Col>
-                    ) : null;
-                })}
-            </Row>
-
+            {/* Missing Fields Warning */}
             {ShowAction && attendee?.missingFields?.length > 0 && (
-                <div className="mt-3 text-muted fw-semibold small">
-                    Missing Fields: {attendee.missingFields.join(', ')}
-                </div>
+                <Row className="mt-3">
+                    <Col>
+                        <div className="p-2 bg-primary bg-opacity-10 border border-primary rounded">
+                            <small className=" fw-semibold">
+                                Missing Fields: {attendee.missingFields.join(', ')}
+                            </small>
+                        </div>
+                    </Col>
+                </Row>
             )}
         </Card.Body>
     </Card>
@@ -163,7 +277,7 @@ const BookingsAttendee = ({ attendeeList, apiData, handleOpenModal, handleDelete
                         slide={false}
                     >
                         {attendeeList?.map((attendee, index) => (
-                            <Carousel.Item key={index}>
+                            <Carousel.Item key={`card_${index}`}>
                                 <AttendeeCard
                                     attendee={attendee}
                                     index={index}
@@ -190,19 +304,21 @@ const BookingsAttendee = ({ attendeeList, apiData, handleOpenModal, handleDelete
                     )}
                 </div>
             ) : (
-                <div className="d-flex flex-column gap-3">
+                <Row className="g-3 mb-3">
                     {attendeeList?.map((attendee, index) => (
-                        <AttendeeCard
-                            key={index}
-                            attendee={attendee}
-                            index={index}
-                            apiData={apiData}
-                            handleOpenModal={handleOpenModal}
-                            handleDeleteAttendee={handleDeleteAttendee}
-                            ShowAction={ShowAction}
-                        />
+                        <Col key={`card_${index}`} xs={12} sm={6} md={6} lg={6}>
+                            <AttendeeCard
+                                key={index}
+                                attendee={attendee}
+                                index={index}
+                                apiData={apiData}
+                                handleOpenModal={handleOpenModal}
+                                handleDeleteAttendee={handleDeleteAttendee}
+                                ShowAction={ShowAction}
+                            />
+                        </Col>
                     ))}
-                </div>
+                </Row>
             )}
         </div>
     );

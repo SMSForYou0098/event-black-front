@@ -143,6 +143,7 @@ export const CustomCheckbox = ({ label, checked, onChange, required, validated, 
                 onChange={onChange}
                 required={required}
                 disabled={disabled}
+                style={{ cursor: disabled ? 'not-allowed' : 'pointer' , width: '1.5rem', height: '1.5rem' , transform: 'scale(1.3)'}}
                 isInvalid={validated && !checked}
             />
             <Form.Control.Feedback type="invalid">{validationMessage}</Form.Control.Feedback>

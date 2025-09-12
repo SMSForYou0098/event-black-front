@@ -10,13 +10,14 @@ import { useRouter } from "next/router";
 import BookingTickets from "../../../../utils/BookingUtils/BookingTickets";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
 import LoginModal from "../../../../components/auth/LoginModal";
-import { getEventById, useEventData } from "../../../../services/events";
+import { useEventData } from "../../../../services/events";
 import CustomBtn from "../../../../utils/CustomBtn";
 import { useCheckoutData } from "../../../../hooks/useCheckoutData";
+import { Calendar, Pin, Tags, Ticket, Users } from "lucide-react";
 
 const CartPage = () => {
   const { event_key } = useRouter().query;
-  const { isMobile, isLoggedIn, fetchCategoryData } = useMyContext();
+  const { isMobile, isLoggedIn, fetchCategoryData, convertTo12HourFormat, formatDateRange } = useMyContext();
   const { storeCheckoutData } = useCheckoutData();
   const [cartItems, setCartItems] = useState([]);
   const [categoryData, setCategoryData] = useState(null);
@@ -122,6 +123,9 @@ const CartPage = () => {
     setSelectedTickets({ itemId, newQuantity, subtotal });
   }, []);
 
+  const attendeeRequired = useMemo(() => {
+    return categoryData?.categoryData?.attendy_required === 1;
+  }, [categoryData]);
   // Early return if no items
   if (cartItems.length === 0) {
     return (
@@ -140,6 +144,90 @@ const CartPage = () => {
       </div>
     );
   }
+
+
+
+
+  const CardContainer = ({ children, className = "" }) => (
+    <div className={`custom-dark-bg p-4 rounded-3 mb-4 ${className}`}>
+      {children}
+    </div>
+  );
+
+  // Reusable Card Header Component
+  const CardHeader = ({ icon: Icon, title, iconColor = "text-warning" }) => (
+    <h5 className="mb-4 font-size-18 fw-500 text-light d-flex align-items-center gap-2">
+      <Icon size={20} className={iconColor} /> {title}
+    </h5>
+  );
+
+  // Reusable Detail Item Component
+  const DetailItem = ({ icon: Icon, label, value, isLast = false }) => (
+    <div className={isLast ? "mb-0" : "mb-3"}>
+      <div className="d-flex align-items-center mb-1">
+        <Icon size={16} className="custom-text-secondary" />
+        <span className="ms-2 text-muted small">{label}</span>
+      </div>
+      <div className="fw-bold text-light ms-4">{value}</div>
+    </div>
+  );
+
+  // Reusable Table Row Component
+  const CartRow = ({ label, value, isHeader = false }) => (
+    <tr className={isHeader ? "order-total" : "cart-subtotal border-bottom"}>
+      <td className="border-0 fs-6">
+        {isHeader ? <span>{label}</span> : <h6>{label}</h6>}
+      </td>
+      <td className="border-0">
+        {isHeader ? (
+          <span className="text-light fw-bold">{value}</span>
+        ) : (
+          <h6 className="text-light">{value}</h6>
+        )}
+      </td>
+    </tr>
+  );
+
+  // Event details configuration
+  const eventDetails = [
+    {
+      icon: Users,
+      label: "Event Name",
+      value: event?.name || 'Summer Music Festival 2024'
+    },
+    // {
+    //   icon: Tags,
+    //   label: "Category",
+    //   value: event?.category?.title || 'Music & Arts'
+    // },
+    {
+      icon: Calendar,
+      label: "Date & Time",
+      value: formatDateRange(event?.date_range) + " | " + convertTo12HourFormat(event?.start_time)
+    },
+    {
+      icon: Pin,
+      label: "Location",
+      value: event?.address || 'Central Park, New York'
+    }
+  ];
+
+  // Cart data configuration
+  const cartData = [
+    {
+      label: "Quantity",
+      value: selectedTickets?.newQuantity || 0,
+      isHeader: false
+    },
+    {
+      label: "Total",
+      value: `₹${selectedTickets?.subtotal || 0}`,
+      isHeader: true
+    }
+  ];
+
+  const buttonText = `Proceed to ${attendeeRequired ? "Attendee" : "Checkout"}`;
+
 
   return (
     <div className="cart-page section-padding">
@@ -162,33 +250,43 @@ const CartPage = () => {
 
           {/* Cart Totals */}
           <Col lg="4">
-            <div className="cart_totals p-4 rounded-3">
-              <h5 className="mb-3 font-size-18 fw-500">Cart Overview</h5>
+            <CardContainer>
+              <CardHeader icon={Ticket} title="Event Details" />
+              {eventDetails.map((detail, index) => (
+                <DetailItem
+                  key={detail.label}
+                  icon={detail.icon}
+                  label={detail.label}
+                  value={detail.value}
+                  isLast={index === eventDetails.length - 1}
+                />
+              ))}
+            </CardContainer>
+            <CardContainer className="cart_totals">
+              <CardHeader icon={Ticket} title="Cart Overview" iconColor="text-warning" />
+
               <div className="css_prefix-woocommerce-cart-box table-responsive">
-                <Table className="table">
+                <Table className="table mb-0">
                   <tbody>
-                    <tr className="cart-subtotal">
-                      <th className="border-0">
-                        <span className="">Quantity</span>
-                      </th>
-                      <td className="border-0">
-                        <span className="text-light fw-bold">
-                          ₹{selectedTickets?.newQuantity || 0}
-                        </span>
-                      </td>
-                    </tr>
-                    <tr className="order-total">
-                      <th className="border-0">
-                        <span className="">Total</span>
-                      </th>
-                      <td className="border-0">
-                        <span className="text-light fw-bold">
-                          ₹{selectedTickets?.subtotal || 0}
-                        </span>
-                      </td>
-                    </tr>
+                    {cartData.map((row, index) => (
+                      <CartRow
+                        key={row.label}
+                        label={row.label}
+                        value={row.value}
+                        isHeader={row.isHeader}
+                      />
+                    ))}
                   </tbody>
                 </Table>
+
+                {/* Cart Info Box */}
+                <div className="cart-info-box my-3 p-3 rounded-3 border-dashed-thin">
+                  <span className="text-secondary small">
+                    * This is the base price for selected tickets. Additional charges including service fees, taxes, and processing fees will be calculated in the next step.
+                  </span>
+                </div>
+
+                {/* Checkout Button */}
                 {isMobile ? (
                   <BookingMobileFooter
                     handleClick={handleProcess}
@@ -198,11 +296,14 @@ const CartPage = () => {
                   <CustomBtn
                     disabled={!selectedTickets?.itemId}
                     HandleClick={handleProcess}
-                    buttonText={"Proceed"}
+                    icon={attendeeRequired ? <Users size={20} /> : null}
+                    buttonText={<span>{buttonText}</span>}
+                    className="cart-proceed-btn mt-2"
+                    style={{ width: "100%" }}
                   />
                 )}
               </div>
-            </div>
+            </CardContainer>
           </Col>
         </Row>
         <LoginModal

@@ -99,7 +99,6 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
 
   return (
     <>
-      {/* Side Menu */}
       <Offcanvas
         show={show}
         onHide={handleClose}
@@ -127,7 +126,7 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
         </Container>
       </Offcanvas>
 
-      {/* Bottom fixed bar */}
+
       <Container
         fluid
         className="d-flex flex-column justify-content-end bg-dark"
@@ -151,45 +150,45 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
 
         {/* Central floating Book button */}
         <div
-  style={{
-    position: "absolute",
-    top: "-30px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    zIndex: 9999,
-    width: 60,
-    height: 60,
-    borderRadius: "50%",
-    overflow: "hidden",        // Ensure circular clipping
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
-  }}
->
-  <Button
-    variant="secondary"
-    className="rounded-circle"
-    style={{
-      width: 60,
-      height: 60,
-      borderRadius: "50%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      padding: 0,
-    }}
-    onClick={() => router.push("/events")}
-  >
-    <motion.div
-      animate={{ scale: [1, 1.25, 1] }}
-      transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-    >
-      <TicketIcon color="var(--bs-dark)" size={20} />
-    </motion.div>
-    <span style={{ fontSize: 10, marginTop: 5 }}>Book</span>
-  </Button>
-</div>
+          style={{
+            position: "absolute",
+            top: "-30px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 9999,
+            width: 60,
+            height: 60,
+            borderRadius: "50%",
+            overflow: "hidden",        // Ensure circular clipping
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+        >
+          <Button
+            variant="secondary"
+            className="rounded-circle"
+            style={{
+              width: 60,
+              height: 60,
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
+              padding: 0,
+            }}
+            onClick={() => router.push("/events")}
+          >
+            <motion.div
+              animate={{ scale: [1, 1.25, 1] }}
+              transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <TicketIcon color="var(--bs-dark)" size={20} />
+            </motion.div>
+            <span style={{ fontSize: 10, marginTop: 5 }}>Book</span>
+          </Button>
+        </div>
 
       </Container>
     </>

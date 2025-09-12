@@ -6,7 +6,6 @@ import { useMyContext } from "@/Context/MyContextProvider";
 
 const BookingTickets = ({ cartItems, onQuantityChange, isMobile }) => {
     const { getCurrencySymbol } = useMyContext();
-    const [expandedId, setExpandedId] = useState(null);
     const [resetCounterTrigger, setResetCounterTrigger] = useState(0);
     const [selectedTicketID, setSelectedTicketID] = useState(null);
     const [selectedTickets, setSelectedTickets] = useState({});
@@ -37,7 +36,7 @@ const BookingTickets = ({ cartItems, onQuantityChange, isMobile }) => {
     //   };
 
     return (
-        <Table responsive className="cart-table rounded-3">
+        <Table responsive className="cart-table rounded-4">
             <thead className="border-bottom">
                 <tr>
                     <th scope="col" className="font-size-18 fw-500">
