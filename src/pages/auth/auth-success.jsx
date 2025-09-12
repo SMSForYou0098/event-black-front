@@ -15,7 +15,7 @@ const AuthSuccess = memo(() => {
                                         <h4 className="pb-3 text-center">Success!</h4>
                                         <p className='text-center'>An email has been sent to your address. Please check for an email and click on the included link to reset your password.</p>
                                    <div className='text-center'>
-                                        <Link href="/dashboard" className="btn btn-primary">Back to home</Link>
+                                        <Link href="/" className="btn btn-primary">Back to home</Link>
                                    </div>
                                     </Card.Body>
                                 </Card>

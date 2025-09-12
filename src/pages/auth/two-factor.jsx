@@ -57,7 +57,7 @@ const TwoFactor = memo(() => {
         const resultAction = await dispatch(signIn({ otp, number: data  }));
         if (signIn.fulfilled.match(resultAction)) {
             toast.success('Login Successfully');
-            router.push(typeof path === 'string' ? path : '/dashboard');
+            router.push(typeof path === 'string' ? path : '/');
         } else {
             setAttempts(prev => prev + 1);
             if (resultAction.payload) {

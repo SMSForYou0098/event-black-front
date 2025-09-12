@@ -307,12 +307,12 @@ const HeaderDefault = memo(() => {
                           </li>
                           <li>
                             <Link
-                              href="/play-list"
+                              href="/profile"
                               className="iq-sub-card d-flex align-items-center gap-3"
                             >
                               <UserIcon size={16} />
                               <h6 className="mb-0 font-size-14 fw-normal">
-                                My Account
+                                My Profile
                               </h6>
                             </Link>
                           </li>

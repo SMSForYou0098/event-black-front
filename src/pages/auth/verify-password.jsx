@@ -54,7 +54,7 @@ const VerifyPassword = memo(() => {
 
     if (signIn.fulfilled.match(resultAction)) {
       toast.success("Login Successful!");
-      router.push("/dashboard");
+      router.push("/");
     } else {
       setAttempts((prev) => prev + 1);
       if (resultAction.payload) {
