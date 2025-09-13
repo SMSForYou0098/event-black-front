@@ -9,7 +9,7 @@ import AmusementTicket from '../Events/Tickets/AmusementTicket';
 import AccreditationTicket from '../Events/Tickets/AccreditationTicket';
 import TicketCanvasBatch from '../Events/Tickets/TicketCanvasBatch';
 import axios from 'axios';
-import IDCardDragAndDrop from '../CustomUtils/IDCardDragAndDrop';
+import IDCardDragAndDrop from '../../components/CustomComponents/IDCardDragAndDrop';
 
 const TicketModal = (props) => {
     const { convertTo12HourFormat, isMobile, api, authToken } = useMyContext()

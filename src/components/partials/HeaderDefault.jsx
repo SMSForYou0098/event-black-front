@@ -37,6 +37,7 @@ import { getActiveMenu } from "@/services/home";
 import { useDispatch } from "react-redux";
 import { logout } from "@/store/auth/authSlice";
 import CustomBtn from "@/utils/CustomBtn";
+import AvatarImage from '../../utils/ProfileUtils/AvatarImage';
 
 const HeaderDefault = memo(() => {
   const { UserData, createSlug, isLoggedIn, systemSetting, showHeaderBookBtn } =
@@ -295,12 +296,12 @@ const HeaderDefault = memo(() => {
                           className="dropdown-menu-end dropdown-user border-0 p-0 m-0"
                         >
                           <li className="user-info d-flex align-items-center gap-3 mb-3">
-                            <img
-                              src="/assets/images/user/user1.webp"
-                              className="img-fluid"
-                              alt="User Profile"
-                              loading="lazy"
-                            />
+                            <AvatarImage
+                  src={UserData.photo}
+                  alt="Profile"
+                  name={UserData.name}
+                  size={43}
+                />
                             <span className="font-size-14 fw-500 text-capitalize text-white">
                               {UserData?.name}
                             </span>

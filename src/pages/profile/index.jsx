@@ -114,6 +114,8 @@ const UserProfile = () => {
   const { user, bookings, rewards, pointsHistory, monthlyStats } = useUserData();
   const recentBookings = useMemo(() => bookings.slice(0, 3), [bookings]);
   const dispatch = useDispatch();
+
+  // fetching user data
   const fetchUserData = async (id) => {
     const res = await api.get(`/edit-user/${id}`,{
       params: {
@@ -139,6 +141,29 @@ const UserProfile = () => {
   // merge local user + API profile consistently
   const profile = { ...(user || {}), ...(apiProfile?.user || apiProfile || {}) };
     // ---- Mutation: update user (for both avatar & profile fields) ----
+    
+    // booking summary
+
+    const fetchUserBookings = async (id) => {
+      const res = await api.get(`/user-bookings/${id}`);
+      return res.data;
+    };
+
+    const {
+      data: userBookings,
+      isLoading: isLoadingBookings,
+      isError: isErrorBookings,
+      error: bookingsError,
+      refetch: refetchBookings,
+      isFetching: isFetchingBookings,
+    } = useQuery({
+      queryKey: ["userBookings", user?.id],
+      queryFn: ({ queryKey }) => fetchUserBookings(queryKey[1]),
+      enabled: !!user?.id,
+      staleTime: 1000 * 60 * 2, // 2 minutes
+    });
+
+    // updateding user
     const updateUserData = async (payload) => {
       let config = {};
       let data = payload;
@@ -232,7 +257,7 @@ const UserProfile = () => {
       case 'overview':
         return <OverviewTab recentBookings={recentBookings} user={user} monthlyStats={monthlyStats} />;
       case 'bookings':
-        return <BookingsTab bookings={bookings} />;
+        return <BookingsTab bookings={bookings}  userBookings={userBookings?.bookings ?? userBookings ?? []} loading={isLoadingBookings} />;
       // case 'wishlist':
       //   return <WishlistTab />;
       case 'rewards':

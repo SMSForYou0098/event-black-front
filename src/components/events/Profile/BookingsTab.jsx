@@ -3,7 +3,9 @@ import { Card, Form } from 'react-bootstrap';
 import BookingCard from './BookingCard';
 import GlassCard from './../../../utils/ProfileUtils/GlassCard';
 
-const BookingsTab = ({ bookings }) => (
+const BookingsTab = ({ bookings ,userBookings,loading}) => {
+  console.log('bbb',userBookings,loading);
+  return(
   <GlassCard>
     <Card.Header className="d-flex justify-content-between align-items-center">
       <h5 className="mb-0">My Bookings</h5>
@@ -16,11 +18,15 @@ const BookingsTab = ({ bookings }) => (
       </div>
     </Card.Header>
     <Card.Body>
-      {bookings.map((booking) => (
+      {/* {bookings.map((booking) => (
+        <BookingCard key={booking.id} booking={booking} />
+      ))} */}
+      {userBookings.map((booking) => (
         <BookingCard key={booking.id} booking={booking} />
       ))}
     </Card.Body>
   </GlassCard>
-);
+  )
+};
 
 export default BookingsTab;
