@@ -42,7 +42,7 @@ const BookingCard = ({ booking, compact = false }) => (
       alt={booking.title}
       width={compact ? 60 : 80}
       height={compact ? 80 : 110}
-      className="rounded me-3"
+      className="rounded-3 me-3"
       style={{ objectFit: 'cover' }}
     />
     <div className="flex-grow-1">

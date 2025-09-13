@@ -9,8 +9,7 @@ const PointsHistory = ({ pointsHistory }) => (
     </Card.Header>
     <Card.Body>
       {pointsHistory.map(({ id, action, details, points, type }) => (
-        <div key={id} className="d-flex justify-content-between align-items-center mb-3 p-3 rounded"
-          style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+        <div key={id} className="d-flex justify-content-between align-items-center mb-3 p-3 custom-dark-content-bg rounded-3">
           <div>
             <div className="fw-bold">{action}</div>
             <small className="text-muted">{details}</small>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Form } from 'react-bootstrap';
 import BookingCard from './BookingCard';
-import GlassCard from '../../../utils/ProfileUtils/GlassCard';
+import GlassCard from './../../../utils/ProfileUtils/GlassCard';
 
 const BookingsTab = ({ bookings }) => (
   <GlassCard>
@@ -9,7 +9,7 @@ const BookingsTab = ({ bookings }) => (
       <h5 className="mb-0">My Bookings</h5>
       <div className="d-flex gap-2">
         {['All Types', 'All Status'].map((placeholder, index) => (
-          <Form.Select key={index} size="sm" className="bg-secondary text-light border-secondary">
+          <Form.Select key={index} size="sm" className="bg-primary border-primary text-white fw-bold">
             <option>{placeholder}</option>
           </Form.Select>
         ))}

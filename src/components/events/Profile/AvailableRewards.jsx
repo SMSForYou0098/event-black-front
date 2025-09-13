@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
 import GlassCard from '../../../utils/ProfileUtils/GlassCard';
+import CustomBtn from './../../../utils/CustomBtn';
 
 const IconContainer = ({ children, bgColor, size = 48 }) => (
   <div
@@ -23,8 +24,7 @@ const AvailableRewards = ({ rewards }) => (
     </Card.Header>
     <Card.Body>
       {rewards.map(({ id, title, description, points, icon: IconComponent, bgColor, iconColor }) => (
-        <div key={id} className="d-flex justify-content-between align-items-center mb-3 p-3 rounded"
-          style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+        <div key={id} className="d-flex justify-content-between align-items-center mb-3 p-3 custom-dark-content-bg rounded-3">
           <div className="d-flex align-items-center">
             <IconContainer bgColor={bgColor} size={48}>
               <IconComponent size={24} className={iconColor} />
@@ -35,8 +35,9 @@ const AvailableRewards = ({ rewards }) => (
             </div>
           </div>
           <div className="text-end">
-            <div className="fw-bold text-danger mb-1">{points} pts</div>
-            <Button variant="danger" size="sm">Redeem</Button>
+            <div className="fw-bold custom-text-secondary  mb-1">{points} pts</div>
+            {/* <CustomBt variant="primary" size="sm">Redeem</Button> */}
+            <CustomBtn buttonText="Redeem" variant="primary" size="sm" className="btn-sm"/>
           </div>
         </div>
       ))}
