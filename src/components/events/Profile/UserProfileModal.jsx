@@ -55,13 +55,18 @@ const UserProfileModal = ({
     handleEditSubmit(e);
   };
 
+  const CustomHeader = ({ title, closable }) => (
+    <Modal.Header className="p-0 m-0 px-4 py-3">
+      <h4 className="p-0 m-0">{title}</h4>
+      {closable && <X className="cursor-pointer" onClick={handleCloseEdit} />}
+    </Modal.Header>
+  )
+
   return (
     <Modal show={isEditing} onHide={handleCloseEdit} centered>
       <Form onSubmit={onSubmit} noValidate>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Profile</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+        <CustomHeader title="Edit Profile" closable />
+        <Modal.Body className="p-0 p-3">
           <Form.Group className="mb-3" controlId="formName">
             <Form.Label>Name</Form.Label>
             <Form.Control
@@ -72,6 +77,7 @@ const UserProfileModal = ({
                 if (errors.name) setErrors((p) => ({ ...p, name: "" }));
                 handleChange(e);
               }}
+              className="card-glassmorphism__input"
               placeholder="Enter name"
               isInvalid={!!errors.name}
             />
@@ -84,6 +90,7 @@ const UserProfileModal = ({
             <Form.Label>Email</Form.Label>
             <Form.Control
               name="email"
+              className="card-glassmorphism__input"
               type="email"
               value={formValues.email}
               onChange={(e) => {
@@ -93,21 +100,24 @@ const UserProfileModal = ({
               placeholder="Enter email"
               isInvalid={!!errors.email}
             />
+            
             <Form.Control.Feedback type="invalid">
               {errors.email}
             </Form.Control.Feedback>
           </Form.Group>
 
-          <div className="text-muted small">
-            Changing avatar? Click the camera icon on the header to upload.
+          <div className="text-muted text-center small">
+            To change your photo, click the camera icon below the profile picture.
           </div>
+
         </Modal.Body>
         <Modal.Footer>
           <CustomBtn
             type="button"
+            className="btn-sm"
             variant="secondary"
             disabled={updateMutation?.isPending}
-            icon={<X />}
+            icon={<X size={20}/>}
             buttonText={"Cancel"}
             HandleClick={handleCloseEdit}
           />
@@ -115,12 +125,13 @@ const UserProfileModal = ({
           <CustomBtn
             type="submit"
             variant="primary"
+            className="btn-sm"
             disabled={updateMutation?.isPending}
             icon={
               updateMutation?.isPending ? (
                 <LoaderCircle className="spin" />
               ) : (
-                <Save />
+                <Save size={20}/>
               )
             }
             buttonText={updateMutation?.isPending ? "Saving..." : "Save"}

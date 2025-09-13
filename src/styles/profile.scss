@@ -58,7 +58,7 @@
 .profile-nav {
   .nav-link {
     border-radius: 1rem !important;
-   // padding: 0.75rem 1rem !important;
+  //  padding: 0.75rem 1rem !important; /* Base mobile padding */
     font-size: 1.1rem;
     display: flex;
     align-items: center;
@@ -78,6 +78,21 @@
   @media (min-width: 768px) {
     .nav-link {
      // padding: 1.1rem 2.2rem !important;
+      min-width: 220px;
+    }
+  }
+  /* Tablet/iPad sizes */
+  /* Tablet/iPad sizes */
+  @media (min-width: 576px) {
+    .nav-link {
+      padding: 0.9rem 1.5rem !important;
+    }
+  }
+
+  /* Desktop sizes */
+  @media (min-width: 768px) {
+    .nav-link {
+      // padding: 1.1rem 2.2rem !important;
       min-width: 220px;
     }
   }
