@@ -1,7 +1,7 @@
 @import '../assets/scss/streamit.scss';
 @import '../assets/scss/custom.scss';
 @import '../assets/scss/rtl.scss';
-
+@import './profile.scss';
 
 input,
 select,
@@ -24,7 +24,9 @@ textarea,
   //     background-color: #232328a9 !important;
   // }
 }
-
+.card-header{
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
 .custom-dark-bg {
   border : none !important;
   border-radius: 1rem !important;
@@ -285,3 +287,4 @@ fieldset:disabled .btn {
 table.cart-table thead tr th {
   @extend .custom-dark-content-bg;
 }
+

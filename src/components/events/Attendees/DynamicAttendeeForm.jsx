@@ -51,9 +51,7 @@ const DynamicAttendeeForm = ({
   const [editingIndex, setEditingIndex] = useState(null);
   const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showSuggestionPanel, setShowSuggestionPanel] = useState(false);
-  // const router = useRouter();
-  // React Query: fetch existing attendees (React Query owns fetch; we update local state in onSuccess safely)
+
   const fetchExistingAttendees = async () => {
     if (!UserData?.id || !categoryId) return [];
 
@@ -80,10 +78,7 @@ const DynamicAttendeeForm = ({
     enabled: !!UserData?.id && !!categoryId && showAttendeeSuggetion,
     staleTime: 5 * 60 * 1000,
     onSuccess: (data) => {
-      // Only update if changed to avoid extra renders
-      const same =
-        existingAttendee.length === data.length &&
-        existingAttendee.every((e, i) => e.id === data[i]?.id);
+
     },
     onError: (err) => {
       console.error("Failed to fetch existing attendees", err);

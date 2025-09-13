@@ -1,0 +1,55 @@
+.badge-outline-primary {
+  color: var(--bs-primary);
+  background-color: transparent;
+  border: 1px solid var(--bs-primary);
+  transition: all 0.2s;
+  &:hover, &:focus {
+    background-color: var(--bs-primary);
+    color: #fff;
+    border: none;
+  }
+}
+.badge-outline-danger {
+  color: #dc3545;
+  background-color: transparent;
+  border: 1px solid #dc3545;
+  transition: all 0.2s;
+  &:hover, &:focus {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+  }
+}
+.badge-outline-success {
+  color: #0ac36d;
+  background-color: transparent;
+  border: 1px solid #0ac36d;
+  transition: all 0.2s;
+  &:hover, &:focus {
+    background-color: #0ac36d;
+    color: #fff;
+    border: none;
+  }
+}
+.badge-outline-warning {
+  color: #ffc107;
+  background-color: transparent;
+  border: 1px solid #ffc107;
+  transition: all 0.2s;
+  &:hover, &:focus {
+    background-color: #ffc107;
+    color: #fff;
+    border: none;
+  }
+}
+.badge-outline-secondary {
+  color: #6c757d;
+  background-color: transparent;
+  border: 1px solid #6c757d;
+  transition: all 0.2s;
+  &:hover, &:focus {
+    background-color: #6c757d;
+    color: #fff;
+    border: none;
+  }
+}
