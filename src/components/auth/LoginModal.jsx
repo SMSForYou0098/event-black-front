@@ -443,7 +443,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                 <CustomBtn
                   type="button"
                   variant="secondary"
-                  onClick={handleBack}
+                  HandleClick={handleBack}
                   icon={loading ? <LoaderCircle className="spin" /> : null}
                   buttonText="Back"
                   disabled={loading}
@@ -460,7 +460,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                   <CustomBtn
                     variant="link"
                     className="p-0"
-                    onClick={() => handleLogin()}
+                    HandleClick={() => handleLogin()}
                     disabled={loading}
                     icon={loading ? <LoaderCircle className="spin" /> : null}
                     type="button"
