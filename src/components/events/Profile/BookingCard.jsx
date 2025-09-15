@@ -37,13 +37,13 @@ const BookingCard = ({ booking, compact = false }) => {
   const { getCurrencySymbol } = useMyContext();
 
   // Extract booking data based on whether it's a master booking or regular booking
+  const normalizeBooking = booking?.bookings ? booking.bookings[0] : booking;
   const bookingData = {
-    normalizeBooking: booking?.bookings ? booking.bookings[0] : booking,
     ticket: normalizeBooking?.ticket,
     quantity: booking?.bookings 
       ? booking?.bookings?.length
       : 1,
-    name : normalizeBooking?.ticket?.event?.name,
+    name: normalizeBooking?.ticket?.event?.name,
     amount: normalizeBooking?.amount,
     type: normalizeBooking?.type,
     created_at: normalizeBooking?.created_at

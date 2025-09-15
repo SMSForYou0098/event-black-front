@@ -49,46 +49,6 @@ const CartPage = () => {
 
   const attendeeRequired = checkoutData?.event?.category?.attendy_required === 1
 
-  // const getCookie = (name) => {
-  //   return document.cookie
-  //     .split(';')
-  //     .find(cookie => cookie.trim().startsWith(`${name}=`))
-  //     ?.split('=')[1];
-  // };
-  // useEffect(() => {
-  //   if (event_key) {
-  //     setCookie('currentEventKey', event_key);
-  //   }
-
-  //   // Check for reload
-  //   if (getCookie('wasReloaded') === 'true') {
-  //     setIsLoading(true); // Show loading state
-
-  //     const eventKeyToUse = event_key || getCookie('currentEventKey');
-
-  //     if (eventKeyToUse) {
-  //       router.replace(`/events/cart/${eventKeyToUse}`);
-  //     }
-  //   } else {
-  //     setIsLoading(false); // Not a reload, stop loading state
-  //   }
-  // }, [event_key]);
-
-  // useEffect(() => {
-  //   // Warn on reload/close
-  //   const handleBeforeUnload = (e) => {
-  //     // Set cookie that expires in 5 seconds
-  //     document.cookie = "wasReloaded=true; max-age=5; path=/";
-  //     e.preventDefault();
-  //     e.returnValue = "";
-  //   };
-
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
-
-  //   return () => {
-  //     window.removeEventListener("beforeunload", handleBeforeUnload);
-  //   };
-  // }, []);
 
   useEffect(() => {
     if (data) {

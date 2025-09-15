@@ -75,7 +75,7 @@ const AvatarImage = ({ src, alt, name, size = 100, className = "", style = {} })
         height={size}
         className={className}
         style={{
-          border: '4px solid #dc3545',
+          // border: '4px solid #dc3545',
           display: imageLoading ? 'none' : 'block',
           ...style
         }}
@@ -93,7 +93,7 @@ const AvatarImage = ({ src, alt, name, size = 100, className = "", style = {} })
             color: 'white',
             fontSize: `${size * 0.3}px`,
             fontWeight: 'bold',
-            border: '4px solid #dc3545',
+            // border: '4px solid #dc3545',
             ...style
           }}
         >
