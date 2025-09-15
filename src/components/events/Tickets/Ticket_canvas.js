@@ -5,6 +5,7 @@ import { Button, Col, Row, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
 import { ArrowBigDownDash, Printer } from 'lucide-react';
+import CustomBtn from '../../../utils/CustomBtn';
 const TicketCanvas = (props) => {
   const { showDetails, ticketName, userName, number, address, ticketBG, date, time, photo, OrderId, showPrintButton, ticketNumber } = props
   const { api } = useMyContext()
@@ -151,8 +152,8 @@ const TicketCanvas = (props) => {
                 scaleY: qrCodeHeight / qrImg.height,
               });
 
-               const ticketNumberText = new fabric.Text(`${ticketNumber || '1'}`, {
-                left: qrPositionX+50,
+              const ticketNumberText = new fabric.Text(`${ticketNumber || '1'}`, {
+                left: qrPositionX + 50,
                 top: qrPositionY + qrCodeHeight + 21, // Position below QR code
                 fontSize: 16,
                 fontFamily: 'Arial',
@@ -198,7 +199,7 @@ const TicketCanvas = (props) => {
               lineHeight: 1.2,
             });
 
-            
+
 
             canvas.add(eventDateText, eventVenueText);
             canvas.renderAll();
@@ -227,23 +228,23 @@ const TicketCanvas = (props) => {
     try {
       const canvas = canvasRef.current;
       if (!canvas) throw new Error('Canvas not found');
-  
+
       // Create a temporary canvas for safe export
       const tempCanvas = document.createElement('canvas');
       const tempCtx = tempCanvas.getContext('2d');
       tempCanvas.width = canvas.width;
       tempCanvas.height = canvas.height;
-  
+
       // Draw the fabric.js canvas content onto the temporary canvas
       tempCtx.drawImage(canvas, 0, 0);
-  
+
       // Create the download link from the temporary canvas with JPG format
       const dataURL = tempCanvas.toDataURL('image/jpeg', 0.9); // 0.9 is quality level (0-1)
       const link = document.createElement('a');
       link.href = dataURL;
       link.download = `ticket_${OrderId || 'event'}.jpg`;
       link.click();
-  
+
     } catch (error) {
       console.error('Download error:', error);
       alert('Failed to download ticket. Please try again.');
@@ -292,40 +293,43 @@ const TicketCanvas = (props) => {
 
   return (
     <>
-      <Row className="justify-content-center mb-2">
-        <Col xs={12} sm={6} className="d-flex gap-2">
-          <Button
-            variant="primary"
-            className="flex-grow-1 d-flex align-items-center justify-content-center gap-2"
-            onClick={downloadCanvas}
-            disabled={loading}
-          >
-            <span>{loading ? "Please Wait..." : "Download"}</span>
-            <ArrowBigDownDash size={18} />
-          </Button>
-          {showPrintButton &&
-            <Button
-              variant="secondary"
-              className="flex-grow-1 d-flex align-items-center justify-content-center gap-2"
-              onClick={printCanvas}
-            >
-              <span>Print</span>
-              <Printer size={18} />
-            </Button>
-          }
-        </Col>
-      </Row>
-      {
-        loadingImage ?
-          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-            <Spinner animation="border" role="status">
-              <span className="sr-only">Loading...</span>
-            </Spinner>
-          </div>
-          :
-          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-            <canvas ref={canvasRef} />
-          </div>
+      <div className="cnvs my-2">
+        {
+          loadingImage ?
+            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+              <Spinner animation="border" role="status">
+                <span className="sr-only">Loading...</span>
+              </Spinner>
+            </div>
+            :
+            <div style={{ display: 'flex', justifyContent: 'center', width: '100%'}}>
+              <canvas ref={canvasRef} />
+            </div>
+        }
+      </div>
+      {!loadingImage &&
+        <Row className="d-flex justify-content-center">
+          <Col xs={12} sm={6} className="d-flex justify-content-center mb-2">
+            <CustomBtn
+              buttonText={loading ? "Please Wait..." : "Download"}
+              icon={<ArrowBigDownDash size={14} />}
+              loading={loading}
+              className="flex-grow-1 btn-sm w-100"
+              HandleClick={downloadCanvas}
+              disabled={loading}
+            />
+            {showPrintButton &&
+              <Button
+                variant="secondary"
+                className="flex-grow-1 d-flex align-items-center justify-content-center gap-2"
+                onClick={printCanvas}
+              >
+                <span>Print</span>
+                <Printer size={18} />
+              </Button>
+            }
+          </Col>
+        </Row>
       }
       <div style={{ display: 'none' }}>
         <QRCodeCanvas ref={qrCodeRef} value={OrderId} size={150} />

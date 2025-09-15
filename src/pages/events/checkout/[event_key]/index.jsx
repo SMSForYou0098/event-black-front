@@ -370,8 +370,9 @@ const handleApplyCoupon = () => {
     formData.append('payment_method', 'online');
 
     // Attendee information (if required)
-    if (attendeeRequired && checkoutData?.data?.attendees?.length > 0) {
-      const attendeeList = checkoutData.data.attendees;
+    console.log(attendeeRequired, checkoutData?.attendees);
+    if (attendeeRequired && checkoutData?.attendees?.length > 0) {
+      const attendeeList = checkoutData?.attendees;
       attendeeList.forEach((attendee, index) => {
         Object.entries(attendee).forEach(([fieldKey, fieldValue]) => {
           if (fieldKey !== 'missingFields' && fieldValue !== undefined && fieldValue !== null && fieldValue !== '') {

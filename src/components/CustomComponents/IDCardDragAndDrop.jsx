@@ -82,7 +82,7 @@ const IDCardDragAndDrop = ({
   // Canvas wrapper styles
   const canvasWrapperStyle = {
     maxWidth: '100%',
-    overflow: 'auto'
+    overflow: 'auto',
   };
 
   // Loading state styles

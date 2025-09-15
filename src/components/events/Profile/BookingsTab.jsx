@@ -17,7 +17,7 @@ const BookingsTab = ({ bookings ,userBookings,loading}) => {
         ))}
       </div>
     </Card.Header>
-    <Card.Body>
+    <Card.Body className='px-0 px-sm-4'>
       {/* {bookings.map((booking) => (
         <BookingCard key={booking.id} booking={booking} />
       ))} */}

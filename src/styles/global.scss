@@ -3,6 +3,41 @@
 @import '../assets/scss/rtl.scss';
 @import './profile.scss';
 
+.text-small {
+  font-size: 0.8rem !important;
+
+  @include media-breakpoint-up(sm) {
+    font-size: initial !important;
+  }
+}
+
+
+
+//custpm btn start
+.custom-btn-primary {
+  font-weight: 700 !important;
+  border-radius: 1rem !important;
+  padding: 0.75rem 1.5rem !important;
+  background: var(--bs-primary) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(var(--bs-primary-rgb, 13,110,253), 0.15);
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 1.1rem;
+  transition: background 0.2s, color 0.2s;
+}
+.custom-btn-primary:disabled,
+.custom-btn-primary[disabled] {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+// Custom button styles end
+
+
 // toast style 
 .go2072408551 {
   background : transparent !important;
@@ -191,8 +226,8 @@ fieldset:disabled .btn {
     0 16px 48px 0 rgba(0, 0, 0, 0.55), // deeper black shadow
     0 4px 16px 0 rgba(0, 0, 0, 0.65), // secondary black shadow
     0 2px 8px rgba(229, 9, 20, 0.18); // subtle red accent
-  backdrop-filter: blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
   transition: box-shadow 0.3s, background 0.3s;
 }
 
@@ -298,3 +333,56 @@ table.cart-table thead tr th {
   @extend .custom-dark-content-bg;
 }
 
+//cavas style
+canvas{
+  border-radius: 16px;
+  border : none !important;;
+}
+// Custom height for mobile screens
+@media (max-width: 576px) {
+  canvas {
+    height: 97% !important; // adjust as needed for your design
+    width: 74% !important; // full width on mobile
+    max-height: 60vh !important; // optional: responsive to viewport
+  }
+}
+
+@media (max-width: 576px) {
+    .canvas-container {
+      position: relative;
+    width: 300px !important;
+    height: 400px !important;
+    overflow: hidden;
+    transform: translate(12%, 0%);
+  }
+}
+
+// Custom scrollbar styles
+::-webkit-scrollbar {
+  // width: 20px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bs-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bs-primary);
+}
+
+// Hide scrollbar arrows/buttons
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+// For Firefox
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-primary) transparent;
+}

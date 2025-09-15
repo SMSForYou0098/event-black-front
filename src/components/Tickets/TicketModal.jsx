@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Row, Col } from 'react-bootstrap';
 import TicketCanvas from '../Events/Tickets/Ticket_canvas';
-import { FaTimes } from 'react-icons/fa';
+import { FaInstagram, FaTimes, FaYoutube } from 'react-icons/fa';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { useMyContext } from "@/Context/MyContextProvider"; // done
 
@@ -55,20 +55,20 @@ const TicketModal = (props) => {
     const Ticket = getTicketComponent();
 
     const fetchLayout = async () => {
-    try {
-      const response = await axios.get(`${api}layout/${eventId}`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+        try {
+            const response = await axios.get(`${api}layout/${eventId}`, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+            });
 
-      const layoutData = response.data?.layout || {};
-      setSavedLayout(layoutData); // ✅ store the layout in state
-    } catch (error) {
-      console.error("❌ Error fetching layout:", error);
-      setSavedLayout({}); // fallback to empty layout
-    }
-  };
+            const layoutData = response.data?.layout || {};
+            setSavedLayout(layoutData); // ✅ store the layout in state
+        } catch (error) {
+            console.error("❌ Error fetching layout:", error);
+            setSavedLayout({}); // fallback to empty layout
+        }
+    };
 
     const fetchImage = async (bg, setBg) => {
         try {
@@ -85,17 +85,17 @@ const TicketModal = (props) => {
     };
 
     useEffect(() => {
-    if (show && isIdCard) {
-        if (ticketData?.Photo) {
-            fetchImage(ticketData.Photo, setUserPhoto);
-        }
+        if (show && isIdCard) {
+            if (ticketData?.Photo) {
+                fetchImage(ticketData.Photo, setUserPhoto);
+            }
 
-        if (bgRequired && card_url) {
-            fetchImage(card_url, setIdCardBg);
-            fetchLayout()
+            if (bgRequired && card_url) {
+                fetchImage(card_url, setIdCardBg);
+                fetchLayout()
+            }
         }
-    }
-}, [show, ticketData, card_url, bgRequired, isIdCard]);
+    }, [show, ticketData, card_url, bgRequired, isIdCard]);
 
     return (
         <Modal show={show} onHide={() => handleCloseModal()} size={ticketType?.type === 'zip' ? 'xl' : ''}>
@@ -112,7 +112,6 @@ const TicketModal = (props) => {
                         zIndex: '99999',
                         fontSize: '24px',
                         cursor: 'pointer',
-                        color: 'black',
                     }}
                 >
                     <FaTimes />
@@ -149,7 +148,7 @@ const TicketModal = (props) => {
                                                                 quantity={1}
                                                                 idCardBg={idCardBg}
                                                                 bgRequired={bgRequired}
-                                                                ticketNumber = {index+1}
+                                                                ticketNumber={index + 1}
                                                             />
                                                         </div>
                                                         <p className="text-center text-secondary">{index + 1}</p>
@@ -161,7 +160,7 @@ const TicketModal = (props) => {
                                 </Swiper>
                             )
                         ) : ticketType?.type === 'combine' ? (
-                            <div style={{height:"auto"}}>
+                            <div style={{ height: "auto" }}>
                                 <Col lg={12} md={12} xl={12}>
                                     <div>
                                         {/* Safely extract data with fallback values */}
@@ -250,10 +249,34 @@ const TicketModal = (props) => {
                         ) : null}
                     </Col>
                 </Row>
-
+                <Modal.Footer>
+                <div className="text-center text-secondary small p-0">
+                    <strong>Physical ticket not needed!</strong><br />
+                    Download your pass from the button <strong>above</strong> and enjoy unlimited events with
+                    <span className="text-primary fw-bold"> getyourticket.in</span>.<br />
+                    <span className="fw-semibold">
+                       Watch the video to get entry without any hassle
+                        <a
+                            href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary text-decoration-underline ms-1 me-2"
+                        >
+                            <FaYoutube className="me-1" />
+                        </a>
+                        &
+                        <a
+                            href="https://www.instagram.com/YOUR_INSTAGRAM_LINK"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary text-decoration-underline ms-2"
+                        >
+                            <FaInstagram className="me-1" />
+                        </a>
+                    </span>
+                </div>
+                </Modal.Footer>
             </Modal.Body>
-            <Modal.Footer>
-            </Modal.Footer>
         </Modal>
 
     );
