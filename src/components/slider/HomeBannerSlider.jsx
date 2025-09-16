@@ -25,16 +25,15 @@ import { useQuery } from "@tanstack/react-query";
 
 // Custom Service and Context
 import { useMyContext } from "@/Context/MyContextProvider";
-import { BannerData, getBanners } from "@/services/home";
+import { getBanners } from "@/services/home";
 
-
-const TvShowHeroSlider = memo(() => {
+const HomeBannerSlider = memo(() => {
   const themeSchemeDirection = useSelector(theme_scheme_direction);
   const [toggler, setToggler] = useState(false);
   const { isMobile } = useMyContext();
 
   // Fetch banners using TanStack Query
-  const { data: banners, isLoading, isError } = useQuery<BannerData, Error>({
+  const { data: banners, isLoading, isError } = useQuery({
     queryKey: ['banners'],
     queryFn: getBanners,
     staleTime: 1000 * 60 * 30, // Cache for 30 minutes
@@ -63,6 +62,19 @@ const TvShowHeroSlider = memo(() => {
     );
   }
 
+  const swiperConfig = {
+    dir: String(themeSchemeDirection),
+    navigation: {
+      prevEl: ".swiper-banner-button-prev",
+      nextEl: ".swiper-banner-button-next",
+    },
+    slidesPerView: 1.2,
+    modules: [Navigation],
+    loop: true,
+    centeredSlides: true,
+    className: "swiper-banner-container"
+  };
+
   return (
     <Fragment>
       <section className="banner-container section-padding-bottom pb-0">
@@ -70,21 +82,19 @@ const TvShowHeroSlider = memo(() => {
           <div id="banner-detail-slider" className="banner-container">
             <Swiper
               key={String(themeSchemeDirection)}
-              dir={String(themeSchemeDirection)}
-              navigation={{
-                prevEl: ".swiper-banner-button-prev",
-                nextEl: ".swiper-banner-button-next",
-              }}
-              slidesPerView={1.2}
-              modules={[Navigation]}
-              loop={true}
-              centeredSlides={true}
-              className="swiper-banner-container"
+              {...swiperConfig}
             >
               {displayedBanners.map((banner, index) => (
                 <SwiperSlide key={index}>
                     <div className="movie-banner-image">
-                        {banner.url && <Image src={banner.url} alt="movie-banner-image" layout="fill" objectFit="cover" />}
+                        {banner.url && (
+                          <Image 
+                            src={banner.url} 
+                            alt="movie-banner-image" 
+                            layout="fill" 
+                            objectFit="cover" 
+                          />
+                        )}
                     </div>
                      <div className="shows-content h-100">
                         <Row className="row align-items-center h-100">
@@ -196,5 +206,5 @@ const TvShowHeroSlider = memo(() => {
   );
 });
 
-TvShowHeroSlider.displayName = 'TvShowHeroSlider'
-export default TvShowHeroSlider;
+HomeBannerSlider.displayName = 'HomeBannerSlider';
+export default HomeBannerSlider;

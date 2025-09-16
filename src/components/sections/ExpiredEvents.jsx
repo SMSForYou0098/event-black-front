@@ -10,7 +10,7 @@ import { useMyContext } from "@/Context/MyContextProvider";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-const ShowsWeRecommend = memo(() => {
+const ExpiredEvents = memo(() => {
   const [title] = useState("Past Events");
 
   const { api, authToken, createSlug } = useMyContext();
@@ -61,5 +61,5 @@ const ShowsWeRecommend = memo(() => {
   );
 })
 
-ShowsWeRecommend.displayName = 'ShowsWeRecommend';
-export default ShowsWeRecommend;
+ExpiredEvents.displayName = 'ExpiredEvents';
+export default ExpiredEvents;

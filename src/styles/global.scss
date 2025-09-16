@@ -357,6 +357,25 @@ canvas{
   }
 }
 
+.iq-card {
+  .block-images {
+    &::after,
+    &::before,
+    .img-box img {
+      border-radius: 1rem !important;
+      transition: all 0.3s ease-in-out;
+    }
+  }
+}
+
+.category_image {
+  a .img-fluid {
+    border-radius: 1rem !important;
+    transition: all 0.3s ease-in-out;
+  }
+}
+
+
 // Custom scrollbar styles
 /* styles/globals.css */
 
@@ -367,7 +386,7 @@ canvas{
 }
 
 ::-webkit-scrollbar {
-  width: 2px;
+  width: 5px;
   background-color: transparent !important;
 }
 

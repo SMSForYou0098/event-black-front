@@ -1,5 +1,5 @@
 import { memo } from "react"
-import BestOfInternationalShows from "@/components/sections/BestOfInternationalShows";
+import EventsSection from "@/components/sections/EventsSection";
 import TVPopularShows from "@/components/sections/TVPopularShows";
 
 const Events = memo(() => {
@@ -8,7 +8,7 @@ const Events = memo(() => {
     <div className="mt-5">
 
     <TVPopularShows />
-      <BestOfInternationalShows />
+      <EventsSection />
     </div>
     </>
 })
