@@ -462,6 +462,8 @@ const handleApplyCoupon = () => {
       } else {
         throw new Error('Payment URL missing from response.');
       }
+      const sessionId = response?.bookings?.[0]?.session_id || response?.bookings?.session_id;
+      router.push(`/events/summary/${encodeURIComponent(event_key)}?sessionId=${encodeURIComponent(sessionId)}`)
     } else {
       throw new Error('Payment initiation failed');
     }
@@ -478,10 +480,11 @@ const handleApplyCoupon = () => {
         confirmButtonText: 'View Booking'
       });
 
-       const sessionId = responseData?.bookings?.[0]?.session_id;
+       const sessionId = responseData?.bookings?.[0]?.session_id || responseData?.bookings?.session_id;
       // if no sessionId, just push to event summary without query param
     if (!sessionId) {
-      router.push(`/events/summary/${encodeURIComponent(event_key)}`);
+      // router.push(`/events/summary/${encodeURIComponent(event_key)}`);
+      ErrorAlert('Session Id Not Found')
       return;
     }
 
