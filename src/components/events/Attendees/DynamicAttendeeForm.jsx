@@ -229,6 +229,7 @@ const DynamicAttendeeForm = ({
                 handleFieldChange(field_name, faceImageBase64);
               } else {
                 // fallback to raw file
+                ErrorAlert('Face Not Detected, Please Upload Proper Image')
                 const processed = await processImageFile(file);
                 handleFieldChange(field_name, processed || file);
               }

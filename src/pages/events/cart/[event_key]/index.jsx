@@ -5,7 +5,7 @@ import { Container, Row, Col, Table, Button } from "react-bootstrap";
 import { useMyContext } from "@/Context/MyContextProvider";
 import CustomButton from "../../../../utils/CustomButton";
 import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
-import { publicApi } from "@/lib/axiosInterceptor";
+import { publicApi,api } from "@/lib/axiosInterceptor";
 import { useRouter } from "next/router";
 import BookingTickets from "../../../../utils/BookingUtils/BookingTickets";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
@@ -17,7 +17,7 @@ import { Calendar, Pin, Tags, Ticket, Users } from "lucide-react";
 
 const CartPage = () => {
   const { event_key } = useRouter().query;
-  const { isMobile, isLoggedIn, fetchCategoryData, convertTo12HourFormat, formatDateRange } = useMyContext();
+  const { isMobile, isLoggedIn, fetchCategoryData, convertTo12HourFormat, formatDateRange, UserData,ErrorAlert } = useMyContext();
   const { storeCheckoutData } = useCheckoutData();
   const [cartItems, setCartItems] = useState([]);
   const [categoryData, setCategoryData] = useState(null);
@@ -40,14 +40,38 @@ const CartPage = () => {
   }, [event]);
 
   // console.log(event)
-  const handleProcess = () => {
+
+  const checkTicketStatus = async () => {
+        try {
+          const response = await api.get(`/user-ticket-info/${UserData.id}/${selectedTickets.itemId}`)
+            if (!response.data.status) {
+                ErrorAlert(response.data.message || 'You have already booked this ticket. Please check your booking history.');
+                return false;
+            }
+            return true; // allowed
+        } catch (error) {
+            console.error('Error checking ticket status:', error);
+            ErrorAlert( error ||'Unable to check ticket status. Please try again.');
+            return false;
+        }
+    };
+  const handleProcess = async() => {
     const path = prepareRedirect();
     setPath(path);
-    if (!isLoggedIn) {
-      setShowLoginModal(true);
-    } else {
+   if (!isLoggedIn) {
+    // if user not logged in → show login modal
+    setShowLoginModal(true);
+  } else {
+    // if logged in, check ticket status first
+    const allowed = await checkTicketStatus();
+    if (allowed) {
+      // if API allows booking → proceed
       router.push(path);
+    } else {
+      // blocked by API → do nothing (alert is already shown inside checkTicketStatus)
+      return;
     }
+  }
   };
 
   const prepareRedirect = () => {

@@ -277,73 +277,130 @@ const handleApplyCoupon = () => {
       const response = await initiateBooking(payload);
       await handleBookingResponse(response);
 
+
+      
+
     } catch (error) {
       handleBookingError(error);
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   // Create booking payload
   const createBookingPayload = () => {
-    const formData = new FormData();
-    const quantity = Number(checkoutData?.data?.newQuantity) || 0;
-    // User information
-    formData.append('user_id', UserData?.id || "");
-    formData.append('user_name', sanitizeInput(UserData?.name) || "");
-    formData.append("user_email", UserData?.email || "");
-    formData.append("user_phone", UserData?.phone || UserData?.number || "");
+  const formData = new FormData();
+  const quantity = Number(checkoutData?.data?.newQuantity) || 0;
 
-    // Event information
-    // formData.append("event_id", checkoutData?.event?.id || "");
-    formData.append("event_id", event_key || "");
-    formData.append("event_name", sanitizeInput(checkoutData?.event?.name) || "");
-    formData.append("organizer_id", checkoutData?.event?.user_id || "");
-    formData.append("category", checkoutData?.event?.category?.title || "");
-    formData.append("event_type", checkoutData?.event?.event_type || "");
-
-    // Ticket information
-    formData.append("ticket_id", checkoutData?.ticket?.id || "");
-    formData.append("ticket_price", checkoutData?.ticket?.price || "0");
-    formData.append("quantity", quantity || "0");
-
-    // Pricing information
-    formData.append("amount", orderData?.total || "0");
-    formData.append("base_amount", orderData?.subtotal || (checkoutData?.ticket?.price * quantity) || "0");
-    formData.append("discount", orderData?.discount || "0");
-    formData.append("convenience_fees", orderData?.convenienceFees || "0");
-    formData.append("cgst", orderData?.cgst || "0");
-    formData.append("sgst", orderData?.sgst || "0");
-    formData.append("total_tax", ((orderData?.cgst || 0) + (orderData?.sgst || 0)).toString());
-
-    // Promo code
-    if (promo?.appliedCode) {
-      formData.append("promo_code", promo.appliedCode);
-    }
-
-    // Booking date if selected
-    if (checkoutData?.data?.selectedDate) {
-      formData.append('booking_date', checkoutData.data.selectedDate);
-    }
-
-    // Payment method
-    formData.append('payment_method', 'online');
-
-    // Attendee information (if required)
-    console.log(attendeeRequired, checkoutData?.attendees);
-    if (attendeeRequired && checkoutData?.attendees?.length > 0) {
-      const attendeeList = checkoutData?.attendees;
-      attendeeList.forEach((attendee, index) => {
-        Object.entries(attendee).forEach(([fieldKey, fieldValue]) => {
-          if (fieldKey !== 'missingFields' && fieldValue !== undefined && fieldValue !== null && fieldValue !== '') {
-            formData.append(`attendees[${index}][${fieldKey}]`, sanitizeInput(fieldValue.toString()));
-          }
-        });
-      });
-    }
-
-    return formData;
+  // helper: detect file-like objects and extract the actual File/Blob
+  const extractFile = (v) => {
+    if (!v) return null;
+    if (v instanceof File || v instanceof Blob) return v;
+    if (v.originFileObj instanceof File) return v.originFileObj;
+    if (v.file instanceof File) return v.file;
+    if (v.rawFile instanceof File) return v.rawFile;
+    // react-native like object { uri, name, type } - return as-is (RN handles this differently)
+    if (v.uri && v.name) return v;
+    return null;
   };
+
+  // helper: append primitive or JSON-stringified value
+  const appendPrimitive = (key, value) => {
+    // boolean/number/string -> sanitized string
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      formData.append(key, sanitizeInput(String(value)));
+    } else {
+      // fallback: stringify objects/arrays
+      formData.append(key, JSON.stringify(value));
+    }
+  };
+
+  // Basic user info
+  formData.append('user_id', UserData?.id ? String(UserData.id) : '');
+  formData.append('user_name', sanitizeInput(UserData?.name || ''));
+  formData.append('user_email', UserData?.email || '');
+  formData.append('user_phone', UserData?.phone || UserData?.number || '');
+
+  // Event info
+  formData.append('event_id', event_key || '');
+  formData.append('event_name', sanitizeInput(checkoutData?.event?.name || ''));
+  formData.append('organizer_id', checkoutData?.event?.user_id ? String(checkoutData.event.user_id) : '');
+  formData.append('category', checkoutData?.event?.category?.title || '');
+  formData.append('event_type', checkoutData?.event?.event_type || '');
+
+  // Ticket info
+  formData.append('ticket_id', checkoutData?.ticket?.id ? String(checkoutData.ticket.id) : '');
+  formData.append('ticket_price', String(checkoutData?.ticket?.price ?? '0'));
+  formData.append('quantity', String(quantity));
+
+  // Pricing
+  formData.append('amount', String(orderData?.total ?? '0'));
+  formData.append('base_amount', String(orderData?.subtotal ?? (checkoutData?.ticket?.price * quantity) ?? '0'));
+  formData.append('discount', String(orderData?.discount ?? '0'));
+  formData.append('convenience_fees', String(orderData?.convenienceFees ?? '0'));
+  formData.append('cgst', String(orderData?.cgst ?? '0'));
+  formData.append('sgst', String(orderData?.sgst ?? '0'));
+  formData.append('total_tax', String((Number(orderData?.cgst || 0) + Number(orderData?.sgst || 0))));
+
+  // Promo
+  if (promo?.appliedCode) formData.append('promo_code', promo.appliedCode);
+
+  // Booking date
+  if (checkoutData?.data?.selectedDate) {
+    formData.append('booking_date', checkoutData.data.selectedDate);
+  }
+
+  // Payment method
+  formData.append('payment_method', 'online');
+
+  // Attendees — handle files and primitives safely
+  if (attendeeRequired && Array.isArray(checkoutData?.attendees) && checkoutData.attendees.length > 0) {
+    const attendeeList = checkoutData.attendees;
+
+    attendeeList.forEach((attendee, index) => {
+      Object.entries(attendee).forEach(([fieldKey, fieldValue]) => {
+        // skip helper fields
+        if (fieldKey === 'missingFields' || fieldValue === undefined || fieldValue === null || fieldValue === '') return;
+
+        const baseKey = `attendees[${index}][${fieldKey}]`;
+
+        // If array (e.g., multiple photos)
+        if (Array.isArray(fieldValue)) {
+          fieldValue.forEach((item, i) => {
+            const file = extractFile(item);
+            if (file) {
+              // append files as array parts
+              formData.append(`${baseKey}[]`, file);
+            } else {
+              formData.append(`${baseKey}[]`, sanitizeInput(String(item)));
+            }
+          });
+          return;
+        }
+
+        // If file-like, append file directly (do NOT stringify)
+        const fileLike = extractFile(fieldValue);
+        if (fileLike) {
+          formData.append(baseKey, fileLike);
+          return;
+        }
+
+        // If plain object (not file), JSON stringify so backend can parse
+        if (typeof fieldValue === 'object') {
+          formData.append(baseKey, JSON.stringify(fieldValue));
+          return;
+        }
+
+        // Primitive (string/number/boolean)
+        appendPrimitive(baseKey, fieldValue);
+      });
+    });
+  }
+
+  return formData;
+};
+
 
   // Initiate booking API call
   const initiateBooking = async (payload) => {
@@ -421,8 +478,16 @@ const handleApplyCoupon = () => {
         confirmButtonText: 'View Booking'
       });
 
-      // Redirect to booking confirmation or dashboard
-      router.push(`/bookings/${responseData.booking_id}` || '/dashboard/bookings');
+       const sessionId = responseData?.bookings?.[0]?.session_id;
+      // if no sessionId, just push to event summary without query param
+    if (!sessionId) {
+      router.push(`/events/summary/${encodeURIComponent(event_key)}`);
+      return;
+    }
+
+    router.push(
+      `/events/summary/${encodeURIComponent(event_key)}?sessionId=${encodeURIComponent(sessionId)}`
+    );
 
     } catch (error) {
       console.error('Free booking handling error:', error);

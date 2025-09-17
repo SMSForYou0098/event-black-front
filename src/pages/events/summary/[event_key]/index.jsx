@@ -3,14 +3,49 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import { Calendar, Clock, MapPin, User, Mail, Phone, Ticket, CreditCard, Crown } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
 import { CUSTOM_SECONDORY } from '../../../../utils/consts';
-import { TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
+import {useRouter} from "next/router";
+import { useMutation } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
+import { TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
+import {api} from "@/lib/axiosInterceptor"
+import { useQuery } from '@tanstack/react-query';
 const BookingSummary = () => {
     const sectionIconStyle = {
         color: CUSTOM_SECONDORY,
         size: 20,
         style: { marginRight: '10px' }
     };
+      const router = useRouter();
+ 
+ const raw = router.query.sessionId;
+ const sessionId = Array.isArray(raw) ? raw[0] : raw;
+ const mutation = useMutation({
+   mutationFn: async (sid) => {
+     const res = await api.post("/verify-booking", { session_id: sid });
+     return res.data;
+   },
+   onSuccess: (data) => {
+     console.log("verify success", data);
+     // handle data, redirect, toast, etc.
+     // router.push('/somewhere') or show success UI
+   },
+   onError: (err) => {
+     console.error("verify error", err);
+   },
+   // optional: retry, onSettled, etc.
+ });
+
+  // auto-rn when sessionId is available
+  useEffect(() => {
+    if (sessionId) mutation.mutate(sessionId);
+  }, [sessionId]);
+
+  if (!sessionId) return <p>Waiting for session id...</p>;
+  if (mutation.isLoading) return <p>Verifying booking…</p>;
+//   if (mutation.isError) return <p>Error verifying booking.</p>;
+
+
     return (
         <div className="cart-page section-padding">
             <Container className="">
