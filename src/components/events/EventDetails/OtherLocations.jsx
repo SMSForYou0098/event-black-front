@@ -26,7 +26,7 @@ const OtherLocations = ({ eventData }) => {
 
     return (
         <>
-            <div className="">
+            <div className="my-3">
                 <CustomBtn
                     buttonText="View Other Locations"
                     className="btn-sm"
@@ -40,7 +40,6 @@ const OtherLocations = ({ eventData }) => {
                 show={showModal}
                 onHide={() => setShowModal(false)}
                 size="lg"
-                centered
             >
                 <CustomHeader 
                     title="Other Locations" 

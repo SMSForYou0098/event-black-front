@@ -14,22 +14,63 @@ import Link from "next/link";
  * AnimatedButton: small presentational component used by MobileBottomMenu
  */
 export const AnimatedButton = ({ onClick, Icon, text, animation, isActive }) => (
-  <Button
-    onClick={onClick}
-    variant={isActive ? "primary" : "dark"} // ✅ bootstrap colors
-    className="w-100 py-3 border-0 d-flex flex-column align-items-center"
-    style={{ borderRadius: 0 }}
+  <motion.div
+    whileTap={{ scale: 0.95 }}
+    animate={{
+      y: isActive ? -4 : 0,
+      scale: isActive ? 1 : 0.98,
+    }}
+    transition={{
+      type: "spring",
+      stiffness: 300,  // Reduced from 400
+      damping: 30,     // Increased from 25
+      mass: 1.2,       // Added mass for more "weight" feeling
+      duration: 0.5    // Added duration for smoother transition
+    }}
   >
-    <motion.div
-      animate={animation}
-      transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+    <Button
+      onClick={onClick}
+      variant={isActive ? "primary" : "link"}
+      className={`text-decoration-none p-2 rounded-4 d-flex flex-column align-items-center justify-content-center ${isActive ? 'shadow-lg' : ''
+        }`}
+      style={{
+        width: '65px',
+        height: '55px',
+        margin: '0 auto',
+        border: 'none',
+        background: isActive ? 'var(--bs-primary)' : 'transparent',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+      }}
     >
-      <Icon color={isActive ? "var(--bs-light)" : "var(--bs-primary)"} size={20} />
-    </motion.div>
-    <span className="mt-2" style={{ fontSize: 12 }}>
-      {text}
-    </span>
-  </Button>
+      <motion.div
+        animate={animation}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          padding: '4px',
+          borderRadius: '50%',
+        }}
+      >
+        <Icon
+          color={isActive ? "var(--bs-light)" : "var(--bs-primary)"}
+          size={22}
+        />
+      </motion.div>
+      <motion.span
+        className="mt-1"
+        animate={{
+          scale: isActive ? 1.05 : 1,
+          color: isActive ? "var(--bs-light)" : "var(--bs-primary)"
+        }}
+        transition={{ duration: 0.2 }}
+        style={{
+          fontSize: '11px',
+          fontWeight: '500'
+        }}
+      >
+        {text}
+      </motion.span>
+    </Button>
+  </motion.div>
 );
 
 /**
@@ -41,18 +82,25 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
   const [activeButton, setActiveButton] = useState("home");
   const router = useRouter();
 
-  if (hideMenu) return null;
+  // Define routes where menu should be visible
+  const visibleRoutes = [
+    '/',
+    '/events',
+    '/profile',
+    '/event-details',
+    '/about-us'
+    // Add more routes as needed
+  ];
+
+  // Check if current route should show menu
+  const shouldShowMenu = visibleRoutes.includes(router.pathname);
+
+  // Return null if menu should be hidden
+  if (hideMenu || !shouldShowMenu) return null;
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow((s) => !s);
 
-  const handleNavigateProfile = () => {
-    let path = "/sign-in";
-    if (UserData && Object.keys(UserData)?.length > 0) {
-      path = `/dashboard/users/manage/${UserData?.id}`;
-    }
-    router.push(path);
-  };
 
   const buttons = [
     {
@@ -78,7 +126,7 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     {
       key: "profile",
       onClick: () => {
-        handleNavigateProfile();
+        router.push("/profile");
         setActiveButton("profile");
       },
       Icon: UserIcon,
@@ -126,47 +174,76 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
         </Container>
       </Offcanvas>
 
-
-      <Container
-        fluid
-        className="d-flex flex-column justify-content-end bg-dark"
+      <motion.div
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{
+          type: "spring",
+          stiffness: 100,
+          damping: 20,
+          duration: 0.6,
+          ease: "easeOut"
+        }}
         style={{
           position: "fixed",
           left: 0,
+          right: 0,
           zIndex: 98,
-          bottom: 0,
-          maxWidth: "100%",
-          margin: 0,
-          padding: 0,
+          bottom: 25,
+          maxWidth: "calc(100% - 2rem)",
+          margin: '0 auto',
         }}
       >
-        <Row className="g-0">
-          {buttons.map((item) => (
-            <Col key={item.key} xs={3} className="p-0">
-              <AnimatedButton {...item} isActive={activeButton === item.key} />
-            </Col>
-          ))}
-        </Row>
+        <Container
+          fluid
+          className="d-flex flex-column justify-content-end card-glassmorphism"
+          style={{
+            padding: '12px 16px',
+            borderRadius: '20px',
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 4px 24px 0 rgba(0, 0, 0, 0.1)'
+          }}
+        >
+          <Row className="g-3 justify-content-between align-items-center">
+            {buttons.map((item) => (
+              <Col
+                key={item.key}
+                className="text-center"
+                style={{ flex: '1', minWidth: 'auto' }}
+              >
+                <AnimatedButton {...item} isActive={activeButton === item.key} />
+              </Col>
+            ))}
+          </Row>
 
-        {/* Central floating Book button */}
-        <div
+          {/* Central floating Book button */}
+          {/* <motion.div
+          initial={{ y: 80, opacity: 0, scale: 0.8 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          transition={{ 
+            delay: 0.2, // Slight delay after container animation
+            type: "spring",
+            stiffness: 150,
+            damping: 15
+          }}
           style={{
             position: "absolute",
-            top: "-30px",
+            top: "-20px",
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 9999,
             width: 60,
             height: 60,
             borderRadius: "50%",
-            overflow: "hidden",        // Ensure circular clipping
+            overflow: "hidden",
             display: "flex",
             alignItems: "center",
             justifyContent: "center"
           }}
         >
           <Button
-            variant="secondary"
+            variant="warning"
             className="rounded-circle"
             style={{
               width: 60,
@@ -188,9 +265,9 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
             </motion.div>
             <span style={{ fontSize: 10, marginTop: 5 }}>Book</span>
           </Button>
-        </div>
-
-      </Container>
+        </motion.div> */}
+        </Container>
+      </motion.div>
     </>
   );
 };

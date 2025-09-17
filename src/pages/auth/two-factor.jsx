@@ -113,25 +113,24 @@ const TwoFactor = memo(() => {
                                         {/* Applied the input style */}
                                         <Form.Control
                                             size="lg"
-                                            type="text"
+                                            type="number"
                                             value={otp}
                                             placeholder="Enter OTP"
                                             onChange={(e) => setOTP(e.target.value)}
                                             onKeyDown={handleKeyDown}
                                             autoFocus
-                                            className="rounded-0 text-center card-glassmorphism__input"
+                                            className="text-center card-glassmorphism__input"
                                         />
                                     </Form.Group>
 
                                     <div className="full-button mb-3">
                                         {/* Applied the gradient button style */}
-                                        <Button
+                                        <CustomBtn
                                             className="btn text-uppercase position-relative w-100 "
-                                            onClick={handleVerifyOtp}
+                                            HandleClick={handleVerifyOtp}
                                             disabled={!otp || loading || authLoading}
-                                        >
-                                            {loading || authLoading ? 'Verifying...' : 'Verify OTP'}
-                                        </Button>
+                                            buttonText={loading || authLoading ? 'Verifying...' : 'Verify OTP'}
+                                        />
                                     </div>
 
                                     <div className="text-center text-white-75">

@@ -1,9 +1,4 @@
-import React, { useEffect, useState } from "react";
-
-
-// header
-import HeaderDefault from "../components/partials/HeaderDefault";
-
+import React from "react";
 // footer
 import FooterDefault from "../components/partials/FooterDefault";
 import MobileBottomMenu from "../components/partials/MobileBottonMenu";
@@ -15,19 +10,24 @@ import BreadCrumbWidget from "@/components/BreadcrumbWidget";
 import SettingOffCanvas from "../components/setting/SettingOffCanvas";
 
 import StickyContent from "../utils/StickyContent";
-import { useMyContext } from "@/Context/MyContextProvider";
+import HeaderDecider from "./HeaderDecider";
+import { HeaderProvider } from "@/context/HeaderContext";
 const Frontend = (({ children }) => {
-const {isMobile, isTablet} = useMyContext();
   return (
     <>
       <main className="main-content">
         <BreadCrumbWidget />
-        <HeaderDefault />
-
-        {children}
+        <HeaderDecider />
+        <HeaderProvider>
+          {children}
+        </HeaderProvider>
       </main>
-
-      {/* {isMobile || isTablet ? <MobileBottomMenu /> : <FooterDefault />} */}
+      <div className="d-none d-sm-block">
+        <FooterDefault />
+      </div>
+      <div className="d-block d-sm-none">
+        <MobileBottomMenu />
+      </div>
       <StickyContent />
       <SettingOffCanvas />
     </>

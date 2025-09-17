@@ -3,7 +3,7 @@ import { Button, Col, Offcanvas, Row } from "react-bootstrap";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useRouter } from "next/router";
 import BookingFooterLayout from "../../../utils/BookingFooterLayout";
-
+import CustomBtn from "../../../utils/CustomBtn";
 const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const { setShowHeaderBookBtn, isMobile } = useMyContext();
   const bookBtnRef = useRef(null);
@@ -96,10 +96,6 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
             </Col>
           </Row>
         </div>
-
-
-        {/* Mobile: Add some bottom padding to prevent content being hidden behind sticky button */}
-        {isMobile && <div style={{ paddingBottom: "80px" }} />}
       </div>
 
       {/* Mobile Sticky Button */}
@@ -131,17 +127,15 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         show={showOffcanvas}
         onHide={() => setShowOffcanvas(false)}
         placement={isMobile ? "bottom" : "top"}
+        // placement="bottom"
       >
-        <Offcanvas.Header closeButton>
+        <Offcanvas.Header>
           <Offcanvas.Title>Booking Info</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
           <div>
-            {/* Your custom content here */}
             <p>Some content goes here. Confirm your booking details.</p>
-            <Button variant="primary" onClick={handleContinue}>
-              Continue
-            </Button>
+            <CustomBtn variant="primary" buttonText="Continue" HandleClick={handleContinue} className="position-relative float-end" />
           </div>
         </Offcanvas.Body>
       </Offcanvas>

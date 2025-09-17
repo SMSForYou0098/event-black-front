@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Button, Alert } from "react-bootstrap";
+import { Form, Button, Alert, Row, Col } from "react-bootstrap";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useSelector } from "react-redux";
@@ -8,7 +8,7 @@ import { useMyContext } from "@/Context/MyContextProvider";
 import AuthLayout from "@/layouts/AuthLayout";
 import { Home } from "lucide-react";
 import CustomBtn from "../../utils/CustomBtn";
-
+import ShakyButton from "@/utils/ShakyButton";
 const Login = () => {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -29,14 +29,18 @@ const Login = () => {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
-
+  const [shake, setShake] = useState(false);
   const handleLogin = async (event) => {
     event.preventDefault(); // Move this to the top
-    
+
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.stopPropagation();
       setValidated(true);
+      // Trigger shake animation
+      setShake(true);
+      // Reset shake after animation completes
+      setTimeout(() => setShake(false), 500);
       return;
     }
 
@@ -110,33 +114,31 @@ const Login = () => {
           </Form.Control.Feedback>
         </Form.Group>
 
-        <Form.Group className="mb-3 d-flex justify-content-between align-items-center">
-          <Form.Check
-            type="checkbox"
-            name="rememberMe"
-            id="rememberMe"
-            checked={formData.rememberMe}
-            onChange={handleInputChange}
-            className="card-glassmorphism__checkbox"
-            label={<span className="text-white fw-500">Remember Me</span>}
-          />
-          <CustomBtn
-            buttonText="Home"
-            style={{
-              padding: "8px 16px", background: 'rgba(255, 255, 255, 0.1)'
-            }}
-            className="btn-secondary border-0"
-            HandleClick={() => router.push("/")}
-            icon={<Home size={20} />}
-          />
+        <Form.Group className="mb-3">
+          <Row className="g-2">
+            <Col>
+              <CustomBtn
+                buttonText="Home"
+                iconPosition="left"
+                style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                className="btn-secondary border-0 w-100 btn-sm"
+                HandleClick={() => router.push("/")}
+                icon={<Home size={20} />}
+              />
+            </Col>
+            <Col >
+              <ShakyButton
+                shake={shake}
+                onShakeComplete={() => setShake(false)}
+                type="submit"
+                disabled={isSubmitting || loading}
+                buttonText={isSubmitting || loading ? "Processing..." : "Next"}
+                className="w-100 btn-sm"
+              />
+            </Col>
+          </Row>
         </Form.Group>
 
-          <CustomBtn
-            type="submit"
-            className="w-100"
-            disabled={isSubmitting || loading}
-            buttonText={isSubmitting || loading ? "Processing..." : "Next"}
-          />
       </Form>
 
       <p className="my-4 text-center fw-500 text-white">

@@ -9,6 +9,8 @@ export const useEventData = (event_key) => {
             return response.data.events;
         },
         enabled: !!event_key,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        cacheTime: 30 * 60 * 1000, // 30 minutes
     });
 };
 

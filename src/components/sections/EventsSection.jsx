@@ -1,5 +1,4 @@
 import {memo} from "react";
-import axios from "axios";
 import EventsContainer from "@/utils/EventUtils/EventsContainer";
 
 const EventsSection = memo(() => {

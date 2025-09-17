@@ -1,21 +1,209 @@
-import { memo } from "react";
-import HomeBannerSlider from "@/components/slider/HomeBannerSlider";
-import HighDemand from "@/components/sections/HighDemand";
-import EventsSection from "@/components/sections/EventsSection";
-import ExpiredEvents from "@/components/sections/ExpiredEvents";
+import { memo, useState, useEffect, useRef, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useEnterExit } from "@/utilities/usePage";
-import FooterSlider from "@/components/sections/FooterSlider";
+
+// Enhanced intersection observer hook - LOAD ONCE + CLEANUP
+const useLoadOnce = (threshold = 0.1, rootMargin = '50px') => {
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const ref = useRef();
+  const observerRef = useRef();
+
+  useEffect(() => {
+    if (hasLoaded || !ref.current) return;
+
+    observerRef.current = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHasLoaded(true);
+          // Disconnect observer after loading once
+          observerRef.current?.disconnect();
+        }
+      },
+      { threshold, rootMargin }
+    );
+
+    observerRef.current.observe(ref.current);
+
+    return () => {
+      observerRef.current?.disconnect();
+    };
+  }, [hasLoaded, threshold, rootMargin]);
+
+  return [ref, hasLoaded];
+};
+
+// Enhanced lazy section with better performance
+const LazySection = memo(({ children, fallback, threshold = 0.1, rootMargin = '100px' }) => {
+  const [ref, hasLoaded] = useLoadOnce(threshold, rootMargin);
+  
+  return (
+    <div ref={ref}>
+      {hasLoaded ? children : fallback}
+    </div>
+  );
+});
+
+LazySection.displayName = "LazySection";
+
+// Preload strategy - start loading when user is close
+const PreloadSection = memo(({ children, fallback, preloadMargin = '200px' }) => {
+  const [ref, hasLoaded] = useLoadOnce(0.1, preloadMargin);
+  
+  return (
+    <div ref={ref}>
+      {hasLoaded ? children : fallback}
+    </div>
+  );
+});
+
+PreloadSection.displayName = "PreloadSection";
+
+// Dynamic imports with better error handling
+const createDynamicComponent = (importFunction, loadingComponent, options = {}) => {
+  return dynamic(importFunction, {
+    loading: loadingComponent,
+    ssr: options.ssr !== false, // Default to true
+    ...options,
+  });
+};
+
+// Component definitions with progressive loading strategy
+const HomeBannerSlider = createDynamicComponent(
+  () => import("@/components/slider/HomeBannerSlider"),
+  () => <BannerSkeleton />
+);
+
+const HighDemand = createDynamicComponent(
+  () => import("@/components/sections/HighDemand"),
+  () => <SectionSkeleton title="High Demand" />
+);
+
+const EventsSection = createDynamicComponent(
+  () => import("@/components/sections/EventsSection"),
+  () => <SectionSkeleton title="Events" />
+);
+
+const ExpiredEvents = createDynamicComponent(
+  () => import("@/components/sections/ExpiredEvents"),
+  () => <SectionSkeleton title="Past Events" />,
+  { ssr: false } // Below fold content
+);
+
+const FooterSlider = createDynamicComponent(
+  () => import("@/components/sections/FooterSlider"),
+  () => <FooterSkeleton />,
+  { ssr: false }
+);
+
+// Improved skeleton components with better UX
+const BannerSkeleton = memo(() => (
+  <div className="position-relative" style={{ height: '400px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+    <div className="position-absolute top-50 start-50 translate-middle text-center text-white">
+      <div className="spinner-border mb-3" role="status" style={{ width: '3rem', height: '3rem' }}>
+        <span className="visually-hidden">Loading banner...</span>
+      </div>
+      <h5 className="mb-0 opacity-75">Loading exciting content...</h5>
+    </div>
+  </div>
+));
+
+const SectionSkeleton = memo(({ title }) => (
+  <section className="py-5">
+    <div className="container">
+      <div className="d-flex align-items-center mb-4">
+        <div className="spinner-border spinner-border-sm text-primary me-3" role="status">
+          <span className="visually-hidden">Loading {title}...</span>
+        </div>
+        <div className="placeholder-glow">
+          <h2 className="placeholder col-6 mb-0 bg-secondary"></h2>
+        </div>
+      </div>
+      
+      <div className="row g-4">
+        {Array.from({ length: 6 }, (_, i) => (
+          <div key={i} className="col-lg-4 col-md-6">
+            <div className="card border-0 shadow-sm">
+              <div className="placeholder-glow">
+                <div 
+                  className="placeholder bg-light rounded-top" 
+                  style={{ height: '200px' }}
+                ></div>
+              </div>
+              <div className="card-body">
+                <div className="placeholder-glow">
+                  <h5 className="placeholder col-8 bg-secondary"></h5>
+                  <p className="placeholder col-6 bg-secondary"></p>
+                  <small className="placeholder col-4 bg-secondary"></small>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+));
+
+const FooterSkeleton = memo(() => (
+  <footer className="bg-dark py-5">
+    <div className="container text-center">
+      <div className="spinner-border spinner-border-sm text-light mb-3" role="status">
+        <span className="visually-hidden">Loading footer...</span>
+      </div>
+      <div className="placeholder-glow">
+        <p className="placeholder col-4 mx-auto bg-secondary"></p>
+      </div>
+    </div>
+  </footer>
+));
+
+// Add display names to skeleton components
+BannerSkeleton.displayName = "BannerSkeleton";
+SectionSkeleton.displayName = "SectionSkeleton";
+FooterSkeleton.displayName = "FooterSkeleton";
 
 const OTT = memo(() => {
-  useEnterExit()
+  useEnterExit();
 
   return (
     <>
+      {/* Critical: Above the fold - load immediately */}
       <HomeBannerSlider />
-      <HighDemand />
-      <EventsSection />
-      <ExpiredEvents />
-      <FooterSlider />
+      
+      {/* High priority: Preload when user is getting close */}
+      <PreloadSection 
+        fallback={<SectionSkeleton title="High Demand" />}
+        preloadMargin="150px"
+      >
+        <HighDemand />
+      </PreloadSection>
+      
+      {/* Medium priority: Load when in view */}
+      <LazySection 
+        fallback={<SectionSkeleton title="Events" />}
+        threshold={0.1}
+        rootMargin="100px"
+      >
+        <EventsSection />
+      </LazySection>
+      
+      {/* Low priority: Load only when visible */}
+      <LazySection 
+        fallback={<SectionSkeleton title="Past Events" />}
+        threshold={0.1}
+        rootMargin="50px"
+      >
+        <ExpiredEvents />
+      </LazySection>
+      
+      {/* Footer: Load when approaching */}
+      <LazySection 
+        fallback={<FooterSkeleton />}
+        threshold={0.1}
+        rootMargin="100px"
+      >
+        <FooterSlider />
+      </LazySection>
     </>
   );
 });

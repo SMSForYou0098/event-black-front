@@ -10,6 +10,8 @@ export const setCookie = (name, value, maxAge = null) => {
   document.cookie = `${name}=${value}; path=/${ageParam}`;
 };
 
+
+
 export const ErrorExtractor = (error) => {
   if (error.response) {
     return error.response.data.message || error.response.data.error || 'An error occurred';

@@ -27,14 +27,14 @@
 
       img {
         width: 100%;
-        border-radius: $border-radius;
+        // border-radius: $border-radius;
         transition: all 0.6s ease 0s;
       }
     }
 
     .top-ten-numbers {
       position: absolute;
-      bottom: -65px;
+      bottom: -48px;
       right: 0;
       font-weight: 800;
       font-size: 7.5em;
@@ -46,7 +46,7 @@
   &:hover {
     .block-image {
       .top-ten-numbers {
-        bottom: -50px;
+        bottom: -38px;
       }
     }
   }
@@ -87,7 +87,7 @@
     .block-image {
       .top-ten-numbers {
         font-size: 4.5rem !important;
-        bottom: -40px;
+        bottom: -16px;
       }
     }
   }

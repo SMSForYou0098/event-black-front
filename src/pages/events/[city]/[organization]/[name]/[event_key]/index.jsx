@@ -1,6 +1,4 @@
 import { useRouter } from 'next/router';
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { getEventById, getEventData, useEventData } from '../../../../../../services/events';
 import EventDetailPage from '../../../../../../components/events/EventDetails/EventDetailPage';
 

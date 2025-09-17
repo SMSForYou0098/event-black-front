@@ -40,6 +40,11 @@ import CustomBtn from "@/utils/CustomBtn";
 import AvatarImage from '../../utils/ProfileUtils/AvatarImage';
 
 const HeaderDefault = memo(() => {
+  const router = useRouter();
+
+
+  // if (!shouldShowMenu) return null;
+
   const { UserData, createSlug, isLoggedIn, systemSetting, showHeaderBookBtn } =
     useMyContext();
   const [isMega, setIsMega] = useState(true);
@@ -108,8 +113,7 @@ const HeaderDefault = memo(() => {
     dispatch(logout());
     location.push("/auth/login");
   };
-  // ...existing code...
-  const router = useRouter();
+
 
   // Extract event_key from the URL
   const { event_key } = router.query;
