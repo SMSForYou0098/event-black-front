@@ -5,6 +5,7 @@ import React from 'react'
 
 const HeaderDecider = () => {
     const router = useRouter();
+    
     // Define routes where menu should be visible
     const defaultHeaderRoutes = [
         '/',
@@ -16,8 +17,14 @@ const HeaderDecider = () => {
         // Add more routes as needed
     ];
 
-    // Check if current route should show menu
-    const shouldShowDefaultMenu = defaultHeaderRoutes.includes(router.pathname);
+    // Check if current route should show menu (including nested routes)
+    const shouldShowDefaultMenu = defaultHeaderRoutes.some(route => {
+        if (route === '/') {
+            return router.pathname === '/'; // Exact match for home
+        }
+        return router.pathname.startsWith(route);
+    });
+
     if (shouldShowDefaultMenu) {
         return (
             <div>
