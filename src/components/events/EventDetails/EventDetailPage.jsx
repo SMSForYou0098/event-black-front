@@ -11,14 +11,14 @@ import { useRouter } from "next/router";
 import EventTabs from "./EventTabs";
 import EventTicketInfo from "./EventTicketInfo";
 import EventMetaInfo from "./EventMetaInfo";
+import DetailsHeader from "./DetailsHeader";
+import EventCrew from "./EventCrew";
 
 const EventDetailPage = memo(({ eventData, event_key }) => {
   // --- Data Processing ---
   const [startDate, endDate] = eventData?.date_range?.split(",") || [];
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showFullDesc, setShowFullDesc] = useState(false);
-  const descRef = useRef(null);
-  const { convertTo12HourFormat, formatDateRange } = useMyContext();
+
 
   const tickets =
     eventData?.tickets?.map((ticket) => ({
@@ -30,106 +30,24 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
       soldOut: ticket.sold_out === 1,
     })) || [];
 
-  const metaInfo = [
-    {
-      icon: "fa-regular fa-bookmark", // Category icon
-      value: eventData?.category?.title,
-      valueClass: "fw-semibold",
-    },
-    {
-      icon: "fa-regular fa-calendar", // Event Type icon
-      value: eventData?.event_type,
-      valueClass: "fw-semibold text-capitalize",
-    },
-    {
-      icon: "fa-solid fa-location-dot", // Location icon
-      value: `${eventData?.city}, ${eventData?.state}`,
-      valueClass: "fw-semibold",
-    },
-    {
-      icon: "fa-regular fa-clock", // Date & Time icon
-      value:
-        formatDateRange(eventData?.date_range) +
-        " | " +
-        `${convertTo12HourFormat(eventData?.start_time)}`,
-      valueClass: "fw-semibold",
-    },
-  ];
 
-  const handleReadMore = () => {
-    const el = document.getElementById("event-details");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      // window.scrollBy(0, 80); // scroll slightly down if needed
-    }
-  };
-
-  const getShortDesc = (html, wordLimit = 45) => {
-    // Remove HTML tags and get plain text
-    const text = html.replace(/<[^>]+>/g, "");
-    const words = text.split(/\s+/);
-    if (words.length <= wordLimit) return html;
-    return words.slice(0, wordLimit).join(" ") + "...";
-  };
   return (
     <Fragment>
+      <LoginModal
+        show={showLoginModal}
+        onHide={() => setShowLoginModal(false)}
+        eventKey={event_key}
+        redirectPath={`/events/process/${event_key}`}
+      />
       <div className="section-padding-top product-detail py-4">
         <Container>
-          <Row>
-            {/* Login Modal */}
-            <LoginModal
-              show={showLoginModal}
-              onHide={() => setShowLoginModal(false)}
-              eventKey={event_key}
-              redirectPath={`/events/process/${event_key}`}
-            />
-            <Col lg="3" md="12" className="mb-4 mb-lg-0">
-              {/* --- Single Event Image --- */}
-              <div className="product-image-container d-flex justify-content-center align-items-center">
-                <img
-                  src={eventData?.thumbnail}
-                  alt={eventData?.name}
-                  className="img-fluid rounded-4"
-                  style={{ maxHeight: "400px", objectFit: "cover" }}
-                />
-              </div>
-            </Col>
-            <Col lg="9" md="12" className="ps-lg-4">
-              {/* --- Main Event Info --- */}
-              <h2 className="mb-3">{capitalize(eventData?.name)}</h2>
-
-              {/* Event Description */}
-              <h4 className="text-primary">About The Event</h4>
-              <div ref={descRef}>
-                <div
-                  className="mt-3 mb-4"
-                  dangerouslySetInnerHTML={{
-                    __html: showFullDesc
-                      ? eventData?.description || ""
-                      : getShortDesc(eventData?.description || ""),
-                  }}
-                />
-                {!showFullDesc && eventData?.description && (
-                  <a
-                    href="#"
-                    className="text-primary fw-semibold"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleReadMore();
-                    }}
-                  >
-                    Read More
-                  </a>
-                )}
-              </div>
-
-              {/* Event Meta Information */}
-              <EventMetaInfo metaInfo={metaInfo} event_key={event_key} eventData={eventData}/>
-            </Col>
-          </Row>
-
+          <DetailsHeader eventData={eventData} event_key={event_key} />
           {/* --- Tickets Section --- */}
-          <EventTicketInfo tickets={tickets} />
+          {/* <EventTicketInfo tickets={tickets} /> */}
+
+          {/* Add EventCrew component here */}
+          <EventCrew crews={eventData?.crews} />
+          {/* --- Tabs Section --- */}
           <EventTabs
             eventData={eventData}
             startDate={startDate}

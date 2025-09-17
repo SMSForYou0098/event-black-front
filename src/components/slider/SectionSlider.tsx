@@ -25,6 +25,8 @@ interface SectionSliderProps {
   spaceBetween?: number;
   className?: string;
   link?: string;
+  containerFluid?: boolean;
+  onViewAll?: (e: React.MouseEvent) => void;  // Add this line
 }
 
 const SectionSlider: FC<SectionSliderProps> = memo(
@@ -37,6 +39,8 @@ const SectionSlider: FC<SectionSliderProps> = memo(
     spaceBetween = 0,
     className = "",
     link,
+    containerFluid = true,
+    onViewAll,
   }) => {
     const themeSchemeDirection = useSelector(theme_scheme_direction);
 
@@ -68,13 +72,14 @@ const SectionSlider: FC<SectionSliderProps> = memo(
 
     return (
       <div className={className}>
-        <Container fluid>
+        <Container fluid={containerFluid} className={containerFluid ? "p-0" : ''}>
           <div className="overflow-hidden card-style-slider" ref={slider}>
             <div className="d-flex align-items-center justify-content-between px-3 my-4">
               <h5 className="main-title text-capitalize mb-0">{title}</h5>
               <Link
-                href={link ? link : "/events"}
+                href={link ? link : "#"}
                 className="text-primary iq-view-all text-decoration-none"
+                onClick={onViewAll}
               >
                 View All
               </Link>

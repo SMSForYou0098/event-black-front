@@ -17,6 +17,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { PasswordField } from "../../components/auth/CustomFormFields";
 import AuthLayout from "@/layouts/AuthLayout";
+import CustomBtn from "@/utils/CustomBtn";
 
 const VerifyPassword = memo(() => {
   const router = useRouter();
@@ -88,7 +89,7 @@ const VerifyPassword = memo(() => {
           value={password}
           setPassword={setPassword}
           handleKeyDown={handleKeyDown}
-          className="rounded-0 mb-2 card-glassmorphism__input"
+          className="mb-2 card-glassmorphism__input"
           autoFocus
         />
         <Form.Text className="text-muted" as="small">
@@ -113,22 +114,20 @@ const VerifyPassword = memo(() => {
         </Form.Text>
       </Form.Group>
       <Form.Group className="text-end mb-3">
-        <Link href="/auth/lost-password" passHref>
+        <Link href="/auth/lost-password" passHref className="fw-bold">
           Forgot Password?
         </Link>
       </Form.Group>
       <div className="full-button">
-        <Button
-          variant="primary"
-          className="w-100"
-          onClick={handleVerification}
+        <CustomBtn
+          type="button"
           disabled={!password || loading}
-        >
-          {loading ? "Verifying..." : "Sign In"}
-        </Button>
+          HandleClick={handleVerification}
+          buttonText={loading ? "Verifying..." : "Sign In"}
+        />
       </div>
       <div className="mt-3 text-center">
-        <Link href="/auth/login" className="text-primary">
+        <Link href="/auth/login" className="text-primary fw-bold">
           Back to Login
         </Link>
       </div>

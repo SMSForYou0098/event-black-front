@@ -39,7 +39,9 @@ const CardStyle = memo((props: Props) => {
             <img
               src={props.image}
               alt="movie-card"
-              className="img-fluid object-cover w-100 d-block border-0"
+              loading="lazy"
+               className="img-fluid card-img"
+              // className="img-fluid object-cover w-100 d-block border-0"
             />
           </div>
           <div className="card-description with-transition">

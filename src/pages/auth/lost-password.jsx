@@ -3,6 +3,8 @@ import { Col, Container, Form, Row, Button, Alert, Card } from 'react-bootstrap'
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { publicApi } from '@/lib/axiosInterceptor';
+import CustomBtn from '@/utils/CustomBtn';
+import { CircleChevronLeft } from 'lucide-react';
 
 
 const LostPassword = () => {
@@ -61,26 +63,26 @@ const LostPassword = () => {
                         required 
                       />
                     </Form.Group>
-                    <div className="iq-button mb-3">
-                      {/* Applied the gradient button style */}
-                      <Button type="submit" className="btn text-uppercase position-relative w-100 btn-gradient-primary" disabled={loading}>
-                        <span className="button-text">{loading ? 'Sending...' : 'Get new password'}</span>
-                        <i className="fa-solid fa-play ms-2"></i>
-                      </Button>
-                    </div>
+                      <CustomBtn 
+                        type="submit"
+                        disabled={loading}
+                        className="btn text-uppercase position-relative w-100 btn-translucent-secondary"
+                        buttonText={loading ? 'Sending...' : 'Get new password'}
+                      />
                     {/* Styled the separator */}
                     <div className="seperator d-flex justify-content-center align-items-center my-4 seperator-glass">
                       <span className="line"></span>
                        <span className="mx-2">OR</span>
                       <span className="line"></span>
                     </div>
-                    <div className="iq-button">
-                      {/* Applied the new secondary button style */}
-                      <Link href="/auth/login" className="btn text-uppercase position-relative w-100 btn-translucent-secondary">
-                        <span className="button-text">log in</span>
-                        <i className="fa-solid fa-play ms-2"></i>
-                      </Link>
-                    </div>
+                      <CustomBtn
+                        buttonText="Back to Login"
+                        className="text-uppercase position-relative w-100"
+                        HandleClick={() => router.push('/auth/login')}
+                        icon={<i className="fa-solid fa-angle-left"></i>}
+                        variant=""
+                        iconPosition="left"
+                      />
                   </Form>
                 </Card>
               </Col>

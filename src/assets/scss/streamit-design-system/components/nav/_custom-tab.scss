@@ -62,7 +62,8 @@
 
 @media (max-width: 479px) {
     .iq-custom-tab {
-        flex-direction: column;
+        gap : 0 !important;
+        //flex-direction: column;
 
         &.nav-pills{
             .nav-item{

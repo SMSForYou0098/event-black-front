@@ -14,6 +14,7 @@
     &:active {
       border-color: var(--bs-primary);
       background: var(--bs-primary);
+      border-radius: 0.1875rem;
     }
 
     i {
@@ -38,6 +39,7 @@
       border: 0.063em solid var(--bs-primary);
       transform: scaleX(1);
       transform-origin: 50%;
+      border-radius: 0.1875rem;
       transition: transform 0.3s ease-out;
     }
 

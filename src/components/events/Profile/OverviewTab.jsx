@@ -44,7 +44,7 @@ const OverviewTab = ({ recentBookings, user, monthlyStats }) => (
           <CustomBadge variant="outline-primary cursor-pointer">View All</CustomBadge>
         </Card.Header>
         <Card.Body>
-          {recentBookings.map((booking) => (
+          {recentBookings?.map((booking) => (
             <BookingCard key={booking.id} booking={booking} compact />
           ))}
         </Card.Body>

@@ -31,14 +31,15 @@ const Login = () => {
   };
 
   const handleLogin = async (event) => {
+    event.preventDefault(); // Move this to the top
+    
     const form = event.currentTarget;
-    event.preventDefault();
-    event.stopPropagation();
-
     if (form.checkValidity() === false) {
+      event.stopPropagation();
       setValidated(true);
       return;
     }
+
 
     setError("");
     setIsSubmitting(true);
@@ -101,7 +102,7 @@ const Login = () => {
             value={formData.email}
             onChange={handleInputChange}
             placeholder="Enter your username or email"
-            className="rounded-0 card-glassmorphism__input"
+            className="card-glassmorphism__input"
             required
           />
           <Form.Control.Feedback type="invalid">
@@ -130,14 +131,12 @@ const Login = () => {
           />
         </Form.Group>
 
-        <div className="full-button">
           <CustomBtn
             type="submit"
+            className="w-100"
             disabled={isSubmitting || loading}
-            HandleClick={handleLogin}
             buttonText={isSubmitting || loading ? "Processing..." : "Next"}
           />
-        </div>
       </Form>
 
       <p className="my-4 text-center fw-500 text-white">

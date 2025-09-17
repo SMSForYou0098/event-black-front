@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Modal, Form } from "react-bootstrap";
 import { X, Save, LoaderCircle } from "lucide-react";
 import CustomBtn from "../../../utils/CustomBtn";
+import { CustomHeader } from "../../../utils/ModalUtils/CustomModalHeader";
 
 const UserProfileModal = ({
   isEditing,
@@ -55,17 +56,12 @@ const UserProfileModal = ({
     handleEditSubmit(e);
   };
 
-  const CustomHeader = ({ title, closable }) => (
-    <Modal.Header className="p-0 m-0 px-4 py-3">
-      <h4 className="p-0 m-0">{title}</h4>
-      {closable && <X className="cursor-pointer" onClick={handleCloseEdit} />}
-    </Modal.Header>
-  )
+
 
   return (
     <Modal show={isEditing} onHide={handleCloseEdit} centered>
       <Form onSubmit={onSubmit} noValidate>
-        <CustomHeader title="Edit Profile" closable />
+        <CustomHeader title="Edit Profile" closable onClose={handleCloseEdit}/>
         <Modal.Body className="p-0 p-3">
           <Form.Group className="mb-3" controlId="formName">
             <Form.Label>Name</Form.Label>

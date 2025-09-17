@@ -8,6 +8,7 @@ import { logout } from '@/store/auth/authSlice';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { publicApi } from '@/lib/axiosInterceptor';
+import CustomBtn from '@/utils/CustomBtn';
 
 const TwoFactor = memo(() => {
     const router = useRouter();
@@ -138,17 +139,16 @@ const TwoFactor = memo(() => {
                                             <p>Resend OTP in {countdown} seconds</p>
                                         ) : (
                                             // Applied the link button style
-                                            <Button
+                                            <CustomBtn
+                                                buttonText={loading ? 'Sending...' : 'Resend OTP'}
                                                 className="link-glassmorphism"
-                                                onClick={handleSendOtp}
+                                                HandleClick={handleSendOtp}
                                                 disabled={loading}
-                                            >
-                                                {loading ? 'Sending...' : 'Resend OTP'}
-                                            </Button>
+                                            />
                                         )}
                                     </div>
                                     <div className="mt-3 text-center">
-                                        <Link href="/auth/login" className='link-glassmorphism'>
+                                        <Link href="/auth/login" className='link-glassmorphism fw-bold'>
                                             Back to Login
                                         </Link>
                                     </div>

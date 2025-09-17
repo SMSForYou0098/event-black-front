@@ -1,16 +1,16 @@
 import { memo } from "react"
 import EventsSection from "@/components/sections/EventsSection";
-import TVPopularShows from "@/components/sections/TVPopularShows";
+import HighDemand from "@/components/sections/HighDemand";
 
 const Events = memo(() => {
 
-    return <>
+  return <>
     <div className="mt-5">
 
-    <TVPopularShows />
+      <HighDemand />
       <EventsSection />
     </div>
-    </>
+  </>
 })
 
 export default Events;

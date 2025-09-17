@@ -3,7 +3,6 @@ import { Button, Col, Offcanvas, Row } from "react-bootstrap";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useRouter } from "next/router";
 import BookingFooterLayout from "../../../utils/BookingFooterLayout";
-import Link from "next/link";
 
 const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const { setShowHeaderBookBtn, isMobile } = useMyContext();
@@ -41,13 +40,12 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
 
   return (
     <>
-      <div className="product-meta-wrapper mt-4">
+      <div className="product-meta-wrapper mt-2">
         <div className="event-meta-compact d-flex flex-wrap gap-3 mt-3">
-          {metaInfo.map((info) => (
+          {metaInfo?.map((info ,i) => (
             <div
-              key={info.label}
-              className="d-flex align-items-start px-3 py-2 rounded-3 border"
-              style={{ background: "#181818" }}
+            key={i}
+              className="custom-dark-content-bg d-flex align-items-start px-3 py-2 rounded-3 border"
             >
               <span className="me-3">
                 {" "}
@@ -67,8 +65,8 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         </div>
 
         {/* Desktop Button - only show on non-mobile */}
-        {!isMobile && (
-          <Row className="mt-4 mb-5">
+        <div className="d-none d-sm-block">
+          <Row className="mt-4 mb-3">
             <Col
               sm="12"
               className="d-flex justify-content-between align-items-center border-dashed p-3 rounded-3"
@@ -97,14 +95,15 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
               </Button>
             </Col>
           </Row>
-        )}
+        </div>
+
 
         {/* Mobile: Add some bottom padding to prevent content being hidden behind sticky button */}
         {isMobile && <div style={{ paddingBottom: "80px" }} />}
       </div>
 
       {/* Mobile Sticky Button */}
-      {isMobile && (
+      <div className="d-block d-sm-none">
         <BookingFooterLayout
           left={
             <span className="p-0 m-0">
@@ -126,7 +125,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
             </Button>
           }
         />
-      )}
+      </div>
 
       <Offcanvas
         show={showOffcanvas}

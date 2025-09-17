@@ -84,8 +84,8 @@ const SignUp = () => {
     } catch (err) {
       setError(
         err.response?.data?.error ||
-          err.response?.data?.message ||
-          "Something went wrong"
+        err.response?.data?.message ||
+        "Something went wrong"
       );
     } finally {
       setLoading(false);
@@ -103,66 +103,53 @@ const SignUp = () => {
     setValidated(true);
   };
 
+  const formFields = [
+    {
+      name: "name",
+      label: "Full Name",
+      type: "text",
+      pattern: "[A-Za-z ]{3,}",
+      invalidFeedback: "Please enter a valid name (min 3 characters).",
+    },
+    {
+      name: "number",
+      label: "Phone Number",
+      type: "tel",
+      pattern: "^\\d{10,12}$",
+      invalidFeedback: "Please enter a valid 10 or 12 digit number.",
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      invalidFeedback: "Please enter a valid email.",
+    },
+  ];
   return (
     <AuthLayout>
       <Form noValidate validated={validated} onSubmit={handleSubmit}>
         <Row className="g-2">
-          <Col xs={12} md={12}>
-            <Form.Group>
-              <Form.Label className="text-white fw-500 mb-2">
-                Full Name *
-              </Form.Label>
-              <Form.Control
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="rounded-0 card-glassmorphism__input"
-                required
-                pattern="[A-Za-z ]{3,}"
-              />
-              <Form.Control.Feedback type="invalid">
-                Please enter a valid name (min 3 characters).
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col xs={12} md={12}>
-            <Form.Group>
-              <Form.Label className="text-white fw-500 mb-2">
-                Phone Number *
-              </Form.Label>
-              <Form.Control
-                type="tel"
-                name="number"
-                value={formData.number}
-                onChange={handleChange}
-                className="rounded-0 card-glassmorphism__input"
-                required
-                pattern="^\d{10,12}$"
-              />
-              <Form.Control.Feedback type="invalid">
-                Please enter a valid 10 or 12 digit number.
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col xs={12} md={12}>
-            <Form.Group>
-              <Form.Label className="text-white fw-500 mb-2">
-                Email *
-              </Form.Label>
-              <Form.Control
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="rounded-0 card-glassmorphism__input"
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                Please enter a valid email.
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
+          {formFields.map((field) => (
+            <Col xs={12} md={12} key={field.name}>
+              <Form.Group>
+                <Form.Label className="text-white fw-500 mb-2">
+                  {field.label} *
+                </Form.Label>
+                <Form.Control
+                  type={field.type}
+                  name={field.name}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  className="card-glassmorphism__input"
+                  required
+                  pattern={field.pattern}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {field.invalidFeedback}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          ))}
         </Row>
         <Form.Group className="list-group-item d-flex align-items-center mt-5 mb-3 text-white">
           {/* Applied the checkbox style */}
@@ -173,7 +160,7 @@ const SignUp = () => {
             style={{ width: "24px", height: "24px" }}
           />
           I've read and accept the
-          <Link href="/extra/terms-of-use" className="ms-1 text-primary">
+          <Link href="/extra/terms-of-use" className="ms-1 text-primary fw-bold">
             terms & conditions*
           </Link>
         </Form.Group>
@@ -197,7 +184,7 @@ const SignUp = () => {
               </div>
               <p className="mt-2 mb-0 fw-normal text-white">
                 Already have an account?
-                <Link href="/auth/login" className="ms-1 text-primary">
+                <Link href="/auth/login" className="ms-1 text-primary fw-bold">
                   Login
                 </Link>
               </p>

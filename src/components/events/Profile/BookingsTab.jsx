@@ -12,6 +12,9 @@ const FLATPICKR_OPTIONS = {
   dateFormat: 'Y-m-d',
   allowInput: true,
   rangeSeparator: ' to ',
+  disableMobile: true, // Better for mobile devices
+  placeholder: 'Select date range',
+  static: true, // Prevents calendar position issues
 };
 
 const BookingsTab = ({ userBookings = [], loading = false }) => {
@@ -243,8 +246,8 @@ const BookingsTab = ({ userBookings = [], loading = false }) => {
   // Search controls
   const searchControls = useMemo(
     () => (
-      <div className="d-flex gap-2 align-items-center" style={{ minWidth: 420 }}>
-        <InputGroup style={{ minWidth: 220 }}>
+      <div className="d-flex gap-2 align-items-center">
+        <InputGroup>
           <Form.Control
             size="sm"
             type="text"
@@ -260,33 +263,13 @@ const BookingsTab = ({ userBookings = [], loading = false }) => {
           )}
         </InputGroup>
 
-        <div style={{ position: 'relative', minWidth: 200 }}>
           <Flatpickr
-  ref={flatpickrRef}
-  value={dateRange}
-  options={FLATPICKR_OPTIONS}
-  placeholder="Select date range"
-  onChange={handleDateRangeChange}
-/>
-
-          {dateRange.length > 0 && (
-            <Button
-              size="sm"
-              variant="link"
-              className="position-absolute"
-              style={{
-                right: 4,
-                top: 4,
-                padding: '0.25rem 0.5rem',
-                color: '#6c757d',
-              }}
-              onClick={handleClearDateRange}
-              aria-label="Clear date range"
-            >
-              ×
-            </Button>
-          )}
-        </div>
+            ref={flatpickrRef}
+            value={dateRange}
+            options={FLATPICKR_OPTIONS}
+            placeholder="Select date range"
+            onChange={handleDateRangeChange}
+          />
       </div>
     ),
     [searchTerm, dateRange, handleSearchChange, handleClearSearch, handleDateRangeChange, handleClearDateRange]

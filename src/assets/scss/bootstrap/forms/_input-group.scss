@@ -102,7 +102,7 @@
     > .dropdown-toggle:nth-last-child(n + 3),
     > .form-floating:not(:last-child) > .form-control,
     > .form-floating:not(:last-child) > .form-select {
-      @include border-end-radius(0);
+      // @include border-end-radius(0);
     }
   }
 

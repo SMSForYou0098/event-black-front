@@ -190,7 +190,7 @@ const HeaderDefault = memo(() => {
                         <Nav.Item key={item.id} className="nav-item">
                           <Link href={href} passHref legacyBehavior>
                             <Nav.Link
-                              className={isActive ? "active" : ""}
+                              className={`fw-bold ${isActive ? "active" : ""}`}
                               onClick={() => handleNavigation(href)}
                             >
                               {item.title}
@@ -209,6 +209,7 @@ const HeaderDefault = memo(() => {
                   type="button"
                   aria-expanded={show}
                   data-bs-toggle="collapse"
+                  className="fw-bold"
                   data-bs-target="#navbarSupportedContent"
                   onClick={() => setShow(!show)}
                 >
@@ -217,22 +218,21 @@ const HeaderDefault = memo(() => {
                   </span>
                 </Button>
                 <div
-                  className={`navbar-collapse ${
+                  className={`fw-bold navbar-collapse ${
                     show === true ? "collapse show" : "collapse"
                   }`}
                   id="navbarSupportedContent"
                 >
                   <ul className="navbar-nav align-items-center ms-auto mb-2 mb-xl-0">
                     {showHeaderBookBtn && (
-                      <Button
+                      <CustomBtn
                         variant="outline-primary"
-                        size="sm"
-                        className="me-4"
+                        icon={<i className="fa-solid fa-arrow-right ms-2"></i>}
+                        className="me-4 fw-bold btn-sm"
                         onClick={handleBookClick}
+                        buttonText="Book Now"
                       >
-                        Book Now{" "}
-                        <i className="fa-solid fa-arrow-right ms-2"></i>
-                      </Button>
+                      </CustomBtn>
                     )}
                     <Dropdown
                       as="li"

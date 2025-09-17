@@ -2,6 +2,8 @@
 @import '../assets/scss/custom.scss';
 @import '../assets/scss/rtl.scss';
 @import './profile.scss';
+@import './__input_custom.scss';
+@import './_flatpickr_custom.scss';
 
 .text-small {
   font-size: 0.8rem !important;
@@ -400,3 +402,128 @@ canvas{
     transparent);
 }
 
+.description-content p {
+  padding:  0 !important;
+  margin:  0 !important;
+}
+
+
+.mobile-sticky-book-btn {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background: rgba(30, 30, 30, 0.3);
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+// .iq-card img {
+//   height: 10rem !important;
+// }
+.iq-card .block-images::after {
+  bottom: -4.1rem;
+}
+.iq-card {
+  margin-bottom: 2.5rem;
+  transition: margin-bottom 0.3s ease;
+  @media (max-width: 576px) {
+      margin-bottom: 0rem;
+    }
+  .block-images {
+    aspect-ratio: 4/5;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    position: relative;
+     @media (max-width: 576px) {
+      aspect-ratio: 3/4; // More compact ratio for mobile
+    }
+    .img-box {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      
+      .card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      // Add overlay gradient by default with low opacity
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40% !important; // Only cover bottom half
+        background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+    }
+  }
+
+  &:hover {
+    margin-bottom: 2rem; // Reduced from 3rem to 2rem
+
+    .card-img {
+      transform: scale(1.03); // Reduced from 1.05 for subtler zoom
+    }
+
+    .img-box::after {
+      opacity: 1;
+    }
+
+    .card-description {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .card-description {
+    position: absolute;
+    bottom: 0.5rem; // Moved up slightly
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    z-index: 1;
+    opacity: 0;
+    transform: translateY(10px); // Reduced from 100%
+    transition: all 0.3s ease;
+    color: white;
+    pointer-events: none; // Prevent overlay from blocking clicks
+  }
+}
+
+.card-description {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+  padding: 2rem 1rem 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+// Mobile styles
+.card-mobile-description {
+  background: var(--bs-body-bg);
+}
+.card-description .cart-content {
+  padding: 1rem 0 !important;
+}
+
+
+
+// 
