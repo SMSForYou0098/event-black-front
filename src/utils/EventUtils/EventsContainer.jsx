@@ -18,6 +18,7 @@ const EventsContainer = memo(({
   staleTime = 5 * 60 * 1000, // 5 minutes
   retry = 2,
   apiEndpoint = "events",
+  isTopTenCard=false,
   customFetchFunction = null
 }) => {
   const { api, authToken, createSlug } = useMyContext();
@@ -124,7 +125,7 @@ const EventsContainer = memo(({
           
           const finalIndex = safeIndex >= 0 ? safeIndex : 0;
           
-          return title === 'High Demand' ? (
+          return isTopTenCard ? (
             <TopTenCard
               image={data.thumbnail}
               countValue={finalIndex + 1} // ascending order 1,2,3...
@@ -144,6 +145,7 @@ const EventsContainer = memo(({
               lowest_ticket_price={data.lowest_ticket_price}
               lowest_sale_price={data.lowest_sale_price}
               on_sale={data.on_sale}
+              countValue={finalIndex + 1} 
             />
           );
         }}

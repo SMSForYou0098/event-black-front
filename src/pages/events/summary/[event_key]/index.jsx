@@ -10,41 +10,82 @@ import { useEffect } from 'react';
 import { TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
 import {api} from "@/lib/axiosInterceptor"
 import { useQuery } from '@tanstack/react-query';
+
 const BookingSummary = () => {
     const sectionIconStyle = {
         color: CUSTOM_SECONDORY,
         size: 20,
         style: { marginRight: '10px' }
     };
-      const router = useRouter();
- 
- const raw = router.query.sessionId;
- const sessionId = Array.isArray(raw) ? raw[0] : raw;
- const mutation = useMutation({
-   mutationFn: async (sid) => {
-     const res = await api.post("/verify-booking", { session_id: sid });
-     return res.data;
-   },
-   onSuccess: (data) => {
-     console.log("verify success", data);
-     // handle data, redirect, toast, etc.
-     // router.push('/somewhere') or show success UI
-   },
-   onError: (err) => {
-     console.error("verify error", err);
-   },
-   // optional: retry, onSettled, etc.
- });
+    
+    const router = useRouter();
+    const raw = router.query.sessionId;
+    const sessionId = Array.isArray(raw) ? raw[0] : raw;
+    
+    const mutation = useMutation({
+        mutationFn: async (sid) => {
+            const res = await api.post("/verify-booking", { session_id: sid });
+            return res.data;
+        },
+        onSuccess: (data) => {
+            console.log("verify success", data);
+        },
+        onError: (err) => {
+            console.error("verify error", err);
+        },
+    });
 
-  // auto-rn when sessionId is available
-  useEffect(() => {
-    if (sessionId) mutation.mutate(sessionId);
-  }, [sessionId]);
+    // auto-run when sessionId is available
+    useEffect(() => {
+        if (sessionId) mutation.mutate(sessionId);
+    }, [sessionId]);
 
-  if (!sessionId) return <p>Waiting for session id...</p>;
-  if (mutation.isLoading) return <p>Verifying booking…</p>;
-//   if (mutation.isError) return <p>Error verifying booking.</p>;
+    if (!sessionId) return <p>Waiting for session id...</p>;
+    if (mutation.isLoading) return <p>Verifying booking…</p>;
+    if (mutation.isError) return <p>Error verifying booking.</p>;
 
+    // Extract data from the mutation response
+    const booking =  mutation.data?.bookings?.bookings[0] ||mutation.data?.bookings || {};
+    const ticket = booking.ticket || {};
+    const event = ticket.event || {};
+    // const organizer = event.user || {};
+    const user = booking.user || {};
+
+    // Format date and time
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    };
+
+    const formatTime = (dateString) => {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    };
+
+    // Parse event date range
+    const getEventDates = () => {
+        if (!event.date_range) return 'N/A';
+        const dates = event.date_range.split(',');
+        if (dates.length === 2) {
+            return `${formatDate(dates[0])} to ${formatDate(dates[1])}`;
+        }
+        return formatDate(dates[0]);
+    };
+
+    // Get event times
+    const getEventTimes = () => {
+        if (!event.start_time || !event.end_time) return 'N/A';
+        return `${event.start_time} - ${event.end_time}`;
+    };
 
     return (
         <div className="cart-page section-padding">
@@ -63,7 +104,7 @@ const BookingSummary = () => {
                                 </div>
 
                                 <h3 className="text-white fw-bold mb-4">
-                                    Navratri Festival 2024
+                                    {event.name || 'Event Name'}
                                 </h3>
 
                                 <Row className="mb-4">
@@ -72,7 +113,7 @@ const BookingSummary = () => {
                                             <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
                                             <div>
                                                 <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Date</div>
-                                                <div className="text-white fw-bold">October 15, 2024</div>
+                                                <div className="text-white fw-bold">{getEventDates()}</div>
                                             </div>
                                         </div>
                                     </Col>
@@ -81,7 +122,7 @@ const BookingSummary = () => {
                                             <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
                                             <div>
                                                 <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Time</div>
-                                                <div className="text-white fw-bold">7:00 PM - 11:00 PM</div>
+                                                <div className="text-white fw-bold">{getEventTimes()}</div>
                                             </div>
                                         </div>
                                     </Col>
@@ -91,8 +132,10 @@ const BookingSummary = () => {
                                     <MapPin size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
                                     <div>
                                         <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Venue</div>
-                                        <div className="text-white fw-bold">Grand Convention Center</div>
-                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Mumbai, Maharashtra, India</div>
+                                        <div className="text-white fw-bold">{event.address || 'Venue Address'}</div>
+                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>
+                                            {event.city || 'City'}, {event.state || 'State'}, {event.country || 'Country'}
+                                        </div>
                                     </div>
                                 </div>
                             </Card.Body>
@@ -111,7 +154,7 @@ const BookingSummary = () => {
                                         <User size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
                                         <div>
                                             <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Full Name</div>
-                                            <div className="text-white fw-bold">Priya Sharma</div>
+                                            <div className="text-white fw-bold">{user.name || 'N/A'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -121,7 +164,7 @@ const BookingSummary = () => {
                                         <Mail size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
                                         <div>
                                             <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Email Address</div>
-                                            <div className="text-white fw-bold">priya.sharma@email.com</div>
+                                            <div className="text-white fw-bold">{user.email || booking.email || 'N/A'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -131,7 +174,7 @@ const BookingSummary = () => {
                                         <Phone size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
                                         <div>
                                             <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Phone Number</div>
-                                            <div className="text-white fw-bold">+91 98765 43210</div>
+                                            <div className="text-white fw-bold">{user.number ? `+${user.number}` : booking.number ? `+${booking.number}` : 'N/A'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -142,7 +185,12 @@ const BookingSummary = () => {
                     {/* Right Column */}
                     <Col lg={6}>
                         {/* Ticket Details Card */}
-                        <TicketDataSummary validatedData={null} />
+                        <TicketDataSummary 
+                            eventName={ticket?.event?.name}
+                            ticketName={ticket?.name}
+                            price={ticket?.price}
+                            // quantity={quantity}
+                            hidePrices={true} />
 
                         {/* Payment Information Card */}
                         <Card className='custom-dark-bg'>
@@ -160,11 +208,18 @@ const BookingSummary = () => {
                                     </div>
 
                                     <div className="text-white fw-bold mb-2">
-                                        Secure payment processing via Stripe
+                                        {booking.payment_status === "1" ? "Payment Successful" : "Payment Pending"}
                                     </div>
                                     <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>
-                                        Your payment details will be collected on the next step
+                                        {booking.payment_method === "online" ? "Paid online via secure payment gateway" : 
+                                         booking.payment_method === "offline" ? "Offline payment" : 
+                                         "Payment method not specified"}
                                     </div>
+                                    {booking.amount && booking.amount !== "0.00" && (
+                                        <div className="text-white fw-bold mt-3">
+                                            Amount Paid: ₹{booking.amount}
+                                        </div>
+                                    )}
                                 </div>
                             </Card.Body>
                         </Card>
