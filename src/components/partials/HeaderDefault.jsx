@@ -38,7 +38,7 @@ import { useDispatch } from "react-redux";
 import { logout } from "@/store/auth/authSlice";
 import CustomBtn from "@/utils/CustomBtn";
 import AvatarImage from '../../utils/ProfileUtils/AvatarImage';
-
+import GlobalSearch from "../modals/GlobalSearch";
 const HeaderDefault = memo(() => {
   const router = useRouter();
 
@@ -51,6 +51,7 @@ const HeaderDefault = memo(() => {
   const location = useRouter();
   const [show1, setShow1] = useState(false);
   const [show, setShow] = useState(false);
+  const [searchShow, setSearchShow] = useState(false);
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -64,9 +65,7 @@ const HeaderDefault = memo(() => {
   };
 
   const handleToggleClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsOpen((prev) => !prev);
+    setSearchShow((prev) => !prev);
   };
 
   useEffect(() => {
@@ -129,7 +128,8 @@ const HeaderDefault = memo(() => {
 
   return (
     <Fragment>
-      <header className="header-center-home header-default header-sticky">
+      <GlobalSearch show={searchShow} handleShow={handleToggleClick}/>
+      <header className="header-center-home header-default header-sticky sticky">
         <Navbar
           expand="xl"
           className="nav navbar-light iq-navbar header-hover-menu py-xl-0"
@@ -256,26 +256,6 @@ const HeaderDefault = memo(() => {
                               </span>
                             </div>
                           </Dropdown.Toggle>
-
-                          <Dropdown.Menu
-                            as="ul"
-                            className="p-0 dropdown-search m-0 iq-search-bar"
-                            style={{ width: "20rem" }}
-                          >
-                            <li className="p-0">
-                              <div className="form-group input-group mb-0">
-                                <input
-                                  type="text"
-                                  className="form-control border-0"
-                                  placeholder="Search..."
-                                  autoFocus
-                                />
-                                <button type="submit" className="search-submit">
-                                  <SearchIcon size={15} />
-                                </button>
-                              </div>
-                            </li>
-                          </Dropdown.Menu>
                         </Dropdown>
                       </div>
                     </Dropdown>

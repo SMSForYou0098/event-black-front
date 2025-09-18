@@ -88,7 +88,9 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     '/events',
     '/profile',
     '/event-details',
-    '/about-us'
+    '/about-us',
+    '/blogs',
+    '/faq'
     // Add more routes as needed
   ];
 

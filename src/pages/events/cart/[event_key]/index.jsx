@@ -14,9 +14,10 @@ import { useEventData } from "../../../../services/events";
 import CustomBtn from "../../../../utils/CustomBtn";
 import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 import { Calendar, Pin, Tags, Ticket, Users } from "lucide-react";
-
+import { useHeaderSimple } from "@/context/HeaderContext";
 const CartPage = () => {
   const { event_key } = useRouter().query;
+
   const { isMobile, isLoggedIn, fetchCategoryData, convertTo12HourFormat, formatDateRange, UserData,ErrorAlert } = useMyContext();
   const { storeCheckoutData } = useCheckoutData();
   const [cartItems, setCartItems] = useState([]);
@@ -27,7 +28,9 @@ const CartPage = () => {
   const router = useRouter();
 
   const { data: event, isLoading, isError, error } = useEventData(event_key);
-
+    useHeaderSimple({
+    title: event?.name || "Event Details",
+  });
   useEffect(() => {
     const getCategoryData = async () => {
       let data = await fetchCategoryData(event?.category?.id);

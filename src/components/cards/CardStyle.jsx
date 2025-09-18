@@ -1,5 +1,6 @@
 import { Fragment, memo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const SaleTag = () => (
   <span className="bg-primary fs-6 position-relative p-1 me-2 rounded-3">
@@ -62,10 +63,12 @@ const CardStyle = memo((props) => {
                 <SaleTag />
               </span>
             )}
-            <img
-              src={props.image}
+            <Image
+              src={props?.image}
               alt="movie-card"
               loading="lazy"
+              width={180}
+              height={270}
               className="img-fluid card-img"
             />
           </div>

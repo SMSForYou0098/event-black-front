@@ -17,7 +17,7 @@ const Frontend = (({ children }) => {
     <>
       <main className="main-content">
         <BreadCrumbWidget />
-        <HeaderDecider />
+        {/* <HeaderDecider /> */}
         <HeaderProvider>
           {children}
         </HeaderProvider>

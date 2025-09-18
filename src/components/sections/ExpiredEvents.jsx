@@ -1,9 +1,7 @@
-import { useState, memo } from "react";
+import { memo } from "react";
 import { expiredEvents } from "@/services/home";
 import EventsContainer from "@/utils/EventUtils/EventsContainer";
 
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 
 const ExpiredEvents = memo(() => {
   return (
