@@ -18,6 +18,7 @@ import toast from "react-hot-toast";
 import { PasswordField } from "../../components/auth/CustomFormFields";
 import AuthLayout from "@/layouts/AuthLayout";
 import CustomBtn from "@/utils/CustomBtn";
+import { ChevronLeft } from "lucide-react";
 
 const VerifyPassword = memo(() => {
   const router = useRouter();
@@ -113,11 +114,6 @@ const VerifyPassword = memo(() => {
           </strong>
         </Form.Text>
       </Form.Group>
-      <Form.Group className="text-end mb-3">
-        <Link href="/auth/lost-password" passHref className="fw-bold">
-          Forgot Password?
-        </Link>
-      </Form.Group>
       <div className="full-button">
         <CustomBtn
           type="button"
@@ -126,9 +122,12 @@ const VerifyPassword = memo(() => {
           buttonText={loading ? "Verifying..." : "Sign In"}
         />
       </div>
-      <div className="mt-3 text-center">
-        <Link href="/auth/login" className="text-primary fw-bold">
-          Back to Login
+      <div className="mt-3 d-flex justify-content-between">
+        <Link href="/auth/login" className="text-primary fw-bold d-flex align-items-center">
+          <ChevronLeft/> Back to Login
+        </Link>
+        <Link href="/auth/lost-password" passHref className="fw-bold">
+          Forgot Password?
         </Link>
       </div>
     </AuthLayout>
