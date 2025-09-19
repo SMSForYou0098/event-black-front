@@ -26,11 +26,11 @@ import { useQuery } from "@tanstack/react-query";
 // Custom Service and Context
 import { useMyContext } from "@/Context/MyContextProvider";
 import { getBanners } from "@/services/home";
-
+import BannerSkeleton from "../../utils/SkeletonUtils/BannerSkeleton"
 const HomeBannerSlider = memo(() => {
   const themeSchemeDirection = useSelector(theme_scheme_direction);
   const [toggler, setToggler] = useState(false);
-  const { isMobile } = useMyContext();
+  const { isMobile,createSlug } = useMyContext();
 
   // Fetch banners using TanStack Query
   const { data: banners, isLoading, isError } = useQuery({
@@ -42,75 +42,9 @@ const HomeBannerSlider = memo(() => {
   const displayedBanners = isMobile ? banners?.mobile : banners?.pc;
 
   // Skeleton loader component
-  const BannerSkeleton = () => {
-    return (
-      <section className="banner-container section-padding-bottom">
-        <div className="movie-banner">
-          <div id="banner-detail-slider" className="banner-container">
-            <Swiper
-              key={String(themeSchemeDirection)}
-              dir={String(themeSchemeDirection)}
-              navigation={{
-                prevEl: ".swiper-banner-button-prev",
-                nextEl: ".swiper-banner-button-next",
-              }}
-              slidesPerView={1.2}
-              modules={[Navigation]}
-              loop={true}
-              centeredSlides={true}
-              className="swiper-banner-container"
-            >
-              {[...Array(3)].map((_, index) => (
-                <SwiperSlide key={index}>
-                  <div className="movie-banner-image position-relative">
-                    <Placeholder animation="glow">
-                      <Placeholder 
-                        xs={12} 
-                        style={{ height: '450px' }} 
-                        bg="dark" 
-                        className="w-100 d-block" 
-                      />
-                    </Placeholder>
-                  </div>
-                  <div className="shows-content h-100 position-absolute top-0 start-0 w-100">
-                    <Row className="row align-items-center h-100">
-                      <Col lg="7" md="12">
-                        <Placeholder animation="glow" className="d-flex flex-column gap-3">
-                          <Placeholder xs={4} bg="secondary" style={{ height: '40px' }} />
-                          <Placeholder xs={6} bg="secondary" style={{ height: '20px' }} />
-                          <Placeholder xs={8} bg="secondary" style={{ height: '20px' }} />
-                          <Placeholder xs={5} bg="secondary" style={{ height: '20px' }} />
-                          <Placeholder xs={3} bg="secondary" style={{ height: '50px' }} className="mt-3" />
-                        </Placeholder>
-                      </Col>
-                      <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
-                        <Placeholder animation="glow" className="d-flex justify-content-center">
-                          <Placeholder 
-                            xs={1} 
-                            bg="secondary" 
-                            style={{ height: '80px', width: '80px', borderRadius: '50%' }} 
-                          />
-                        </Placeholder>
-                      </Col>
-                    </Row>
-                  </div>
-                </SwiperSlide>
-              ))}
-              <div className="swiper-banner-button-next">
-                <i className="iconly-Arrow-Right-2 icli arrow-icon"></i>
-              </div>
-              <div className="swiper-banner-button-prev">
-                <i className="iconly-Arrow-Left-2 icli arrow-icon"></i>
-              </div>
-            </Swiper>
-          </div>
-        </div>
-      </section>
-    );
-  };
 
   if (isLoading) {
-    return <BannerSkeleton />;
+    return <BannerSkeleton themeSchemeDirection={themeSchemeDirection} />;
   }
 
   if (isError || !displayedBanners || displayedBanners.length === 0) {
@@ -161,14 +95,14 @@ const HomeBannerSlider = memo(() => {
                         <Row className="row align-items-center h-100">
                           <Col lg="7" md="12">
                             {/* NOTE: The API doesn't provide title/description, so static content is used as a template. */}
-                            {/* <h1
-                              className="texture-text big-font letter-spacing-1 line-count-1 text-uppercase RightAnimate-two"
+                            <h1
+                              className=" big-font letter-spacing-1 line-count-1 text-uppercase RightAnimate-two"
                               data-animation-in="fadeInLeft"
                               data-delay-in="0.6"
                             >
                               Featured Shows
-                            </h1> */}
-                            {/* <div
+                            </h1>
+                            <div
                               className="flex-wrap align-items-center fadeInLeft animated"
                               data-animation-in="fadeInLeft"
                               style={{ opacity: 1 }}
@@ -190,22 +124,22 @@ const HomeBannerSlider = memo(() => {
                               >
                                 Discover our latest collection of exclusive shows and movies. Available now for streaming.
                               </p>
-                            </div> */}
+                            </div>
                             <div
                               className="iq-button"
                               data-animation-in="fadeInUp"
                               data-delay-in="1.2"
                             >
-                              {/* <Link
-                                href={banner.redirectUrl || '/tv-shows/detail'}
+                              <Link
+                                href={banner.redirectUrl || `/events/category/${createSlug('Garba Night')}` ||'/tv-shows/detail'}
                                 className="btn text-uppercase position-relative"
                               >
                                 <span className="button-text">Explore Now</span>
                                 <i className="fa-solid fa-play"></i>
-                              </Link> */}
+                              </Link>
                             </div>
                           </Col>
-                          {/* <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
+                          <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
                             <div onClick={() => setToggler(!toggler)} className="video-open playbtn" style={{cursor: 'pointer'}}>
                               <svg
                                 version="1.1"
@@ -243,26 +177,26 @@ const HomeBannerSlider = memo(() => {
                                 Watch Trailer
                               </span>
                             </div>
-                          </Col> */}
+                          </Col>
                         </Row>
                       </div>
                 </SwiperSlide>
               ))}
-              {/* <div className="swiper-banner-button-next">
+              <div className="swiper-banner-button-next">
                 <i className="iconly-Arrow-Right-2 icli arrow-icon"></i>
               </div>
               <div className="swiper-banner-button-prev">
                 <i className="iconly-Arrow-Left-2 icli arrow-icon"></i>
-              </div> */}
+              </div>
             </Swiper>
           </div>
         </div>
       </section>
 
-      {/* <FsLightbox
+      <FsLightbox
         toggler={toggler}
         sources={["/assets/images/video/trailer.mp4"]}
-      /> */}
+      />
     </Fragment>
   );
 });

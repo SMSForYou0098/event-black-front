@@ -12,6 +12,7 @@ interface Props {
     description: string;
     categories?: string;
     tags?: string[];
+    id:string
   }
 
   
@@ -40,7 +41,7 @@ const CardBlogGrid = memo((props: Props) => {
                         </ul>
                     </div>
                     <div className="blog-title">
-                        <Link href={`/blogs/detail`}>
+                        <Link href={`/blogs/${props.id}`}>
                             <h3 className="mb-3 line-count-1 blog-heading">
                                 {props.title}
                             </h3>

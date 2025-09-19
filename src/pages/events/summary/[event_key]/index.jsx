@@ -1,15 +1,17 @@
 import React from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Calendar, Clock, MapPin, User, Mail, Phone, Ticket, CreditCard, Crown } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
 import { CUSTOM_SECONDORY } from '../../../../utils/consts';
 import {useRouter} from "next/router";
 import { useMutation } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
+import { AttendeesOffcanvas, TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
 import {api} from "@/lib/axiosInterceptor"
 import { useQuery } from '@tanstack/react-query';
+import { useMyContext } from "@/Context/MyContextProvider"; //done
+import BookingSummarySkeleton from '../../../../utils/SkeletonUtils/BookingSummarySkeleton';
 
 const BookingSummary = () => {
     const sectionIconStyle = {
@@ -17,7 +19,10 @@ const BookingSummary = () => {
         size: 20,
         style: { marginRight: '10px' }
     };
-    
+    const [showAttendees, setShowAttendees] = useState(false);
+    const {ErrorAlert} = useMyContext();
+    const handleOpen = () => setShowAttendees(true);
+    const handleClose = () => setShowAttendees(false);
     const router = useRouter();
     const raw = router.query.sessionId;
     const sessionId = Array.isArray(raw) ? raw[0] : raw;
@@ -27,11 +32,9 @@ const BookingSummary = () => {
             const res = await api.post("/verify-booking", { session_id: sid });
             return res.data;
         },
-        onSuccess: (data) => {
-            console.log("verify success", data);
-        },
         onError: (err) => {
             console.error("verify error", err);
+            ErrorAlert(err?.response?.data?.message || err?.response.data?.error ||  "")
         },
     });
 
@@ -41,15 +44,16 @@ const BookingSummary = () => {
     }, [sessionId]);
 
     if (!sessionId) return <p>Waiting for session id...</p>;
-    if (mutation.isLoading) return <p>Verifying booking…</p>;
+    if (mutation.isPending) return <BookingSummarySkeleton />;
     if (mutation.isError) return <p>Error verifying booking.</p>;
-
+    console.log('murta',mutation)
     // Extract data from the mutation response
-    const booking =  mutation.data?.bookings?.bookings[0] ||mutation.data?.bookings || {};
-    const ticket = booking.ticket || {};
-    const event = ticket.event || {};
+    const booking =  mutation.data?.bookings || {};
+    const ticket = mutation?.data?.ticket || {};
+    const event = mutation?.data?.event || {};
     // const organizer = event.user || {};
-    const user = booking.user || {};
+    const user = mutation?.data?.user || {};
+    const attendees = mutation?.data?.attendee || [];
 
     // Format date and time
     const formatDate = (dateString) => {
@@ -186,14 +190,16 @@ const BookingSummary = () => {
                     <Col lg={6}>
                         {/* Ticket Details Card */}
                         <TicketDataSummary 
-                            eventName={ticket?.event?.name}
+                            eventName={event?.name}
                             ticketName={ticket?.name}
                             price={ticket?.price}
-                            // quantity={quantity}
-                            hidePrices={true} />
-
+                            quantity={booking?.bookings?.length || 1}
+                            hidePrices={true}
+                            sale_price={ticket?.sale_price}
+                            currency={ticket?.currency}
+                            netAmount={booking?.amount} />
                         {/* Payment Information Card */}
-                        <Card className='custom-dark-bg'>
+                        {/* <Card className='custom-dark-bg'>
                             <Card.Body className="p-4">
                                 <div className="d-flex align-items-center mb-4">
                                     <CreditCard {...sectionIconStyle} />
@@ -222,7 +228,19 @@ const BookingSummary = () => {
                                     )}
                                 </div>
                             </Card.Body>
-                        </Card>
+                        </Card> */}
+                        {console.log('event',event)}
+                        <Button variant="primary" onClick={handleOpen}>
+        View Attendees
+      </Button>
+                            {console.log('atte',attendees)}
+      {/* Pass boolean state and close handler plus attendees */}
+      <AttendeesOffcanvas
+        show={showAttendees}
+        handleClose={handleClose}
+        attendees={attendees}
+        title="Event Attendees"
+      />
                     </Col>
                 </Row>
             </Container>

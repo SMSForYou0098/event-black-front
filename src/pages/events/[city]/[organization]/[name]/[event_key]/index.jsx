@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { getEventById, getEventData, useEventData } from '../../../../../../services/events';
 import EventDetailPage from '../../../../../../components/events/EventDetails/EventDetailPage';
+import EventDetailPageSkeleton from '../../../../../../utils/SkeletonUtils/EventDetailPageSkeleton';
 
 const EventbyId = () => {
   const router = useRouter();
@@ -9,7 +10,7 @@ const EventbyId = () => {
   const { data: event, isLoading, isError, error } = useEventData(event_key);
   // 4. Handle UI States
   if (isLoading) {
-    return <div className='mt-5 pt-5'>Loading event details...</div>;
+    return <div className='mt-5 pt-5'><EventDetailPageSkeleton /></div>;
   }
 
   if (isError) {

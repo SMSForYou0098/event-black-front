@@ -1,0 +1,132 @@
+import React, { useEffect } from 'react';
+import { useMyContext } from "@/Context/MyContextProvider"; //done
+
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+import { Container, Alert } from 'react-bootstrap';
+import { useRouter } from 'next/router';
+import PostById from '../../../components/blog/PostPage';
+import CommentsSection from '../../../components/blog/comments/CommentSection';
+// import RelatedPosts from '../components/RelatedPosts';
+
+const PostPage = () => {
+  const { authToken, api } = useMyContext();
+  const router = useRouter()
+  const { id } = router.query;
+  const queryClient = useQueryClient();
+
+  // Helper function to transform flat comments into nested replies structure
+  const transformComments = (commentsData) => {
+    const commentMap = {};
+    const rootComments = [];
+
+    // First pass: create a map of all comments
+    commentsData.forEach(comment => {
+      commentMap[comment.id] = {
+        ...comment,
+        replies: []
+      };
+    });
+
+    // Second pass: build the hierarchy
+    commentsData.forEach(comment => {
+      if (comment.replier_id) {
+        const parent = commentMap[comment.replier_id];
+        if (parent) {
+          parent.replies.push(commentMap[comment.id]);
+        }
+      } else {
+        rootComments.push(commentMap[comment.id]);
+      }
+    });
+
+    return rootComments;
+  };
+
+  // Fetch post data
+  const { data: postData, error: postError, isLoading: postLoading } = useQuery({
+    queryKey: ['post', id],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${authToken}` };
+      const response = await axios.get(`${api}blog-show/${id}`, { headers });
+      
+      if (!response.data?.status) {
+        throw new Error(response.data?.message || 'Invalid post data format.');
+      }
+      
+      return response.data;
+    },
+    enabled: !!id,
+    retry: 2,
+  });
+
+  // Fetch related posts
+  const { data: relatedPostsData, isLoading: relatedLoading } = useQuery({
+    queryKey: ['related-posts', id],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${authToken}` };
+      const response = await axios.get(`${api}related-blogs/${id}`, { headers });
+      return response.data?.data || [];
+    },
+    enabled: !!id && !!postData,
+    retry: 2,
+  });
+
+  // Fetch comments
+  const { data: commentsData, error: commentsError, isLoading: commentsLoading, refetch: refetchComments } = useQuery({
+    queryKey: ['comments', id],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${authToken}` };
+      const response = await axios.get(`${api}blog-comment-show/${id}`, { headers });
+      
+      if (response.data?.status) {
+        const commentsData = response.data.data || [];
+        return transformComments(commentsData);
+      }
+      return [];
+    },
+    enabled: !!id,
+    retry: 2,
+  });
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    if (id) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [id]);
+
+  // Handle loading and error states
+  const isLoading = postLoading || commentsLoading;
+  const error = postError?.message || commentsError?.message;
+
+  if (error) {
+    return (
+      <Container className="my-5">
+        <Alert variant="danger">{error}</Alert>
+      </Container>
+    );
+  }
+
+  return (
+    <div style={{ padding: '1rem' }}>
+      <PostById 
+        post={postData?.data} 
+        categories={postData?.categories || []} 
+        loading={postLoading} 
+      />
+      <CommentsSection 
+        comments={commentsData || []} 
+        id={id} 
+        refreshComments={refetchComments}
+        loading={commentsLoading}
+      />
+      {/* <RelatedPosts 
+        posts={relatedPostsData || []} 
+        loading={relatedLoading} 
+      /> */}
+    </div>
+  );
+};
+
+export default PostPage;

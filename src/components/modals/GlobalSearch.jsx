@@ -1,202 +1,283 @@
-import React, { useState } from 'react';
-import { Modal, Button, Form, Nav, ListGroup, Row, Col, Image } from 'react-bootstrap';
+import { useMyContext } from '@/Context/MyContextProvider';
+import { api } from '@/lib/axiosInterceptor';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { Modal, Form, ListGroup, Row, Col, Image, Badge } from 'react-bootstrap';
 
-const GlobalSearch = ({show,handleShow}) => {
-
-  const [activeTab, setActiveTab] = useState('All');
+const GlobalSearch = ({ show, handleShow }) => {
   const [searchTerm, setSearchTerm] = useState('');
-
-  const trendingItems = [
-    {
-      id: 1,
-      title: "Jolly LLB 3",
-      category: "Movie",
-      type: "Movies",
-      image: "https://via.placeholder.com/50x50/ff6b35/ffffff?text=JL3"
-    },
-    {
-      id: 2,
-      title: "Noida Dandiya Fest 2.0",
-      category: "Event",
-      type: "Events",
-      image: "https://via.placeholder.com/50x50/e74c3c/ffffff?text=NDF"
-    },
-    {
-      id: 3,
-      title: "Xero Degrees",
-      category: "Restaurant",
-      type: "Dining",
-      image: "https://via.placeholder.com/50x50/f39c12/ffffff?text=XD"
-    },
-    {
-      id: 4,
-      title: "Satinder Sartaaj",
-      category: "Artist",
-      type: "Activity",
-      image: "https://via.placeholder.com/50x50/27ae60/ffffff?text=SS"
-    },
-    {
-      id: 5,
-      title: "Demon Slayer: Kimetsu no Yaiba Infinity Castle",
-      category: "Movie",
-      type: "Movies",
-      image: "https://via.placeholder.com/50x50/8e44ad/ffffff?text=DS"
-    },
-    {
-      id: 6,
-      title: "Osho Active Morning Meditation",
-      category: "Event",
-      type: "Events",
-      image: "https://via.placeholder.com/50x50/d35400/ffffff?text=OM"
-    },
-    {
-      id: 7,
-      title: "Viva - All Day Dining - Holiday Inn",
-      category: "Restaurant",
-      type: "Dining",
-      image: "https://via.placeholder.com/50x50/2980b9/ffffff?text=VI"
-    },
-    {
-      id: 8,
-      title: "Hanumankind",
-      category: "Artist",
-      type: "Activity",
-      image: "https://via.placeholder.com/50x50/34495e/ffffff?text=HK"
-    },
-    {
-      id: 9,
-      title: "The Conjuring: Last Rites",
-      category: "Movie",
-      type: "Movies",
-      image: "https://via.placeholder.com/50x50/7f8c8d/ffffff?text=TC"
-    },
-    {
-      id: 10,
-      title: "Mini Golf Madness | Gurugram",
-      category: "Event",
-      type: "Events",
-      image: "https://via.placeholder.com/50x50/16a085/ffffff?text=MG"
-    },
-    {
-      id: 11,
-      title: "Fifth Avenue Bakery & Cafe",
-      category: "Restaurant",
-      type: "Dining",
-      image: "https://via.placeholder.com/50x50/c0392b/ffffff?text=FA"
-    },
-    {
-      id: 12,
-      title: "Meba Ofilia",
-      category: "Artist",
-      type: "Activity",
-      image: "https://via.placeholder.com/50x50/9b59b6/ffffff?text=MO"
-    }
-  ];
-
+  const [selectedCategories, setSelectedCategories] = useState(['All']);
+  const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const tabs = ['All', 'Events', 'Sports', 'Movies', 'Activity'];
+  const { createSlug } = useMyContext();
 
-  const filteredItems = trendingItems.filter(item => {
-    const matchesTab = activeTab === 'All' || item.type === activeTab;
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesTab && matchesSearch;
-  });
+  // Memoized trending items from API response
+  const trendingItems = useMemo(() => {
+    return [
+      {
+        id: 33,
+        title: "Indroda Nature And Amusement Park",
+        category: "Amusement",
+        type: "event", // Added type to determine route
+        thumbnail: "http://192.168.0.112:8000/uploads/thumbnail/67ea728760f14_67d7fd2dcc91f_12222333.jpg"
+      },
+      {
+        id: 65,
+        title: "Music Fest 2025",
+        category: "Live Concert",
+        type: "event",
+        thumbnail: "https://cricket.getyourticket.in/uploads/thumbnail/683ac8f0670bd_avp.jpg"
+      },
+      {
+        id: 70,
+        title: "Navratri",
+        category: "Garba Night",
+        type: "event",
+        thumbnail: "https://cricket.getyourticket.in/uploads/thumbnail/688b2dfbc72ab_ff.jpg"
+      },
+      {
+        id: 73,
+        title: "Conference",
+        category: "Business Seminars",
+        type: "event",
+        thumbnail: "http://192.168.0.120:8000/uploads/thumbnail/6883682f3e737_Management (600 x 725 px).jpg"
+      }
+    ];
+  }, []);
+
+  // Function to handle navigation based on item type
+  const handleItemClick = useCallback((item) => {
+    // Close the modal first
+    handleShow();
+    
+    // Determine the route based on item type or category
+    const itemType = item?.type || item.category?.name?.toLowerCase() || 'event';
+    
+    switch(itemType) {
+      case 'movie':
+      case 'movies':
+        router.push(`/movies/${createSlug(item.title || item.name)}/${item.id}`);
+        break;
+      case 'sport':
+      case 'sports':
+        router.push(`/sports/${createSlug(item.title || item.name)}/${item.id}`);
+        break;
+      case 'activity':
+        router.push(`/activities/${createSlug(item.title || item.name)}/${item.id}`);
+        break;
+      case 'restaurant':
+      case 'dining':
+        router.push(`/dining/${createSlug(item.title || item.name)}/${item.id}`);
+        break;
+      case 'artist':
+        router.push(`/artists/${createSlug(item.title || item.name)}/${item.id}`);
+        break;
+      default: // Default to event route
+        router.push(`/events/${createSlug(item?.city || '')}/${createSlug(
+          item?.organizer?.organisation || ''
+        )}/${createSlug(item?.name || item?.title)}/${item?.event_key || item?.id}`);
+        break;
+    }
+  }, [router, createSlug, handleShow]);
+
+  // Optimized search function with useCallback
+  const performSearch = useCallback(async (searchQuery, categories) => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const categoryFilter = categories.includes('All') ? '' : categories.join(',');
+      
+      const response = await api.get('/global-search', {
+        params: {
+          search: searchQuery,
+          event_category: categoryFilter
+        }
+      });
+      
+      setSearchResults(response.data?.data || []);
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Optimized category toggle function
+  const toggleCategory = useCallback((category) => {
+    setSelectedCategories(prev => {
+      if (category === 'All') {
+        return ['All'];
+      } else {
+        const withoutAll = prev.filter(cat => cat !== 'All');
+        const isSelected = prev.includes(category);
+        
+        if (isSelected) {
+          const newSelected = withoutAll.filter(cat => cat !== category);
+          return newSelected.length > 0 ? newSelected : ['All'];
+        } else {
+          return [...withoutAll, category];
+        }
+      }
+    });
+  }, []);
+
+  // Debounced search effect
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      performSearch(searchTerm, selectedCategories);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, selectedCategories, performSearch]);
+
+  // Reset search when modal is closed
+  useEffect(() => {
+    if (!show) {
+      setSearchTerm('');
+      setSelectedCategories(['All']);
+      setSearchResults([]);
+    }
+  }, [show]);
+
+  // Memoized search results display
+  const searchResultsDisplay = useMemo(() => {
+    if (isLoading) {
+      return (
+        <div className="text-center py-4">
+          <p>Searching...</p>
+        </div>
+      );
+    }
+
+    const itemsToShow = searchTerm && searchResults.length > 0 ? searchResults : trendingItems;
+    
+    if (searchTerm && searchResults.length === 0) {
+      return (
+        <div className="text-center py-4">
+          <p className="text-muted">No items found matching your criteria.</p>
+        </div>
+      );
+    }
+
+    return (
+      <Row>
+        {itemsToShow.map((item) => (
+          <Col md={6} key={item.id} className="mb-3">
+            <ListGroup.Item 
+              className="border-0 bg-transparent p-2 rounded hover-item"
+              style={{ cursor: 'pointer' }}
+              action
+              onClick={() => handleItemClick(item)}
+            >
+              <div className="d-flex align-items-center">
+                {(item?.thumbnail || item?.image) && (
+                  <Image
+                    src={item?.thumbnail || item?.image}
+                    alt={item?.name || item?.title}
+                    width={50}
+                    height={50}
+                    className="rounded me-3 flex-shrink-0"
+                    style={{ objectFit: 'cover' }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                )}
+                <div className="flex-grow-1 min-width-0">
+                  <h6 className="mb-1 fw-bold text-truncate" style={{ fontSize: '15px' }}>
+                    {item?.name || item?.title}
+                  </h6>
+                  <small className="text-muted" style={{ fontSize: '13px' }}>
+                    {item?.category_datanew?.title || item?.category}
+                    {item?.type && ` • ${item.type}`}
+                  </small>
+                </div>
+              </div>
+            </ListGroup.Item>
+          </Col>
+        ))}
+      </Row>
+    );
+  }, [isLoading, searchTerm, searchResults, trendingItems, handleItemClick]);
 
   return (
-    <>
-      <Modal 
-        show={show} 
-        onHide={handleShow} 
-        size="lg" 
-        centered
-        className="trending-modal"
-      >
-        <Modal.Header closeButton className="border-0 pb-2">
-          <Modal.Title className="w-100">
-            <Form.Control
-              type="text"
-              placeholder="Search for your favorite events, movies, shows, and more..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="rounded-pill card-glassmorphism__input"
-              style={{ fontSize: '16px' }}
-            />
-          </Modal.Title>
-        </Modal.Header>
-        
-        <Modal.Body className="px-4 py-3">
-          {/* Navigation Tabs */}
-          <Nav variant="pills" className="mb-4 justify-content-start">
-            {tabs.map((tab) => (
-              <Nav.Item key={tab} className="me-2">
-                <Nav.Link
-                  active={activeTab === tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-3 py-2 rounded-pill ${
-                    activeTab === tab 
-                      ? 'bg-primary text-white' 
-                      : 'custom-dark-content-bg border-0'
-                  }`}
+    <Modal 
+      show={show} 
+      onHide={handleShow} 
+      size="lg" 
+      centered
+      className="trending-modal"
+    >
+      <Modal.Header closeButton className="border-0 pb-2">
+        <Modal.Title className="w-100">
+          <Form.Control
+            type="text"
+            placeholder="Search for your favorite events, movies, shows, and more..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="rounded-pill card-glassmorphism__input"
+            style={{ fontSize: '16px' }}
+            autoFocus
+          />
+        </Modal.Title>
+      </Modal.Header>
+      
+      <Modal.Body className="px-4 py-3">
+        {/* Category Filter Badges */}
+        <div className="mb-4">
+          <h6 className="fw-bold mb-2">Filter by Category:</h6>
+          <div className="d-flex flex-wrap gap-2">
+            {tabs.map((category) => {
+              const isSelected = selectedCategories.includes(category);
+              return (
+                <Badge
+                  key={category}
+                  bg={isSelected ? 'primary' : 'light'}
+                  text={isSelected ? 'white' : 'dark'}
+                  className="px-3 py-2 rounded-pill cursor-pointer user-select-none"
+                  onClick={() => toggleCategory(category)}
                   style={{
                     fontSize: '14px',
                     fontWeight: '500',
-                    border: 'none',
-                    transition: 'all 0.2s ease'
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    transform: isSelected ? 'scale(1.02)' : 'scale(1)'
                   }}
                 >
-                  {tab}
-                </Nav.Link>
-              </Nav.Item>
-            ))}
-          </Nav>
-
-          {/* Trending Section */}
-          <div className="mb-3">
-            <h5 className="fw-bold mb-3">Trending in Gurugram</h5>
+                  {category}
+                  {isSelected && category !== 'All' && (
+                    <span className="ms-1">×</span>
+                  )}
+                </Badge>
+              );
+            })}
           </div>
+        </div>
 
-          {/* Items List */}
-          <ListGroup variant="flush">
-            <Row>
-              {filteredItems.map((item, index) => (
-                <Col md={6} key={item.id} className="mb-3">
-                  <ListGroup.Item 
-                    className="border-0 bg-transparent p-2 rounded hover-item"
-                    style={{ cursor: 'pointer' }}
-                    action
-                  >
-                    <div className="d-flex align-items-center">
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        width={50}
-                        height={50}
-                        className="rounded me-3 flex-shrink-0"
-                        style={{ objectFit: 'cover' }}
-                      />
-                      <div className="flex-grow-1 min-width-0">
-                        <h6 className="mb-1 fw-bold text-truncate" style={{ fontSize: '15px' }}>
-                          {item.title}
-                        </h6>
-                        <small className="text-muted" style={{ fontSize: '13px' }}>
-                          {item.category}
-                        </small>
-                      </div>
-                    </div>
-                  </ListGroup.Item>
-                </Col>
-              ))}
-            </Row>
-          </ListGroup>
+        {/* Results Header */}
+        <div className="mb-3">
+          <h5 className="fw-bold mb-3">
+            {searchTerm && searchResults.length > 0 
+              ? `Search Results for "${searchTerm}"` 
+              : 'Trending Now'
+            }
+          </h5>
+        </div>
 
-          {filteredItems.length === 0 && (
-            <div className="text-center py-4">
-              <p className="text-muted">No items found matching your criteria.</p>
-            </div>
-          )}
-        </Modal.Body>
-      </Modal>
-    </>
+        {/* Search Results */}
+        <ListGroup variant="flush">
+          {searchResultsDisplay}
+        </ListGroup>
+      </Modal.Body>
+    </Modal>
   );
 };
 
-export default GlobalSearch
+export default GlobalSearch;

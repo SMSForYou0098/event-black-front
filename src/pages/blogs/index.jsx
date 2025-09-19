@@ -213,6 +213,7 @@ const BLogs = memo(() => {
                           username={item.user_data?.name || item.username || "Unknown"}
                           date={item.created_at}
                           categories={item.categoryTitles}
+                          id={item?.id}
                         />
                       </Col>
                     ))

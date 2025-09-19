@@ -1,4 +1,6 @@
 
+import { useMyContext } from "@/Context/MyContextProvider";
+
 export const createOrderData = (data, charges) => ({
   baseAmount: Number((data?.subtotal || 0).toFixed(2)),
   // subTotal:   || 0,
@@ -118,10 +120,12 @@ export const TotalAmountHeader = ({
   </motion.div>
 );
 import { motion, AnimatePresence } from 'framer-motion';
-import { Alert, Form, Button, Table, Card, InputGroup, Spinner } from 'react-bootstrap';
+import { Alert, Form, Button, Table, Card, InputGroup, Spinner, Offcanvas, ListGroup } from 'react-bootstrap';
 import { Receipt, Tag, ChevronDown, Ticket, Crown } from 'lucide-react';
 import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY } from '../../../utils/consts';
 import { decrypt } from '../../../utils/crypto';
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export const MotionWrapper = ({
   children,
@@ -260,12 +264,13 @@ export const parseUrlData = (data, ticket, edata) => {
 };
 
 export const TicketDataSummary = (props) => {
-  const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices = false } = props;
+  const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices,netAmount,sale_price, currency } = props;
   const sectionIconStyle = {
     color: CUSTOM_SECONDORY,
     size: 20,
     style: { marginRight: '10px' }
   };
+  const {getCurrencySymbol} = useMyContext()
 
   return (
     <Card className="mb-4 custom-dark-bg">
@@ -286,7 +291,7 @@ export const TicketDataSummary = (props) => {
             </div>
           </div>
           <div className="text-end">
-            <div className='custom-text-secondary h5 fw-bold'>₹{price}</div>
+            <div className='custom-text-secondary h5 fw-bold'> {currency ? getCurrencySymbol(currency) : '₹'} {price}</div>
             <small>per ticket</small>
           </div>
         </div>
@@ -302,22 +307,122 @@ export const TicketDataSummary = (props) => {
           <>
             <div className="d-flex justify-content-between align-items-center mb-2">
               <span>Subtotal</span>
-              <span className="text-white fw-bold">₹{subTotal}</span>
+              <span className="text-white fw-bold">{currency ? getCurrencySymbol(currency) : '₹'}{subTotal}</span>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
               <span>Processing Fee</span>
-              <span className="text-white fw-bold">₹{processingFee || 0}</span>
+              <span className="text-white fw-bold">{currency ? getCurrencySymbol(currency) : '₹'}{processingFee || 0}</span>
             </div>
             <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' />
 
             <div className="d-flex justify-content-between align-items-center">
               <span className="text-white fw-bold fs-5">Total Amount</span>
-              <span className='custom-text-secondary h5 fw-bold'>₹{total}</span>
+              <span className='custom-text-secondary h5 fw-bold'>{currency ? getCurrencySymbol(currency) : '₹'}{total}</span>
             </div>
           </>
+        }
+        {(netAmount || sale_price) &&
+          <div className="d-flex justify-content-between align-items-center">
+          <span className="text-white fw-bold fs-5">Total Amount</span>
+          <span className='custom-text-secondary h5 fw-bold'>{currency ? getCurrencySymbol(currency) : '₹'}{sale_price && sale_price!=='null' ? sale_price : netAmount}</span>
+        </div>
         }
       </Card.Body>
     </Card>
   )
 }
+
+export const AttendeesOffcanvas = ({
+  show,
+  handleClose,
+  attendees,
+  title = "Attendees",
+}) => {
+  const [placement, setPlacement] = useState("end");
+  const {isMobile} = useMyContext()
+
+  useEffect(() => {
+    const updatePlacement = () => {
+      // mobile breakpoint < 768 => bottom, else end (right)
+      setPlacement(isMobile? "bottom" : "end");
+    };
+
+    updatePlacement();
+    window.addEventListener("resize", updatePlacement);
+    return () => window.removeEventListener("resize", updatePlacement);
+  }, []);
+
+  return (
+    <Offcanvas
+      show={show}
+      onHide={handleClose}
+      placement={placement}
+      backdrop={true}
+      scroll={false}
+    >
+      <Offcanvas.Header closeButton>
+        <Offcanvas.Title>
+          {title} ({attendees?.length ?? 0})
+        </Offcanvas.Title>
+      </Offcanvas.Header>
+
+      <Offcanvas.Body>
+        {!attendees || attendees.length === 0 ? (
+          <div className="text-center text-muted">No attendees found</div>
+        ) : (
+          <ListGroup >
+            {attendees.map((a) => (
+              <ListGroup.Item
+                key={a?.id ?? Math.random()}
+                className="d-flex align-items-start gap-3"
+              >
+                <div style={{ width: 56, height: 56, flex: "0 0 56px" }}>
+                  <Image
+                    src={a?.Photo ?? "/placeholder-avatar.png"}
+                    roundedCircle
+                    alt={a?.Name ?? "Attendee"}
+                    width={56}
+                    height={56}
+                    style={{ objectFit: "cover" }}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/placeholder-avatar.png";
+                    }}
+                  />
+                </div>
+
+                <div className="flex-grow-1">
+                  <div className="d-flex align-items-center justify-content-between">
+                    <div className="fw-semibold">{a?.Name ?? "Unknown"}</div>
+                    {/* optional small id badge */}
+                    {/* {a?.user_id != null && (
+                      <small className="text-muted ms-2">ID: {a.user_id}</small>
+                    )} */}
+                  </div>
+
+                  <div className="mt-1">
+                    <div className="text-muted small">
+                      <strong>Phone:</strong> {a?.Mo ?? "—"}
+                    </div>
+                    <div className="text-muted small">
+                      <strong>Email:</strong>{" "}
+                      {a?.Email ? (
+                        <a href={`mailto:${a.Email}`} className="text-decoration-none">
+                          {a.Email}
+                        </a>
+                      ) : (
+                        "—"
+                      )}
+                    </div>
+                    {/* Add other fields here if needed */}
+                  </div>
+                </div>
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        )}
+      </Offcanvas.Body>
+    </Offcanvas>
+  );
+};
