@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Row, Col } from 'react-bootstrap';
 import { MapPin } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
 import { CustomHeader } from '../../../utils/ModalUtils/CustomModalHeader';
@@ -74,7 +74,6 @@ const OtherLocations = ({ eventData }) => {
         />
     );
 
-
     return (
         <>
             <div className="my-3">
@@ -90,76 +89,91 @@ const OtherLocations = ({ eventData }) => {
             <Modal
                 show={showModal}
                 onHide={() => setShowModal(false)}
-                size="lg"
-                centered
+                size="xl"
+                // centered
             >
                 <CustomHeader
                     title="Other Locations" 
                     onClose={() => setShowModal(false)}
                     closable
                 />
-                <Modal.Body className="p-4">
-                    <div className="d-flex flex-column gap-3">
+                <Modal.Body className="p-3 p-md-4" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+                    <Row className="g-3">
                         {dummyEventData?.map((location) => (
-                            <div 
-                                key={location.id}
-                                className="border rounded-3 p-3 d-flex justify-content-between align-items-center"
-                                style={{
-                                    border: '1px solid #dee2e6',
-                                    borderRadius: '12px',
-                                    padding: '16px'
-                                }}
-                            >
-                                <div style={{ flex: 1 }}>
-                                    <h5 className="mb-2" style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
-                                        {location.event_name}
-                                    </h5>
-                                    <div className="mb-1" style={{ marginBottom: '4px' }}>
-                                        <span style={{ color: '#6c757d', fontSize: '14px' }}>
-                                            <i className="fa-regular fa-clock me-2" style={{ marginRight: '8px' }}></i>
-                                            {location.timing}
-                                        </span>
-                                    </div>
-                                    <div className="mb-1" style={{ marginBottom: '4px' }}>
-                                        <span style={{ color: '#6c757d', fontSize: '14px' }}>
-                                            <i className="fa-solid fa-location-dot me-2" style={{ marginRight: '8px' }}></i>
-                                            {location.city}, {location.state}
-                                        </span>
-                                    </div>
-                                    <p className="text-muted mb-0" style={{ color: '#6c757d', margin: 0, fontSize: '13px' }}>
-                                        {location.address}
-                                    </p>
+                            <Col xs={12} key={location.id}>
+                                <div className="border rounded-3 p-3">
+                                    <Row className="align-items-center">
+                                        {/* Event Details */}
+                                        <Col xs={12} md={12} lg={7}>
+                                            <h5 className="mb-2 fs-6 fs-md-5 fw-semibold">
+                                                {location.event_name}
+                                            </h5>
+                                            
+                                            <div className="mb-1">
+                                                <small className="text-muted">
+                                                    <i className="fa-regular fa-clock me-2"></i>
+                                                    {location.timing}
+                                                </small>
+                                            </div>
+                                            
+                                            <div className="mb-1">
+                                                <small className="text-muted">
+                                                    <i className="fa-solid fa-location-dot me-2"></i>
+                                                    {location.city}, {location.state}
+                                                </small>
+                                            </div>
+                                            
+                                            <div className="mb-0">
+                                                <small className="text-muted">
+                                                    {location.address}
+                                                </small>
+                                            </div>
+                                        </Col>
+
+                                        {/* Action Buttons */}
+                                        <Col xs={12} md={12} lg={5} className="mt-3 mt-md-0">
+                                            <Row className="g-2">
+                                                <Col xs={6} md={6} lg={6}>
+                                                    <MockCustomBtn
+                                                        buttonText="Book Now"
+                                                        className="btn-primary btn-sm w-100"
+                                                        HandleClick={() => handleBookNow(location.event_key)}
+                                                    />
+                                                </Col>
+                                                <Col xs={6} md={6} lg={6}>
+                                                    <MockCustomBtn
+                                                        buttonText={<><span className="d-none d-sm-inline">View Location</span><span className="d-sm-none">View</span></>}
+                                                        className="btn-outline-primary btn-sm w-100"
+                                                        variant="outline-primary"
+                                                        icon={<MapPin size={16} />}
+                                                        HandleClick={() => handleViewLocation(location.event_key)}
+                                                    />
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                    </Row>
                                 </div>
-                                <div className="d-flex gap-2" style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                                    <MockCustomBtn
-                                        buttonText="Book Now"
-                                        className="btn-primary btn-sm"
-                                        HandleClick={() => handleBookNow(location.event_key)}
-                                    />
-                                    <MockCustomBtn
-                                        buttonText="View Location"
-                                        className="btn-outline-primary btn-sm"
-                                        variant="outline-primary"
-                                        icon={<MapPin size={16} />}
-                                        HandleClick={() => handleViewLocation(location.event_key)}
-                                    />
-                                </div>
-                            </div>
+                            </Col>
                         ))}
-                    </div>
+                    </Row>
 
                     {/* Empty state when no other locations */}
                     {dummyEventData?.length === 0 && (
-                        <div className="text-center py-4">
-                            <div style={{ color: '#6c757d', fontSize: '16px' }}>
-                                <MapPin size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                                <p>No other locations available for this event.</p>
-                            </div>
-                        </div>
+                        <Row>
+                            <Col xs={12}>
+                                <div className="text-center py-4">
+                                    <div className="text-muted">
+                                        <MapPin size={48} className="mb-3 opacity-50" />
+                                        <p>No other locations available for this event.</p>
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
                     )}
                 </Modal.Body>
             </Modal>
         </>
     );
 };
+
 export default OtherLocations;

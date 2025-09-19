@@ -8,6 +8,7 @@ import CustomBtn from '../../../utils/CustomBtn';
 import { useRouter } from 'next/router';
 import ShareModal from './ShareModal';
 import OtherLocations from './OtherLocations';
+import Image from 'next/image';
 
 const DetailsHeader = ({ eventData, event_key }) => {
     const descRef = useRef(null);
@@ -15,6 +16,9 @@ const DetailsHeader = ({ eventData, event_key }) => {
     const { convertTo12HourFormat, formatDateRange } = useMyContext();
     const [showFullDesc, setShowFullDesc] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const event_date =  formatDateRange(eventData?.date_range) +
+                " | " +
+                `${convertTo12HourFormat(eventData?.start_time)}` 
     const metaInfo = [
         {
             icon: "fa-regular fa-bookmark", // Category icon
@@ -33,10 +37,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
         },
         {
             icon: "fa-regular fa-clock", // Date & Time icon
-            value:
-                formatDateRange(eventData?.date_range) +
-                " | " +
-                `${convertTo12HourFormat(eventData?.start_time)}`,
+            value:event_date,
             valueClass: "fw-semibold",
         },
     ];
@@ -76,14 +77,19 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 onHide={() => setShowShareModal(false)}
                 url={currentUrl}
                 title={eventData?.name}
+                eventData={eventData}
+                event_date={event_date}
             />
             <Col lg="3" md="12" className="mb-4 mb-lg-0">
                 {/* --- Single Event Image --- */}
                 <div className="product-image-container d-flex justify-content-center align-items-center">
-                    <img
+                    <Image
                         src={eventData?.thumbnail}
                         alt={eventData?.name}
                         className="img-fluid rounded-4"
+                        width={300}
+                        height={400}
+                        priority
                         style={{ maxHeight: "400px", objectFit: "cover" }}
                     />
                 </div>

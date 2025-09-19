@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 // import { motion, AnimatePresence } from 'framer-motion';
 import { publicApi } from "@/lib/axiosInterceptor";
 import AuthLayout from "@/layouts/AuthLayout";
+import CustomBtn from "@/utils/CustomBtn";
 
 const SignUp = () => {
   const router = useRouter();
@@ -168,20 +169,13 @@ const SignUp = () => {
         <Row className="text-center">
           <Col lg="3"></Col>
           <Col lg="6">
+            <CustomBtn
+              buttonText={loading ? "Creating Account..." : "Sign Up"}
+              type="submit"
+              className="btn text-uppercase position-relative w-100"
+              disabled={loading}
+            />
             <div className="full-button">
-              <div className="iq-button">
-                {/* Applied the gradient button style */}
-                <Button
-                  type="submit"
-                  className="btn text-uppercase position-relative w-100 btn-gradient-primary"
-                  disabled={loading}
-                >
-                  <span className="button-text">
-                    {loading ? "Creating Account..." : "Sign Up"}
-                  </span>
-                  <i className="fa-solid fa-play ms-2"></i>
-                </Button>
-              </div>
               <p className="mt-2 mb-0 fw-normal text-white">
                 Already have an account?
                 <Link href="/auth/login" className="ms-1 text-primary fw-bold">

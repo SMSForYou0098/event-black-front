@@ -14,7 +14,7 @@ export const SEOHead = ({
   noIndex = false 
 }) => {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "Your Site Name";
+  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "Get Yout Ticket";
   
   const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
   const fullImage = image?.startsWith('http') ? image : `${siteUrl}${image}`;

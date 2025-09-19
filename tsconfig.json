@@ -46,6 +46,6 @@
     "src/pages/auth/two-factor.jsx",
     "src/lib/axiosInterceptor.jsx",
     "src/pages/_app.jsx"
-, "src/layouts/Frontend.jsx", "src/store/auth/authSlice.js", "src/store/index.js", "src/components/slider/HomeBannerSlider.jsx", "src/components/sections/TVPopularShows.jsx", "src/components/sections/ExpiredEvents.jsx", "src/components/sections/EventsSection.jsx", "src/components/cards/TopTenCard.jsx", "src/services/home.js", "src/pages/blogs/index.jsx", "src/components/partials/FooterDefault.jsx"  ],
+, "src/layouts/Frontend.jsx", "src/store/auth/authSlice.js", "src/store/index.js", "src/components/slider/HomeBannerSlider.jsx", "src/components/sections/TVPopularShows.jsx", "src/components/sections/ExpiredEvents.jsx", "src/components/sections/EventsSection.jsx", "src/components/cards/TopTenCard.jsx", "src/services/home.js", "src/pages/blogs/index.jsx"  ],
   "exclude": ["node_modules"]
 }

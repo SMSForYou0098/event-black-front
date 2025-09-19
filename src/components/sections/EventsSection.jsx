@@ -10,7 +10,6 @@ const EventsSection = memo(() => {
       loadingText="Loading Events..."
       errorText="Failed to load events. Please try again later."
       useReactQuery={false}
-      apiEndpoint="feature-event"
     />
   );
 });

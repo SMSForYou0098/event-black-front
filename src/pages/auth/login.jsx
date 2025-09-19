@@ -142,9 +142,9 @@ const Login = () => {
       </Form>
 
       <p className="my-4 text-center fw-500 text-white">
-        New to Streamit?{" "}
+        Login as organizer?{" "}
         <Link href="/auth/sign-up" className="text-primary ms-1">
-          Register
+          Click Here
         </Link>
       </p>
     </AuthLayout>

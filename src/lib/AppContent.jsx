@@ -1,20 +1,14 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useMyContext } from '../Context/MyContextProvider';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSetting } from '../store/setting/actions';
-import axios from 'axios';
 import PushNotificationButton from './PushNotificationButton';
 import { checkAndClearSessionData } from './checkAndClearSessionData';
 import { logout } from '@/store/auth/authSlice';
 import { persistor } from '@/store'; // Import persistor directly
 import { setupForegroundNotification } from './service/firebaseConfig';
-import { RootState } from '@/store';
+import {SEOHead} from '@/utils/seo/seo';
 
-interface AppContentProps {
-  children: React.ReactNode;
-}
-
-const getTimeoutDuration = (role: string | undefined): number | null => {
+const getTimeoutDuration = (role) => {
   switch (role) {
     case 'User':
       return 5 * 60 * 1000; // 5 minutes
@@ -27,11 +21,11 @@ const getTimeoutDuration = (role: string | undefined): number | null => {
   }
 };
 
-function AppContent({ children }: AppContentProps) {
+function AppContent({ children }) {
   const { userRole, api, systemSetting } = useMyContext();
   const dispatch = useDispatch();
-  const logoutTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const userData = useSelector((state: RootState) => state.auth.user);
+  const logoutTimerRef = useRef(null);
+  const userData = useSelector((state) => state.auth.user);
 
   const handleLogout = useCallback(async () => {
     dispatch(logout());
@@ -82,20 +76,30 @@ function AppContent({ children }: AppContentProps) {
     // dispatch(setSetting());
     checkAndClearSessionData();
     setupForegroundNotification(api);
-    
-    const handleContextMenu = (event: MouseEvent) => {
+
+    const handleContextMenu = (event) => {
       event.preventDefault();
     };
-    
+
     document.addEventListener('contextmenu', handleContextMenu);
-    
+
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
     };
   }, []); // Empty dependency array - runs only once
-
+  
+  const defaultSEO = {
+    title: "Get Your Ticket - Book Event Tickets Online",
+    description: "Book tickets for concerts, garba, sports, arts, theater, family, shows, and nightlife events. Find your perfect event and book tickets online.",
+    keywords: "event tickets, book tickets, concerts, sports events, theater shows",
+    image: "/images/default-og-image.jpg",
+    url: "",
+    type: "website"
+  };
+  
   return (
     <div className="App">
+      <SEOHead {...defaultSEO} />
       {systemSetting?.notify_req ? <PushNotificationButton /> : null}
       {children}
     </div>

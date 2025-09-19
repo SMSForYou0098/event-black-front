@@ -7,7 +7,7 @@ const nextConfig = {
     includePaths: [path.join(__dirname, 'styles')],
   },
   images: {
-    domains: ['192.168.0.120','192.168.0.112', 'cricket.getyourticket.in'], // Add the hostname of your API here
+    domains: ['192.168.0.120','192.168.0.112', 'cricket.getyourticket.in','randomuser.me'], // Add the hostname of your API here
   },
 }
 

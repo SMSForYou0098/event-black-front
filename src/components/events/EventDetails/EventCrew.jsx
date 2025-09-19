@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SectionSlider from '@/components/slider/SectionSlider';
 import { Modal, Row, Col } from 'react-bootstrap';
 import { CustomHeader } from '../../../utils/ModalUtils/CustomModalHeader';
+import Image from 'next/image';
 
 const dummyCrews = [
     {
@@ -39,13 +40,14 @@ const EventCrew = ({ crews = dummyCrews }) => {
     const renderCrewCard = (crew) => (
         <div className="crew-card text-center">
             <div className="crew-image mb-3">
-                <img
+                <Image
                     src={crew.image || '/images/default-avatar.png'}
                     alt={crew.name}
                     className="img-fluid rounded-circle"
+                    width={100}
+                    height={100}
+                    loading='lazy'
                     style={{
-                        width: '100px',
-                        height: '100px',
                         objectFit: 'cover'
                     }}
                 />
