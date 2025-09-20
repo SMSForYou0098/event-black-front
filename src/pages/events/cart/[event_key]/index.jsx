@@ -15,6 +15,7 @@ import CustomBtn from "../../../../utils/CustomBtn";
 import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 import { Calendar, Pin, Tags, Ticket, Users } from "lucide-react";
 import { useHeaderSimple } from "@/context/HeaderContext";
+import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
 const CartPage = () => {
   const { event_key } = useRouter().query;
 
@@ -154,6 +155,13 @@ const CartPage = () => {
     return categoryData?.categoryData?.attendy_required === 1;
   }, [categoryData]);
   // Early return if no items
+
+
+  // if (isLoading) {
+  //   return <BookingSummarySkeleton />;
+  // }
+
+
   if (cartItems.length === 0) {
     return (
       <div className="cart-page section-padding">

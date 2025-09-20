@@ -7,6 +7,7 @@ import DetailMetaList from "../../components/blog/DetailMetaList";
 import BlogFilterControls from "../../components/blog/BlogFilterControls";
 import PaginationComponent from "../../components/blog/PaginationComponent";
 import CardBlogGrid from "../../components/blog/CardBlogGrid";
+import CardBlogGridSkeleton from "../../utils/SkeletonUtils/blogs/CardBlogGridSkeleton";
 // custom hooks / api
 import { useBreadcrumb } from "@/utilities/usePage";
 import { publicApi } from "@/lib/axiosInterceptor";
@@ -29,32 +30,27 @@ const BLogs = memo(() => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [sortOrder, setSortOrder] = useState(sortOptions[0]);
-  const [allBlogs, setAllBlogs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  // Fetch all blogs on component mount
-  useEffect(() => {
-    const fetchAllBlogs = async () => {
-      try {
-        setIsLoading(true);
-        const res = await publicApi.get(`/blog-status`);
-        if (!res?.data?.status) {
-          throw new Error(res?.data?.message || "Failed to fetch blogs");
-        }
-        
-        setAllBlogs(Array.isArray(res.data.data) ? res.data.data : []);
-        setError(null);
-      } catch (err) {
-        setError(err.message || "Failed to fetch blogs");
-        setAllBlogs([]);
-      } finally {
-        setIsLoading(false);
+  // Fetch all blogs using TanStack Query
+  const {
+    data: allBlogs = [],
+    isLoading,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: ['blogs'],
+    queryFn: async () => {
+      const res = await publicApi.get(`/blog-status`);
+      if (!res?.data?.status) {
+        throw new Error(res?.data?.message || "Failed to fetch blogs");
       }
-    };
-
-    fetchAllBlogs();
-  }, []);
+      return Array.isArray(res.data.data) ? res.data.data : [];
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    cacheTime: 1000 * 60 * 10, // 10 minutes
+    retry: 2,
+    retryDelay: 1000,
+  });
 
   // Client-side filtering, sorting and pagination
   const { filteredBlogs, paginatedBlogs, totalPages } = useMemo(() => {
@@ -132,11 +128,14 @@ const BLogs = memo(() => {
     data: categories = [],
     isLoading: categoriesLoading,
     isError: categoriesError,
+    refetch: refetchCategories
   } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 10,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    cacheTime: 1000 * 60 * 10, // 10 minutes
+    retry: 2,
+    retryDelay: 1000,
   });
 
   // Page change handler
@@ -169,6 +168,8 @@ const BLogs = memo(() => {
             setSortOrder={setSortOrder}
             disabled={isLoading}
             categoriesLoading={categoriesLoading}
+            categoriesError={categoriesError}
+            onRetryCategories={refetchCategories}
           />
 
           <Row>
@@ -177,25 +178,19 @@ const BLogs = memo(() => {
               <div className="position-relative">
                 {/* Loading Overlay - Only covers the blog grid area */}
                 {isLoading && (
-                  <div
-                    className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
-                    style={{ 
-                      backgroundColor: "rgba(255, 255, 255, 0.8)", 
-                      zIndex: 10,
-                      borderRadius: "8px"
-                    }}
-                  >
-                    <div className="text-center">
-                      <Spinner animation="border" role="status" />
-                      <div className="mt-2">Loading blogs...</div>
-                    </div>
-                  </div>
+                  <CardBlogGridSkeleton count={9} columns={3} />
                 )}
 
                 {/* Error message */}
                 {error && (
-                  <Alert variant="danger" >
-                    {error}
+                  <Alert variant="danger" className="d-flex justify-content-between align-items-center">
+                    <span>{error?.message || "Failed to load blogs"}</span>
+                    <button 
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => refetch()}
+                    >
+                      Retry
+                    </button>
                   </Alert>
                 )}
 

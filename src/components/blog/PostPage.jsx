@@ -6,11 +6,15 @@ import parse from 'html-react-parser';
 // import PostSkeleton from './skeletons/PostSkeletons';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
 import Image from 'next/image';
+import PostSkeleton from '../../utils/SkeletonUtils/blogs/PostSkeleton';
 
 const PostById = ({ post, categories, loading }) => {
   const { isMobile , formatDateDDMMYYYY } = useMyContext();
-
   const parseContentWithImages = (html) => {
+    if (!html || typeof html !== 'string') {
+      return <div className="text-muted">Content not available</div>;
+    }
+    
     const options = {
       replace: (domNode) => {
         if (domNode.name === 'img') {
@@ -38,8 +42,7 @@ const PostById = ({ post, categories, loading }) => {
     return parse(html, options);
   };
 
-  //   if (loading) return <PostSkeleton />;
-  if (loading) return <>loading</>;
+    if (loading) return <PostSkeleton />;
 
   // Strip HTML to get content length
   const getContentLength = (htmlContent) => {
@@ -84,7 +87,7 @@ const PostById = ({ post, categories, loading }) => {
               <div className="text-muted mb-4 d-flex align-items-center gap-3 flex-wrap">
                 <div>
                   <i className="bi bi-calendar me-1"></i>
-                  {formatDateDDMMYYYY(post.created_at)}
+                  {formatDateDDMMYYYY(post?.created_at)}
                 </div>
                 {post?.user_data?.name && (
                   <div>
@@ -99,9 +102,11 @@ const PostById = ({ post, categories, loading }) => {
               </div>
 
               {/* Content */}
-              {
-                isMobile ? parseContentWithImages(post?.content) : parse(post?.content)
-              }
+              {post?.content ? (
+                isMobile ? parseContentWithImages(post.content) : parse(post.content)
+              ) : (
+                <div className="text-muted">Content not available</div>
+              )}
             </Card.Body>
           </Card>
         </Col>

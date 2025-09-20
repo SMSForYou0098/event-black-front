@@ -13,8 +13,7 @@ import DetailMetaList from '../../../components/blog/DetailMetaList';
 const PostPage = () => {
   const { authToken, api } = useMyContext();
   const router = useRouter()
-  const { id } = router.query;
-  const queryClient = useQueryClient();
+  const { key, title } = router.query;
 
   // Helper function to transform flat comments into nested replies structure
   const transformComments = (commentsData) => {
@@ -46,10 +45,10 @@ const PostPage = () => {
 
   // Fetch post data
   const { data: postData, error: postError, isLoading: postLoading } = useQuery({
-    queryKey: ['post', id],
+    queryKey: ['post', key],
     queryFn: async () => {
       const headers = { Authorization: `Bearer ${authToken}` };
-      const response = await axios.get(`${api}blog-show/${id}`, { headers });
+      const response = await axios.get(`${api}blog-show/${key}`, { headers });
 
       if (!response.data?.status) {
         throw new Error(response.data?.message || 'Invalid post data format.');
@@ -57,28 +56,30 @@ const PostPage = () => {
 
       return response.data;
     },
-    enabled: !!id,
+    enabled: !!key,
     retry: 2,
   });
 
+  console.log('postData', postData)
+
   // Fetch related posts
   const { data: relatedPostsData, isLoading: relatedLoading } = useQuery({
-    queryKey: ['related-posts', id],
+    queryKey: ['related-posts', key],
     queryFn: async () => {
       const headers = { Authorization: `Bearer ${authToken}` };
-      const response = await axios.get(`${api}related-blogs/${id}`, { headers });
+      const response = await axios.get(`${api}related-blogs/${key}`, { headers });
       return response.data?.data || [];
     },
-    enabled: !!id && !!postData,
+    enabled: !!key && !!postData,
     retry: 2,
   });
 
   // Fetch comments
   const { data: commentsData, error: commentsError, isLoading: commentsLoading, refetch: refetchComments } = useQuery({
-    queryKey: ['comments', id],
+    queryKey: ['comments', key],
     queryFn: async () => {
       const headers = { Authorization: `Bearer ${authToken}` };
-      const response = await axios.get(`${api}blog-comment-show/${id}`, { headers });
+      const response = await axios.get(`${api}blog-comment-show/${key}`, { headers });
 
       if (response.data?.status) {
         const commentsData = response.data.data || [];
@@ -86,16 +87,16 @@ const PostPage = () => {
       }
       return [];
     },
-    enabled: !!id,
+    enabled: !!key,
     retry: 2,
   });
 
   // Scroll to top when component mounts
   useEffect(() => {
-    if (id) {
+    if (key) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [id]);
+  }, [key]);
 
   // Handle loading and error states
   const isLoading = postLoading || commentsLoading;
@@ -120,7 +121,7 @@ const PostPage = () => {
           />
           <CommentsSection
             comments={commentsData || []}
-            id={id}
+            id={key}
             refreshComments={refetchComments}
             loading={commentsLoading}
           />

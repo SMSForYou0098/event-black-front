@@ -7,8 +7,30 @@ const nextConfig = {
     includePaths: [path.join(__dirname, 'styles')],
   },
   images: {
-    domains: ['192.168.0.120','192.168.0.112', 'cricket.getyourticket.in','randomuser.me'], // Add the hostname of your API here
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: '192.168.0.120',
+      },
+      {
+        protocol: 'http',
+        hostname: '192.168.0.112',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cricket.getyourticket.in',
+      },
+      {
+        protocol: 'https',
+        hostname: 'randomuser.me',
+      },
+    ],
   },
 }
 
-module.exports = nextConfig;
+module.exports = nextConfig
+
+
+// images: {
+//   domains: ['192.168.0.120','192.168.0.112', 'cricket.getyourticket.in','randomuser.me'], // Add the hostname of your API here
+// },

@@ -46,7 +46,6 @@ const BookingSummary = () => {
     if (!sessionId) return <p>Waiting for session id...</p>;
     if (mutation.isPending) return <BookingSummarySkeleton />;
     if (mutation.isError) return <p>Error verifying booking.</p>;
-    console.log('murta',mutation)
     // Extract data from the mutation response
     const booking =  mutation.data?.bookings || {};
     const ticket = mutation?.data?.ticket || {};

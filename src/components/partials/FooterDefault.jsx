@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container, Row, Col, Image } from "react-bootstrap";
 import { useQuery } from '@tanstack/react-query';
 import { getFooterData } from "@/services/home";
+import DOMPurify from 'dompurify';
 
 const FooterMega = memo(() => {
   const [animationClass, setAnimationClass] = useState("animate__fadeIn");
@@ -268,7 +269,7 @@ const FooterMega = memo(() => {
                 <Row className="align-items-center">
                   <Col md={6}>
                     {/* Dynamic footer menu links for bottom */}
-                    <ul className="menu list-inline p-0 d-flex flex-wrap align-items-center">
+                    {/* <ul className="menu list-inline p-0 d-flex flex-wrap align-items-center">
                       {data.groups.slice(0, 1).map((group) =>
                         group.footer_menu.slice(0, 4).map((link) => (
                           <li className="menu-item" key={link.id}>
@@ -278,14 +279,24 @@ const FooterMega = memo(() => {
                           </li>
                         ))
                       )}
-                    </ul>
+                    </ul> */}
                     
                     {/* Copyright Text */}
-                    <p className="font-size-14 text-nowrap">
-                    <p className="font-size-14 text-nowrap">© <span className="currentYear">{currentYear}</span> <span className="text-primary" dangerouslySetInnerHTML={{ __html: getCopyrightText() }} /></p></p>
-
                   </Col>
-                  <Col md={3}></Col>
+                    <Container className=" footer-border">
+                        <Row>
+                            <Col md={12} className="text-center" >
+                                <p className="mb-0 d-flex gap-2 justify-content-center">
+                                    © {currentYear} {data?.config?.site_credit && (
+                                        <span
+                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data?.config?.site_credit) }}
+                                        />
+                                    )}
+                                </p>
+                            </Col>
+                        </Row>
+                    </Container>
+                  {/* <Col md={3}></Col>
                   <Col md={3}>
                     <h6 className="font-size-14 pb-1">Download Streamit Apps</h6>
                     <div className="d-flex align-items-center">
@@ -304,7 +315,7 @@ const FooterMega = memo(() => {
                         />
                       </Link>
                     </div>
-                  </Col>
+                  </Col> */}
                 </Row>
               </div>
             </Container>

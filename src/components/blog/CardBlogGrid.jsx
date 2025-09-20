@@ -8,10 +8,10 @@ import { Calendar, Clock, MoveRight } from 'lucide-react';
 import {CustomTooltip} from '@/utils/CustomTooltip';
 const CardBlogGrid = memo((props) => {
     const { id, title, description, thumbnail, date, categories, content } = props;
-    const { formatDateDDMMYYYY } = useMyContext()
+    const { formatDateDDMMYYYY, createSlug } = useMyContext()
     const estimatedReadTime = Math.max(1, Math.ceil(content / 1000));
     return (
-        <Link href={`/blogs/${id}`} className='text-decoration-none'>
+        <Link href={`/blogs/${createSlug(title)}?key=${id}`} className='text-decoration-none'>
             <div className="iq-blog-box border-0">
                 <div className="iq-blog-image border-0 clearfix mb-1">
                     <Image
@@ -27,13 +27,6 @@ const CardBlogGrid = memo((props) => {
                         }}
                     />
                     <div className="iq-blog-meta d-flex position-absolute bottom-0 start-0 z-2 mx-2">
-                        {/* <ul className="list-inline mb-0">
-                            <li className="border-gredient-left">
-                                <Link href="/blogs/filter/date">
-                                    <span>{formatDateDDMMYYYY(props.date)}</span>
-                                </Link>
-                            </li>
-                        </ul> */}
                         {props.categories.map(cat =>
                             <ul key={cat.id} className="iq-blogtag list-inline">
                                 <li className="border-gredient-left">
@@ -45,11 +38,9 @@ const CardBlogGrid = memo((props) => {
                 </div>
                 <div className="iq-blog-detail px-2">
                     <div className="blog-title mb-2">
-                        <Link href={`/blogs/${props.id}`}>
                             <h5 className="line-count-1 blog-heading m-0">
                                 {props.title}
                             </h5>
-                        </Link>
                     </div>
                     {/* <p className='line-count-2'>{props.description}this is the decription portion</p> */}
                     <div className="mb-2">
@@ -65,7 +56,7 @@ const CardBlogGrid = memo((props) => {
                         </div>
                         <CustomBtn
                             buttonText="Read More"
-                            linkUrl={`/blogs/${props.id}`}
+                            linkUrl={`/blogs/${createSlug(props.title)}?id=${props.id}`}
                             size="sm"
                             icon={<MoveRight className="icon"  />}
                             className="btn-primary w-100 rounded-3 mt-2"
