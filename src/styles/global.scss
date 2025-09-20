@@ -4,8 +4,12 @@
 @import './profile.scss';
 @import './__input_custom.scss';
 @import './_flatpickr_custom.scss';
+@import './__glassmorphism.scss';
+@import './_react_select.scss';
 
-
+.blog-content p, li {
+  color: var(--bs-white) !important;
+}
 
 .text-small {
   font-size: 0.8rem !important;
@@ -232,67 +236,6 @@ fieldset:disabled .btn {
 }
 
 
-.card-glassmorphism {
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(40, 40, 40, 0.1) 0%, rgba(80, 80, 80, 0.25) 100%);
-  box-shadow:
-    0 16px 48px 0 rgba(0, 0, 0, 0.55), // deeper black shadow
-    0 4px 16px 0 rgba(0, 0, 0, 0.65), // secondary black shadow
-    0 2px 8px rgba(229, 9, 20, 0.18); // subtle red accent
-  backdrop-filter: blur(18px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
-  transition: box-shadow 0.3s, background 0.3s;
-}
-
-// Styled input fields for the glassmorphism card
-.card-glassmorphism__input {
-  // border-radius: .25rem !important;
-  background: rgba(20, 20, 20, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff !important;
-
-  // Style for placeholder text
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-  }
-
-  // Override Bootstrap's focus style to maintain the look
-  &:focus {
-    background: rgba(20, 20, 20, 0.85); // dark background on focus
-    border-color: var(--bs-primary);
-    color: #fff !important;
-    box-shadow: none;
-  }
-
-  &.is-valid,
-  &.validated {
-    border-color: var(--bs-success) !important;
-    background: rgba(20, 20, 20, 0.85);
-  }
-
-  &.is-invalid {
-    border-color: var(--bs-danger) !important;
-    background: rgba(20, 20, 20, 0.85);
-  }
-}
-
-.card-glassmorphism__input:-webkit-autofill,
-.card-glassmorphism__input:-webkit-autofill:focus,
-.card-glassmorphism__input:-webkit-autofill:hover,
-.card-glassmorphism__input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px rgba(20, 20, 20, 0.85) inset !important;
-  box-shadow: 0 0 0 1000px rgba(20, 20, 20, 0.85) inset !important;
-  -webkit-text-fill-color: #fff !important;
-  color: #fff !important;
-  transition: background-color 5000s ease-in-out 0s;
-}
-
-
-// this all are for auth component
-// Styled checkbox for the glassmorphism card
-.card-glassmorphism__checkbox {
-  accent-color: #e50914; // Netflix red for the checkmark
-}
 
 // Glowing, translucent button
 .btn-glow {

@@ -5,39 +5,40 @@ import parse from 'html-react-parser';
 // import MetaTags from './MetaTags';
 // import PostSkeleton from './skeletons/PostSkeletons';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
+import Image from 'next/image';
 
 const PostById = ({ post, categories, loading }) => {
-  const { isMobile } = useMyContext();
+  const { isMobile , formatDateDDMMYYYY } = useMyContext();
 
   const parseContentWithImages = (html) => {
-  const options = {
-    replace: (domNode) => {
-      if (domNode.name === 'img') {
-        return (
-          <div className="text-center my-3">
-            <img
-              src={domNode.attribs.src}
-              alt={domNode.attribs.alt || ''}
-              className="img-fluid"
-              style={{
-                maxWidth: '100%',
-                height: 'auto',
-                display: 'block',
-                margin: '0 auto',
-                maxHeight: 'none', // Remove any max-height restriction
-                borderRadius: '4px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-              }}
-            />
-          </div>
-        );
+    const options = {
+      replace: (domNode) => {
+        if (domNode.name === 'img') {
+          return (
+            <div className="text-center my-3">
+              <img
+                src={domNode.attribs.src}
+                alt={domNode.attribs.alt || ''}
+                className="img-fluid"
+                style={{
+                  maxWidth: '100%',
+                  height: 'auto',
+                  display: 'block',
+                  margin: '0 auto',
+                  maxHeight: 'none', // Remove any max-height restriction
+                  borderRadius: '4px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}
+              />
+            </div>
+          );
+        }
       }
-    }
+    };
+    return parse(html, options);
   };
-  return parse(html, options);
-};
 
-//   if (loading) return <PostSkeleton />;
+  //   if (loading) return <PostSkeleton />;
   if (loading) return <>loading</>;
 
   // Strip HTML to get content length
@@ -51,30 +52,26 @@ const PostById = ({ post, categories, loading }) => {
   const estimatedReadTime = Math.max(1, Math.ceil(getContentLength(post?.content) / 1000));
 
   return (
-    <Container className="my-5">
-      <Row className="justify-content-center">
-        <Col md={10} lg={8}>
+    <Container className="mt-5">
+      <Row>
+        <Col md={12} lg={12}>
           <Card className="border-0 shadow-sm">
+            {isMobile ? (
+              <h6>{post.title}</h6>
+            ) : (
+              <h1 className="mb-3 fw-bold text-justify">{post?.title}</h1>
+            )}
             {post?.thumbnail && (
-              <Card.Img
+              <Image
                 variant="top"
                 src={post?.thumbnail}
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  maxHeight: '500px',
-                  objectFit: 'contain',
-                  backgroundColor: '#f8f9fa',
-                }}
+                alt={post?.title}
+                width={1200}
+                height={628}
+                className="rounded-3"
               />
             )}
             <Card.Body className="p-4">
-              {isMobile ? (
-                <h5>{post.title}</h5>
-              ) : (
-                <h1 className="mb-3 fw-bold">{post?.title}</h1>
-              )}
-
               <div className="d-flex flex-wrap gap-2 mb-3">
                 {categories.map((cat) => (
                   <Badge key={cat?.id} bg="secondary">
@@ -87,11 +84,7 @@ const PostById = ({ post, categories, loading }) => {
               <div className="text-muted mb-4 d-flex align-items-center gap-3 flex-wrap">
                 <div>
                   <i className="bi bi-calendar me-1"></i>
-                  {new Date(post?.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
+                  {formatDateDDMMYYYY(post.created_at)}
                 </div>
                 {post?.user_data?.name && (
                   <div>

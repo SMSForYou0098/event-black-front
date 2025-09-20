@@ -440,6 +440,7 @@ export const MyContextProvider = ({ children }) => {
     setHideMobileMenu,
     showHeaderBookBtn,
     setShowHeaderBookBtn,
+    formatDateDDMMYYYY
   };
 
   return (

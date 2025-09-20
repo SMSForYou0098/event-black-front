@@ -128,7 +128,7 @@ const HeaderDefault = memo(() => {
 
   return (
     <Fragment>
-      <GlobalSearch show={searchShow} handleShow={handleToggleClick}/>
+      <GlobalSearch show={searchShow} handleShow={handleToggleClick} />
       <header className="header-center-home header-default header-sticky sticky">
         <Navbar
           expand="xl"
@@ -154,9 +154,8 @@ const HeaderDefault = memo(() => {
               </div>
               <Navbar
                 expand="xl"
-                className={`offcanvas mobile-offcanvas nav hover-nav horizontal-nav py-xl-0 ${
-                  show1 === true ? "show" : ""
-                } ${isMega ? "mega-menu-content" : ""}`}
+                className={`offcanvas mobile-offcanvas nav hover-nav horizontal-nav py-xl-0 ${show1 === true ? "show" : ""
+                  } ${isMega ? "mega-menu-content" : ""}`}
                 style={{
                   visibility: `${show1 === true ? "visible" : "hidden"}`,
                 }}
@@ -203,6 +202,17 @@ const HeaderDefault = memo(() => {
                         </Nav.Item>
                       );
                     })}
+                    <Nav.Item className="nav-item">
+                      <Link href="/blogs" passHref legacyBehavior>
+                        <Nav.Link
+                          className={`fw-bold ${location.asPath === "/blogs" ? "active" : ""
+                            }`}
+                          onClick={() => handleNavigation("/blogs")}
+                        >
+                          Blogs
+                        </Nav.Link>
+                      </Link>
+                    </Nav.Item>
                   </ul>
                 </Container>
               </Navbar>
@@ -222,9 +232,8 @@ const HeaderDefault = memo(() => {
                   </span>
                 </Button>
                 <div
-                  className={`fw-bold navbar-collapse ${
-                    show === true ? "collapse show" : "collapse"
-                  }`}
+                  className={`fw-bold navbar-collapse ${show === true ? "collapse show" : "collapse"
+                    }`}
                   id="navbarSupportedContent"
                 >
                   <ul className="navbar-nav align-items-center ms-auto mb-2 mb-xl-0">
@@ -281,11 +290,11 @@ const HeaderDefault = memo(() => {
                         >
                           <li className="user-info d-flex align-items-center gap-3 mb-3">
                             <AvatarImage
-                  src={UserData.photo}
-                  alt="Profile"
-                  name={UserData.name}
-                  size={43}
-                />
+                              src={UserData.photo}
+                              alt="Profile"
+                              name={UserData.name}
+                              size={43}
+                            />
                             <span className="font-size-14 fw-500 text-capitalize text-white">
                               {UserData?.name}
                             </span>

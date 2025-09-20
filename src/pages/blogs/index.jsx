@@ -3,11 +3,10 @@ import { Container, Row, Col, Spinner, Alert } from "react-bootstrap";
 import { useQuery } from "@tanstack/react-query";
 
 // components - grid card used here
-import CardBlogGrid from "@/components/cards/CardBlogGrid";
 import DetailMetaList from "../../components/blog/DetailMetaList";
 import BlogFilterControls from "../../components/blog/BlogFilterControls";
 import PaginationComponent from "../../components/blog/PaginationComponent";
-
+import CardBlogGrid from "../../components/blog/CardBlogGrid";
 // custom hooks / api
 import { useBreadcrumb } from "@/utilities/usePage";
 import { publicApi } from "@/lib/axiosInterceptor";
@@ -149,11 +148,10 @@ const BLogs = memo(() => {
   // Map categories safely to strings for each blog
   const normalizedBlogs = paginatedBlogs.map((b) => ({
     ...b,
-    categoryTitles: (b.categories || []).map((c) => c?.title ?? c?.label ?? String(c)),
+    //categoryTitles: (b.categories || []).map((c) => c?.title ?? c?.label ?? String(c)),
   }));
 
-  // 3 columns: use Bootstrap col-lg-4 (12 / 3 = 4)
-  const colSize = 4;
+
 
   return (
     <Fragment>
@@ -174,7 +172,7 @@ const BLogs = memo(() => {
           />
 
           <Row>
-            <Col lg={8} sm={12}>
+            <Col lg={12} sm={12}>
               {/* Blog Grid Area with Isolated Loading State */}
               <div className="position-relative">
                 {/* Loading Overlay - Only covers the blog grid area */}
@@ -196,7 +194,7 @@ const BLogs = memo(() => {
 
                 {/* Error message */}
                 {error && (
-                  <Alert variant="danger" className="mb-4">
+                  <Alert variant="danger" >
                     {error}
                   </Alert>
                 )}
@@ -205,21 +203,22 @@ const BLogs = memo(() => {
                 <Row>
                   {!isLoading && normalizedBlogs.length > 0 ? (
                     normalizedBlogs.map((item, idx) => (
-                      <Col lg={colSize} md={6} sm={12} key={item.id ?? `blog-${idx}`} className="mb-4">
+                      <Col lg={4} md={6} sm={12} key={item.id ?? `blog-${idx}`}>
                         <CardBlogGrid
                           title={item.title}
+                          content={item.content_length}
                           thumbnail={item.thumbnail}
                           description={item.description || item.excerpt || ""}
                           username={item.user_data?.name || item.username || "Unknown"}
                           date={item.created_at}
-                          categories={item.categoryTitles}
+                          categories={item.categories}
                           id={item?.id}
                         />
                       </Col>
                     ))
                   ) : !isLoading ? (
                     <Col>
-                      <Alert variant="info">No blogs found.</Alert>
+                      <Alert variant="warning" className="text-center">No blogs found.</Alert>
                     </Col>
                   ) : null}
                 </Row>
@@ -239,9 +238,9 @@ const BLogs = memo(() => {
             </Col>
 
             {/* Sidebar - Always visible */}
-            <Col lg={4} sm={12}>
+            {/* <Col lg={4} sm={12}>
               <DetailMetaList />
-            </Col>
+            </Col> */}
           </Row>
         </Container>
       </div>

@@ -1,6 +1,6 @@
 .iq-blog-box {
-  margin-bottom: 3.125em;
-  padding-bottom: 2.5em;
+  // margin-bottom: 3.125em;
+  // padding-bottom: 2.5em;
   border: solid;
   border-width: 0 0 0.063em;
   border-image-source: linear-gradient(270deg, rgba(38, 37, 37, 0) -1.25%, #6c757d 43.69%, rgba(38, 37, 37, 0) 99.08%);
@@ -11,7 +11,21 @@
     text-align: center;
     display: inline-block;
     width: 100%;
-    margin-bottom: 1.875em;
+    // margin-bottom: 1rem;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 90%;
+      background: linear-gradient(to top,
+          rgba(0, 0, 0, 0.99) 0%,
+          rgba(0, 0, 0, 0.6) 50%,
+          rgba(0, 0, 0, 0.4) 70%,
+          rgba(0, 0, 0, 0) 100%);
+      // border-radius: 0 0 0.5rem 0.5rem;
+    }
   }
 
   .iq-blog-meta {

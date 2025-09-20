@@ -1,6 +1,8 @@
+import { Search } from "lucide-react";
 import { memo } from "react";
-import {  Row, Col,   InputGroup, Form,  } from "react-bootstrap";
+import { Row, Col, InputGroup, Form, } from "react-bootstrap";
 import Select from 'react-select';
+import { InputWithIcon } from "@/utils/CustomComponent";
 
 // Blog Filter Controls Component
 const BlogFilterControls = memo(({
@@ -17,24 +19,18 @@ const BlogFilterControls = memo(({
   return (
     <Row className="g-3 align-items-center mb-4">
       <Col md={4}>
-        <InputGroup className="shadow-sm rounded-3 overflow-hidden">
-          <Form.Control
-            placeholder="Search by title..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="border-0 py-2 px-3"
-          />
-          <InputGroup.Text
-            className="bg-white border-0"
-          >
-            {/* <i className="bi bi-search"></i> */}
-          </InputGroup.Text>
-        </InputGroup>
+        <InputWithIcon
+          icon={<Search className="icon" size={18} />}
+          setData={setSearchTerm}
+          value={searchTerm}
+          placeholder="Search by title..."
+        />
       </Col>
 
       <Col md={4}>
         <Select
           isMulti
+          classNamePrefix="react-select"
           options={categoryOptions}
           placeholder="Filter by categories"
           value={selectedCategories}
@@ -45,6 +41,7 @@ const BlogFilterControls = memo(({
 
       <Col md={4}>
         <Select
+          classNamePrefix="react-select"
           options={sortOptions}
           value={sortOrder}
           onChange={setSortOrder}

@@ -3,10 +3,11 @@ import { useMyContext } from "@/Context/MyContextProvider"; //done
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { Container, Alert } from 'react-bootstrap';
+import { Container, Alert, Col, Row } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import PostById from '../../../components/blog/PostPage';
 import CommentsSection from '../../../components/blog/comments/CommentSection';
+import DetailMetaList from '../../../components/blog/DetailMetaList';
 // import RelatedPosts from '../components/RelatedPosts';
 
 const PostPage = () => {
@@ -49,11 +50,11 @@ const PostPage = () => {
     queryFn: async () => {
       const headers = { Authorization: `Bearer ${authToken}` };
       const response = await axios.get(`${api}blog-show/${id}`, { headers });
-      
+
       if (!response.data?.status) {
         throw new Error(response.data?.message || 'Invalid post data format.');
       }
-      
+
       return response.data;
     },
     enabled: !!id,
@@ -78,7 +79,7 @@ const PostPage = () => {
     queryFn: async () => {
       const headers = { Authorization: `Bearer ${authToken}` };
       const response = await axios.get(`${api}blog-comment-show/${id}`, { headers });
-      
+
       if (response.data?.status) {
         const commentsData = response.data.data || [];
         return transformComments(commentsData);
@@ -109,18 +110,25 @@ const PostPage = () => {
   }
 
   return (
-    <div style={{ padding: '1rem' }}>
-      <PostById 
-        post={postData?.data} 
-        categories={postData?.categories || []} 
-        loading={postLoading} 
-      />
-      <CommentsSection 
-        comments={commentsData || []} 
-        id={id} 
-        refreshComments={refetchComments}
-        loading={commentsLoading}
-      />
+    <div className='pt-5'>
+      <Row>
+          <Col lg={12} sm={12}>
+          <PostById
+            post={postData?.data}
+            categories={postData?.categories || []}
+            loading={postLoading}
+          />
+          <CommentsSection
+            comments={commentsData || []}
+            id={id}
+            refreshComments={refetchComments}
+            loading={commentsLoading}
+          />
+          </Col>
+      {/* <Col lg={3} sm={12}>
+        <DetailMetaList />
+      </Col> */}
+      </Row>
       {/* <RelatedPosts 
         posts={relatedPostsData || []} 
         loading={relatedLoading} 

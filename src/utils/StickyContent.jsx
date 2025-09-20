@@ -19,7 +19,7 @@ const StickyContent = () => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (missedCallRef.current && !missedCallRef.current.contains(event.target)) {
-        toggleMissedCallNumber();
+        setShowMissedCallNumber(false);
       }
     };
 

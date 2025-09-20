@@ -16,7 +16,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
   const [commentList, setCommentList] = useState(comments);
   const [replyTo, setReplyTo] = useState(null);
   const [expandedReplies, setExpandedReplies] = useState({});
-  const { api, authToken, UserData } = useMyContext();
+  const { api, authToken, UserData ,ErrorAlert } = useMyContext();
 
   useEffect(() => {
     setCommentList(comments);
@@ -24,7 +24,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
 
   const handleOpenComment = () => {
     if (commentList.length >= MAX_COMMENTS_LIMIT) {
-      Swal.fire('Limit Reached', `Maximum of ${MAX_COMMENTS_LIMIT} comments allowed.`, 'info');
+      ErrorAlert('Limit Reached', `Maximum of ${MAX_COMMENTS_LIMIT} comments allowed.`, 'info');
       return;
     }
     setReplyTo(null);
@@ -32,11 +32,11 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
 
   const handleReply = (commentId, depth) => {
     if (depth >= MAX_COMMENT_DEPTH) {
-      Swal.fire('Cannot Reply', 'You cannot reply to a reply.', 'info');
+      ErrorAlert('Cannot Reply', 'You cannot reply to a reply.', 'info');
       return;
     }
     if (commentList.length >= MAX_COMMENTS_LIMIT) {
-      Swal.fire('Limit Reached', `Maximum of ${MAX_COMMENTS_LIMIT} comments allowed.`, 'info');
+      ErrorAlert('Limit Reached', `Maximum of ${MAX_COMMENTS_LIMIT} comments allowed.`, 'info');
       return;
     }
     setReplyTo(commentId);
@@ -73,7 +73,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
       );
     } catch (error) {
       console.error('Failed to toggle like:', error);
-      Swal.fire('Error', 'Could not update like status.', 'error');
+      ErrorAlert('Error', 'Could not update like status.', 'error');
     }
   };
 
@@ -202,23 +202,10 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
   if (loading) return <p>loading</p>;
 
   return (
-    <Container className="mt-3 px-0" fluid>
+    <Container fluid className="mt-3 px-0">
       <Row className="justify-content-center">
         <Col xs={12} md={10} lg={8}>
           <div className="px-3">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h6 className="mb-0 fw-bold">Comments ({commentList?.length})</h6>
-              {!replyTo && commentList.length < MAX_COMMENTS_LIMIT && (
-                <Button
-                  variant="link"
-                  size="sm"
-                  className="text-primary p-0"
-                  onClick={handleOpenComment}
-                >
-                  Add Comment
-                </Button>
-              )}
-            </div>
 
             {replyTo === null && (
               <CommentBox
@@ -241,7 +228,6 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
               </div>
             )}
           </div>
-
           {commentList.length >= MAX_COMMENTS_LIMIT && (
             <div className="alert alert-info mt-3 mx-3">
               This post has reached the maximum comment limit ({MAX_COMMENTS_LIMIT}).

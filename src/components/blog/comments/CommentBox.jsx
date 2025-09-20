@@ -48,7 +48,7 @@ const CommentBox = ({ id, parentId = null, onCommentAdded, onCancel }) => {
         <Form.Group className="mb-2">
           <Form.Control
             as="textarea"
-            rows={3}
+            rows={2}
             placeholder={parentId ? 'Write your reply...' : 'Add a comment...'}
             value={formData.text}
             onChange={(e) => setFormData({ text: e.target.value })}
