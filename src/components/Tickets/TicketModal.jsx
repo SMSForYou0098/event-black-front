@@ -15,7 +15,6 @@ const TicketModal = (props) => {
     const { convertTo12HourFormat, isMobile, api, authToken } = useMyContext()
     const { showPrintButton, showTicketDetails, show, handleCloseModal, ticketType, ticketData, formatDateRange, isAccreditation, isIdCard, card_url, bgRequired, eventId } = props;
     const [savedLayout, setSavedLayout] = useState({});
-
     const [userPhoto, setUserPhoto] = useState();
     const [idCardBg, setIdCardBg] = useState();
 

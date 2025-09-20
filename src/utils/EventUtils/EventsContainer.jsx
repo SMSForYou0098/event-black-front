@@ -113,7 +113,6 @@ const EventsContainer = memo(({
       </div>
     );
   }
-
   return (
 <Fragment>
 <SectionSlider title={title} list={eventsList} className={className}>
@@ -130,7 +129,7 @@ const EventsContainer = memo(({
               image={data.thumbnail}
               countValue={finalIndex + 1} // ascending order 1,2,3...
               link={`/events/${createSlug(data?.city)}/${createSlug(
-                data?.user?.organisation
+                data?.organisation
               )}/${createSlug(data?.name)}/${data?.event_key}`}
             />
           ) : (
@@ -140,7 +139,7 @@ const EventsContainer = memo(({
               movieTime={data.date_range}
               watchlistLink="/play-list"
               link={`/events/${createSlug(data?.city)}/${createSlug(
-                data?.user?.organisation
+                data?.organisation
               )}/${createSlug(data?.name)}/${data?.event_key}`}
               lowest_ticket_price={data.lowest_ticket_price}
               lowest_sale_price={data.lowest_sale_price}

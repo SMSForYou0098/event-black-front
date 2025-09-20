@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Image, Button, OverlayTrigger, Popover } from 'react-bootstrap';
+import { Image, Button, Dropdown } from 'react-bootstrap';
 import { 
   Film, 
   Music, 
@@ -10,7 +10,6 @@ import {
   XCircle, 
   Download, 
   Share2, 
-  Star, 
   MapPin, 
   ChevronDown, 
   IndianRupee,
@@ -45,54 +44,8 @@ const TypeIcon = React.memo(({ type, size = 16 }) => {
 
 TypeIcon.displayName = 'TypeIcon';
 
-// Memoized ticket popover component
-const TicketPopover = React.memo(({ 
-  booking, 
-  ticketType, 
-  onTicketPreview, 
-  onClosePopover 
-}) => (
-  <Popover id="ticket-popover">
-    <Popover.Body className='p-2'>
-      <ul className="list-unstyled mb-0">
-        <li>
-          <Button
-            variant="link"
-            className="text-small rounded-3 w-100 text-start py-1 my-1 text-capitalize text-light text-decoration-none bg-primary"
-            disabled={ticketType?.id === booking.id}
-            onClick={() => {
-              onTicketPreview(booking, 'combine', booking?.id);
-              onClosePopover();
-            }}
-          >
-            Combine
-          </Button>
-        </li>
-        {booking?.bookings && (
-          <li>
-            <Button
-              variant="link"
-              className="text-small rounded-3 w-100 text-start py-1 my-1 text-capitalize text-light text-decoration-none bg-primary"
-              disabled={ticketType?.id === booking.id}
-              onClick={() => {
-                onTicketPreview(booking, 'individual', booking?.id);
-                onClosePopover();
-              }}
-            >
-              Individual
-            </Button>
-          </li>
-        )}
-      </ul>
-    </Popover.Body>
-  </Popover>
-));
-
-TicketPopover.displayName = 'TicketPopover';
-
 const BookingCard = React.memo(({ booking, compact = false }) => {
   const [ticketData, setTicketData] = useState([]);
-  const [showPopover, setShowPopover] = useState(false);
   const [ticketType, setTicketType] = useState({ id: '', type: '' });
   const [show, setShow] = useState(false);
 
@@ -122,14 +75,6 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
     setTicketData([]);
     setTicketType({ id: '', type: '' });
     setShow(false);
-  }, []);
-
-  const handleClosePopover = useCallback(() => {
-    setShowPopover(false);
-  }, []);
-
-  const togglePopover = useCallback(() => {
-    setShowPopover(prev => !prev);
   }, []);
 
   // Memoized image dimensions
@@ -192,31 +137,49 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
         
         <div className="btn-secttion d-flex">
           <div className="d-flex flex-row-reverse flex-sm-row gap-2 justify-content-end mt-2">
-            <OverlayTrigger
-              trigger="click"
-              placement="bottom-end"
-              show={showPopover}
-              onToggle={togglePopover}
-              overlay={
-                <TicketPopover 
-                  booking={booking}
-                  ticketType={ticketType}
-                  onTicketPreview={handleTicketPreview}
-                  onClosePopover={handleClosePopover}
-                />
-              }
-              rootClose
-            >
-              <span>
-                <CustomBtn
-                  buttonText="Download E-Ticket"
-                  icon={<Download size={14} className="me-1" />}
-                  className="mb-3 btn-sm"
-                  variant="primary"
-                />
-              </span>
-            </OverlayTrigger>
-            
+            {/* Custom Button with Dropdown */}
+            <Dropdown>
+              <Dropdown.Toggle
+                as={Button}
+                variant="primary"
+                className="iq-button fw-bold rounded-3 mb-3 d-flex align-items-center gap-2"
+                style={{ 
+                  background: 'var(--bs-primary)', 
+                  border: 'none',
+                  padding: '0.5rem 1rem'
+                }}
+              >
+                <span className="d-flex gap-2 align-items-center justify-content-center text-small">
+                  Generate E-Ticket
+                  {/* <ChevronDown size={14} /> */}
+                </span>
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end">
+                <li>
+                  <Dropdown.Item
+                    disabled={ticketType && ticketType.id === booking.id}
+                    onClick={() => handleTicketPreview(booking, 'combine', booking?.id)}
+                  >
+                    Combine
+                  </Dropdown.Item>
+                </li>
+
+                {booking?.bookings && (
+                  <>
+                    <Dropdown.Divider />
+                    <li>
+                      <Dropdown.Item
+                        disabled={ticketType && ticketType.id === booking.id}
+                        onClick={() => handleTicketPreview(booking, 'individual', booking?.id)}
+                      >
+                        Individual
+                      </Dropdown.Item>
+                    </li>
+                  </>
+                )}
+              </Dropdown.Menu>
+            </Dropdown>
+
             <CustomBtn
               buttonText="Share"
               icon={<Share2 size={14} className="me-1" />}
