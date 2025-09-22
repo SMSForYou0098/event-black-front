@@ -590,6 +590,7 @@ const handleApplyCoupon = () => {
               BookingMobileFooter={BookingMobileFooter}
               CustomBtn={CustomBtn}
               Link={Link}
+              isLoading={isLoading}
             />
 
           </Col>

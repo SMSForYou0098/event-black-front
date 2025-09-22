@@ -9,7 +9,8 @@ export const OrderReviewSection = ({
   BookingMobileFooter,
   CustomBtn,
   Link,
-  orderData
+  orderData,
+  isLoading
 }) => {
   const eventName = validatedData?.event?.name || "Event Name";
   const ticketName = validatedData?.ticket?.name || "Ticket Name";
@@ -61,6 +62,7 @@ export const OrderReviewSection = ({
                 disabled={!validatedData?.data}
                 HandleClick={handleProcess}
                 buttonText={"Checkout"}
+                loading={isLoading}
               />
             </div>
           )}

@@ -28,6 +28,7 @@ const CartPage = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [path, setPath] = useState("");
   const router = useRouter();
+  const [isChecking, setIsChecking] = useState(false)
 
   const { data: event, isLoading, isError, error } = useEventData(event_key);
     useHeaderSimple({
@@ -47,6 +48,7 @@ const CartPage = () => {
   // console.log(event)
 
   const checkTicketStatus = async () => {
+    setIsChecking(true)
         try {
           const response = await api.get(`/user-ticket-info/${UserData.id}/${selectedTickets.itemId}`)
             if (!response.data.status) {
@@ -58,6 +60,9 @@ const CartPage = () => {
             console.error('Error checking ticket status:', error);
             ErrorAlert( error ||'Unable to check ticket status. Please try again.');
             return false;
+        }
+        finally{
+          setIsChecking(false)
         }
     };
   const handleProcess = async() => {
@@ -158,28 +163,28 @@ const CartPage = () => {
   // Early return if no items
 
 
-  // if (isLoading) {
-  //   return <BookingSummarySkeleton />;
-  // }
-
-
-  if (cartItems.length === 0) {
-    return (
-      <div className="cart-page section-padding">
-        <Container>
-          <div className="text-center py-5">
-            <h3>Your cart is empty</h3>
-            <p>Add some items to get started!</p>
-            <CustomButton
-              buttonTitle="Continue Shopping"
-              link="/merchandise"
-              linkButton={false}
-            />
-          </div>
-        </Container>
-      </div>
-    );
+  if (isLoading) {
+    return <BookingSummarySkeleton type={'cart'}/>;
   }
+
+
+  // if (cartItems.length === 0) {
+  //   return (
+  //     <div className="cart-page section-padding">
+  //       <Container>
+  //         <div className="text-center py-5">
+  //           <h3>Your cart is empty</h3>
+  //           <p>Add some items to get started!</p>
+  //           <CustomButton
+  //             buttonTitle="Continue Shopping"
+  //             link="/merchandise"
+  //             linkButton={false}
+  //           />
+  //         </div>
+  //       </Container>
+  //     </div>
+  //   );
+  // }
 
 
 
@@ -335,6 +340,7 @@ const CartPage = () => {
                     buttonText={<span>{buttonText}</span>}
                     className="cart-proceed-btn mt-2"
                     style={{ width: "100%" }}
+                    loading={isChecking}
                   />
                 )}
               </div>

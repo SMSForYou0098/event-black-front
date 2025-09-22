@@ -1,9 +1,12 @@
 import React from 'react';
-import { Container, Row, Col, Card, Button, Placeholder } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Placeholder, Table } from 'react-bootstrap';
 import { Calendar, Clock, MapPin, User, Mail, Phone, CreditCard } from 'lucide-react';
 import { CUSTOM_SECONDORY } from '../consts';
+import { useMyContext } from '@/Context/MyContextProvider';
 
-const BookingSummarySkeleton = () => {
+
+const BookingSummarySkeleton = ({type, itemCount=3}) => {
+    const {isMobile} = useMyContext();
     const sectionIconStyle = {
         color: CUSTOM_SECONDORY,
         size: 20,
@@ -18,6 +21,65 @@ const BookingSummarySkeleton = () => {
                 <Row>
                     {/* Left Column */}
                     <Col lg={6} className="mb-4">
+                    {
+                        type ==='cart' ? 
+                        <Table responsive className="cart-table rounded-4">
+                        <thead className="border-bottom">
+                          <tr>
+                            <th scope="col">
+                              <Placeholder as="span" animation="glow">
+                                <Placeholder xs={4} style={{ height: "24px" }} />
+                              </Placeholder>
+                            </th>
+                            <th scope="col" className={isMobile ? "text-end" : ""}>
+                              <Placeholder as="span" animation="glow">
+                                <Placeholder xs={5} style={{ height: "24px" }} />
+                              </Placeholder>
+                            </th>
+                            {!isMobile && (
+                              <th scope="col">
+                                <Placeholder as="span" animation="glow">
+                                  <Placeholder xs={3} style={{ height: "24px" }} />
+                                </Placeholder>
+                              </th>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Array.from({ length: itemCount }).map((_, index) => (
+                            <tr key={index}>
+                              <td>
+                                <div className="d-flex flex-column gap-2">
+                                  <Placeholder as="span" animation="glow">
+                                    <Placeholder xs={6} style={{ height: "22px" }} />
+                                  </Placeholder>
+                                  <Placeholder as="span" animation="glow">
+                                    <Placeholder xs={4} style={{ height: "18px" }} />
+                                  </Placeholder>
+                                </div>
+                              </td>
+                              <td className={isMobile ? "text-end" : ""}>
+                                <div className="d-flex justify-content-end">
+                                  <Placeholder as="div" animation="glow">
+                                    <Placeholder xs={8} style={{ height: "40px", borderRadius: "20px" }} />
+                                  </Placeholder>
+                                </div>
+                              </td>
+                              {!isMobile && (
+                                <td>
+                                  <Placeholder as="span" animation="glow">
+                                    <Placeholder xs={3} style={{ height: "22px" }} />
+                                  </Placeholder>
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+
+                      : 
+                      <>
+                      
                         {/* Event Details Card Skeleton */}
                         <Card className="custom-dark-bg mb-4">
                             <Card.Body className="p-4">
@@ -119,6 +181,8 @@ const BookingSummarySkeleton = () => {
                                 </div>
                             </Card.Body>
                         </Card>
+                      </>
+                    }
                     </Col>
 
                     {/* Right Column */}

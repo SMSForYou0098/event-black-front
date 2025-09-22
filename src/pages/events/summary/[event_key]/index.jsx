@@ -228,11 +228,12 @@ const BookingSummary = () => {
                                 </div>
                             </Card.Body>
                         </Card> */}
-                        {console.log('event',event)}
+                        {
+                            attendees.length !==0 && 
                         <Button variant="primary" onClick={handleOpen}>
         View Attendees
       </Button>
-                            {console.log('atte',attendees)}
+                        }
       {/* Pass boolean state and close handler plus attendees */}
       <AttendeesOffcanvas
         show={showAttendees}
