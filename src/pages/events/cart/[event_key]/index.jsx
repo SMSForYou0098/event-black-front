@@ -16,6 +16,7 @@ import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 import { Calendar, Pin, Tags, Ticket, Users } from "lucide-react";
 import { useHeaderSimple } from "@/context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
+import Timer from "../../../../utils/BookingUtils/Timer";
 const CartPage = () => {
   const { event_key } = useRouter().query;
 
@@ -272,7 +273,6 @@ const CartPage = () => {
           id={1}
           showAttendee={categoryData?.categoryData?.attendy_required === 1}
         />
-
         <Row>
           {/* Cart Items */}
           <Col lg="8">

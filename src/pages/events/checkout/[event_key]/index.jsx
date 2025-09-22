@@ -18,6 +18,7 @@ import paymentLoader from "../../../../assets/event/stock/payment_processing.gif
 import { checkForDuplicateAttendees, sanitizeInput, validateAttendeeData } from "../../../../components/CustomComponents/AttendeeStroreUtils";
 import Swal from "sweetalert2";
 import LoaderComp from "../../../../utils/LoaderComp";
+import Timer from "../../../../utils/BookingUtils/Timer";
 const CartPage = () => {
   const router = useRouter();
   const { isMobile, ErrorAlert, successAlert, UserData } = useMyContext();
@@ -562,6 +563,7 @@ const handleApplyCoupon = () => {
           id={2}
           showAttendee={checkoutData?.event?.category?.attendy_required === 1}
         />
+        <Timer timestamp={data?.timestamp} />
         <Row>
           <Col lg="8" md="5">
             <CheckoutSummarySection

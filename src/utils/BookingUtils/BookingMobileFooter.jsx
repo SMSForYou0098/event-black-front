@@ -7,7 +7,7 @@ const BookingMobileFooter = ({ handleClick , selectedTickets }) => (
     middle={<span style={{ fontSize: "0.9rem" }}>{selectedTickets?.newQuantity || 0} Tickets Selected</span>}
     right={
       <Button
-        disabled={!selectedTickets?.itemId}
+        disabled={parseInt(selectedTickets?.newQuantity) === 0}
         onClick={handleClick}
         className="btn-lg d-flex align-items-center justify-content-center gap-3"
       >

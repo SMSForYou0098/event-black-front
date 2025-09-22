@@ -8,6 +8,7 @@ import EventCrew from "./EventCrew";
 import { useHeaderSimple } from "@/context/HeaderContext";
 import {EventSEO} from "../SEO/index";
 import { getEventSSR, withCache } from "../../../utils/seo/ssr";
+import ImageGallery from "./ImageGallery";
 const EventDetailPage = memo(({ eventData, event_key }) => {
   // --- Data Processing ---
   const [startDate, endDate] = eventData?.date_range?.split(",") || [];
@@ -33,7 +34,7 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
           
           {/* Add EventCrew component here */}
           <EventCrew crews={eventData?.crews} />
-          
+          <ImageGallery/>
           {/* --- Tabs Section --- */}
           <EventTabs
             eventData={eventData}

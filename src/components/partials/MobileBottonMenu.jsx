@@ -1,6 +1,3 @@
-// MobileBottomMenu.tsx
-"use client";
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { HomeIcon, LayoutDashboard, MenuIcon, TicketIcon, UserIcon } from "lucide-react";

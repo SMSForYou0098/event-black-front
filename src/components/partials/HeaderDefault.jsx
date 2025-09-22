@@ -150,7 +150,9 @@ const HeaderDefault = memo(() => {
                   </button>
                 </div>
                 {/* <Logo /> */}
-                <Image height={65} src={systemSetting?.auth_logo || ""} />
+                <Link href={"/"}>
+                  <Image height={65} src={systemSetting?.auth_logo || ""} />
+                </Link> 
               </div>
               <Navbar
                 expand="xl"
@@ -158,6 +160,8 @@ const HeaderDefault = memo(() => {
                   } ${isMega ? "mega-menu-content" : ""}`}
                 style={{
                   visibility: `${show1 === true ? "visible" : "hidden"}`,
+                  //backdropFilter: 'blur(20px)',
+                  background: '#000000f2',
                 }}
                 id="navbar_main"
               >

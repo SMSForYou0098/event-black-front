@@ -3,12 +3,14 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   checkoutData: {}, // { key: { data, ticket, edata, timestamp } }
+  timestamp: null,
 };
 
 const checkoutDataSlice = createSlice({
   name: 'checkoutData',
   initialState,
   reducers: {
+    
     storeCheckoutData: (state, action) => {
       const { key, data } = action.payload;
       state.checkoutData[key] = {

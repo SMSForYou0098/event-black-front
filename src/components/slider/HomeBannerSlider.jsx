@@ -27,6 +27,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { getBanners } from "@/services/home";
 import BannerSkeleton from "../../utils/SkeletonUtils/BannerSkeleton"
+import CustomBtn from "@/utils/CustomBtn";
+import { useRouter } from "next/router";
 const HomeBannerSlider = memo(() => {
   const themeSchemeDirection = useSelector(theme_scheme_direction);
   const [toggler, setToggler] = useState(false);
@@ -70,6 +72,7 @@ const HomeBannerSlider = memo(() => {
     className: "swiper-banner-container"
   };
 
+  const router = useRouter();
   return (
     <Fragment>
       <section className="banner-container section-padding-bottom pb-0">
@@ -81,16 +84,7 @@ const HomeBannerSlider = memo(() => {
             >
               {displayedBanners.map((banner, index) => (
                 <SwiperSlide key={index}>
-                    <div className="movie-banner-image">
-                        {banner.url && (
-                          <Image 
-                            src={banner.url} 
-                            alt="movie-banner-image" 
-                            layout="fill" 
-                            objectFit="cover" 
-                          />
-                        )}
-                    </div>
+                    <div className="movie-banner-image" style={{backgroundImage : `url(${banner.url})` , backgroundSize: 'cover', backgroundPosition: 'center', height: '450px', position: 'relative' }}>
                      <div className="shows-content h-100">
                         <Row className="row align-items-center h-100">
                           <Col lg="7" md="12">
@@ -125,19 +119,11 @@ const HomeBannerSlider = memo(() => {
                                 Discover our latest collection of exclusive shows and movies. Available now for streaming.
                               </p>
                             </div>
-                            <div
-                              className="iq-button"
-                              data-animation-in="fadeInUp"
-                              data-delay-in="1.2"
-                            >
-                              <Link
-                                href={banner.redirectUrl || `/events/category/${createSlug('Garba Night')}` ||'/tv-shows/detail'}
-                                className="btn text-uppercase position-relative"
-                              >
-                                <span className="button-text">Explore Now</span>
-                                <i className="fa-solid fa-play"></i>
-                              </Link>
-                            </div>
+                            <CustomBtn 
+                              buttonText="Explore Now"
+                              HandleCick={() => {router.push(banner.redirectUrl || `/events/category/${createSlug('Garba Night')}` ||'/tv-shows/detail')}}
+                              customClass="mt-4 btn-sm"
+                            />
                           </Col>
                           <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
                             <div onClick={() => setToggler(!toggler)} className="video-open playbtn" style={{cursor: 'pointer'}}>
@@ -180,6 +166,7 @@ const HomeBannerSlider = memo(() => {
                           </Col>
                         </Row>
                       </div>
+                    </div>
                 </SwiperSlide>
               ))}
               <div className="swiper-banner-button-next">

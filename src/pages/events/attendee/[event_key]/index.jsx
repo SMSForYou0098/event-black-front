@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { TicketDataSummary } from "../../../../components/events/CheckoutComps/checkout_utils";
 import CustomBtn from "../../../../utils/CustomBtn";
 import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
+import Timer from "../../../../utils/BookingUtils/Timer";
 
 const AttendeePage = () => {
   const router = useRouter();
@@ -22,9 +23,6 @@ const AttendeePage = () => {
   const dispatch = useDispatch();
   const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
 
-  // --- NEW: initialize local attendeeList from redux `data` (if present).
-  // This is defensive: supports both `data.attendees` (new slice shape)
-  // and `data.data.attendees` (older shape). Only sets when local list is empty.
   useEffect(() => {
     if (!data) return;
 
@@ -124,13 +122,14 @@ const AttendeePage = () => {
       0;
     return q;
   }, [data]);
-
+//  console.log(k)
   return (
     <div className="mt-5 pt-5">
       <Container>
         <CartSteps id={2} showAttendee={true} />
+         <Timer timestamp={data?.timestamp}/>
         <Row className="m-0 p-0">
-          <Col lg="8">
+          <Col lg="8" className="px-0 px-sm-2">
             <DynamicAttendeeForm
               loadingCategory={loadingCategory}
               requiredFields={requiredFieldNames}
@@ -163,7 +162,7 @@ const AttendeePage = () => {
                 selectedTickets={data?.data}
               />
             ) : (
-              <div className="d-flex align-items-center justify-content-between gap-3">
+              <div className="d-flex align-items-center justify-content-between gap-3 mb-sm-5 mb-0">
                 <CustomBtn
                   className="custom-dark-content-bg border-secondary"
                   HandleClick={() => window.history.back()}

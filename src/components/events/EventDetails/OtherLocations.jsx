@@ -4,6 +4,8 @@ import { MapPin } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
 import { CustomHeader } from '../../../utils/ModalUtils/CustomModalHeader';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { FaCity } from 'react-icons/fa';
 
 const OtherLocations = ({ eventData }) => {
     const [showModal, setShowModal] = useState(false);
@@ -24,7 +26,7 @@ const OtherLocations = ({ eventData }) => {
         {
             id: 3,
             event_name: "Rock Music Festival Bangalore",
-            timing: "5:30 PM - 10:30 PM", 
+            timing: "5:30 PM - 10:30 PM",
             city: "Bangalore",
             state: "Karnataka",
             address: "Palace Grounds, Jayamahal Extension",
@@ -36,7 +38,7 @@ const OtherLocations = ({ eventData }) => {
             event_name: "Rock Music Festival Delhi",
             timing: "6:30 PM - 11:30 PM",
             city: "Delhi",
-            state: "Delhi", 
+            state: "Delhi",
             address: "Jawaharlal Nehru Stadium, Lodhi Road",
             date_range: "29 Oct - 31 Oct 2024",
             event_key: "music-festival-delhi-2024"
@@ -65,7 +67,7 @@ const OtherLocations = ({ eventData }) => {
 
     // Mock CustomBtn component for demo
     const MockCustomBtn = ({ buttonText, className, variant, icon, HandleClick }) => (
-        <CustomBtn 
+        <CustomBtn
             buttonText={buttonText}
             className={className}
             variant={variant}
@@ -77,23 +79,26 @@ const OtherLocations = ({ eventData }) => {
     return (
         <>
             <div className="my-3">
-                <MockCustomBtn
+                {/* <MockCustomBtn
                     buttonText="View Other Locations"
                     className="btn-sm"
                     variant="outline-primary"
                     icon={<MapPin size={18} />}
                     HandleClick={() => setShowModal(true)}
-                />
+                /> */}
+                <Link href={`#`} className="border-bottom border-top p-2 border-primary float-none float-sm-end d-flex align-items-center justify-content-center gap-2 rounded-3" onClick={(e) => { e.preventDefault(); setShowModal(true); }}>
+                   <FaCity/> Other Locations 
+                </Link>
             </div>
 
             <Modal
                 show={showModal}
                 onHide={() => setShowModal(false)}
                 size="xl"
-                // centered
+            // centered
             >
                 <CustomHeader
-                    title="Other Locations" 
+                    title="Other Locations"
                     onClose={() => setShowModal(false)}
                     closable
                 />
@@ -108,21 +113,21 @@ const OtherLocations = ({ eventData }) => {
                                             <h5 className="mb-2 fs-6 fs-md-5 fw-semibold">
                                                 {location.event_name}
                                             </h5>
-                                            
+
                                             <div className="mb-1">
                                                 <small className="text-muted">
                                                     <i className="fa-regular fa-clock me-2"></i>
                                                     {location.timing}
                                                 </small>
                                             </div>
-                                            
+
                                             <div className="mb-1">
                                                 <small className="text-muted">
                                                     <i className="fa-solid fa-location-dot me-2"></i>
                                                     {location.city}, {location.state}
                                                 </small>
                                             </div>
-                                            
+
                                             <div className="mb-0">
                                                 <small className="text-muted">
                                                     {location.address}

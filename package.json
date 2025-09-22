@@ -60,6 +60,7 @@
     "video.js": "^8.6.1",
     "videojs-youtube": "^3.0.1",
     "xlsx": "^0.18.5",
+    "yet-another-react-lightbox": "^3.25.0",
     "yup": "^1.7.0"
   },
   "devDependencies": {
