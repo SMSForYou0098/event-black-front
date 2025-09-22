@@ -9,7 +9,6 @@ import { useEffect, useState } from 'react';
 
 import { AttendeesOffcanvas, TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
 import {api} from "@/lib/axiosInterceptor"
-import { useQuery } from '@tanstack/react-query';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
 import BookingSummarySkeleton from '../../../../utils/SkeletonUtils/BookingSummarySkeleton';
 
@@ -198,7 +197,7 @@ const BookingSummary = () => {
                             currency={ticket?.currency}
                             netAmount={booking?.amount} />
                         {/* Payment Information Card */}
-                        {/* <Card className='custom-dark-bg'>
+                        <Card className='custom-dark-bg'>
                             <Card.Body className="p-4">
                                 <div className="d-flex align-items-center mb-4">
                                     <CreditCard {...sectionIconStyle} />
@@ -227,7 +226,7 @@ const BookingSummary = () => {
                                     )}
                                 </div>
                             </Card.Body>
-                        </Card> */}
+                        </Card>
                         {
                             attendees.length !==0 && 
                         <Button variant="primary" onClick={handleOpen}>

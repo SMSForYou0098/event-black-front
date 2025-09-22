@@ -75,8 +75,8 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                 <div className="text-primary">Pricing </div>
                 <span className=" fw-bold">
                   ₹
-                  {eventData?.lowest_sale_price ||
-                    eventData?.lowest_ticket_price}
+                  {eventData?.lowest_sale_price ?
+                    eventData?.lowest_ticket_price : eventData?.price}
                 </span>{" "}
                 Onwards
               </h4>

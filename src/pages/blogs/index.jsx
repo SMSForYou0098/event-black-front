@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 
 // components - grid card used here
 import DetailMetaList from "../../components/blog/DetailMetaList";
-import BlogFilterControls from "../../components/blog/BlogFilterControls";
-import PaginationComponent from "../../components/blog/PaginationComponent";
-import CardBlogGrid from "../../components/blog/CardBlogGrid";
+import BlogFilterControls from "../../components/events/blogs/BlogFilterControls";
+import PaginationComponent from "../../components/events/blogs/PaginationComponent";
+import CardBlogGrid from "../../components/events/blogs/CardBlogGrid";
 import CardBlogGridSkeleton from "../../utils/SkeletonUtils/blogs/CardBlogGridSkeleton";
 // custom hooks / api
 import { useBreadcrumb } from "@/utilities/usePage";
@@ -40,7 +40,7 @@ const BLogs = memo(() => {
   } = useQuery({
     queryKey: ['blogs'],
     queryFn: async () => {
-      const res = await publicApi.get(`/blog-status`);
+      const res = await publicApi.get(`/blogs`);
       if (!res?.data?.status) {
         throw new Error(res?.data?.message || "Failed to fetch blogs");
       }

@@ -9,6 +9,7 @@ import AuthLayout from "@/layouts/AuthLayout";
 import { Home } from "lucide-react";
 import CustomBtn from "../../utils/CustomBtn";
 import ShakyButton from "@/utils/ShakyButton";
+
 const Login = () => {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -29,10 +30,12 @@ const Login = () => {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+  
   const [shake, setShake] = useState(false);
+  
   const handleLogin = async (event) => {
-    event.preventDefault(); // Move this to the top
-
+    event.preventDefault();
+    
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.stopPropagation();
@@ -44,10 +47,9 @@ const Login = () => {
       return;
     }
 
-
     setError("");
     setIsSubmitting(true);
-    setValidated(true);
+    // Don't set validated to true here to prevent the flash of validation error
 
     try {
       const response = await publicApi.post("/verify-user", {
@@ -84,6 +86,8 @@ const Login = () => {
         setError(
           err.response?.data?.message || "An unexpected error occurred."
         );
+        // Set validated to true only when there's an actual error
+        setValidated(true);
       }
     } finally {
       setIsSubmitting(false);
@@ -138,7 +142,6 @@ const Login = () => {
             </Col>
           </Row>
         </Form.Group>
-
       </Form>
 
       <p className="my-4 text-center fw-500 text-white">

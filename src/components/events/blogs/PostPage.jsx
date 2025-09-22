@@ -6,7 +6,7 @@ import parse from 'html-react-parser';
 // import PostSkeleton from './skeletons/PostSkeletons';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
 import Image from 'next/image';
-import PostSkeleton from '../../utils/SkeletonUtils/blogs/PostSkeleton';
+import PostSkeleton from '../../../utils/SkeletonUtils/blogs/PostSkeleton';
 
 const PostById = ({ post, categories, loading }) => {
   const { isMobile , formatDateDDMMYYYY } = useMyContext();

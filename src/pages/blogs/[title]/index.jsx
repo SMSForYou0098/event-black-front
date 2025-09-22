@@ -5,8 +5,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { Container, Alert, Col, Row } from 'react-bootstrap';
 import { useRouter } from 'next/router';
-import PostById from '../../../components/blog/PostPage';
-import CommentsSection from '../../../components/blog/comments/CommentSection';
+// import PostById from '../../../components/blog/PostPage';
+import CommentsSection from '../../../components/events/blogs/comments/CommentSection';
+import PostById from '../../../components/events/blogs/PostPage';
 import DetailMetaList from '../../../components/blog/DetailMetaList';
 // import RelatedPosts from '../components/RelatedPosts';
 

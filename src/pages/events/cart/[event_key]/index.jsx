@@ -52,7 +52,7 @@ const CartPage = () => {
         try {
           const response = await api.get(`/user-ticket-info/${UserData.id}/${selectedTickets.itemId}`)
             if (!response.data.status) {
-                ErrorAlert(response.data.message || 'You have already booked this ticket. Please check your booking history.');
+                ErrorAlert(response.data.message || 'Booking limit reached');
                 return false;
             }
             return true; // allowed
@@ -166,28 +166,6 @@ const CartPage = () => {
   if (isLoading) {
     return <BookingSummarySkeleton type={'cart'}/>;
   }
-
-
-  // if (cartItems.length === 0) {
-  //   return (
-  //     <div className="cart-page section-padding">
-  //       <Container>
-  //         <div className="text-center py-5">
-  //           <h3>Your cart is empty</h3>
-  //           <p>Add some items to get started!</p>
-  //           <CustomButton
-  //             buttonTitle="Continue Shopping"
-  //             link="/merchandise"
-  //             linkButton={false}
-  //           />
-  //         </div>
-  //       </Container>
-  //     </div>
-  //   );
-  // }
-
-
-
 
   const CardContainer = ({ children, className = "" }) => (
     <div className={`custom-dark-bg p-4 rounded-3 mb-4 ${className}`}>
@@ -334,7 +312,7 @@ const CartPage = () => {
                   />
                 ) : (
                   <CustomBtn
-                    disabled={!selectedTickets?.itemId}
+                    disabled={isChecking || !selectedTickets?.itemId}
                     HandleClick={handleProcess}
                     icon={attendeeRequired ? <Users size={20} /> : null}
                     buttonText={<span>{buttonText}</span>}
