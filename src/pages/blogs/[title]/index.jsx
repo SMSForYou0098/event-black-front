@@ -9,7 +9,8 @@ import { useRouter } from 'next/router';
 import CommentsSection from '../../../components/events/blogs/comments/CommentSection';
 import PostById from '../../../components/events/blogs/PostPage';
 import DetailMetaList from '../../../components/blog/DetailMetaList';
-// import RelatedPosts from '../components/RelatedPosts';
+// import RelatedPosts from '../../../components/events/blogs/';
+import CardBlogGrid from "../../../components/events/blogs/CardBlogGrid";
 
 const PostPage = () => {
   const { authToken, api } = useMyContext();
@@ -60,8 +61,6 @@ const PostPage = () => {
     enabled: !!key,
     retry: 2,
   });
-
-  console.log('postData', postData)
 
   // Fetch related posts
   const { data: relatedPostsData, isLoading: relatedLoading } = useQuery({
@@ -135,6 +134,30 @@ const PostPage = () => {
         posts={relatedPostsData || []} 
         loading={relatedLoading} 
       /> */}
+
+{relatedPostsData?.length === 0 ? (
+        ""
+      ) : (
+        <Container fluid >
+        <Row className="g-4">
+          <h3>Related Posts</h3>
+          {relatedPostsData?.map((item) => (
+            <Col lg={4} md={6} sm={12} key={item.id ?? `blog-${idx}`}>
+            <CardBlogGrid
+              title={item.title}
+              content={item.content_length}
+              thumbnail={item.thumbnail}
+              description={item.description || item.excerpt || ""}
+              username={item.user_data?.name || item.username || "Unknown"}
+              date={item.created_at}
+              categories={item.categories}
+              id={item?.id}
+            />
+          </Col>
+          ))}
+        </Row>
+        </Container>
+      )}
     </div>
   );
 };
