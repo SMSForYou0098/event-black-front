@@ -121,7 +121,7 @@ const HomeBannerSlider = memo(() => {
                             </div>
                             <CustomBtn 
                               buttonText="Explore Now"
-                              HandleCick={() => {router.push(banner.redirectUrl || `/events/category/${createSlug('Garba Night')}` ||'/tv-shows/detail')}}
+                              HandleClick={() => {router.push(banner.redirectUrl || `/events/category/${createSlug('Garba Night').toLowerCase()}` ||'/tv-shows/detail')}}
                               customClass="mt-4 btn-sm"
                             />
                           </Col>

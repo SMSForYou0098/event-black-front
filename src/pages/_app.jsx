@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SessionProvider } from 'next-auth/react';
 import 'swiper/css'
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -29,7 +30,7 @@ const layouts = {
   "Merchandise": Merchandise
 };
 
-export default function App({ Component, pageProps }) {
+export default function App({ Component, pageProps: { session, ...pageProps } }) {
   const layoutName = layouts[Component.layout] || layouts['Frontend']
   const Layout = layoutName || ((children) => <>{children}</>);
   // const { store, props } = wrapperStore.useWrappedStore(rest);
@@ -48,20 +49,22 @@ export default function App({ Component, pageProps }) {
   return (
     // Provide the query client to your entire app
     <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <MyContextProvider>
-            <AppLayout>
-              <AppContent>
-                <Layout>
-                  <Toaster />
-                  <Component {...pageProps} />
-                </Layout>
-              </AppContent>
-            </AppLayout>
-          </MyContextProvider>
-        </PersistGate>
-      </Provider>
+      <SessionProvider session={session}>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <MyContextProvider>
+              <AppLayout>
+                <AppContent>
+                  <Layout>
+                    <Toaster />
+                    <Component {...pageProps} />
+                  </Layout>
+                </AppContent>
+              </AppLayout>
+            </MyContextProvider>
+          </PersistGate>
+        </Provider>
+      </SessionProvider>
 
       {/* The Devtools are great for debugging! */}
       {/* <ReactQueryDevtools initialIsOpen={false} /> */}

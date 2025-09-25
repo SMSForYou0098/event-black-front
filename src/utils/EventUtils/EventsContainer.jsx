@@ -118,7 +118,7 @@ const EventsContainer = memo(({
 <SectionSlider title={title} list={eventsList} className={className}>
    {(data, index) => {
           // Ensure index is a valid number, fallback to array index if needed
-          const safeIndex = typeof index === 'number' && !isNaN(index) 
+          const safeIndex = typeof index === 'number' && !isNaN(index)
             ? index 
             : eventsList.findIndex(item => item === data);
           
@@ -126,7 +126,7 @@ const EventsContainer = memo(({
           
           return isTopTenCard ? (
             <TopTenCard
-              image={data.thumbnail}
+              image={data?.thumbnail}
               countValue={finalIndex + 1} // ascending order 1,2,3...
               link={`/events/${createSlug(data?.city)}/${createSlug(
                 data?.organisation
