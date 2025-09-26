@@ -4,8 +4,7 @@ import { useMyContext } from "@/Context/MyContextProvider";
 import { Col, Container, Row } from "react-bootstrap";
 import SkeletonLoader from '../../../utils/SkeletonUtils/SkeletonLoader'
 
-
-const EventsContainerCat = ({ events = [], loading }) => {
+const EventsContainerCat = ({ events = [], loading = false, title }) => {
   const { createSlug } = useMyContext();
   if (loading) {
     return <SkeletonLoader />
@@ -19,6 +18,7 @@ const EventsContainerCat = ({ events = [], loading }) => {
     <div>
 
     <Row className="row-cols-xl-6 row-cols-md-4 row-cols-2">
+       <h5 className="main-title text-capitalize mb-0">{title}</h5>
       {events.map((data, index) => (
         <Col key={index} className="  ">
           <CardStyle

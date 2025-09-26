@@ -13,6 +13,7 @@ import BannerSkeleton from "../../utils/SkeletonUtils/BannerSkeleton";
 import CustomBtn from "@/utils/CustomBtn";
 import { useRouter } from "next/router";
 import CommonMobileSlider from "./CommonMobileSlider"
+import { MobileOnly, DesktopOnly } from "@/utils/ResponsiveRenderer";
 /* --------- Helpers ---------- */
 export const getBanners = async () => {
   const response = await api.get('/banner-list/main');
@@ -104,13 +105,6 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     );
   }
 
-  const getInternalHref = (banner) => {
-    // prefer event route, then button_link, then category listing
-    if (banner?.event_key) return `/events/${banner.event_key}`;
-    if (banner?.button_link) return banner.button_link;
-    return `/events/category/${createSlug(banner?.category || '').toLowerCase()}`;
-  };
-
   const handleBannerNavigation = (banner) => {
     // If component prop type is 'main' -> keep default category listing
     if (type === 'main') {
@@ -182,11 +176,10 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
       <section className="banner-container section-padding-bottom pb-0">
         <div className="movie-banner">
           <div id="banner-detail-slider" className="banner-container">
-            {isMobile ? (
-              // Mobile Swiper (full width images, Link/anchor on click, custom nav)
-              <CommonMobileSlider banners={banners} themeSchemeDirection={themeSchemeDirection}/>
-            ) : (
-              // Desktop Swiper (background images + content)
+            <MobileOnly>
+              <CommonMobileSlider banners={banners} themeSchemeDirection={themeSchemeDirection} />
+            </MobileOnly>
+            <DesktopOnly>
               <Swiper key={`desktop-${String(themeSchemeDirection)}`} {...desktopSwiperConfig}>
                 {banners.map((banner, index) => {
                   const raw = extractImageUrl(banner.images);
@@ -238,7 +231,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                   <i className="iconly-Arrow-Left-2 icli arrow-icon"></i>
                 </div>
               </Swiper>
-            )}
+            </DesktopOnly>
           </div>
         </div>
       </section>

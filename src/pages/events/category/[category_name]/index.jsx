@@ -80,6 +80,7 @@ const EventsByCategory = () => {
           bannerLoading={bannersLoading}
           eventsData={categoryData?.events}
           eventLoading={eventsLoading}
+          title={categoryData?.category}
         />
       </div>
     </>

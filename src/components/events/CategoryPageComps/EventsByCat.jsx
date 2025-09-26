@@ -1,13 +1,13 @@
 import React from 'react'
 import CategoryBanners from './CategoryBanners'
 import EventsContainerCat from './EventsContainerCat'
-import CommonBannerSlider from '../../slider/CommonBannerSlider'
 
-const EventsByCat = ({bannerData=[], bannerLoading=false, eventsData=[], eventLoading=false}) => {
+const EventsByCat = (props) => {
+ const {bannerData=[], bannerLoading=false, eventsData=[], eventLoading=false  , title} = props;
   return (
     <div className='mb-5'>
-        <CommonBannerSlider type='category' banners={bannerData} loading={bannerLoading}/>
-        <EventsContainerCat events={eventsData} loading={eventLoading}/>
+        <CategoryBanners banners={bannerData} loading={bannerLoading}/>
+        <EventsContainerCat events={eventsData} loading={eventLoading} title={title}/>
     </div>
   )
 }
