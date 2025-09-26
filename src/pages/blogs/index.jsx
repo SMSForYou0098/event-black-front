@@ -40,7 +40,8 @@ const BLogs = memo(() => {
   } = useQuery({
     queryKey: ['blogs'],
     queryFn: async () => {
-      const res = await publicApi.get(`/blog-status`);
+      // const res = await publicApi.get(`/blog-status`);
+      const res = await publicApi.get(`/blogs`);
       if (!res?.data?.status) {
         throw new Error(res?.data?.message || "Failed to fetch blogs");
       }

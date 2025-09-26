@@ -242,7 +242,7 @@ const Login = () => {
           <CustomBtn
             variant="outline-light"
             className="w-100 d-flex align-items-center justify-content-center btn-sm border-1"
-            onClick={handleGoogleLogin}
+            HandleClick={handleGoogleLogin}
             disabled={isSubmitting}
             hideIcon={true}
             buttonText={
@@ -263,7 +263,7 @@ const Login = () => {
           <CustomBtn
             variant="outline-light"
             className="w-100 d-flex align-items-center justify-content-center btn-sm border-1"
-            onClick={handleFacebookLogin}
+            HandleClick={handleFacebookLogin}
             disabled={isSubmitting}
             hideIcon={true}
             buttonText={

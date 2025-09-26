@@ -1,18 +1,14 @@
-import { Fragment, memo, useState } from "react";
-import { Col, Row } from "react-bootstrap";
-import Link from "next/link";
-import Image from 'next/image';
+import React from 'react'
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper";
-import { useSelector } from "react-redux";
-import { theme_scheme_direction } from "../../store/setting/selectors";
+import { Fragment, memo, useState } from "react";
+import { Col, Row } from "react-bootstrap";
 import FsLightbox from "fslightbox-react";
-import { useQuery } from "@tanstack/react-query";
-import { useMyContext } from "@/Context/MyContextProvider";
-import { api } from "@/lib/axiosInterceptor";
-import BannerSkeleton from "../../utils/SkeletonUtils/BannerSkeleton"
+import BannerSkeleton from "../../../utils/SkeletonUtils/BannerSkeleton"
+import { useSelector } from "react-redux";
+import { theme_scheme_direction } from "../../../store/setting/selectors";
 import CustomBtn from "@/utils/CustomBtn";
-import { useRouter } from "next/router";
+
 
 export const getBanners = async () => {
   const response = await api.get('/banner-list/main');
@@ -61,23 +57,17 @@ export const toAbsolute = (url) => {
   return `${base.replace(/\/$/, '')}/${url.replace(/^\//, '')}`;
 };
 
-const HomeBannerSlider = memo(({type='main'}) => {
+
+const CategoryBanners = ({banners=[], loading=false}) => {
   const themeSchemeDirection = useSelector(theme_scheme_direction);
   const [toggler, setToggler] = useState(false);
-  const { isMobile, createSlug } = useMyContext();
-  const router = useRouter();
 
-  const { data: banners, isLoading, isError } = useQuery({
-    queryKey: ['banners'],
-    queryFn: getBanners,
-    staleTime: 1000 * 60 * 30,
-  });
 
-  if (isLoading) {
+  if (loading) {
     return <BannerSkeleton themeSchemeDirection={themeSchemeDirection} />;
   }
 
-  if (isError || !banners || banners.length === 0) {
+  if ( !banners || banners.length === 0) {
     return (
       <section className="banner-container section-padding-bottom">
         <div className="d-flex justify-content-center align-items-center" style={{ height: '450px' }}>
@@ -86,7 +76,6 @@ const HomeBannerSlider = memo(({type='main'}) => {
       </section>
     );
   }
-
   const swiperConfig = {
     dir: String(themeSchemeDirection),
     navigation: {
@@ -96,7 +85,7 @@ const HomeBannerSlider = memo(({type='main'}) => {
     slidesPerView: 1.2,
     modules: [Navigation],
     loop: true,
-    centeredSlides: true,   
+    centeredSlides: true,
     className: "swiper-banner-container"
   };
   return (
@@ -225,11 +214,10 @@ const HomeBannerSlider = memo(({type='main'}) => {
 
       <FsLightbox
         toggler={toggler}
-        sources={'https://youtu.be/fqySz1Me2pI?si=XoYWlztoTBOWX8_i'}
+        sources={["/assets/images/video/trailer.mp4"]}
       />
     </Fragment>
-  );
-});
+  )
+}
 
-HomeBannerSlider.displayName = 'HomeBannerSlider';
-export default HomeBannerSlider;
+export default CategoryBanners

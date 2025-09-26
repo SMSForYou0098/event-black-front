@@ -307,3 +307,66 @@ export default {
   generateOrganizationSchema,
   useSEO
 };
+
+
+// category seo
+
+// Category-specific SEO utility
+export const generateCategorySEO = (categoryData, categorySlug) => {
+  const {
+    category,
+    seo: {
+      meta_title,
+      meta_description,
+      meta_keyword,
+      meta_tag
+    } = {},
+    events = []
+  } = categoryData || {};
+
+  // Generate structured data for event category listing
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `${category} Events`,
+    "description": meta_description,
+    "numberOfItems": events.length,
+    "itemListElement": events.map((event, index) => ({
+      "@type": "Event",
+      "position": index + 1,
+      "name": event.name,
+      "image": event.thumbnail,
+      "startDate": event.date_range?.split(',')[0],
+      "endDate": event.date_range?.split(',')[1],
+      "location": {
+        "@type": "Place",
+        "name": event.city,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": event.city,
+          "addressCountry": "IN"
+        }
+      },
+      "organizer": {
+        "@type": "Organization",
+        "name": event.organisation
+      },
+      "url": `${process.env.NEXT_PUBLIC_SITE_URL}/events/${event.event_key}`
+    }))
+  };
+
+  const customTags = {};
+  if (meta_tag) customTags["category-tag"] = meta_tag;
+  if (category) customTags["event-category"] = category;
+
+  return {
+    title: meta_title || `${category} Events - Book Tickets Online`,
+    description: meta_description || `Discover and book tickets for ${category} events. Find the best ${category.toLowerCase()} events near you.`,
+    keywords: meta_keyword || `${category}, events, tickets, book online, ${category.toLowerCase()} events`,
+    image: events[0]?.thumbnail || "/default-category-image.jpg",
+    url: `/events/category/${categorySlug}`,
+    type: "website",
+    customTags,
+    structuredData
+  };
+};
