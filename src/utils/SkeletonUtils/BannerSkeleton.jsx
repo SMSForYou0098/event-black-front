@@ -23,7 +23,7 @@ const BannerSkeleton = memo(() => {
             modules={[Navigation]}
             loop={true}
             centeredSlides={true}
-            className="swiper-banner-container"
+            className="h-50"
           >
             {[...Array(3)].map((_, index) => (
               <SwiperSlide key={index}>
@@ -31,7 +31,7 @@ const BannerSkeleton = memo(() => {
                   <Placeholder animation="glow">
                     <Placeholder 
                       xs={12} 
-                      style={{ height: '450px' }} 
+                      style={{ height: '150px' }} 
                       bg="dark" 
                       className="w-100 d-block" 
                     />

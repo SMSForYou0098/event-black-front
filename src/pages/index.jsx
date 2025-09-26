@@ -68,8 +68,8 @@ const createDynamicComponent = (importFunction, loadingComponent, options = {}) 
 };
 
 // Component definitions with progressive loading strategy
-const HomeBannerSlider = createDynamicComponent(
-  () => import("@/components/slider/HomeBannerSlider"),
+const CommonBannerSlider = createDynamicComponent(
+  () => import("@/components/slider/CommonBannerSlider"),
   () => <BannerSkeleton />
 );
 
@@ -168,7 +168,8 @@ const OTT = memo(() => {
   return (
     <>
       {/* Critical: Above the fold - load immediately */}
-      <HomeBannerSlider />
+      <CommonBannerSlider />
+      {/* <HomeBannerSlider /> */}
       
       {/* High priority: Preload when user is getting close */}
       <PreloadSection 

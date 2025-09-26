@@ -106,7 +106,6 @@ export const expiredEvents = async () => {
 export const getSuccessfulEvents = async () => {
   try {
     const response = await api.get('/successfulEvent');
-
     // Check if the response data and status are valid
     if (response.data && response.data.status) {
       return response.data.eventData;
