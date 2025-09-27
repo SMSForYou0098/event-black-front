@@ -4,11 +4,16 @@ import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import loader from "../assets/event/stock/loader111.gif";
 import currencyData from "../JSON/currency.json";
-import { api as commonapi } from '../lib//axiosInterceptor'
+import { api as commonapi } from '../lib//axiosInterceptor';
+
+// TanStack Query
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
 // Create a context
 const MyContext = createContext();
 
 export const MyContextProvider = ({ children }) => {
+  const queryClient = useQueryClient(); // used by GetSystemSetting
   const api = process.env.NEXT_PUBLIC_API_PATH;
   const UserData = useSelector((auth) => auth?.auth?.user);
   const UserPermissions = useSelector((auth) => auth?.auth?.user?.permissions);
@@ -22,28 +27,63 @@ export const MyContextProvider = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [hideMobileMenu, setHideMobileMenu] = useState(false);
 
+  // --- Fetcher for system settings
+  const fetchSystemSettings = async () => {
+    const res = await commonapi.get(`/settings`);
+    if (res?.data?.status) {
+      return res.data.data;
+    }
+    // If API indicates failure, throw so react-query marks it as error
+    throw new Error(res?.data?.message || "Failed to fetch settings");
+  };
+
+  // Use react-query to fetch & cache system settings.
+  // onSuccess will sync it into local state and set currency master.
+  const {
+    data: systemSettingsQueryData,
+    isLoading: systemSettingsLoading,
+    isError: systemSettingsError,
+    error: systemSettingsErrorObj,
+    refetch: refetchSystemSettings,
+  } = useQuery({
+    queryKey: ["systemSettings"],
+    queryFn: fetchSystemSettings,
+    staleTime: 1000 * 60 * 5, // 5 minutes (tweakable)
+    cacheTime: 1000 * 60 * 30,
+    onSuccess: (data) => {
+      if (data) {
+        setSystemSetting(data);
+        // initialize currency master from local JSON if not overridden by settings
+        // (you can adjust if settings provides currency mapping)
+        setCurrencyMaster(currencyData);
+      }
+    },
+    // optional: retry: 1
+  });
+
+  // Keep GetSystemSetting function name (unchanged API).
+  // When called externally, it will force-fetch a fresh copy and return it.
   const GetSystemSetting = async () => {
     try {
-      const res = await commonapi.get(`/settings`);
-      if (res.data.status) {
-        const settingData = res?.data?.data;
-        setSystemSetting(settingData);
-        return settingData;
+      // Try to fetch from cache or network; fetchQuery forces fetch if not cached/stale
+      const data = await queryClient.fetchQuery({
+        queryKey: ["systemSettings"],
+        queryFn: fetchSystemSettings,
+      });
+
+      if (data) {
+        setSystemSetting(data);
+        setCurrencyMaster(currencyData);
+        return data;
       }
+      return null;
     } catch (err) {
-      console.log(err);
+      console.log("GetSystemSetting error:", err);
+      return null;
     }
   };
 
-  useEffect(() => {
-    GetSystemSetting();
-    setCurrencyMaster(currencyData);
-  }, []);
-
-  useEffect(() => {
-    setIsMobile(window.innerWidth <= 425);
-  }, [window.innerWidth, window.innerHeight]);
-
+  // Remaining utilities (unchanged, copied from your original file)
   const DownloadExcelFile = (data, fileName) => {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
@@ -70,13 +110,11 @@ export const MyContextProvider = ({ children }) => {
         message_id: message_id,
         waId: number,
         display_phone_number: UserData?.whatsapp_number,
-      }
-      );
+      });
     } catch (error) { }
   };
 
   const formatDateTime = (dateTime) => {
-    // console.log(dateTime)
     const date = new Date(dateTime);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -86,12 +124,8 @@ export const MyContextProvider = ({ children }) => {
     const seconds = String(date.getSeconds()).padStart(2, "0");
     const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    const strTime = `${String(hours).padStart(
-      2,
-      "0"
-    )}:${minutes}:${seconds} ${ampm}`;
-
+    hours = hours ? hours : 12;
+    const strTime = `${String(hours).padStart(2, "0")}:${minutes}:${seconds} ${ampm}`;
     return `${day}-${month}-${year} | ${strTime}`;
   };
 
@@ -137,8 +171,8 @@ export const MyContextProvider = ({ children }) => {
     });
   }, []);
 
-  const AskAlert = (title, buttonText, SuccessMessage) => {
-    return Swal.fire({
+  const AskAlert = async (title, buttonText, SuccessMessage) => {
+    const result = await Swal.fire({
       title: "Are you sure?",
       text: title,
       icon: "warning",
@@ -146,13 +180,12 @@ export const MyContextProvider = ({ children }) => {
       backdrop: `rgba(60,60,60,0.8)`,
       confirmButtonText: buttonText,
       cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed && SuccessMessage) {
-        Swal.fire("Success", SuccessMessage, "success");
-        return true;
-      }
-      return false;
     });
+    if (result.isConfirmed && SuccessMessage) {
+      Swal.fire("Success", SuccessMessage, "success");
+      return true;
+    }
+    return false;
   };
 
   const showLoading = (processName) => {
@@ -163,9 +196,6 @@ export const MyContextProvider = ({ children }) => {
                 <img src=${loader} style="width: 10rem; display: block; margin: 0 auto;"/>
                 </div>
                 `,
-      // <div class="spinner-border text-primary mt-4" role="status">
-      //     <span class="visually-hidden">Loading...</span>
-      // </div>
       allowEscapeKey: false,
       allowOutsideClick: false,
       showConfirmButton: false,
@@ -299,19 +329,18 @@ export const MyContextProvider = ({ children }) => {
     return `${day}/${month}/${year}`;
   };
 
-
   const formatDateRange = (dateRange) => {
     if (!dateRange) return '';
 
     const dates = dateRange.split(',').map(date => date.trim());
 
     if (dates.length === 1) {
-      return formatDateDDMMYYYY(dates[0]);  // Format single date too
+      return formatDateDDMMYYYY(dates[0]);
     } else if (dates.length === 2) {
       const [startDate, endDate] = dates;
       return `${formatDateDDMMYYYY(startDate)} to ${formatDateDDMMYYYY(endDate)}`;
     } else {
-      return dateRange;  // fallback
+      return dateRange;
     }
   };
 
@@ -320,8 +349,8 @@ export const MyContextProvider = ({ children }) => {
 
     const [hours, minutes] = time24.split(":").map(Number);
     const period = hours >= 12 ? "PM" : "AM";
-    const hours12 = hours % 12 || 12; // Convert hour to 12-hour format, with 12 instead of 0
-    const minutesFormatted = minutes?.toString()?.padStart(2, "0"); // Format minutes with leading zero
+    const hours12 = hours % 12 || 12;
+    const minutesFormatted = minutes?.toString()?.padStart(2, "0");
 
     return `${hours12}:${minutesFormatted} ${period}`;
   };
@@ -349,20 +378,11 @@ export const MyContextProvider = ({ children }) => {
     }
   };
 
-  const EventCategory = async (setState) => {
-    try {
-      const res = await commonapi.get(`/category-title`);
-      const transformedData = Object.values(res.data.categoryData).map(
-        (item) => ({
-          label: item.title,
-          value: item.id,
-        })
-      );
-      setState(transformedData);
-      return transformedData;
-    } catch (error) {
-      console.log(error);
-    }
+  const fetchEventCategories = async () => {
+    const res = await commonapi.get('/category-title');
+    const raw = res?.data?.categoryData ?? {};
+    const arr = Array.isArray(raw) ? raw : Object.values(raw);
+    return arr.map(item => ({ label: item.title, value: item.id }));
   };
 
   const fetchCategoryData = async (category) => {
@@ -391,7 +411,6 @@ export const MyContextProvider = ({ children }) => {
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
-        // Change 10 to your desired scroll threshold
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
@@ -403,7 +422,6 @@ export const MyContextProvider = ({ children }) => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
 
   const contextValue = {
     HandleBack,
@@ -426,10 +444,10 @@ export const MyContextProvider = ({ children }) => {
     truncateString,
     createSlug,
     convertSlugToTitle,
-    EventCategory,
+    fetchEventCategories,
     extractDetails,
     systemSetting,
-    GetSystemSetting,
+    GetSystemSetting, // kept same name and behavior for external callers
     showLoading,
     getCurrencySymbol,
     fetchCategoryData,
@@ -440,7 +458,12 @@ export const MyContextProvider = ({ children }) => {
     setHideMobileMenu,
     showHeaderBookBtn,
     setShowHeaderBookBtn,
-    formatDateDDMMYYYY
+    formatDateDDMMYYYY,
+    // expose react-query flags optionally:
+    systemSettingsLoading,
+    systemSettingsError,
+    systemSettingsErrorObj,
+    refetchSystemSettings,
   };
 
   return (

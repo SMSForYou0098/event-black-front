@@ -14,6 +14,7 @@ import CustomBtn from "@/utils/CustomBtn";
 import { useRouter } from "next/router";
 import CommonMobileSlider from "./CommonMobileSlider"
 import { MobileOnly, DesktopOnly } from "@/utils/ResponsiveRenderer";
+
 /* --------- Helpers ---------- */
 export const getBanners = async () => {
   const response = await api.get('/banner-list/main');
@@ -78,13 +79,30 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
   });
 
   // decide which banners & loading to use
-  const banners = type === 'main' ? (apiBanners || []) : (Array.isArray(propBanners) ? propBanners : (propBanners ? [propBanners] : []));
+  const rawBanners = type === 'main'
+    ? (apiBanners || [])
+    : (Array.isArray(propBanners) ? propBanners : (propBanners ? [propBanners] : []));
   const loading = type === 'main' ? apiLoading : propLoading;
 
+  // fallback banner when there's no banners
+  const fallbackBanner = {
+    id: 'fallback',
+    title: 'No banners available',
+    description: 'Currently there are no banners.',
+    button_text: 'Browse Events',
+    button_link: '/events',
+    images: '/assets/images/no-banner.jpg' // replace with your fallback image
+  };
+
+  // use a banner array to render; if empty use the fallbackBanner
+  const bannersToRender = (rawBanners && rawBanners.length > 0) ? rawBanners : [fallbackBanner];
+
+  // show skeleton while loading
   if (loading) {
     return <BannerSkeleton themeSchemeDirection={themeSchemeDirection} />;
   }
 
+  // show error message on network error (only for main type)
   if (isError && type === 'main') {
     return (
       <section className="banner-container section-padding-bottom">
@@ -95,28 +113,15 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     );
   }
 
-  if (!banners || banners.length === 0) {
-    return (
-      <section className="banner-container section-padding-bottom">
-        <div className="d-flex justify-content-center align-items-center" style={{ height: '450px' }}>
-          <p className="text-danger">No banners available.</p>
-        </div>
-      </section>
-    );
-  }
-
   const handleBannerNavigation = (banner) => {
-    // If component prop type is 'main' -> keep default category listing
+    // treat fallback banner like an internal link to /events
+    if (banner?.id === 'fallback') {
+      router.push(banner.button_link || '/events');
+      return;
+    }
+
+    // If component prop type is 'main' -> default behavior (category listing)
     if (type === 'main') {
-      if (banner?.button_link) {
-        const isExternal = /^(https?:)?\/\//i.test(banner.button_link);
-        if (isExternal) {
-          window.open(banner.button_link, '_blank', 'noopener,noreferrer');
-        } else {
-          router.push(banner.button_link);
-        }
-        return;
-      }
       router.push(`/events/category/${createSlug(banner?.category).toLowerCase()}`);
       return;
     }
@@ -177,14 +182,20 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
         <div className="movie-banner">
           <div id="banner-detail-slider" className="banner-container">
             <MobileOnly>
-              <CommonMobileSlider banners={banners} themeSchemeDirection={themeSchemeDirection} />
+              <CommonMobileSlider
+                banners={bannersToRender}
+                themeSchemeDirection={themeSchemeDirection}
+                createSlug={createSlug}
+              />
             </MobileOnly>
+
             <DesktopOnly>
               <Swiper key={`desktop-${String(themeSchemeDirection)}`} {...desktopSwiperConfig}>
-                {banners.map((banner, index) => {
+                {bannersToRender.map((banner, index) => {
                   const raw = extractImageUrl(banner.images);
                   const fixedImageUrl = toAbsolute(raw);
                   const backgroundStyle = fixedImageUrl ? `url("${fixedImageUrl}")` : 'none';
+                  const isFallback = banner.id === 'fallback';
 
                   return (
                     <SwiperSlide key={banner.id || index}>
@@ -202,7 +213,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                               </div>
 
                               <CustomBtn
-                                buttonText={banner?.button_text || 'Explore Now'}
+                                buttonText={banner?.button_text || (isFallback ? 'Browse Events' : 'Explore Now')}
                                 HandleClick={() => handleBannerNavigation(banner)}
                                 customClass="mt-4 btn-sm"
                               />
@@ -238,7 +249,6 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
 
       <FsLightbox
         toggler={toggler}
-        // you can change this to use banner.video if available
         sources={["/assets/images/video/trailer.mp4"]}
       />
     </Fragment>

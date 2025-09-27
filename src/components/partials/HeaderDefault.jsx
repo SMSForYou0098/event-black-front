@@ -26,6 +26,9 @@ import {
   CreditCard as CreditCardIcon,
   LogOut as LogOutIcon,
   Fingerprint,
+  ChevronDown,
+  Plus,
+  Minus,
 } from "lucide-react";
 
 // components
@@ -37,26 +40,38 @@ import { getActiveMenu } from "@/services/home";
 import { useDispatch } from "react-redux";
 import { logout } from "@/store/auth/authSlice";
 import CustomBtn from "@/utils/CustomBtn";
-import AvatarImage from '../../utils/ProfileUtils/AvatarImage';
+import AvatarImage from "../../utils/ProfileUtils/AvatarImage";
 import GlobalSearch from "../modals/GlobalSearch";
+
+
+
 const HeaderDefault = memo(() => {
   const router = useRouter();
 
+  const {
+    UserData,
+    createSlug,
+    isLoggedIn,
+    systemSetting,
+    showHeaderBookBtn,
+    fetchEventCategories,
+  } = useMyContext();
 
-  // if (!shouldShowMenu) return null;
-
-  const { UserData, createSlug, isLoggedIn, systemSetting, showHeaderBookBtn } =
-    useMyContext();
   const [isMega, setIsMega] = useState(true);
+  const [categoryList, setCategoryList] = useState([]);
   const location = useRouter();
   const [show1, setShow1] = useState(false);
   const [show, setShow] = useState(false);
   const [searchShow, setSearchShow] = useState(false);
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
+  const [eventsOpen, setEventsOpen] = useState(false);
+
+  // NEW: State for show more functionality
+  const [showAllEvents, setShowAllEvents] = useState(false);
+  const INITIAL_DISPLAY_COUNT = 5; // Show only 5 categories initially
 
   const handleToggle = (nextShow, event) => {
-    // Check if event exists and has preventDefault method
     if (event && typeof event.preventDefault === "function") {
       event.preventDefault();
       event.stopPropagation();
@@ -92,20 +107,52 @@ const HeaderDefault = memo(() => {
     };
   }, [location]);
 
+  // Menu query (renamed variables)
   const {
     data: menu = [],
-    isLoading,
-    isError,
-    error,
+    isLoading: menuLoading,
+    isError: menuError,
+    error: menuErrorObj,
   } = useQuery({
     queryKey: ["activeMenu"],
     queryFn: getActiveMenu,
   });
 
+  // Categories query (renamed variables)
+  const {
+    data: categoriesData = [],
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+    error: categoriesErrorObj,
+  } = useQuery({
+    queryKey: ["eventCategories"],
+    queryFn: fetchEventCategories,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // Sync query result into local state (if you still want local state)
+  useEffect(() => {
+    if (Array.isArray(categoriesData) && categoriesData.length > 0) {
+      setCategoryList(categoriesData);
+    }
+  }, [categoriesData]);
+
   const handleNavigation = (href) => {
     location.push(href);
-    setShow1(false); // Close mobile menu
-    setShow(false); // Close user dropdown
+    setShow1(false);
+    setShow(false);
+    setEventsOpen(false); // Close events dropdown when navigating
+    setShowAllEvents(false); // Reset show more state
+  };
+
+  // NEW: Mouse enter/leave handlers for events dropdown
+  const handleEventsMouseEnter = () => {
+    setEventsOpen(true);
+  };
+
+  const handleEventsMouseLeave = () => {
+    setEventsOpen(false);
+    setShowAllEvents(false); // Reset show more when leaving
   };
 
   const handleLogout = () => {
@@ -113,18 +160,42 @@ const HeaderDefault = memo(() => {
     location.push("/auth/login");
   };
 
-
-  // Extract event_key from the URL
   const { event_key } = router.query;
 
-  // ...existing code...
-
-  // Book button handler
   const handleBookClick = () => {
     if (event_key) {
       router.push(`/events/cart/${event_key}`);
     }
   };
+
+  // Function to handle events dropdown toggle (now for mobile only)
+  const toggleEventsDropdown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only allow toggle on mobile/small screens
+    if (typeof window !== "undefined" && window.innerWidth <= 1200) {
+      setEventsOpen(!eventsOpen);
+      if (eventsOpen) {
+        setShowAllEvents(false);
+      }
+    }
+  };
+
+  // NEW: Function to handle show more/less
+  const handleShowMoreLess = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowAllEvents(!showAllEvents);
+  };
+
+  // NEW: Get displayed categories based on showAllEvents state
+  const getDisplayedCategories = () => {
+    if (!categoryList || categoryList.length === 0) return [];
+    return showAllEvents ? categoryList : categoryList.slice(0, INITIAL_DISPLAY_COUNT);
+  };
+
+  const displayedCategories = getDisplayedCategories();
+  const hasMoreCategories = (categoryList?.length ?? 0) > INITIAL_DISPLAY_COUNT;
 
   return (
     <Fragment>
@@ -149,10 +220,9 @@ const HeaderDefault = memo(() => {
                     <ArrowLeftIcon size={20} />
                   </button>
                 </div>
-                {/* <Logo /> */}
                 <Link href={"/"}>
                   <Image height={65} src={systemSetting?.auth_logo || ""} />
-                </Link> 
+                </Link>
               </div>
               <Navbar
                 expand="xl"
@@ -160,8 +230,7 @@ const HeaderDefault = memo(() => {
                   } ${isMega ? "mega-menu-content" : ""}`}
                 style={{
                   visibility: `${show1 === true ? "visible" : "hidden"}`,
-                  //backdropFilter: 'blur(20px)',
-                  background: '#000000f2',
+                  background: "#000000f2",
                 }}
                 id="navbar_main"
               >
@@ -186,7 +255,6 @@ const HeaderDefault = memo(() => {
                         item.external_url ||
                         (item.page ? `/${createSlug(item.page.title)}` : "#");
 
-                      // If the item is "home" (case insensitive), set href to root '/'
                       if (item.title.toLowerCase() === "home") {
                         href = "/";
                       }
@@ -194,7 +262,7 @@ const HeaderDefault = memo(() => {
                       const isActive = location.asPath === href;
 
                       return (
-                        <Nav.Item key={item.id} className="nav-item">
+                        <Nav.Item as="li" key={item.id} className="nav-item">
                           <Link href={href} passHref legacyBehavior>
                             <Nav.Link
                               className={`fw-bold ${isActive ? "active" : ""}`}
@@ -206,11 +274,94 @@ const HeaderDefault = memo(() => {
                         </Nav.Item>
                       );
                     })}
-                    <Nav.Item className="nav-item">
+                    {/* Events Dropdown - Enhanced with Hover and Show More */}
+                    <Nav.Item
+                      as="li"
+                      className="nav-item events-dropdown-item"
+                      onMouseEnter={handleEventsMouseEnter}
+                      onMouseLeave={handleEventsMouseLeave}
+                    >
+                      <Nav.Link
+                        aria-expanded={eventsOpen}
+                        href="#"
+                        onClick={toggleEventsDropdown}
+                        className="fw-bold"
+                        style={{ cursor: "pointer" }}
+                      >
+                        <span className="item-name">Events</span>
+                        <span className="menu-icon ms-2">
+                          <ChevronDown
+                            size={16}
+                            className="toggledrop-desktop right-icon"
+                          />
+                          <span className="toggle-menu">
+                            <Plus size={16} className="arrow-active text-white" />
+                            <Minus size={16} className="arrow-hover text-white" />
+                          </span>
+                        </span>
+                      </Nav.Link>
+
+                      {categoryList && categoryList.length > 0 && (
+                        <div className={`events-dropdown-wrapper ${eventsOpen ? "show" : ""}`}>
+                          <div className="events-dropdown-container">
+                            {/* Scrollable container for categories */}
+                            <ul
+                              className="events-category-list"
+                              style={{
+                                maxHeight: showAllEvents ? "300px" : "auto",
+                                overflowY: showAllEvents ? "auto" : "visible",
+                                paddingRight: showAllEvents ? "8px" : "0",
+                                transition: "max-height 0.3s ease",
+                              }}
+                            >
+                              {displayedCategories.map((category) => (
+                                <Nav.Item as="li" key={category.value || category.id}>
+                                  <Link
+                                    href={`/events/category/${createSlug(category.label)}`}
+                                    className={`nav-link ${location.pathname === `/events/category/${category.value || category.id}` ? "active" : ""}`}
+                                    onClick={() => handleNavigation(`/events/category/${category.value || category.id}`)}
+                                  >
+                                    {category.label || category.name}
+                                  </Link>
+                                </Nav.Item>
+                              ))}
+                            </ul>
+
+                            {/* Show More/Less Button */}
+                            {hasMoreCategories && (
+                              <div className="show-more-container" style={{ padding: "8px 16px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+                                <button
+                                  type="button"
+                                  className="btn btn-link text-info p-0 fw-bold "
+                                  onClick={handleShowMoreLess}
+                                  style={{
+                                    fontSize: "14px",
+                                    textDecoration: "none",
+                                  }}
+                                >
+                                  {showAllEvents ? (
+                                    <>
+                                      <span>Show Less</span>
+                                      <ChevronDown size={14} style={{ transform: "rotate(180deg)", marginLeft: "4px" }} />
+                                    </>
+                                  ) : (
+                                    <>
+                                      <span>Show More ({categoryList.length - INITIAL_DISPLAY_COUNT} more)</span>
+                                      <ChevronDown size={14} style={{ marginLeft: "4px" }} />
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </Nav.Item>
+
+                    <Nav.Item as="li" className="nav-item">
                       <Link href="/blogs" passHref legacyBehavior>
                         <Nav.Link
-                          className={`fw-bold ${location.asPath === "/blogs" ? "active" : ""
-                            }`}
+                          className={`fw-bold ${location.asPath === "/blogs" ? "active" : ""}`}
                           onClick={() => handleNavigation("/blogs")}
                         >
                           Blogs
@@ -236,8 +387,7 @@ const HeaderDefault = memo(() => {
                   </span>
                 </Button>
                 <div
-                  className={`fw-bold navbar-collapse ${show === true ? "collapse show" : "collapse"
-                    }`}
+                  className={`fw-bold navbar-collapse ${show === true ? "collapse show" : "collapse"}`}
                   id="navbarSupportedContent"
                 >
                   <ul className="navbar-nav align-items-center ms-auto mb-2 mb-xl-0">
@@ -248,13 +398,9 @@ const HeaderDefault = memo(() => {
                         className="me-4 fw-bold btn-sm"
                         onClick={handleBookClick}
                         buttonText="Book Now"
-                      >
-                      </CustomBtn>
+                      />
                     )}
-                    <Dropdown
-                      as="li"
-                      className="nav-item dropdown iq-responsive-menu"
-                    >
+                    <Dropdown as="li" className="nav-item dropdown iq-responsive-menu">
                       <div className={`search-box ${isOpen ? "show" : ""}`}>
                         <Dropdown show={isOpen} onToggle={handleToggle}>
                           <Dropdown.Toggle
@@ -293,36 +439,21 @@ const HeaderDefault = memo(() => {
                           className="dropdown-menu-end dropdown-user border-0 p-0 m-0"
                         >
                           <li className="user-info d-flex align-items-center gap-3 mb-3">
-                            <AvatarImage
-                              src={UserData.photo}
-                              alt="Profile"
-                              name={UserData.name}
-                              size={43}
-                            />
+                            <AvatarImage src={UserData.photo} alt="Profile" name={UserData.name} size={43} />
                             <span className="font-size-14 fw-500 text-capitalize text-white">
                               {UserData?.name}
                             </span>
                           </li>
                           <li>
-                            <Link
-                              href="/profile"
-                              className="iq-sub-card d-flex align-items-center gap-3"
-                            >
+                            <Link href="/profile" className="iq-sub-card d-flex align-items-center gap-3">
                               <UserIcon size={16} />
-                              <h6 className="mb-0 font-size-14 fw-normal">
-                                My Profile
-                              </h6>
+                              <h6 className="mb-0 font-size-14 fw-normal">My Profile</h6>
                             </Link>
                           </li>
                           <li>
-                            <Link
-                              href="/extra/pricing-plan"
-                              className="iq-sub-card d-flex align-items-center gap-3"
-                            >
+                            <Link href="/extra/pricing-plan" className="iq-sub-card d-flex align-items-center gap-3">
                               <CreditCardIcon size={16} />
-                              <h6 className="mb-0 font-size-14 fw-normal">
-                                Bookings
-                              </h6>
+                              <h6 className="mb-0 font-size-14 fw-normal">Bookings</h6>
                             </Link>
                           </li>
                           <li>
@@ -332,9 +463,7 @@ const HeaderDefault = memo(() => {
                               onClick={handleLogout}
                             >
                               <LogOutIcon size={16} />
-                              <h6 className="mb-0 font-size-14 fw-normal">
-                                Logout
-                              </h6>
+                              <h6 className="mb-0 font-size-14 fw-normal">Logout</h6>
                             </Button>
                           </li>
                         </Dropdown.Menu>
@@ -343,7 +472,7 @@ const HeaderDefault = memo(() => {
                       <CustomBtn
                         style={{ padding: "8px 16px" }}
                         buttonText={"Login"}
-                        className={'ms-3'}
+                        className={"ms-3"}
                         icon={<Fingerprint size={20} />}
                         HandleClick={() => location.push("/auth/login")}
                       />

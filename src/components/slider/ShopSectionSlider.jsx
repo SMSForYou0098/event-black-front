@@ -4,13 +4,7 @@ import { Fragment, memo } from "react";
 // import { Link } from "react-router-dom";
 import Link from "next/link";
 
-interface ShopSectionSliderProps {
-  shopsellingImg: any;
-  shopsellingText: string | undefined;
-  slug: string | undefined;
-}
-
-const ShopSectionSlider = memo((props:ShopSectionSliderProps) => {
+const ShopSectionSlider = memo((props) => {
   return (
     <Fragment>
       <div className="category-inner position-relative">

@@ -1,5 +1,6 @@
 import { FC, Fragment, memo } from "react";
 import Link from 'next/link';
+import Image from "next/image";
 
 
 const TopTenCard = memo(({ link, image, countValue }) => {
@@ -9,17 +10,20 @@ const TopTenCard = memo(({ link, image, countValue }) => {
         <div className="block-image position-relative">
           <div className="img-box">
             <Link className="overly-images" href={link}>
-                <img
-                  src={image}
-                  alt="movie-card"
-                  className="img-fluid object-cover"
-                />
+              <Image
+                src={image}
+                alt="movie-card"
+                loading="lazy"
+                width={180}
+                height={270}
+                className="img-fluid card-img"
+              />
             </Link>
             <span className="top-ten-numbers texture-text">{countValue}</span>
           </div>
         </div>
       </div>
-    </Fragment> 
+    </Fragment>
   );
 });
 

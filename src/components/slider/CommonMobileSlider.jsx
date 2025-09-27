@@ -4,7 +4,9 @@ import { Navigation } from "swiper";
 import { extractImageUrl, toAbsolute } from './CommonBannerSlider';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useMyContext } from '@/Context/MyContextProvider';
 const CommonMobileSlider = ({banners=[]},themeSchemeDirection) => {
+    const  {createSlug} = useMyContext();
   return (
     <Swiper
                 key={`mobile-${String(themeSchemeDirection)}`}

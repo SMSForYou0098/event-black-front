@@ -12,18 +12,47 @@ const fetchCategoryEvents = async (category_name) => {
   return response.data;
 };
 
-const fetchBannersForCategory = async (type) => {
-  // calls banner-list/{type}
-  // const response = await api.get(`/banner-list/category?title=${type}`);
-  const response = await api.get(`/banner-list/category`);
-  return response.data;
+const fetchBannersForCategory = async (categoryName) => {
+  
+  // if backend expects a query param, pass it — otherwise remove the `?title=...` part
+  const url = categoryName ? `/banner-list/category?title=${(categoryName)}` : `/banner-list/category`;
+  const res = await api.get(url);
+  const payload = res.data;
+
+  // some backends return: [{ status: false, message: "Banner not found" }]
+  if (Array.isArray(payload) && payload.length && payload[0]?.status === false) {
+    return [];
+  }
+
+  // or: { status: false, message: "Banner not found" }
+  if (payload && typeof payload === 'object' && payload.status === false) {
+    return [];
+  }
+
+  // If response contains banner array under known keys – normalize and return the array
+  if (payload?.banners && Array.isArray(payload.banners)) return payload.banners;
+  if (payload?.data && Array.isArray(payload.data)) return payload.data;
+
+  // If payload itself is an array of banners, return it
+  if (Array.isArray(payload)) return payload;
+
+  // If payload is an object that *is* a single banner, wrap it in an array
+  if (payload && typeof payload === 'object') {
+    // sometimes API returns { data: { banners: [...] } } or { data: {...} }
+    if (payload.data && Array.isArray(payload.data.banners)) return payload.data.banners;
+    if (payload.data && Array.isArray(payload.data)) return payload.data;
+    // fallback: treat as single banner object
+    return [payload];
+  }
+
+  // anything else -> no banners
+  return [];
 };
 
 const EventsByCategory = () => {
   const { convertSlugToTitle } = useMyContext();
   const router = useRouter();
   const { category_name } = router.query;
-
   const {
     data: categoryData,
     isLoading: eventsLoading,
@@ -41,17 +70,18 @@ const EventsByCategory = () => {
     isError: bannersError,
     error: bannersErrorObj,
   } = useQuery({
-    queryKey: ["banners", category_name],
+    queryKey: ['banners', category_name],
     queryFn: () => fetchBannersForCategory(category_name),
-    enabled: !!category_name, // only run once we have the category_name
+    enabled: !!category_name,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30, // renamed from cacheTime in v5
+    refetchOnWindowFocus: false,
+    throwOnError: false, // prevent throwing errors, handle them manually
   });
+  
+  // Ensure bannerData is always a plain array (UI expects array)
+  const bannerData = Array.isArray(bannersRaw) ? bannersRaw : (bannersRaw ? [bannersRaw] : []);
 
-  // normalize banner payload to an array the UI expects
-  const bannerData =
-    (bannersRaw && (bannersRaw.banners || bannersRaw.data || bannersRaw)) || [];
-
-  console.log("category events", categoryData);
-  console.log("banners for category", bannerData);
 
   if (eventsError) {
     return (
