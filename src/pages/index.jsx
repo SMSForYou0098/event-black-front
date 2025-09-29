@@ -1,6 +1,7 @@
 import { memo, useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useEnterExit } from "@/utilities/usePage";
+import BannerSkeleton from "@/utils/SkeletonUtils/BannerSkeleton";
 
 // Enhanced intersection observer hook - LOAD ONCE + CLEANUP
 const useLoadOnce = (threshold = 0.1, rootMargin = '50px') => {
@@ -95,17 +96,6 @@ const FooterSlider = createDynamicComponent(
   { ssr: false }
 );
 
-// Improved skeleton components with better UX
-const BannerSkeleton = memo(() => (
-  <div className="position-relative" style={{ height: '400px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-    <div className="position-absolute top-50 start-50 translate-middle text-center text-white">
-      <div className="spinner-border mb-3" role="status" style={{ width: '3rem', height: '3rem' }}>
-        <span className="visually-hidden">Loading banner...</span>
-      </div>
-      <h5 className="mb-0 opacity-75">Loading exciting content...</h5>
-    </div>
-  </div>
-));
 
 const SectionSkeleton = memo(({ title }) => (
   <section className="py-5">
@@ -157,8 +147,6 @@ const FooterSkeleton = memo(() => (
   </footer>
 ));
 
-// Add display names to skeleton components
-BannerSkeleton.displayName = "BannerSkeleton";
 SectionSkeleton.displayName = "SectionSkeleton";
 FooterSkeleton.displayName = "FooterSkeleton";
 
