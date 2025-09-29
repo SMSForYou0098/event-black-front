@@ -1,4 +1,4 @@
-import { SEOHead, generateCategorySEO, generateEventSEO, generatePageSEO } from '../../../utils/seo/seo';
+import { SEOHead, generateCategorySEO, generateEventSEO, generatePageSEO,generateArticleSEO } from '../../../utils/seo/seo';
 
 // Event SEO Component - Drop-in replacement
 export const EventSEO = ({ eventData, event_key }) => {

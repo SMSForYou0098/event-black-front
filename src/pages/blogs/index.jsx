@@ -11,6 +11,7 @@ import CardBlogGridSkeleton from "../../utils/SkeletonUtils/blogs/CardBlogGridSk
 // custom hooks / api
 import { useBreadcrumb } from "@/utilities/usePage";
 import { publicApi } from "@/lib/axiosInterceptor";
+import { SEOHead } from "@/utils/seo/seo";
 
 // Sort options
 const sortOptions = [
@@ -152,9 +153,21 @@ const BLogs = memo(() => {
   }));
 
 
+  const defaultSEO = {
+    title: "Get Your Ticket Blogs | Event Guides & Updates",
+    description: "Explore event blogs on concerts, garba nights, sports matches, theater shows, arts, family events, and nightlife. Stay updated with tips, guides, and stories to help you find and enjoy the best events near you.",
+    keywords: "event blogs, concert reviews, sports updates, theater guides, nightlife blogs, event tips, garba blogs, Get Your Ticket",
+    image: "/images/default-og-image.jpg",
+    url: "/blogs",
+    type: "website"
+  };
+  
+
+
 
   return (
     <Fragment>
+      <SEOHead {...defaultSEO} />
       <div className="section-padding">
         <Container>
           {/* Filter Controls - Always visible, not affected by loading state */}

@@ -4,6 +4,7 @@ import CommentBox from './CommentBox';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
+import { publicApi, api } from "@/lib/axiosInterceptor";
 
 // import CommentsSectionSkeleton from '../skeletons/CommentsSectionSkeleton';
 import { Heart, MessageCircle, Trash } from 'lucide-react';
@@ -16,7 +17,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
   const [commentList, setCommentList] = useState(comments);
   const [replyTo, setReplyTo] = useState(null);
   const [expandedReplies, setExpandedReplies] = useState({});
-  const { api, authToken, UserData ,ErrorAlert, AskAlert } = useMyContext();
+  const {   UserData ,ErrorAlert, AskAlert } = useMyContext();
 
   useEffect(() => {
     setCommentList(comments);
@@ -51,10 +52,9 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
 
   const toggleLike = async (commentId, currentStatus) => {
     try {
-      const res = await axios.post(
-        `${api}blog-comments/${commentId}/like`,
+      const res = await api.post(
+        `/blog-comments/${commentId}/like`,
         { like: !currentStatus },
-        { headers: { Authorization: `Bearer ${authToken}` } }
       );
 
       const { likes } = res.data;
@@ -87,9 +87,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
   
     if (confirmed) {
       try {
-        await axios.delete(`${api}blog-comment-destroy/${commentId}`, {
-          headers: { Authorization: `Bearer ${authToken}` },
-        });
+        await api.delete(`/blog-comment-destroy/${commentId}`);
   
         setCommentList((prev) => prev.filter((c) => c.id !== commentId));
         refreshComments();

@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Button, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
+import { publicApi,api } from "@/lib/axiosInterceptor";
 
 const CommentBox = ({ id, parentId = null, onCommentAdded, onCancel }) => {
   const [formData, setFormData] = useState({ text: '' });
   const [error, setError] = useState(null);
-  const { api, authToken } = useMyContext();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,15 +17,12 @@ const CommentBox = ({ id, parentId = null, onCommentAdded, onCancel }) => {
     }
 
     try {
-      await axios.post(
-        `${api}blog-comment-store/${id}`,
+      await api.post(
+        `/blog-comment-store/${id}`,
         {
           comment: formData.text,
           id: parentId,
         },
-        {
-          headers: { Authorization: `Bearer ${authToken}` },
-        }
       );
 
       onCommentAdded?.();

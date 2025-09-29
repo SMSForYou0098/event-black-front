@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
+import { publicApi } from "@/lib/axiosInterceptor";
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
@@ -11,6 +12,7 @@ import PostById from '../../../components/events/blogs/PostPage';
 import DetailMetaList from '../../../components/blog/DetailMetaList';
 // import RelatedPosts from '../../../components/events/blogs/';
 import CardBlogGrid from "../../../components/events/blogs/CardBlogGrid";
+import { BlogSEO } from '../../../components/events/SEO';
 
 const PostPage = () => {
   const { authToken, api } = useMyContext();
@@ -50,8 +52,8 @@ const PostPage = () => {
     queryKey: ['post', key],
     queryFn: async () => {
       const headers = { Authorization: `Bearer ${authToken}` };
-      const response = await axios.get(`${api}blog-show/${key}`, { headers });
-
+      // const response = await axios.get(`${api}blog-show/${key}`, { headers });
+      const response = await publicApi.get(`/blog-show/${key}`);
       if (!response.data?.status) {
         throw new Error(response.data?.message || 'Invalid post data format.');
       }
@@ -67,7 +69,8 @@ const PostPage = () => {
     queryKey: ['related-posts', key],
     queryFn: async () => {
       const headers = { Authorization: `Bearer ${authToken}` };
-      const response = await axios.get(`${api}related-blogs/${key}`, { headers });
+      // const response = await axios.get(`${api}related-blogs/${key}`, { headers });
+      const response = await publicApi.get(`/related-blogs/${key}`);
       return response.data?.data || [];
     },
     enabled: !!key && !!postData,
@@ -79,7 +82,7 @@ const PostPage = () => {
     queryKey: ['comments', key],
     queryFn: async () => {
       const headers = { Authorization: `Bearer ${authToken}` };
-      const response = await axios.get(`${api}blog-comment-show/${key}`, { headers });
+      const response = await publicApi.get(`/blog-comment-show/${key}`);
 
       if (response.data?.status) {
         const commentsData = response.data.data || [];
@@ -113,6 +116,17 @@ const PostPage = () => {
   return (
     <div className='pt-5'>
       <Row>
+        <BlogSEO articleData={{
+          title:postData?.data?.title,
+          description:postData?.data?.meta_description,
+          featured_image:postData?.data?.thumbnail,
+          author:postData?.data?.user?.name,
+          published_date:postData?.data?.created_at,
+          category: postData?.categories.map((item)=>item.title),
+          tags:postData?.data?.tags
+        }} 
+        slug={title}
+        />
           <Col lg={12} sm={12}>
           <PostById
             post={postData?.data}
