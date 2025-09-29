@@ -3,20 +3,10 @@ import React, { Fragment, memo } from 'react'
 //react-router-dom
 import Link from "next/link";
 
-interface Props {
-    children?: React.ReactNode;
-    thumbnail: any;
-    date: string;
-    username: string;
-    title: string;
-    description: string;
-    categories?: string;
-    tags?: string[];
-    id:string
-  }
+
 
   
-const CardBlogGrid = memo((props: Props) => {
+const CardBlogGrid = memo((props) => {
     return (
         <Fragment>
             <div className="iq-blog-box">
