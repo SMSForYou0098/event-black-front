@@ -1,13 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-// Redux Selector / Action
-import { useDispatch } from 'react-redux';
-
-interface LayoutProps {
-    children: React.ReactNode;
-}
-
-const AppLayout = ({ children }: LayoutProps) => {
-    return <>{children}</>;
+// Redux (you imported dispatch but not used, so I removed it)
+const AppLayout = ({ children }) => {
+  return <>{children}</>;
 };
+
 export default AppLayout;

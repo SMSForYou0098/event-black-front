@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Row, Col } from 'react-bootstrap';
-import TicketCanvas from '../Events/Tickets/Ticket_canvas';
+import TicketCanvas from '../events/Tickets/Ticket_canvas';
 import { FaInstagram, FaTimes, FaYoutube } from 'react-icons/fa';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { useMyContext } from "@/Context/MyContextProvider"; // done
 
-import AmusementTicket from '../Events/Tickets/AmusementTicket';
-import AccreditationTicket from '../Events/Tickets/AccreditationTicket';
-import TicketCanvasBatch from '../Events/Tickets/TicketCanvasBatch';
+import AmusementTicket from '../events/Tickets/AmusementTicket';
+import AccreditationTicket from '../events/Tickets/AccreditationTicket';
+import TicketCanvasBatch from '../events/Tickets/TicketCanvasBatch';
 import axios from 'axios';
 import IDCardDragAndDrop from '../../components/CustomComponents/IDCardDragAndDrop';
 

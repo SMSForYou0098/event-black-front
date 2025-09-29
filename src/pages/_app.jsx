@@ -13,7 +13,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import AppLayout from "@/layouts/App";
 import Frontend from "@/layouts/Frontend";
 import Blank from '@/layouts/blank';
-import Merchandise from '@/layouts/MerchandiseLayout';
+// import Merchandise from '@/layouts/MerchandiseLayout';
 
 //store
 import { Provider } from 'react-redux';
@@ -27,7 +27,7 @@ import { Toaster } from 'react-hot-toast';
 const layouts = {
   "Blank": Blank,
   "Frontend": Frontend,
-  "Merchandise": Merchandise
+  // "Merchandise": Merchandise
 };
 
 export default function App({ Component, pageProps: { session, ...pageProps } }) {

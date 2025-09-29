@@ -16,7 +16,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
   const [commentList, setCommentList] = useState(comments);
   const [replyTo, setReplyTo] = useState(null);
   const [expandedReplies, setExpandedReplies] = useState({});
-  const { api, authToken, UserData ,ErrorAlert } = useMyContext();
+  const { api, authToken, UserData ,ErrorAlert, AskAlert } = useMyContext();
 
   useEffect(() => {
     setCommentList(comments);
@@ -78,29 +78,28 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
   };
 
   const handleDelete = async (commentId) => {
-    const confirm = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'This comment will be permanently deleted.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Yes, delete it!',
-    });
-
-    if (confirm.isConfirmed) {
+    // Use reusable AskAlert
+    const confirmed = await AskAlert(
+      "This comment will be permanently deleted.", // title
+      "Yes, delete it!",                           // confirm button text
+      "Comment deleted successfully!"              // success message
+    );
+  
+    if (confirmed) {
       try {
         await axios.delete(`${api}blog-comment-destroy/${commentId}`, {
           headers: { Authorization: `Bearer ${authToken}` },
         });
+  
         setCommentList((prev) => prev.filter((c) => c.id !== commentId));
         refreshComments();
       } catch (error) {
-        console.error('Delete failed:', error);
-        Swal.fire('Error', 'Failed to delete the comment.', 'error');
+        console.error("Delete failed:", error);
+        Swal.fire("Error", "Failed to delete the comment.", "error");
       }
     }
   };
+  
 
   const renderComment = (comment, depth = 0) => {
     const hasReplies = comment.replies && comment.replies.length > 0;

@@ -220,7 +220,7 @@ const Index = React.memo(() => {
           <Nav className="rounded  navbar navbar-expand-lg navbar-light top-1">
             <Container>
               <Navbar.Brand href="#" className="mx-2 d-flex align-items-center">
-                <Logo color={"true"} />
+                {/* <Logo color={"true"} /> */}
                 <h5 className="logo-title mx-3">{appName}</h5>
               </Navbar.Brand>
               <Navbar.Toggle
