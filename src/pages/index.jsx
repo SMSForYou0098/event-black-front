@@ -79,6 +79,11 @@ const HighDemand = createDynamicComponent(
   () => <SectionSkeleton title="High Demand" />
 );
 
+const PopularEvents = createDynamicComponent(
+  () => import("@/components/sections/PopularEvents"),
+  () => <SectionSkeleton title="Popular Events" />
+);
+
 const EventsSection = createDynamicComponent(
   () => import("@/components/sections/EventsSection"),
   () => <SectionSkeleton title="Events" />
@@ -165,6 +170,14 @@ const OTT = memo(() => {
         preloadMargin="150px"
       >
         <HighDemand />
+      </PreloadSection>
+      
+      {/* High-medium priority: Load when close */}
+      <PreloadSection 
+        fallback={<SectionSkeleton title="Popular Events" />}
+        preloadMargin="100px"
+      >
+        <PopularEvents />
       </PreloadSection>
       
       {/* Medium priority: Load when in view */}
