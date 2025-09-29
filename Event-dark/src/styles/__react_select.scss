@@ -1,0 +1,112 @@
+// Custom variables
+$select-bg: var(--bs-dark); // Dark background for the select
+$select-border: rgba(255, 255, 255, 0.18); // Fixed: 'intial' typo and added proper border color
+$select-shadow: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+
+
+// Global styles for React Select
+.react-select {
+    &__input-container input {
+        box-shadow: none !important;
+    }
+    &__multi-value {
+        background-color: var(--bs-primary) !important; // Primary color for selected items
+        color: white !important; // White text on primary background
+        border-radius: 1rem !important; // Rounded corners
+        .react-select__multi-value__label {
+            color: white !important; // White text for the label
+        }
+
+        .react-select__multi-value__remove {
+            color: white !important; // White color for the remove icon
+
+            &:hover {
+                color: white !important; // Keep icon white on hover
+            }
+        }
+    }
+    &__control {
+        background: $select-bg !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        border: 1px solid $select-border !important;
+        box-shadow: $select-shadow !important;
+        border-radius: 8px !important;
+
+        // Remove the red outline/box-shadow on focus
+        &--is-focused {
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            box-shadow: $select-shadow !important; // Keep your custom shadow, remove default outline
+            outline: none !important; // Remove any outline
+        }
+    }
+
+    &__menu {
+        background: rgba(0,0,0,0.8) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border: 1px solid $select-border !important;
+        box-shadow: $select-shadow !important;
+        border-radius: 8px !important;
+        z-index: 10 !important; // Ensure the menu appears above other elements
+    }
+
+    &__option {
+    background-color: transparent !important;
+    color: var(--bs-white) !important;
+
+    &--is-focused {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+}
+
+
+    &__single-value {
+        color: var(--bs-white) !important; // Changed to white to match your dark theme
+    }
+
+    &__placeholder {
+        font-size: 0.8rem !important;
+        color: rgba(255, 255, 255, 0.7) !important; // Changed to white with opacity for dark theme
+    }
+
+    &__input {
+
+        // Style the actual input field
+        input {
+            color: var(--bs-white) !important; // White text color for input
+
+            &::placeholder {
+                color: rgba(255, 255, 255, 0.7) !important;
+            }
+        }
+    }
+
+    &__value-container {
+        // Ensure the container doesn't interfere with input styling
+        color: var(--bs-white) !important;
+    }
+
+    &__indicator-separator {
+        background-color: $select-border !important;
+    }
+
+    &__dropdown-indicator {
+        color: rgba(255, 255, 255, 0.7) !important; // Changed to white for dark theme
+
+        &:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+    }
+
+    // Remove any focus rings or outlines
+    &__control,
+    &__control--is-focused {
+
+        &:focus,
+        &:focus-within {
+            outline: none !important;
+            box-shadow: $select-shadow !important;
+        }
+    }
+}
