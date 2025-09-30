@@ -101,7 +101,7 @@ const EventsByOrgs = () => {
   const displayTitle = convertSlugToTitle?.(organization || "") || organization || "Organization Events";
 
   return (
-    <div className="p-3">
+    <div className="section-padding">
       <CommonBannerSlider 
         type="organization" 
         banners={bannersRaw} 

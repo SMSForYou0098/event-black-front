@@ -9,7 +9,6 @@ import { useSelector } from "react-redux";
 import { theme_scheme_direction } from "../../../store/setting/selectors";
 import CustomBtn from "@/utils/CustomBtn";
 
-
 export const getBanners = async () => {
   const response = await api.get('/banner-list/main');
   return response.data.data;

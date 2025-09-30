@@ -2,6 +2,9 @@
 import React, { useMemo, useState } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { useRouter } from "next/router";
+import CustomHeader from "../../utils/ModalUtils/CustomModalHeader";
+import CustomBtn from "@/utils/CustomBtn";
+import { MapPin } from "lucide-react";
 
 const CitySelectModal = ({ show, onHide, org, createSlug }) => {
   const router = useRouter();
@@ -68,33 +71,31 @@ const CitySelectModal = ({ show, onHide, org, createSlug }) => {
   };
 
   return (
-    <Modal show={show} onHide={onHide} centered size="lg">
-      <Modal.Header closeButton>
-        <Modal.Title>
-          {org?.organisation
+    <Modal show={show} onHide={onHide} size="lg">
+      <CustomHeader title={org?.organisation
             ? `Select Your City — ${org.organisation}`
             : "Select Your City"}
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
+             closable onClose={onHide}/>
+      <Modal.Body className="modal-body-padding">
         <Form>
           <Form.Group controlId="citySearch">
             <Form.Control
               type="text"
+              className="card-glassmorphism__input"
               placeholder="Search for your city"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </Form.Group>
 
-          <Button
+          <CustomBtn
+            icon={<MapPin className="me-2"/>}
             variant="primary"
             className="w-100 my-3"
-            onClick={detectLocation}
+            HandleClick={detectLocation}
             disabled={detecting}
-          >
-            {detecting ? "Detecting..." : "Detect my location"}
-          </Button>
+            buttonText={detecting ? "Detecting..." : "Detect My Location"}
+          />
           {error && <div className="text-danger mb-2">{error}</div>}
         </Form>
 
@@ -107,13 +108,13 @@ const CitySelectModal = ({ show, onHide, org, createSlug }) => {
           <Row className="g-2 mt-1">
             {filtered.map((city) => (
               <Col xs={6} md={4} lg={3} key={city}>
-                <Button
+                <CustomBtn
                   variant="outline-secondary"
                   className="w-100"
-                  onClick={() => handleChoose(city)}
-                >
-                  {city}
-                </Button>
+                  HandleClick={() => handleChoose(city)}
+                  hideIcon={true}
+                  buttonText={city}
+                />
               </Col>
             ))}
             {filtered.length === 0 && (

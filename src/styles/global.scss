@@ -8,6 +8,10 @@
 @import './_react_select.scss';
 @import './_gallery';
 
+.modal-body-padding{
+  padding: 1.2rem 0.7rem !important;
+}
+
 .blog-content p, li {
   color: var(--bs-white) !important;
 }
