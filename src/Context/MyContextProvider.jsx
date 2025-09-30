@@ -55,8 +55,8 @@ export const MyContextProvider = ({ children }) => {
         setSystemSetting(data);
         // initialize currency master from local JSON if not overridden by settings
         // (you can adjust if settings provides currency mapping)
-        setCurrencyMaster(currencyData);
       }
+      setCurrencyMaster(currencyData);
     },
     // optional: retry: 1
   });
@@ -373,9 +373,11 @@ export const MyContextProvider = ({ children }) => {
   };
 
   const convertSlugToTitle = (slug) => {
-    if (slug) {
-      return slug.replace(/-/g, " ").replace(/\b\w/g);
-    }
+    if (!slug) return "";
+    
+    return slug
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
   const fetchEventCategories = async () => {
@@ -396,6 +398,7 @@ export const MyContextProvider = ({ children }) => {
   };
 
   const getCurrencySymbol = (currency) => {
+    setCurrencyMaster(currencyData)
     if (currencyMaster && currency) {
       if (currencyMaster.hasOwnProperty(currency)) {
         let symbol = currencyMaster[currency]?.symbol;

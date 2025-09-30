@@ -64,7 +64,7 @@ const CardStyle = memo((props) => {
               </span>
             )}
             <Image
-              src={props?.image}
+              src={props?.image || 'https://placehold.co/500x400'}
               alt="movie-card"
               loading="lazy"
               width={180}

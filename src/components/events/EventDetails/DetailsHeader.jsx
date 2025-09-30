@@ -84,7 +84,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 {/* --- Single Event Image --- */}
                 <div className="product-image-container d-flex justify-content-center align-items-center">
                     <Image
-                        src={eventData?.thumbnail}
+                        src={eventData?.thumbnail || 'https://placehold.co/500x400'}
                         alt={eventData?.name}
                         className="img-fluid rounded-4"
                         width={300}

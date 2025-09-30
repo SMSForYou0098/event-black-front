@@ -67,7 +67,7 @@ const PostById = ({ post, categories, loading }) => {
             {post?.thumbnail && (
               <Image
                 variant="top"
-                src={post?.thumbnail}
+                src={post?.thumbnail || 'https://placehold.co/500x400'}
                 alt={post?.title}
                 width={1200}
                 height={628}

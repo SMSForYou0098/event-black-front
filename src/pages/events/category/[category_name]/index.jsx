@@ -12,10 +12,10 @@ const fetchCategoryEvents = async (category_name) => {
   return response.data;
 };
 
-const fetchBannersForCategory = async (categoryName) => {
+export const fetchBannersForCategory = async (categoryName,type) => {
   
   // if backend expects a query param, pass it — otherwise remove the `?title=...` part
-  const url = categoryName ? `/banner-list/category?title=${(categoryName)}` : `/banner-list/category`;
+  const url = categoryName ? `/banner-list/${type}?title=${(categoryName)}` : `/banner-list/category`;
   const res = await api.get(url);
   const payload = res.data;
 
@@ -71,7 +71,7 @@ const EventsByCategory = () => {
     error: bannersErrorObj,
   } = useQuery({
     queryKey: ['banners', category_name],
-    queryFn: () => fetchBannersForCategory(category_name),
+    queryFn: () => fetchBannersForCategory(category_name, 'category'),
     enabled: !!category_name,
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30, // renamed from cacheTime in v5

@@ -16,7 +16,6 @@ const EventsContainerCat = ({ events = [], loading = false, title }) => {
 
   return (
     <div>
-
        <h5 className="main-title text-capitalize mb-0">{title}</h5>
     <Row className="row-cols-xl-6 row-cols-md-4 row-cols-2">
       {events.map((data, index) => (
@@ -28,7 +27,7 @@ const EventsContainerCat = ({ events = [], loading = false, title }) => {
             movieTime={data.date_range}
             watchlistLink="/play-list"
             link={`/events/${createSlug(data.city)}/${createSlug(
-              data.organisation
+              data.organisation || data?.organizer?.organisation
             )}/${createSlug(data.name)}/${data.event_key}`}
             lowest_ticket_price={data.lowest_ticket_price}
             lowest_sale_price={data.lowest_sale_price}
