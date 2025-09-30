@@ -122,7 +122,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
 
     // If component prop type is 'main' -> default behavior (category listing)
     if (type === 'main') {
-      router.push(`/events/category/${createSlug(banner?.category).toLowerCase()}`);
+      router.push(`/events/category/${createSlug(banner?.category.title).toLowerCase()}?key=${banner?.category?.id}`);
       return;
     }
 

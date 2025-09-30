@@ -12,10 +12,11 @@ const fetchCategoryEvents = async (category_name) => {
   return response.data;
 };
 
-export const fetchBannersForCategory = async (categoryName,type) => {
+export const fetchBannersForCategory = async (id,type) => {
   
   // if backend expects a query param, pass it — otherwise remove the `?title=...` part
-  const url = categoryName ? `/banner-list/${type}?title=${(categoryName)}` : `/banner-list/category`;
+  // const url = id ? `/banner-list/${type}?id=${(id)}` : `/banner-list/category`;
+  const url = `/banner-list/${type}?id=${(id)}` ;
   const res = await api.get(url);
   const payload = res.data;
 
@@ -52,7 +53,8 @@ export const fetchBannersForCategory = async (categoryName,type) => {
 const EventsByCategory = () => {
   const { convertSlugToTitle } = useMyContext();
   const router = useRouter();
-  const { category_name } = router.query;
+  const { category_name, key } = router.query;
+  console.log('key ',key)
   const {
     data: categoryData,
     isLoading: eventsLoading,
@@ -71,7 +73,7 @@ const EventsByCategory = () => {
     error: bannersErrorObj,
   } = useQuery({
     queryKey: ['banners', category_name],
-    queryFn: () => fetchBannersForCategory(category_name, 'category'),
+    queryFn: () => fetchBannersForCategory(key, 'category'),
     enabled: !!category_name,
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30, // renamed from cacheTime in v5
@@ -104,7 +106,7 @@ const EventsByCategory = () => {
         <CategorySEO categoryData={categoryData} categorySlug={category_name} />
       )}
 
-      <div className="mt-5 pt-5 p-3">
+      <div className="">
         <EventsByCat
           bannerData={bannerData}
           bannerLoading={bannersLoading}

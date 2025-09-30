@@ -9,32 +9,35 @@ import CommonBannerSlider from "../../../../components/slider/CommonBannerSlider
 
 // ---- API ----
 const fetchOrgDetails = async ({ queryKey }) => {
-  const [, { id }] = queryKey;
+    const [, { id, city }] = queryKey;
+    if (!id) return null;
   
-  const resp = await publicApi.get(`/landing-orgs/show-details/${id}`);
-  const { status, data } = resp?.data ?? {};
+    const resp = await publicApi.get(`/landing-orgs/show-details/${id}`, {
+      params: { city }, // attach city in query params
+    });
   
-  // Return data if status is truthy, otherwise return raw response data
-  return typeof status !== "undefined" ? (status ? data : null) : resp?.data;
-};
+    const { status, data } = resp?.data ?? {};
+    return typeof status !== "undefined" ? (status ? data : null) : resp?.data;
+  };
 
 const EventsByOrgs = () => {
   const router = useRouter();
   const { convertSlugToTitle } = useMyContext();
 
   // Extract and normalize query params
-  const { key: idParam, organization: orgParam } = router.query;
-  const id = Array.isArray(idParam) ? idParam[0] : idParam;
-  const organization = Array.isArray(orgParam) ? orgParam[0] : orgParam;
+  const { key: idParam, organization: orgParam, city: cityParam } = router.query;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;                // ?key=9306
+  const organization = Array.isArray(orgParam) ? orgParam[0] : orgParam;  // /events/[city]/[organization]
+  const city = Array.isArray(cityParam) ? cityParam[0] : cityParam;       // ?city=ahmedabad
 
-  // Fetch banners
+  // Fetch banners for this organization by ID (single ?id param expected on the API)
   const {
     data: bannersRaw,
     isLoading: bannersLoading,
   } = useQuery({
-    queryKey: ['banners', organization],
-    queryFn: () => fetchBannersForCategory(organization, 'organization'),
-    enabled: !!organization,
+    queryKey: ["banners", "organization", id],
+    queryFn: () => fetchBannersForCategory(id, "organization"),
+    enabled: !!id,
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
@@ -47,7 +50,7 @@ const EventsByOrgs = () => {
     isError: orgError,
     error,
   } = useQuery({
-    queryKey: ["landing-orgs-show-details", { id }],
+    queryKey: ["landing-orgs-show-details", { id, city}],
     queryFn: fetchOrgDetails,
     enabled: Boolean(router.isReady && id),
     staleTime: 1000 * 60 * 5,
@@ -98,16 +101,19 @@ const EventsByOrgs = () => {
   }
 
   // Generate display title
-  const displayTitle = convertSlugToTitle?.(organization || "") || organization || "Organization Events";
+  const displayTitle =
+    (typeof convertSlugToTitle === "function"
+      ? convertSlugToTitle(organization || "")
+      : organization) || "Organization Events";
 
   return (
     <div className="section-padding">
-      <CommonBannerSlider 
-        type="organization" 
-        banners={bannersRaw} 
+      <CommonBannerSlider
+        type="organization"
+        banners={bannersRaw}
         loading={bannersLoading}
       />
-      
+
       <EventsContainerCat
         events={orgData}
         loading={orgLoading}
