@@ -281,7 +281,11 @@ const Login = () => {
 
       <p className="my-4 text-center fw-500 text-white">
         Login as organizer?{" "}
-        <Link href="/auth/sign-up" className="text-primary ms-1">
+        <Link 
+        // href="https://admin.getyourticket.in/" 
+        href={`${process.env.NEXT_PUBLIC_ADMIN_ROUTE}`} 
+          className="text-primary ms-1"
+          >
           Click Here
         </Link>
       </p>

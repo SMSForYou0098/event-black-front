@@ -161,7 +161,7 @@ const OTT = memo(() => {
   return (
     <>
       {/* Critical: Above the fold - load immediately */}
-      <CommonBannerSlider />
+      {/* <CommonBannerSlider /> */}
       {/* <HomeBannerSlider /> */}
       
       {/* High priority: Preload when user is getting close */}
@@ -177,7 +177,7 @@ const OTT = memo(() => {
         fallback={<SectionSkeleton title="Organisation Events" />}
         preloadMargin="100px"
       >
-        <Organisation />
+        {/* <Organisation /> */}
       </PreloadSection>
       
       {/* Medium priority: Load when in view */}

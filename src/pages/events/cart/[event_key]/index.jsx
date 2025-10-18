@@ -14,7 +14,7 @@ import { useEventData } from "../../../../services/events";
 import CustomBtn from "../../../../utils/CustomBtn";
 import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 import { Calendar, Pin, Tags, Ticket, Users } from "lucide-react";
-import { useHeaderSimple } from "@/context/HeaderContext";
+import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
 import Timer from "../../../../utils/BookingUtils/Timer";
 const CartPage = () => {
