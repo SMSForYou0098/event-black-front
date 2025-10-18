@@ -9,3 +9,4 @@ const CustomHeader = ({ title, closable ,onClose }) => (
   );
 
 export default CustomHeader;
+export { CustomHeader };

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev ",
     "dev:3001": "next dev -p 3001",
-  "start:3001": "next start -p 3001",
+    "start:3001": "next start -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -60,6 +60,7 @@
     "react-redux": "^8.0.5",
     "react-select": "^5.10.2",
     "redux-persist": "^6.0.0",
+    "sharp": "^0.34.4",
     "sweetalert2": "^11.9.0",
     "swiper": "~8.4.7",
     "video.js": "^8.6.1",
