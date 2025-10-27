@@ -54,7 +54,6 @@ const EventsByCategory = () => {
   const { convertSlugToTitle } = useMyContext();
   const router = useRouter();
   const { category_name, key } = router.query;
-  console.log('key ',key)
   const {
     data: categoryData,
     isLoading: eventsLoading,

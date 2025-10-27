@@ -22,7 +22,8 @@ const CommonMobileSlider = ({banners=[]},themeSchemeDirection) => {
                 {banners.map((banner, index) => {
                   const raw = extractImageUrl(banner.images);
                   const imgSrc = toAbsolute(raw) || "/assets/images/fallback-banner.jpg";
-                  const href = banner?.external_url || banner?.button_link || (banner?.event_key ? `/events/${banner.event_key}` : `/events/category/${createSlug(banner?.category || '').toLowerCase()}`);
+                  const href = banner?.external_url || banner?.button_link || (banner?.event_key ? `/events/${banner.event_key}` : `/events/category/${banner?.category || ''.toLowerCase()}`);
+                  // const href = banner?.external_url || banner?.button_link || (banner?.event_key ? `/events/${banner.event_key}` : `/events/category/${createSlug(banner?.category || '').toLowerCase()}`);
 
                   return (
                     <SwiperSlide className="slide m-0 p-0 home-slider" key={banner.id || index}>

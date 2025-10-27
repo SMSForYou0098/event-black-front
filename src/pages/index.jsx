@@ -161,7 +161,7 @@ const OTT = memo(() => {
   return (
     <>
       {/* Critical: Above the fold - load immediately */}
-      {/* <CommonBannerSlider /> */}
+      <CommonBannerSlider />
       {/* <HomeBannerSlider /> */}
       
       {/* High priority: Preload when user is getting close */}

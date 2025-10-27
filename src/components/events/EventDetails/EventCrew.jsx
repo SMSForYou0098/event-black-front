@@ -41,14 +41,16 @@ const EventCrew = ({ crews = dummyCrews }) => {
         <div className="crew-card text-center">
             <div className="crew-image mb-3">
                 <Image
-                    src={crew.image || '/images/default-avatar.png'}
+                    src={crew.photo || '/images/default-avatar.png'}
                     alt={crew.name}
                     className="img-fluid rounded-circle"
                     width={100}
                     height={100}
                     loading='lazy'
                     style={{
-                        objectFit: 'cover'
+                        objectFit: 'cover',
+                        width: '100px',
+                        height: '100px',
                     }}
                 />
             </div>

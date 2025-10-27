@@ -77,7 +77,6 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     cacheTime: 1000 * 60 * 30, // 30 min
     staleTime: 1000 * 60 * 30, // 30 min
   });
-
   // decide which banners & loading to use
   const rawBanners = type === 'main'
     ? (apiBanners || [])

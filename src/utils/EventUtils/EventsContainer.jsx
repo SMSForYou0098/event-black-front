@@ -126,7 +126,7 @@ const EventsContainer = memo(({
           
           return isTopTenCard ? (
             <TopTenCard
-              image={data?.thumbnail}
+              image={data?.thumbnail || data?.event_media?.thumbnail}
               countValue={finalIndex + 1} // ascending order 1,2,3...
               link={`/events/${createSlug(data?.city)}/${createSlug(
                 data?.organisation
@@ -134,7 +134,7 @@ const EventsContainer = memo(({
             />
           ) : (
             <CardStyle
-              image={data.thumbnail}
+              image={data.event_media?.thumbnail}
               title={data.name}
               movieTime={data.date_range}
               watchlistLink="/play-list"

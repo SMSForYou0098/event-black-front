@@ -11,6 +11,7 @@ import OtherLocations from './OtherLocations';
 import Image from 'next/image';
 
 const DetailsHeader = ({ eventData, event_key }) => {
+    console.log("eventData",eventData);
     const descRef = useRef(null);
     const router = useRouter();
     const { convertTo12HourFormat, formatDateRange } = useMyContext();
@@ -84,7 +85,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 {/* --- Single Event Image --- */}
                 <div className="product-image-container d-flex justify-content-center align-items-center">
                     <Image
-                        src={eventData?.thumbnail || 'https://placehold.co/500x400'}
+                        src={eventData?.event_media?.thumbnail || 'https://placehold.co/500x400'}
                         alt={eventData?.name}
                         className="img-fluid rounded-4"
                         width={300}
