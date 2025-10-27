@@ -5,7 +5,6 @@ import LoginModal from "../../auth/LoginModal";
 import EventTabs from "./EventTabs";
 import DetailsHeader from "./DetailsHeader";
 import EventCrew from "./EventCrew";
-// import { useHeaderSimple } from "@/context/HeaderContext";
 import { useHeaderSimple } from "../../../Context/HeaderContext";
 import {EventSEO} from "../SEO/index";
 import { getEventSSR, withCache } from "../../../utils/seo/ssr";

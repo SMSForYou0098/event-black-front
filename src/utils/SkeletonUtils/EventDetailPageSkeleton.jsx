@@ -1,6 +1,6 @@
 import { Fragment, memo } from "react";
 import { Container, Row, Col, Card, Nav, Tab, Placeholder } from "react-bootstrap";
-import { useHeaderSimple } from "@/context/HeaderContext";
+import { useHeaderSimple } from "@/Context/HeaderContext";
 
 const EventDetailPageSkeleton = memo(() => {
   useHeaderSimple({

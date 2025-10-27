@@ -11,7 +11,7 @@ import SettingOffCanvas from "../components/setting/SettingOffCanvas";
 
 import StickyContent from "../utils/StickyContent";
 import HeaderDecider from "./HeaderDecider";
-import { HeaderProvider } from "@/context/HeaderContext";
+import { HeaderProvider } from "@/Context/HeaderContext";
 const Frontend = (({ children }) => {
   return (
     <>
