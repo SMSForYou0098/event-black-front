@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Col, Offcanvas, Row } from "react-bootstrap";
+import { Badge, Button, Col, Offcanvas, Row } from "react-bootstrap";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useRouter } from "next/router";
 import BookingFooterLayout from "../../../utils/BookingFooterLayout";
@@ -37,7 +37,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const handleBookNow = () => {
     setShowOffcanvas(true);
   };
-
+  console.log(eventData)
   return (
     <>
       <div className="product-meta-wrapper mt-2">
@@ -72,28 +72,45 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
               className="d-flex justify-content-between align-items-center border-dashed p-3 rounded-3"
             >
               <h4 className="price mt-3 mb-3 d-flex gap-2 align-items-center">
-                <div className="text-primary">Pricing : </div>
-                <span className="fw-bold">
+                <div className="text-primary">Pricing :</div>
+                <span className="fw-bold d-flex align-items-center gap-2">
                   {(() => {
-                    const price =
-                      eventData?.lowest_sale_price ??
-                      eventData?.lowest_ticket_price ??
-                      eventData?.price;
+                    // Convert all price values to numbers
+                    const salePrice = Number(eventData?.lowest_sale_price);
+                    const ticketPrice = Number(eventData?.lowest_ticket_price);
+                    const normalPrice = Number(eventData?.price);
 
-                    const numericPrice = Number(price); // convert to number
+                    // Get the lowest available (non-zero, non-null) price
+                    const validPrices = [salePrice, ticketPrice, normalPrice].filter(
+                      (p) => !isNaN(p)
+                    );
 
-                    if (!numericPrice) { // 0, null, undefined → Free
-                      return <span className="">Free</span>;
+                    const minPrice = Math.min(...validPrices);
+
+                    // Decide which price should display
+                    const showPrice = minPrice || 0;
+
+                    // Display “Free” if 0 or falsy
+                    if (showPrice === 0) {
+                      return <span>Free</span>;
                     }
 
                     return (
                       <>
-                        ₹{numericPrice} <span className="fw-normal">Onwards</span>
+                        ₹{showPrice} <span className="fw-normal">Onwards</span>
+
+                        {/* Show badge only if on sale AND sale price < normal price */}
+                        {eventData?.on_sale && salePrice < normalPrice && (
+                          <Badge bg="danger" className="ms-2">
+                            On Sale
+                          </Badge>
+                        )}
                       </>
                     );
                   })()}
                 </span>
               </h4>
+
 
 
               <Button

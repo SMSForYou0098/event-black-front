@@ -1,16 +1,18 @@
 import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { Calendar, Clock, MapPin, User, Mail, Phone, Ticket, CreditCard, Crown } from 'lucide-react';
+import { Calendar, Clock, MapPin, User, Mail, Phone, Ticket, CreditCard, Crown, MessageSquare } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
 import { CUSTOM_SECONDORY } from '../../../../utils/consts';
 import { useRouter } from "next/router";
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-
+import ReactDOMServer from "react-dom/server";
 import { AttendeesOffcanvas, TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
 import { api } from "@/lib/axiosInterceptor"
 import { useMyContext } from "@/Context/MyContextProvider"; //done
 import BookingSummarySkeleton from '../../../../utils/SkeletonUtils/BookingSummarySkeleton';
+import { FaWhatsapp, FaSms } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 import Swal from 'sweetalert2';
 
 const BookingSummary = () => {
@@ -28,6 +30,10 @@ const BookingSummary = () => {
     const sessionId = Array.isArray(raw) ? raw[0] : raw;
     const { event_key } = router.query; // Get eventId from URL params (e.g., AA00001)
 
+const whatsappIcon = ReactDOMServer.renderToString(<FaWhatsapp size={20} color="#25D366" />);
+const smsIcon = ReactDOMServer.renderToString(<FaSms size={20} color="#007bff" />);
+const emailIcon = ReactDOMServer.renderToString(<MdEmail size={20} color="#ff0000" />);
+
     const mutation = useMutation({
         mutationFn: async (sid) => {
             console.log(sid)
@@ -39,11 +45,19 @@ const BookingSummary = () => {
 
             if (res.data.status) {
                 Swal.fire({
-                    title: 'Booking Details Retrieved!',
-                    text: 'Your booking details has been retrieved successfully.',
+                    title: 'Booking Confirmed',
+                    html: `<p>Booking details sent via:</p>
+                            <div style="display:flex;justify-content:center;gap:1rem;margin-top:0.5rem;">
+                            ${whatsappIcon}
+                            ${smsIcon}
+                            ${emailIcon}
+                            </div>
+                        `,
                     icon: 'success',
-                    confirmButtonText: 'View Summary'
+                    confirmButtonText: 'View Summary',
+                    confirmButtonColor: '#ff0000'
                 });
+
                 return res.data;
             }
 
@@ -145,7 +159,7 @@ const BookingSummary = () => {
                 <CartSteps id={'last'} />
                 <Row>
                     {/* Left Column */}
-                    <Col lg={6} className="mb-4">
+                    <Col lg={4} className="mb-4">
                         {/* Event Details Card */}
                         <Card className="custom-dark-bg mb-4">
                             <Card.Body className="p-4">
@@ -234,7 +248,7 @@ const BookingSummary = () => {
                     </Col>
 
                     {/* Right Column */}
-                    <Col lg={6}>
+                    <Col lg={8}>
                         {/* Ticket Details Card */}
                         <TicketDataSummary
                             eventName={event?.name}

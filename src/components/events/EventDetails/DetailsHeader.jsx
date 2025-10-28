@@ -134,7 +134,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
 
                 {/* Event Meta Information */}
                 <EventMetaInfo metaInfo={metaInfo} event_key={event_key} eventData={eventData} />
-                <OtherLocations eventData={eventData} />
+                {/* <OtherLocations eventData={eventData} /> */}
             </Col>
         </Row>
     )

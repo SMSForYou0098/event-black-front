@@ -118,7 +118,7 @@ const AttendeeCard = ({ attendee, index, apiData, handleOpenModal, handleDeleteA
                     </div>
 
                     {/* Contact Information Row */}
-                    <div className="d-flex flex-column flex-sm-row text-muted small">
+                    <div className="d-flex flex-column gap-2 flex-sm-row text-muted small">
                         {apiData?.map((field, fieldIndex) => {
                             const isImage =
                                 attendee[field?.field_name] instanceof File ||
@@ -136,7 +136,7 @@ const AttendeeCard = ({ attendee, index, apiData, handleOpenModal, handleDeleteA
 
                             if (!isImage && (isEmail || isPhone)) {
                                 return (
-                                    <div key={fieldIndex} className="d-flex align-items-center gap-2">
+                                    <div key={fieldIndex} className="d-flex align-items-center gap-1">
                                         {isEmail && <MailIcon size={14} className="text-info" />}
                                         {isPhone && <PhoneIcon size={14} className="text-warning" />}
                                         <span>{attendee[field?.field_name] || '—'}</span>
@@ -176,8 +176,8 @@ const AttendeeCard = ({ attendee, index, apiData, handleOpenModal, handleDeleteA
 
                 {/* Action Buttons - Right Side */}
                 {ShowAction && (
-                    <Col xs="auto">
-                        <div className="d-flex gap-2">
+                    <Col xs="12">
+                        <div className="d-flex gap-2 justify-content-end">
                             <Button
                                 variant="outline-secondary"
                                 size="sm"
@@ -205,7 +205,7 @@ const AttendeeCard = ({ attendee, index, apiData, handleOpenModal, handleDeleteA
             {ShowAction && attendee?.missingFields?.length > 0 && (
                 <Row className="mt-3">
                     <Col>
-                        <div className="p-2 bg-primary bg-opacity-10 border border-primary rounded">
+                        <div className="p-2 bg-primary bg-opacity-10 border border-primary rounded-3">
                             <small className=" fw-semibold">
                                 Missing Fields: {attendee.missingFields.join(', ')}
                             </small>

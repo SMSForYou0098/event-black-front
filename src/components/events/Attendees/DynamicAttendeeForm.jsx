@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useMyContext } from "@/Context/MyContextProvider";
 import AttendySugettion from "./AttendySugettion";
-import { Plus as PlusIcon, Users } from "lucide-react";
+import { Plus as PlusIcon, Users, Users2Icon } from "lucide-react";
 import Swal from "sweetalert2";
 import BookingsAttendee from "./BookingsAttendee";
 import { processImageFile } from "../../CustomComponents/AttendeeStroreUtils";
@@ -196,96 +196,96 @@ const DynamicAttendeeForm = ({
 
 
   // Add this helper function at the top of your component (after imports)
-// Add this helper function at the top of your component (after imports)
-const parseFieldOptions = (options) => {
-  if (!options) return [];
-  if (Array.isArray(options)) return options;
-  
-  try {
-    const parsed = JSON.parse(options);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    console.error('Failed to parse field options:', e);
-    return [];
-  }
-};
+  // Add this helper function at the top of your component (after imports)
+  const parseFieldOptions = (options) => {
+    if (!options) return [];
+    if (Array.isArray(options)) return options;
 
-// Updated renderField function
-const renderField = (field) => {
-  const { field_name, lable, field_type, field_options = [], field_required } = field;
-  const required = field_required === 1;
-  const value = attendeeData[field_name] ?? "";
-  const lbl = required ? `${lable} <span class="text-primary">*</span>` : lable;
+    try {
+      const parsed = JSON.parse(options);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error('Failed to parse field options:', e);
+      return [];
+    }
+  };
 
-  const onChange = async (e) => {
-    // handle react-select option or native input
-    const val = e?.target ? e.target.value : e;
-    
-    // file handling
-    if (e?.target?.type === "file") {
-      const file = e.target.files[0];
-      if (!file) return;
-      
-      // If photo-like field: try face detect + crop
-      if (
-        field_name?.toLowerCase().includes("photo") ||
-        lable?.toLowerCase().includes("photo") ||
-        field_name?.toLowerCase().includes("passport_size_photo") ||
-        lable?.toLowerCase().includes("passport_size_photo")
-      ) {
-        const reader = new FileReader();
-        reader.onload = async (ev) => {
-          try {
-            const faceImageBase64 = await FaceDetector.cropFaceFromImage(ev.target.result);
-            if (faceImageBase64) {
-              handleFieldChange(field_name, faceImageBase64);
-            } else {
-              ErrorAlert('Face Not Detected, Please Upload Proper Image')
+  // Updated renderField function
+  const renderField = (field) => {
+    const { field_name, lable, field_type, field_options = [], field_required } = field;
+    const required = field_required === 1;
+    const value = attendeeData[field_name] ?? "";
+    const lbl = required ? `${lable} <span class="text-primary">*</span>` : lable;
+
+    const onChange = async (e) => {
+      // handle react-select option or native input
+      const val = e?.target ? e.target.value : e;
+
+      // file handling
+      if (e?.target?.type === "file") {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // If photo-like field: try face detect + crop
+        if (
+          field_name?.toLowerCase().includes("photo") ||
+          lable?.toLowerCase().includes("photo") ||
+          field_name?.toLowerCase().includes("passport_size_photo") ||
+          lable?.toLowerCase().includes("passport_size_photo")
+        ) {
+          const reader = new FileReader();
+          reader.onload = async (ev) => {
+            try {
+              const faceImageBase64 = await FaceDetector.cropFaceFromImage(ev.target.result);
+              if (faceImageBase64) {
+                handleFieldChange(field_name, faceImageBase64);
+              } else {
+                ErrorAlert('Face Not Detected, Please Upload Proper Image')
+                const processed = await processImageFile(file);
+                handleFieldChange(field_name, processed || file);
+              }
+            } catch (err) {
               const processed = await processImageFile(file);
               handleFieldChange(field_name, processed || file);
             }
-          } catch (err) {
-            const processed = await processImageFile(file);
-            handleFieldChange(field_name, processed || file);
-          }
-        };
-        reader.readAsDataURL(file);
+          };
+          reader.readAsDataURL(file);
+          return;
+        }
+
+        const processedFile = await processImageFile(file);
+        handleFieldChange(field_name, processedFile || file);
         return;
       }
 
-      const processedFile = await processImageFile(file);
-      handleFieldChange(field_name, processedFile || file);
-      return;
-    }
+      // select components that return {label, value}
+      if (val && typeof val === "object" && val.value !== undefined) {
+        handleFieldChange(field_name, val.value);
+        return;
+      }
 
-    // select components that return {label, value}
-    if (val && typeof val === "object" && val.value !== undefined) {
-      handleFieldChange(field_name, val.value);
-      return;
-    }
+      // checkbox / radio may pass event
+      handleFieldChange(field_name, val);
+    };
 
-    // checkbox / radio may pass event
-    handleFieldChange(field_name, val);
-  };
-
-  switch (field_type) {
-    case "text":
-    case "email":
-      return (
-        <>
-          <Form.Group>
-            <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-            <Form.Control 
-              className="card-glassmorphism__input" 
-              type={field_type} 
-              value={value} 
-              onChange={onChange} 
-              required={required} 
-            />
-          </Form.Group>
-          <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-        </>
-      );
+    switch (field_type) {
+      case "text":
+      case "email":
+        return (
+          <>
+            <Form.Group>
+              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Control
+                className="card-glassmorphism__input"
+                type={field_type}
+                value={value}
+                onChange={onChange}
+                required={required}
+              />
+            </Form.Group>
+            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+          </>
+        );
 
       case "select":
         const selectOptions = parseFieldOptions(field_options);
@@ -315,158 +315,158 @@ const renderField = (field) => {
           </>
         );
 
-    case "radio":
-      const radioOptions = parseFieldOptions(field_options);
-      return (
-        <>
-          <Form.Group className="mb-3">
-            <Form.Label className="text-white mb-2" dangerouslySetInnerHTML={{ __html: lbl }} />
-            <div className="d-flex gap-3 flex-wrap">
-              {radioOptions.map((option, idx) => (
-                <div key={idx} className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    id={`${field_name}-${idx}`}
-                    name={field_name}
-                    value={option}
-                    checked={value === option}
-                    onChange={(e) => handleFieldChange(field_name, e.target.value)}
-                    required={required}
-                  />
-                  <label 
-                    className="form-check-label text-white" 
-                    htmlFor={`${field_name}-${idx}`}
-                  >
-                    {option}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </Form.Group>
-          {errors[field_name] && (
-            <Form.Text className="text-danger fw-bold d-block mb-2">
-              {errors[field_name]}
-            </Form.Text>
-          )}
-        </>
-      );
+      case "radio":
+        const radioOptions = parseFieldOptions(field_options);
+        return (
+          <>
+            <Form.Group className="mb-3">
+              <Form.Label className="text-white mb-2" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <div className="d-flex gap-3 flex-wrap">
+                {radioOptions.map((option, idx) => (
+                  <div key={idx} className="form-check">
+                    <input
+                      className="form-check-input p-2"
+                      type="radio"
+                      id={`${field_name}-${idx}`}
+                      name={field_name}
+                      value={option}
+                      checked={value === option}
+                      onChange={(e) => handleFieldChange(field_name, e.target.value)}
+                      required={required}
+                    />
+                    <label
+                      className="form-check-label text-white"
+                      htmlFor={`${field_name}-${idx}`}
+                    >
+                      {option}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </Form.Group>
+            {errors[field_name] && (
+              <Form.Text className="text-danger fw-bold d-block mb-2">
+                {errors[field_name]}
+              </Form.Text>
+            )}
+          </>
+        );
 
-    case "checkbox":
-      const checkboxOptions = parseFieldOptions(field_options);
-      return (
-        <>
-          <Form.Group className="mb-3">
-            <Form.Label className="text-white mb-2" dangerouslySetInnerHTML={{ __html: lbl }} />
-            <div className="d-flex flex-column gap-2">
-              {checkboxOptions.map((option, idx) => (
-                <div key={idx} className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id={`${field_name}-${idx}`}
-                    value={option}
-                    checked={(Array.isArray(value) ? value : []).includes(option)}
-                    onChange={(e) => {
-                      const currentValues = Array.isArray(value) ? value : [];
-                      const newValues = e.target.checked
-                        ? [...currentValues, option]
-                        : currentValues.filter(v => v !== option);
-                      handleFieldChange(field_name, newValues);
-                    }}
-                    required={required && idx === 0}
-                  />
-                  <label 
-                    className="form-check-label text-white" 
-                    htmlFor={`${field_name}-${idx}`}
-                  >
-                    {option}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </Form.Group>
-          {errors[field_name] && (
-            <Form.Text className="text-danger fw-bold d-block mb-2">
-              {errors[field_name]}
-            </Form.Text>
-          )}
-        </>
-      );
+      case "checkbox":
+        const checkboxOptions = parseFieldOptions(field_options);
+        return (
+          <>
+            <Form.Group className="mb-3">
+              <Form.Label className="text-white mb-2" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <div className="d-flex flex-column gap-2">
+                {checkboxOptions.map((option, idx) => (
+                  <div key={idx} className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id={`${field_name}-${idx}`}
+                      value={option}
+                      checked={(Array.isArray(value) ? value : []).includes(option)}
+                      onChange={(e) => {
+                        const currentValues = Array.isArray(value) ? value : [];
+                        const newValues = e.target.checked
+                          ? [...currentValues, option]
+                          : currentValues.filter(v => v !== option);
+                        handleFieldChange(field_name, newValues);
+                      }}
+                      required={required && idx === 0}
+                    />
+                    <label
+                      className="form-check-label text-white"
+                      htmlFor={`${field_name}-${idx}`}
+                    >
+                      {option}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </Form.Group>
+            {errors[field_name] && (
+              <Form.Text className="text-danger fw-bold d-block mb-2">
+                {errors[field_name]}
+              </Form.Text>
+            )}
+          </>
+        );
 
-    case "textarea":
-      return (
-        <>
-          <Form.Group>
-            <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-            <Form.Control 
-              className="card-glassmorphism__input" 
-              as="textarea" 
-              rows={3} 
-              value={value} 
-              onChange={onChange} 
-              required={required} 
-            />
-          </Form.Group>
-          <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-        </>
-      );
+      case "textarea":
+        return (
+          <>
+            <Form.Group>
+              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Control
+                className="card-glassmorphism__input"
+                as="textarea"
+                rows={3}
+                value={value}
+                onChange={onChange}
+                required={required}
+              />
+            </Form.Group>
+            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+          </>
+        );
 
-    case "number":
-      return (
-        <>
-          <Form.Group>
-            <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-            <Form.Control 
-              className="card-glassmorphism__input" 
-              type="number" 
-              value={value} 
-              onChange={onChange} 
-              required={required} 
-            />
-          </Form.Group>
-          <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-        </>
-      );
+      case "number":
+        return (
+          <>
+            <Form.Group>
+              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Control
+                className="card-glassmorphism__input"
+                type="number"
+                value={value}
+                onChange={onChange}
+                required={required}
+              />
+            </Form.Group>
+            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+          </>
+        );
 
-    case "date":
-      return (
-        <>
-          <Form.Group>
-            <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-            <Form.Control 
-              className="card-glassmorphism__input" 
-              type="date" 
-              value={value} 
-              onChange={onChange} 
-              required={required} 
-            />
-          </Form.Group>
-          <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-        </>
-      );
+      case "date":
+        return (
+          <>
+            <Form.Group>
+              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Control
+                className="card-glassmorphism__input"
+                type="date"
+                value={value}
+                onChange={onChange}
+                required={required}
+              />
+            </Form.Group>
+            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+          </>
+        );
 
-    case "file":
-      return (
-        <>
-          <Form.Group>
-            <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-            <Form.Control 
-              className="card-glassmorphism__input" 
-              type="file" 
-              accept="image/*" 
-              onChange={onChange} 
-              required={required} 
-            />
-          </Form.Group>
-          <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-        </>
-      );
+      case "file":
+        return (
+          <>
+            <Form.Group>
+              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Control
+                className="card-glassmorphism__input"
+                type="file"
+                accept="image/*"
+                onChange={onChange}
+                required={required}
+              />
+            </Form.Group>
+            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+          </>
+        );
 
-    default:
-      return null;
-  }
-};
+      default:
+        return null;
+    }
+  };
 
 
   // Back button
@@ -478,13 +478,23 @@ const renderField = (field) => {
     <>
       <Card className="mb-4 custom-dark-bg">
         <Card.Header className="d-flex custom-dark-bg justify-content-between align-items-center">
-          <h5 className="d-flex align-items-center gap-2"><Users className="custom-text-secondary" /> Attendees {`${attendeeList.length}/${quantity || 0}`}</h5>
-          <CustomBtn
-            variant="outline-secondary"
-            className="d-flex align-items-center gap-2  border-secondary"
-            HandleClick={Back}
-            icon={<i className="fa-solid fa-arrow-left"></i>}
-          />
+          <h5 className="d-flex align-items-center gap-2">
+            <Users className="custom-text-secondary" /> Attendees {`${attendeeList.length}/${quantity || 0}`}
+          </h5>
+          <div className="d-flex gap-2 align-items-center">
+            <CustomBtn
+              variant="outline-secondary"
+              className="d-flex align-items-center justify-content-center  btn-sm w-25"
+              HandleClick={Back}
+              icon={<i className="fa-solid fa-arrow-left"></i>}
+            />
+            <CustomBtn
+              variant="outline-primary"
+              className="d-flex align-items-center justify-content-center  btn-sm w-25"
+              HandleClick={()=>setShowAddAttendeeModal(true)}
+              icon={<Users2Icon size={16}/>}
+            />
+          </div>
         </Card.Header>
         <Card.Body className="custom-dark-bg">
           {loadingCategory ? (
@@ -513,17 +523,17 @@ const renderField = (field) => {
         </Card.Body>
       </Card>
       {/* {attendeeList?.length < quantity && showAttendeeSuggetion && attendeeList?.length === 0 && */}
-        <AttendySugettion
-          quantity={quantity}
-          totalAttendee={attendeeList?.length}
-          list={attendeeList}
-          showAddAttendeeModal={showAddAttendeeModal}
-          setShowAddAttendeeModal={setShowAddAttendeeModal}
-          data={fetchedAttendees}
-          openAddModal={setShowModal}
-          requiredFields={requiredFields}
-          setAttendeesList={setAttendeesList}
-        />
+      <AttendySugettion
+        quantity={quantity}
+        totalAttendee={attendeeList?.length}
+        list={attendeeList}
+        showAddAttendeeModal={showAddAttendeeModal}
+        setShowAddAttendeeModal={setShowAddAttendeeModal}
+        data={fetchedAttendees}
+        openAddModal={setShowModal}
+        requiredFields={requiredFields}
+        setAttendeesList={setAttendeesList}
+      />
       {/* }  */}
       {/* )} */}
 

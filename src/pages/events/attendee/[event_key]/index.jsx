@@ -142,8 +142,8 @@ const AttendeePage = () => {
               event_key={event_key}
             />
             {hasMissingFields && (
-              <div className="mt-2 text-danger">
-                Please fill all required fields for each attendee before saving.
+              <div className="mb-3 text-white fw-bold">
+               <span className="text-primary">*</span> Please fill all required fields for each attendee before saving.
               </div>
             )}
           </Col>
