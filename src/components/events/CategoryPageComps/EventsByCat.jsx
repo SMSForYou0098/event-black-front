@@ -7,7 +7,7 @@ const EventsByCat = (props) => {
   return (
     <div className=''>
         <CommonBannerSlider type='category' banners={bannerData} loading={bannerLoading}/>
-        <EventsContainerCat events={eventsData} loading={eventLoading} title={title}/>
+        <EventsContainerCat events={eventsData} loading={eventLoading}/>
     </div>
   )
 }

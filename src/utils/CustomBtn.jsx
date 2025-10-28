@@ -7,7 +7,7 @@ const CustomBtn = (props) => {
     HandleClick, 
     buttonText, 
     disabled = false, 
-    type = "button", 
+    type = "button",
     icon, 
     variant = 'primary', 
     className, 

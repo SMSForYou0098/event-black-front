@@ -4,7 +4,7 @@ import { Container, Row, Col, Table, Button } from "react-bootstrap";
 // Components
 import { useMyContext } from "@/Context/MyContextProvider";
 import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
-import { publicApi,api } from "@/lib/axiosInterceptor";
+import { publicApi, api } from "@/lib/axiosInterceptor";
 import { useRouter } from "next/router";
 import BookingTickets from "../../../../utils/BookingUtils/BookingTickets";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
@@ -18,7 +18,7 @@ import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSumma
 const CartPage = () => {
   const { event_key } = useRouter().query;
 
-  const { isMobile, isLoggedIn, fetchCategoryData, convertTo12HourFormat, formatDateRange, UserData,ErrorAlert } = useMyContext();
+  const { isMobile, isLoggedIn, fetchCategoryData, convertTo12HourFormat, formatDateRange, UserData, ErrorAlert } = useMyContext();
   const { storeCheckoutData } = useCheckoutData();
   const [cartItems, setCartItems] = useState([]);
   const [categoryData, setCategoryData] = useState(null);
@@ -29,7 +29,7 @@ const CartPage = () => {
   const [isChecking, setIsChecking] = useState(false)
 
   const { data: event, isLoading, isError, error } = useEventData(event_key);
-    useHeaderSimple({
+  useHeaderSimple({
     title: event?.name || "Event Details",
   });
   useEffect(() => {
@@ -47,39 +47,39 @@ const CartPage = () => {
 
   const checkTicketStatus = async () => {
     setIsChecking(true)
-        try {
-          const response = await api.get(`/user-ticket-info/${UserData.id}/${selectedTickets.itemId}`)
-            if (!response.data.status) {
-                ErrorAlert(response.data.message || 'Booking limit reached');
-                return false;
-            }
-            return true; // allowed
-        } catch (error) {
-            console.error('Error checking ticket status:', error);
-            ErrorAlert( error ||'Unable to check ticket status. Please try again.');
-            return false;
-        }
-        finally{
-          setIsChecking(false)
-        }
-    };
-  const handleProcess = async() => {
+    try {
+      const response = await api.get(`/user-ticket-info/${UserData.id}/${selectedTickets.itemId}`)
+      if (!response.data.status) {
+        ErrorAlert(response.data.message || 'Booking limit reached');
+        return false;
+      }
+      return true; // allowed
+    } catch (error) {
+      console.error('Error checking ticket status:', error);
+      ErrorAlert(error || 'Unable to check ticket status. Please try again.');
+      return false;
+    }
+    finally {
+      setIsChecking(false)
+    }
+  };
+  const handleProcess = async () => {
     const path = prepareRedirect();
     setPath(path);
-   if (!isLoggedIn) {
-    // if user not logged in → show login modal
-    setShowLoginModal(true);
-  } else {
-    // if logged in, check ticket status first
-    const allowed = await checkTicketStatus();
-    if (allowed) {
-      // if API allows booking → proceed
-      router.push(path);
+    if (!isLoggedIn) {
+      // if user not logged in → show login modal
+      setShowLoginModal(true);
     } else {
-      // blocked by API → do nothing (alert is already shown inside checkTicketStatus)
-      return;
+      // if logged in, check ticket status first
+      const allowed = await checkTicketStatus();
+      if (allowed) {
+        // if API allows booking → proceed
+        router.push(path);
+      } else {
+        // blocked by API → do nothing (alert is already shown inside checkTicketStatus)
+        return;
+      }
     }
-  }
   };
 
   const prepareRedirect = () => {
@@ -130,7 +130,6 @@ const CartPage = () => {
       "status",
       "description",
       "user_booking_limit",
-      "sale_date",
     ];
 
     try {
@@ -163,7 +162,7 @@ const CartPage = () => {
 
 
   if (isLoading) {
-    return <BookingSummarySkeleton type={'cart'}/>;
+    return <BookingSummarySkeleton type={'cart'} />;
   }
 
   const CardContainer = ({ children, className = "" }) => (
@@ -245,8 +244,6 @@ const CartPage = () => {
   ];
 
   const buttonText = `Proceed to ${attendeeRequired ? "Attendee" : "Checkout"}`;
-
-
   return (
     <div className="cart-page section-padding">
       <Container>
@@ -312,7 +309,10 @@ const CartPage = () => {
                 </div>
                 <div className="d-none d-sm-block">
                   <CustomBtn
-                    disabled={isChecking || !selectedTickets?.itemId}
+                    disabled={
+                      !selectedTickets?.newQuantity ||
+                      parseInt(selectedTickets.newQuantity) === 0
+                    }
                     HandleClick={handleProcess}
                     icon={attendeeRequired ? <Users size={20} /> : null}
                     buttonText={<span>{buttonText}</span>}

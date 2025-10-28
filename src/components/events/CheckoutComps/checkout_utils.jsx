@@ -1,5 +1,12 @@
-
+import { useEffect, useState } from "react";
 import { useMyContext } from "@/Context/MyContextProvider";
+import { motion, AnimatePresence } from 'framer-motion';
+import { Alert, Form, Button, Table, Card, InputGroup, Spinner, Offcanvas, ListGroup } from 'react-bootstrap';
+import { Receipt, Tag, ChevronDown, Ticket, Crown } from 'lucide-react';
+import CustomBtn from '../../../utils/CustomBtn';
+import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY } from '../../../utils/consts';
+import { decrypt } from '../../../utils/crypto';
+import Image from "next/image";
 
 export const createOrderData = (data, charges) => ({
   baseAmount: Number((data?.subtotal || 0).toFixed(2)),
@@ -119,13 +126,7 @@ export const TotalAmountHeader = ({
     </div>
   </motion.div>
 );
-import { motion, AnimatePresence } from 'framer-motion';
-import { Alert, Form, Button, Table, Card, InputGroup, Spinner, Offcanvas, ListGroup } from 'react-bootstrap';
-import { Receipt, Tag, ChevronDown, Ticket, Crown } from 'lucide-react';
-import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY } from '../../../utils/consts';
-import { decrypt } from '../../../utils/crypto';
-import Image from "next/image";
-import { useEffect, useState } from "react";
+
 
 export const MotionWrapper = ({
   children,
@@ -264,13 +265,13 @@ export const parseUrlData = (data, ticket, edata) => {
 };
 
 export const TicketDataSummary = (props) => {
-  const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices,netAmount,sale_price, currency } = props;
+  const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, netAmount, sale_price, currency,handleOpen,attendees,showAttBtn } = props;
   const sectionIconStyle = {
     color: CUSTOM_SECONDORY,
     size: 20,
     style: { marginRight: '10px' }
   };
-  const {getCurrencySymbol} = useMyContext()
+  const { getCurrencySymbol } = useMyContext()
 
   return (
     <Card className="mb-4 custom-dark-bg">
@@ -324,11 +325,17 @@ export const TicketDataSummary = (props) => {
         }
         {(netAmount || sale_price) &&
           <div className="d-flex justify-content-between align-items-center">
-          <span className="text-white fw-bold fs-5">Total Amount</span>
-          <span className='custom-text-secondary h5 fw-bold'>{currency ? getCurrencySymbol(currency) : '₹'}{sale_price && sale_price!=='null' ? sale_price : netAmount}</span>
+            <span className="text-white fw-bold fs-5">Total Amount</span>
+            <span className='custom-text-secondary h5 fw-bold'>{currency ? getCurrencySymbol(currency) : '₹'}{sale_price && sale_price !== 'null' ? sale_price : netAmount}</span>
+          </div>
+        }
+        {attendees?.length !== 0 && showAttBtn &&
+        <div className="float-end">
+          <CustomBtn size='sm' variant="primary" HandleClick={handleOpen} buttonText="View Attendees"/>
         </div>
         }
       </Card.Body>
+
     </Card>
   )
 }
@@ -340,12 +347,12 @@ export const AttendeesOffcanvas = ({
   title = "Attendees",
 }) => {
   const [placement, setPlacement] = useState("end");
-  const {isMobile} = useMyContext()
+  const { isMobile } = useMyContext()
 
   useEffect(() => {
     const updatePlacement = () => {
       // mobile breakpoint < 768 => bottom, else end (right)
-      setPlacement(isMobile? "bottom" : "end");
+      setPlacement(isMobile ? "bottom" : "end");
     };
 
     updatePlacement();
@@ -357,7 +364,7 @@ export const AttendeesOffcanvas = ({
     <Offcanvas
       show={show}
       onHide={handleClose}
-      placement={placement}
+      placement={isMobile ? "bottom" : "end"}
       backdrop={true}
       scroll={false}
     >
@@ -375,9 +382,10 @@ export const AttendeesOffcanvas = ({
             {attendees.map((a) => (
               <ListGroup.Item
                 key={a?.id ?? Math.random()}
-                className="d-flex align-items-start gap-3"
+                style={{background: 'rgba(0,0,0,0.3)'}}
+                className="d-flex align-items-start gap-3 rounded-4"
               >
-                <div style={{ width: 56, height: 56, flex: "0 0 56px" }}>
+                <div >
                   <Image
                     src={a?.Photo ?? "/placeholder-avatar.png"}
                     roundedCircle

@@ -6,7 +6,7 @@ const Events = memo(() => {
 
   return <>
     <div className="mt-5">
-
+      {/* <HomeOrgs/> */}
       <HighDemand />
       <EventsSection />
     </div>

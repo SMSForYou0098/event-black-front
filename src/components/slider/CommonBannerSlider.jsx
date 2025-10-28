@@ -93,9 +93,11 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     button_link: '/events',
     images: '/assets/images/no-banner.jpg' // replace with your fallback image
   };
-
+  if(rawBanners?.length === 0) {
+    return null
+  }
   // use a banner array to render; if empty use the fallbackBanner
-  const bannersToRender = (rawBanners && rawBanners.length > 0) ? rawBanners : [fallbackBanner];
+  const bannersToRender = rawBanners && rawBanners?.length > 0 ? rawBanners : [];
 
   // show skeleton while loading
   if (loading) {
@@ -188,7 +190,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     centeredSlides: true,
     className: "swiper-banner-container"
   };
-
+ 
   return (
     <Fragment>
       <section className="banner-container section-padding-bottom pb-0">

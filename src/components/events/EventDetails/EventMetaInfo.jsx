@@ -42,9 +42,9 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
     <>
       <div className="product-meta-wrapper mt-2">
         <div className="event-meta-compact d-flex flex-wrap gap-3 mt-3">
-          {metaInfo?.map((info ,i) => (
+          {metaInfo?.map((info, i) => (
             <div
-            key={i}
+              key={i}
               className="custom-dark-content-bg d-flex align-items-start px-3 py-2 rounded-3 border"
             >
               <span className="me-3">
@@ -71,15 +71,31 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
               sm="12"
               className="d-flex justify-content-between align-items-center border-dashed p-3 rounded-3"
             >
-              <h4 className="price mt-3 mb-3 d-flex gap-2">
-                <div className="text-primary">Pricing </div>
-                <span className=" fw-bold">
-                  ₹
-                  {eventData?.lowest_sale_price ?
-                    eventData?.lowest_ticket_price : eventData?.price}
-                </span>{" "}
-                Onwards
+              <h4 className="price mt-3 mb-3 d-flex gap-2 align-items-center">
+                <div className="text-primary">Pricing : </div>
+                <span className="fw-bold">
+                  {(() => {
+                    const price =
+                      eventData?.lowest_sale_price ??
+                      eventData?.lowest_ticket_price ??
+                      eventData?.price;
+
+                    const numericPrice = Number(price); // convert to number
+
+                    if (!numericPrice) { // 0, null, undefined → Free
+                      return <span className="">Free</span>;
+                    }
+
+                    return (
+                      <>
+                        ₹{numericPrice} <span className="fw-normal">Onwards</span>
+                      </>
+                    );
+                  })()}
+                </span>
               </h4>
+
+
               <Button
                 ref={bookBtnRef}
                 size="sm"
@@ -127,7 +143,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         show={showOffcanvas}
         onHide={() => setShowOffcanvas(false)}
         placement={isMobile ? "bottom" : "top"}
-        // placement="bottom"
+      // placement="bottom"
       >
         <Offcanvas.Header>
           <Offcanvas.Title>Booking Info</Offcanvas.Title>

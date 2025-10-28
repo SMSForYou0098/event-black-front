@@ -68,7 +68,7 @@ const HeaderDefault = memo(() => {
   const [eventsOpen, setEventsOpen] = useState(false);
 
 
-    const menu = [
+  const menu = [
     { id: 1, title: "Home", href: "/" },
     { id: 2, title: "About Us", href: "/about-us" },
     { id: 3, title: "Contact Us", href: "/contact-us" },
@@ -354,7 +354,7 @@ const HeaderDefault = memo(() => {
                         </div>
                       )}
                     </Nav.Item>
-{/* 
+                    {/* 
                     <Nav.Item as="li" className="nav-item">
                       <Link href="/blogs" passHref legacyBehavior>
                         <Nav.Link
@@ -392,8 +392,14 @@ const HeaderDefault = memo(() => {
                       <CustomBtn
                         variant="outline-primary"
                         icon={<i className="fa-solid fa-arrow-right ms-2"></i>}
-                        className="me-4 fw-bold btn-sm"
-                        onClick={handleBookClick}
+                        className="fw-bold px-4 py-2 d-flex align-items-center rounded-3"
+                        HandleClick={handleBookClick}
+                        size="sm"
+                        style={{
+                          height: "3rem",
+                          marginRight : '1rem',
+                          fontSize: "16px",
+                        }} Ï
                         buttonText="Book Now"
                       />
                     )}

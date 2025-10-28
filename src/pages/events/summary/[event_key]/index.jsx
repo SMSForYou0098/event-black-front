@@ -193,7 +193,7 @@ const BookingSummary = () => {
                         </Card>
 
                         {/* Contact Information Card */}
-                        <Card className="custom-dark-bg">
+                        {/* <Card className="custom-dark-bg">
                             <Card.Body className="p-4">
                                 <div className="d-flex align-items-center mb-3">
                                     <User {...sectionIconStyle} />
@@ -230,7 +230,7 @@ const BookingSummary = () => {
                                     </div>
                                 </div>
                             </Card.Body>
-                        </Card>
+                        </Card> */}
                     </Col>
 
                     {/* Right Column */}
@@ -242,8 +242,11 @@ const BookingSummary = () => {
                             price={ticket?.price}
                             quantity={booking?.bookings?.length || 1}
                             hidePrices={true}
+                            handleOpen={handleOpen}
+                            attendees={attendees}
                             sale_price={ticket?.sale_price}
                             currency={ticket?.currency}
+                            showAttBtn={true}
                             netAmount={booking?.amount} />
                         {/* Payment Information Card */}
                         {/* <Card className='custom-dark-bg'>
@@ -276,12 +279,6 @@ const BookingSummary = () => {
                                 </div>
                             </Card.Body>
                         </Card> */}
-                        {
-                            attendees.length !== 0 &&
-                            <Button variant="primary" onClick={handleOpen}>
-                                View Attendees
-                            </Button>
-                        }
                         {/* Pass boolean state and close handler plus attendees */}
                         <AttendeesOffcanvas
                             show={showAttendees}
