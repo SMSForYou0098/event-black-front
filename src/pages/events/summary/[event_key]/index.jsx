@@ -3,14 +3,15 @@ import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Calendar, Clock, MapPin, User, Mail, Phone, Ticket, CreditCard, Crown } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
 import { CUSTOM_SECONDORY } from '../../../../utils/consts';
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 import { AttendeesOffcanvas, TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
-import {api} from "@/lib/axiosInterceptor"
+import { api } from "@/lib/axiosInterceptor"
 import { useMyContext } from "@/Context/MyContextProvider"; //done
 import BookingSummarySkeleton from '../../../../utils/SkeletonUtils/BookingSummarySkeleton';
+import Swal from 'sweetalert2';
 
 const BookingSummary = () => {
     const sectionIconStyle = {
@@ -19,21 +20,69 @@ const BookingSummary = () => {
         style: { marginRight: '10px' }
     };
     const [showAttendees, setShowAttendees] = useState(false);
-    const {ErrorAlert} = useMyContext();
+    const { ErrorAlert } = useMyContext();
     const handleOpen = () => setShowAttendees(true);
     const handleClose = () => setShowAttendees(false);
     const router = useRouter();
-    const raw = router.query.sessionId;
+    const raw = router.query.session_id;
     const sessionId = Array.isArray(raw) ? raw[0] : raw;
-    
+    const { event_key } = router.query; // Get eventId from URL params (e.g., AA00001)
+
     const mutation = useMutation({
         mutationFn: async (sid) => {
+            console.log(sid)
+            if (sid === undefined || sid === 'undefined') {
+                throw new Error('Invalid Session');
+            }
+
             const res = await api.post("/verify-booking", { session_id: sid });
-            return res.data;
+
+            if (res.data.status) {
+                Swal.fire({
+                    title: 'Booking Details Retrieved!',
+                    text: 'Your booking details has been retrieved successfully.',
+                    icon: 'success',
+                    confirmButtonText: 'View Summary'
+                });
+                return res.data;
+            }
+
+            throw new Error('Booking verification failed');
         },
         onError: (err) => {
             console.error("verify error", err);
-            ErrorAlert(err?.response?.data?.message || err?.response.data?.error ||  "")
+
+            if (err?.message === 'Invalid Session') {
+                // Handle invalid session with countdown
+                let countdown = 5;
+                let timerInterval;
+
+                Swal.fire({
+                    title: 'Invalid Session',
+                    html: `Session ID is invalid or undefined.<br/>Redirecting to checkout in <b>${countdown}</b> seconds...`,
+                    icon: 'error',
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        timerInterval = setInterval(() => {
+                            countdown -= 1;
+                            Swal.getHtmlContainer().querySelector('b').textContent = countdown;
+
+                            if (countdown === 0) {
+                                clearInterval(timerInterval);
+                                Swal.close();
+                                router.push(`/events/cart/${event_key}`);
+                            }
+                        }, 1000);
+                    },
+                    willClose: () => {
+                        clearInterval(timerInterval);
+                    }
+                });
+            } else {
+                ErrorAlert(err?.response?.data?.message || err?.response?.data?.error || err?.message || "An error occurred");
+            }
         },
     });
 
@@ -45,8 +94,8 @@ const BookingSummary = () => {
     if (!sessionId) return <p>Waiting for session id...</p>;
     if (mutation.isPending) return <BookingSummarySkeleton />;
     if (mutation.isError) return <p>Error verifying booking.</p>;
-    // Extract data from the mutation response
-    const booking =  mutation.data?.bookings || {};
+
+    const booking = mutation.data?.bookings || {};
     const ticket = mutation?.data?.ticket || {};
     const event = mutation?.data?.event || {};
     // const organizer = event.user || {};
@@ -57,19 +106,19 @@ const BookingSummary = () => {
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
     };
 
     const formatTime = (dateString) => {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
-        return date.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
+        return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
         });
     };
 
@@ -187,7 +236,7 @@ const BookingSummary = () => {
                     {/* Right Column */}
                     <Col lg={6}>
                         {/* Ticket Details Card */}
-                        <TicketDataSummary 
+                        <TicketDataSummary
                             eventName={event?.name}
                             ticketName={ticket?.name}
                             price={ticket?.price}
@@ -197,7 +246,7 @@ const BookingSummary = () => {
                             currency={ticket?.currency}
                             netAmount={booking?.amount} />
                         {/* Payment Information Card */}
-                        <Card className='custom-dark-bg'>
+                        {/* <Card className='custom-dark-bg'>
                             <Card.Body className="p-4">
                                 <div className="d-flex align-items-center mb-4">
                                     <CreditCard {...sectionIconStyle} />
@@ -215,9 +264,9 @@ const BookingSummary = () => {
                                         {booking.payment_status === "1" ? "Payment Successful" : "Payment Pending"}
                                     </div>
                                     <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>
-                                        {booking.payment_method === "online" ? "Paid online via secure payment gateway" : 
-                                         booking.payment_method === "offline" ? "Offline payment" : 
-                                         "Payment method not specified"}
+                                        {booking.payment_method === "online" ? "Paid online via secure payment gateway" :
+                                            booking.payment_method === "offline" ? "Offline payment" :
+                                                "Payment method not specified"}
                                     </div>
                                     {booking.amount && booking.amount !== "0.00" && (
                                         <div className="text-white fw-bold mt-3">
@@ -226,20 +275,20 @@ const BookingSummary = () => {
                                     )}
                                 </div>
                             </Card.Body>
-                        </Card>
+                        </Card> */}
                         {
-                            attendees.length !==0 && 
-                        <Button variant="primary" onClick={handleOpen}>
-        View Attendees
-      </Button>
+                            attendees.length !== 0 &&
+                            <Button variant="primary" onClick={handleOpen}>
+                                View Attendees
+                            </Button>
                         }
-      {/* Pass boolean state and close handler plus attendees */}
-      <AttendeesOffcanvas
-        show={showAttendees}
-        handleClose={handleClose}
-        attendees={attendees}
-        title="Event Attendees"
-      />
+                        {/* Pass boolean state and close handler plus attendees */}
+                        <AttendeesOffcanvas
+                            show={showAttendees}
+                            handleClose={handleClose}
+                            attendees={attendees}
+                            title="Event Attendees"
+                        />
                     </Col>
                 </Row>
             </Container>

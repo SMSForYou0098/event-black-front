@@ -11,7 +11,6 @@ import OtherLocations from './OtherLocations';
 import Image from 'next/image';
 
 const DetailsHeader = ({ eventData, event_key }) => {
-    console.log("eventData",eventData);
     const descRef = useRef(null);
     const router = useRouter();
     const { convertTo12HourFormat, formatDateRange } = useMyContext();

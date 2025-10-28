@@ -3,7 +3,6 @@ import { Container, Row, Col, Table, Button } from "react-bootstrap";
 
 // Components
 import { useMyContext } from "@/Context/MyContextProvider";
-import CustomButton from "../../../../utils/CustomButton";
 import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
 import { publicApi,api } from "@/lib/axiosInterceptor";
 import { useRouter } from "next/router";
@@ -13,10 +12,9 @@ import LoginModal from "../../../../components/auth/LoginModal";
 import { useEventData } from "../../../../services/events";
 import CustomBtn from "../../../../utils/CustomBtn";
 import { useCheckoutData } from "../../../../hooks/useCheckoutData";
-import { Calendar, Pin, Tags, Ticket, Users } from "lucide-react";
+import { Calendar, Pin, Ticket, Users } from "lucide-react";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
-import Timer from "../../../../utils/BookingUtils/Timer";
 const CartPage = () => {
   const { event_key } = useRouter().query;
 
@@ -305,12 +303,13 @@ const CartPage = () => {
                 </div>
 
                 {/* Checkout Button */}
-                {isMobile ? (
+                <div className="d-block d-sm-none">
                   <BookingMobileFooter
                     handleClick={handleProcess}
                     selectedTickets={selectedTickets}
                   />
-                ) : (
+                </div>
+                <div className="d-none d-sm-block">
                   <CustomBtn
                     disabled={isChecking || !selectedTickets?.itemId}
                     HandleClick={handleProcess}
@@ -320,7 +319,7 @@ const CartPage = () => {
                     style={{ width: "100%" }}
                     loading={isChecking}
                   />
-                )}
+                </div>
               </div>
             </CardContainer>
           </Col>

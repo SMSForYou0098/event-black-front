@@ -10,7 +10,6 @@ import Image from 'next/image';
 import { Calendar } from 'lucide-react';
 
 const ShareModal = ({ show, onHide, url, title, eventData, event_date }) => {
-
     // Add this state inside the ShareModal component
     const [isCopied, setIsCopied] = useState(false);
 
@@ -119,7 +118,7 @@ const ShareModal = ({ show, onHide, url, title, eventData, event_date }) => {
                 {eventData && (
                     <div className="d-flex align-items-center mb-4 p-3 rounded-3 border">
                         <Image
-                            src={eventData.thumbnail || 'https://via.placeholder.com/60x80'}
+                            src={eventData.event_media?.thumbnail || 'https://via.placeholder.com/60x80'}
                             alt={eventData.title}
                             className="rounded me-3"
                             width={40}

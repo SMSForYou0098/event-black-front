@@ -19,6 +19,8 @@ import { checkForDuplicateAttendees, sanitizeInput, validateAttendeeData } from 
 import Swal from "sweetalert2";
 import LoaderComp from "../../../../utils/LoaderComp";
 import Timer from "../../../../utils/BookingUtils/Timer";
+import { useEventData } from "../../../../services/events";
+import { useHeaderSimple } from "../../../../Context/HeaderContext";
 const CartPage = () => {
   const router = useRouter();
   const { isMobile, ErrorAlert, successAlert, UserData } = useMyContext();
@@ -47,7 +49,10 @@ const CartPage = () => {
   const data = useSelector((state) =>
     k ? selectCheckoutDataByKey(state, k) : null
   );
-
+  const { data: event } = useEventData(event_key);
+  useHeaderSimple({
+    title: event?.name || "Event Details",
+  });
   const attendeeRequired = checkoutData?.event?.category?.attendy_required === 1
 
 
@@ -60,65 +65,65 @@ const CartPage = () => {
 
 
   const applyCouponMutation = useMutation({
-  // mutation function as option
-  mutationFn: ({ userId, payload }) => api.post(`/check-promo-code/${userId}`, payload),
+    // mutation function as option
+    mutationFn: ({ userId, payload }) => api.post(`/check-promo-code/${userId}`, payload),
 
-  onSuccess: (res) => {
-    const resp = res?.data;
-    if (resp?.status) {
-      const promoData = resp.promo_data ?? {};
+    onSuccess: (res) => {
+      const resp = res?.data;
+      if (resp?.status) {
+        const promoData = resp.promo_data ?? {};
 
-      setPromo({
-        discount: Number(promoData?.discount_value ?? 0),
-        discountType: promoData?.discount_type ?? null,
-        appliedCode: promoData?.code ?? couponCode,
-      });
+        setPromo({
+          discount: Number(promoData?.discount_value ?? 0),
+          discountType: promoData?.discount_type ?? null,
+          appliedCode: promoData?.code ?? couponCode,
+        });
 
-      successAlert(resp.message || 'Promo applied successfully');
+        successAlert(resp.message || 'Promo applied successfully');
 
-      // optional: refresh any queries relying on checkout/pricing
-      // queryClient.invalidateQueries(['checkout', checkoutKey]);
-    } else {
-      ErrorAlert(resp?.message || 'Failed to apply promo code');
-    }
-  },
+        // optional: refresh any queries relying on checkout/pricing
+        // queryClient.invalidateQueries(['checkout', checkoutKey]);
+      } else {
+        ErrorAlert(resp?.message || 'Failed to apply promo code');
+      }
+    },
 
-  onError: (err) => {
-    ErrorAlert(ErrorExtractor(err));
-  },
-});
-
-const handleApplyCoupon = () => {
-  // validations (unchanged)
-  if (!checkoutData?.event?.user_id) {
-    ErrorAlert('Event organizer information is missing');
-    return;
-  }
-
-  if (!checkoutData?.ticket?.id && !checkoutData?.data?.itemId) {
-    ErrorAlert('Please select a ticket first');
-    return;
-  }
-
-  if (!calculatedTotal) {
-    ErrorAlert('Total amount cannot be zero');
-    return;
-  }
-
-  if (!couponCode || couponCode.trim() === '') {
-    ErrorAlert('Please enter a promo code');
-    return;
-  }
-
-  applyCouponMutation.mutate({
-    userId: checkoutData.event.user_id,
-    payload: {
-      ticket_id: checkoutData?.ticket?.id ?? checkoutData?.data?.itemId,
-      amount: calculatedTotal,
-      promo_code: couponCode.trim(),
+    onError: (err) => {
+      ErrorAlert(ErrorExtractor(err));
     },
   });
-};
+
+  const handleApplyCoupon = () => {
+    // validations (unchanged)
+    if (!checkoutData?.event?.user_id) {
+      ErrorAlert('Event organizer information is missing');
+      return;
+    }
+
+    if (!checkoutData?.ticket?.id && !checkoutData?.data?.itemId) {
+      ErrorAlert('Please select a ticket first');
+      return;
+    }
+
+    if (!calculatedTotal) {
+      ErrorAlert('Total amount cannot be zero');
+      return;
+    }
+
+    if (!couponCode || couponCode.trim() === '') {
+      ErrorAlert('Please enter a promo code');
+      return;
+    }
+
+    applyCouponMutation.mutate({
+      userId: checkoutData.event.user_id,
+      payload: {
+        ticket_id: checkoutData?.ticket?.id ?? checkoutData?.data?.itemId,
+        amount: calculatedTotal,
+        promo_code: couponCode.trim(),
+      },
+    });
+  };
 
   const { data: taxData } = useQuery({
     queryKey: ["taxes", 1],
@@ -279,7 +284,7 @@ const handleApplyCoupon = () => {
       await handleBookingResponse(response);
 
 
-      
+
 
     } catch (error) {
       handleBookingError(error);
@@ -287,120 +292,120 @@ const handleApplyCoupon = () => {
       setIsLoading(false);
     }
   };
-  
+
 
   // Create booking payload
   const createBookingPayload = () => {
-  const formData = new FormData();
-  const quantity = Number(checkoutData?.data?.newQuantity) || 0;
+    const formData = new FormData();
+    const quantity = Number(checkoutData?.data?.newQuantity) || 0;
 
-  // helper: detect file-like objects and extract the actual File/Blob
-  const extractFile = (v) => {
-    if (!v) return null;
-    if (v instanceof File || v instanceof Blob) return v;
-    if (v.originFileObj instanceof File) return v.originFileObj;
-    if (v.file instanceof File) return v.file;
-    if (v.rawFile instanceof File) return v.rawFile;
-    // react-native like object { uri, name, type } - return as-is (RN handles this differently)
-    if (v.uri && v.name) return v;
-    return null;
-  };
+    // helper: detect file-like objects and extract the actual File/Blob
+    const extractFile = (v) => {
+      if (!v) return null;
+      if (v instanceof File || v instanceof Blob) return v;
+      if (v.originFileObj instanceof File) return v.originFileObj;
+      if (v.file instanceof File) return v.file;
+      if (v.rawFile instanceof File) return v.rawFile;
+      // react-native like object { uri, name, type } - return as-is (RN handles this differently)
+      if (v.uri && v.name) return v;
+      return null;
+    };
 
-  // helper: append primitive or JSON-stringified value
-  const appendPrimitive = (key, value) => {
-    // boolean/number/string -> sanitized string
-    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-      formData.append(key, sanitizeInput(String(value)));
-    } else {
-      // fallback: stringify objects/arrays
-      formData.append(key, JSON.stringify(value));
+    // helper: append primitive or JSON-stringified value
+    const appendPrimitive = (key, value) => {
+      // boolean/number/string -> sanitized string
+      if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        formData.append(key, sanitizeInput(String(value)));
+      } else {
+        // fallback: stringify objects/arrays
+        formData.append(key, JSON.stringify(value));
+      }
+    };
+
+    // Basic user info
+    formData.append('user_id', UserData?.id ? String(UserData.id) : '');
+    formData.append('user_name', sanitizeInput(UserData?.name || ''));
+    formData.append('user_email', UserData?.email || '');
+    formData.append('user_phone', UserData?.phone || UserData?.number || '');
+
+    // Event info
+    formData.append('event_id', event_key || '');
+    formData.append('event_name', sanitizeInput(checkoutData?.event?.name || ''));
+    formData.append('organizer_id', checkoutData?.event?.user_id ? String(checkoutData.event.user_id) : '');
+    formData.append('category', checkoutData?.event?.category?.title || '');
+    formData.append('event_type', checkoutData?.event?.event_type || '');
+
+    // Ticket info
+    formData.append('ticket_id', checkoutData?.ticket?.id ? String(checkoutData.ticket.id) : '');
+    formData.append('ticket_price', String(checkoutData?.ticket?.price ?? '0'));
+    formData.append('quantity', String(quantity));
+
+    // Pricing
+    formData.append('amount', String(orderData?.total ?? '0'));
+    formData.append('base_amount', String(orderData?.subtotal ?? (checkoutData?.ticket?.price * quantity) ?? '0'));
+    formData.append('discount', String(orderData?.discount ?? '0'));
+    formData.append('convenience_fees', String(orderData?.convenienceFees ?? '0'));
+    formData.append('cgst', String(orderData?.cgst ?? '0'));
+    formData.append('sgst', String(orderData?.sgst ?? '0'));
+    formData.append('total_tax', String((Number(orderData?.cgst || 0) + Number(orderData?.sgst || 0))));
+
+    // Promo
+    if (promo?.appliedCode) formData.append('promo_code', promo.appliedCode);
+
+    // Booking date
+    if (checkoutData?.data?.selectedDate) {
+      formData.append('booking_date', checkoutData.data.selectedDate);
     }
-  };
 
-  // Basic user info
-  formData.append('user_id', UserData?.id ? String(UserData.id) : '');
-  formData.append('user_name', sanitizeInput(UserData?.name || ''));
-  formData.append('user_email', UserData?.email || '');
-  formData.append('user_phone', UserData?.phone || UserData?.number || '');
+    // Payment method
+    formData.append('payment_method', 'online');
 
-  // Event info
-  formData.append('event_id', event_key || '');
-  formData.append('event_name', sanitizeInput(checkoutData?.event?.name || ''));
-  formData.append('organizer_id', checkoutData?.event?.user_id ? String(checkoutData.event.user_id) : '');
-  formData.append('category', checkoutData?.event?.category?.title || '');
-  formData.append('event_type', checkoutData?.event?.event_type || '');
+    // Attendees — handle files and primitives safely
+    if (attendeeRequired && Array.isArray(checkoutData?.attendees) && checkoutData.attendees.length > 0) {
+      const attendeeList = checkoutData.attendees;
 
-  // Ticket info
-  formData.append('ticket_id', checkoutData?.ticket?.id ? String(checkoutData.ticket.id) : '');
-  formData.append('ticket_price', String(checkoutData?.ticket?.price ?? '0'));
-  formData.append('quantity', String(quantity));
+      attendeeList.forEach((attendee, index) => {
+        Object.entries(attendee).forEach(([fieldKey, fieldValue]) => {
+          // skip helper fields
+          if (fieldKey === 'missingFields' || fieldValue === undefined || fieldValue === null || fieldValue === '') return;
 
-  // Pricing
-  formData.append('amount', String(orderData?.total ?? '0'));
-  formData.append('base_amount', String(orderData?.subtotal ?? (checkoutData?.ticket?.price * quantity) ?? '0'));
-  formData.append('discount', String(orderData?.discount ?? '0'));
-  formData.append('convenience_fees', String(orderData?.convenienceFees ?? '0'));
-  formData.append('cgst', String(orderData?.cgst ?? '0'));
-  formData.append('sgst', String(orderData?.sgst ?? '0'));
-  formData.append('total_tax', String((Number(orderData?.cgst || 0) + Number(orderData?.sgst || 0))));
+          const baseKey = `attendees[${index}][${fieldKey}]`;
 
-  // Promo
-  if (promo?.appliedCode) formData.append('promo_code', promo.appliedCode);
+          // If array (e.g., multiple photos)
+          if (Array.isArray(fieldValue)) {
+            fieldValue.forEach((item, i) => {
+              const file = extractFile(item);
+              if (file) {
+                // append files as array parts
+                formData.append(`${baseKey}[]`, file);
+              } else {
+                formData.append(`${baseKey}[]`, sanitizeInput(String(item)));
+              }
+            });
+            return;
+          }
 
-  // Booking date
-  if (checkoutData?.data?.selectedDate) {
-    formData.append('booking_date', checkoutData.data.selectedDate);
-  }
+          // If file-like, append file directly (do NOT stringify)
+          const fileLike = extractFile(fieldValue);
+          if (fileLike) {
+            formData.append(baseKey, fileLike);
+            return;
+          }
 
-  // Payment method
-  formData.append('payment_method', 'online');
+          // If plain object (not file), JSON stringify so backend can parse
+          if (typeof fieldValue === 'object') {
+            formData.append(baseKey, JSON.stringify(fieldValue));
+            return;
+          }
 
-  // Attendees — handle files and primitives safely
-  if (attendeeRequired && Array.isArray(checkoutData?.attendees) && checkoutData.attendees.length > 0) {
-    const attendeeList = checkoutData.attendees;
-
-    attendeeList.forEach((attendee, index) => {
-      Object.entries(attendee).forEach(([fieldKey, fieldValue]) => {
-        // skip helper fields
-        if (fieldKey === 'missingFields' || fieldValue === undefined || fieldValue === null || fieldValue === '') return;
-
-        const baseKey = `attendees[${index}][${fieldKey}]`;
-
-        // If array (e.g., multiple photos)
-        if (Array.isArray(fieldValue)) {
-          fieldValue.forEach((item, i) => {
-            const file = extractFile(item);
-            if (file) {
-              // append files as array parts
-              formData.append(`${baseKey}[]`, file);
-            } else {
-              formData.append(`${baseKey}[]`, sanitizeInput(String(item)));
-            }
-          });
-          return;
-        }
-
-        // If file-like, append file directly (do NOT stringify)
-        const fileLike = extractFile(fieldValue);
-        if (fileLike) {
-          formData.append(baseKey, fileLike);
-          return;
-        }
-
-        // If plain object (not file), JSON stringify so backend can parse
-        if (typeof fieldValue === 'object') {
-          formData.append(baseKey, JSON.stringify(fieldValue));
-          return;
-        }
-
-        // Primitive (string/number/boolean)
-        appendPrimitive(baseKey, fieldValue);
+          // Primitive (string/number/boolean)
+          appendPrimitive(baseKey, fieldValue);
+        });
       });
-    });
-  }
+    }
 
-  return formData;
-};
+    return formData;
+  };
 
 
   // Initiate booking API call
@@ -464,7 +469,7 @@ const handleApplyCoupon = () => {
         throw new Error('Payment URL missing from response.');
       }
       const sessionId = response?.bookings?.[0]?.session_id || response?.bookings?.session_id;
-      router.push(`/events/summary/${encodeURIComponent(event_key)}?sessionId=${encodeURIComponent(sessionId)}`)
+      router.push(`/events/summary/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(sessionId)}`)
     } else {
       throw new Error('Payment initiation failed');
     }
@@ -473,25 +478,19 @@ const handleApplyCoupon = () => {
   // Handle free booking
   const handleFreeBooking = async (responseData) => {
     try {
-      // Show success message
-      await Swal.fire({
-        title: 'Booking Successful!',
-        text: 'Your free ticket has been booked successfully.',
-        icon: 'success',
-        confirmButtonText: 'View Booking'
-      });
 
-       const sessionId = responseData?.bookings?.[0]?.session_id || responseData?.bookings?.session_id;
+
+      const sessionId = responseData?.bookings?.[0]?.session_id || responseData?.bookings?.session_id;
       // if no sessionId, just push to event summary without query param
-    if (!sessionId) {
-      // router.push(`/events/summary/${encodeURIComponent(event_key)}`);
-      ErrorAlert('Session Id Not Found')
-      return;
-    }
+      if (!sessionId) {
+        // router.push(`/events/summary/${encodeURIComponent(event_key)}`);
+        ErrorAlert('Session Id Not Found')
+        return;
+      }
 
-    router.push(
-      `/events/summary/${encodeURIComponent(event_key)}?sessionId=${encodeURIComponent(sessionId)}`
-    );
+      router.push(
+        `/events/summary/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(sessionId)}`
+      );
 
     } catch (error) {
       console.error('Free booking handling error:', error);

@@ -43,12 +43,13 @@ export const OrderReviewSection = ({
             experience throughout this website, and for other purposes described
             in our <Link href="/extra/privacy-policy">privacy policy</Link>.
           </small>
-          {isMobile ? (
+          <div className="d-block d-sm-none">
             <BookingMobileFooter
               handleClick={handleProcess}
               selectedTickets={validatedData?.data}
             />
-          ) : (
+          </div>
+          <div className="d-none d-sm-block">
             <div className="d-flex align-items-center justify-content-between gap-3">
               <CustomBtn
                 style={{ background: 'rgba(255, 255, 255, 0.1)' }}
@@ -65,7 +66,7 @@ export const OrderReviewSection = ({
                 loading={isLoading}
               />
             </div>
-          )}
+          </div>
         </div>
       </div>
     </MotionWrapper>
