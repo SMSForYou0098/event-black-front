@@ -305,7 +305,7 @@ const HeaderDefault = memo(() => {
                               {displayedCategories.map((category) => (
                                 <Nav.Item as="li" key={category.value || category.id}>
                                   <Link
-                                    href={`/events/category/${createSlug(category.label)}`}
+                                    href={`/events/category/${createSlug(category.label).toLowerCase()}?key=${category.value || category.id}`}
                                     className={`nav-link ${location.pathname === `/events/category/${category.value || category.id}` ? "active" : ""}`}
                                     onClick={() => handleNavigation(`/events/category/${category.value || category.id}`)}
                                   >
