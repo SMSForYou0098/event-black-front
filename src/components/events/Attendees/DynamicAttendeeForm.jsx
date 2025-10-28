@@ -51,7 +51,6 @@ const DynamicAttendeeForm = ({
   const [editingIndex, setEditingIndex] = useState(null);
   const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false);
   const [errors, setErrors] = useState({});
-
   const fetchExistingAttendees = async () => {
     if (!UserData?.id || !categoryId) return [];
 
@@ -198,6 +197,19 @@ const DynamicAttendeeForm = ({
   };
 
 
+  // Add this helper function at the top of your component (after imports)
+const parseFieldOptions = (options) => {
+  if (!options) return [];
+  if (Array.isArray(options)) return options;
+  
+  try {
+    const parsed = JSON.parse(options);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.error('Failed to parse field options:', e);
+    return [];
+  }
+};
 
 
   // renderField - similar to your version but uses handleFieldChange
@@ -270,28 +282,65 @@ const DynamicAttendeeForm = ({
           </>
         );
 
-      case "select":
-        return (
-          <>
-            <Form.Group>
-              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-              <Select
-                value={value ? { label: value, value } : null}
-                options={(() => {
-                  try {
-                    return JSON.parse(field_options).map((opt) => ({ label: opt, value: opt }));
-                  } catch (e) {
-                    return [];
-                  }
-                })()}
-                className="card-glassmorphism__input"
-                onChange={(opt) => onChange(opt)}
-                isRequired={required}
-              />
-            </Form.Group>
-            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-          </>
-        );
+        case "radio":
+          const radioOptions = parseFieldOptions(field_options);
+          return (
+            <>
+              <Form.Group>
+                <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+                <div className="d-flex  gap-2">
+                  {radioOptions.map((option, idx) => (
+                    <Form.Check
+                      key={idx}
+                      type="radio"
+                      id={`${field_name}-${idx}`}
+                      name={field_name}
+                      label={option}
+                      value={option}
+                      checked={value === option}
+                      onChange={(e) => handleFieldChange(field_name, e.target.value)}
+                      required={required}
+                      className="text-white"
+                    />
+                  ))}
+                </div>
+              </Form.Group>
+              <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+            </>
+          );
+    
+        // NEW CASE: Add checkbox handling (if needed)
+        case "checkbox":
+          const checkboxOptions = parseFieldOptions(field_options);
+          return (
+            <>
+              <Form.Group>
+                <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+                <div className="d-flex flex-column gap-2">
+                  {checkboxOptions.map((option, idx) => (
+                    <Form.Check
+                      key={idx}
+                      type="checkbox"
+                      id={`${field_name}-${idx}`}
+                      label={option}
+                      value={option}
+                      checked={(Array.isArray(value) ? value : []).includes(option)}
+                      onChange={(e) => {
+                        const currentValues = Array.isArray(value) ? value : [];
+                        const newValues = e.target.checked
+                          ? [...currentValues, option]
+                          : currentValues.filter(v => v !== option);
+                        handleFieldChange(field_name, newValues);
+                      }}
+                      required={required && idx === 0} // Only first checkbox is required
+                      className="text-white"
+                    />
+                  ))}
+                </div>
+              </Form.Group>
+              <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+            </>
+          );
 
       case "textarea":
         return (

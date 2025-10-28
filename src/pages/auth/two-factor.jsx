@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { publicApi } from '@/lib/axiosInterceptor';
 import CustomBtn from '@/utils/CustomBtn';
+import { ChevronLeft } from 'lucide-react';
 
 const TwoFactor = memo(() => {
     const router = useRouter();
@@ -105,14 +106,13 @@ const TwoFactor = memo(() => {
                                 {/* Applied the glassmorphism card style */}
                                 <Card className="user-login-card p-4 card-glassmorphism">
                                     <div className="mb-4 text-center">
-                                        <h2 className="text-white mb-3">Two-Factor Verification</h2>
+                                        <h5 className="text-white mb-3">Two-Factor Verification</h5>
                                         <p className="text-white-75">Enter the 6-digit OTP sent to your device.</p>
                                     </div>
                                     {error && <Alert variant="primary">{error}</Alert>}
                                     <Form.Group className="mb-4">
                                         {/* Applied the input style */}
                                         <Form.Control
-                                            size="lg"
                                             type="number"
                                             value={otp}
                                             placeholder="Enter OTP"
@@ -130,12 +130,19 @@ const TwoFactor = memo(() => {
                                             HandleClick={handleVerifyOtp}
                                             disabled={!otp || loading || authLoading}
                                             buttonText={loading || authLoading ? 'Verifying...' : 'Verify OTP'}
+                                            size='sm'
                                         />
                                     </div>
 
-                                    <div className="text-center text-white-75">
+                                    <div className="mt-3 d-flex justify-content-between">
+                                        <Link href="/auth/login" className="text-primary fw-bold d-flex align-items-center">
+                                            <ChevronLeft /> Back to Login
+                                        </Link>
+                                        {/* <Link href="#" onClick={handleSendOtp} className="fw-bold">
+                                            Resend Otp
+                                        </Link> */}
                                         {timerVisible && otpSent ? (
-                                            <p>Resend OTP in {countdown} seconds</p>
+                                            <p className='mt-3'>Resend OTP in {countdown} seconds</p>
                                         ) : (
                                             // Applied the link button style
                                             <CustomBtn
@@ -143,13 +150,9 @@ const TwoFactor = memo(() => {
                                                 className="link-glassmorphism"
                                                 HandleClick={handleSendOtp}
                                                 disabled={loading}
+                                                size='sm'
                                             />
                                         )}
-                                    </div>
-                                    <div className="mt-3 text-center">
-                                        <Link href="/auth/login" className='link-glassmorphism fw-bold'>
-                                            Back to Login
-                                        </Link>
                                     </div>
                                 </Card>
                             </Col>

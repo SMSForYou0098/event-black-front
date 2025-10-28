@@ -66,8 +66,9 @@ export const toAbsolute = (url) => {
 const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loading: propLoading = false }) => {
   const themeSchemeDirection = useSelector(theme_scheme_direction);
   const [toggler, setToggler] = useState(false);
-  const { isMobile, createSlug } = useMyContext();
+  const {  createSlug } = useMyContext();
   const router = useRouter();
+  const [currentMediaUrl, setCurrentMediaUrl] = useState(''); // NEW: Track current media URL
 
   // Only call API when type is 'main'
   const { data: apiBanners, isLoading: apiLoading, isError } = useQuery({
@@ -132,7 +133,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
         return;
       }
       if (banner?.event_key) {
-        router.push(`/events/${banner.event_key}`);
+        router.push(`/events/${banner?.event?.venue?.city}/${createSlug(banner.event?.user?.organisation)}/${createSlug(banner.event.name)}/${banner.event_key}`);
         return;
       }
       if (banner?.button_link) {
@@ -162,6 +163,19 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     router.push(`/events/category/${createSlug(banner?.category).toLowerCase()}`);
   };
 
+  const handleMediaClick = (banner) => {
+    if (!banner?.media_url) return;
+
+    if (banner?.display_in_popup) {
+      // Open in lightbox
+      setCurrentMediaUrl(banner.media_url);
+      setToggler(!toggler);
+    } else {
+      // Open in new tab
+      window.open(banner.media_url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const desktopSwiperConfig = {
     dir: String(themeSchemeDirection),
     navigation: {
@@ -185,20 +199,31 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                 banners={bannersToRender}
                 themeSchemeDirection={themeSchemeDirection}
                 createSlug={createSlug}
+                type={type}
+                handleBannerNavigation={handleBannerNavigation}
               />
             </MobileOnly>
 
             <DesktopOnly>
               <Swiper key={`desktop-${String(themeSchemeDirection)}`} {...desktopSwiperConfig}>
                 {bannersToRender.map((banner, index) => {
-                  const raw = extractImageUrl(banner.images);
-                  const fixedImageUrl = toAbsolute(raw);
-                  const backgroundStyle = fixedImageUrl ? `url("${fixedImageUrl}")` : 'none';
+                  // Direct usage - no extraction needed
+                  const imageUrl = banner.images || ''; // fallback to empty string if null
+                  const backgroundStyle = imageUrl ? `url("${imageUrl}")` : 'none';
                   const isFallback = banner.id === 'fallback';
 
                   return (
                     <SwiperSlide key={banner.id || index}>
-                      <div className="movie-banner-image" style={{ backgroundImage: backgroundStyle, backgroundSize: 'cover', backgroundPosition: 'center', height: '450px', position: 'relative' }}>
+                      <div
+                        className="movie-banner-image"
+                        style={{
+                          backgroundImage: backgroundStyle,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          height: '450px',
+                          position: 'relative'
+                        }}
+                      >
                         <div className="shows-content h-100">
                           <Row className="row align-items-center h-100">
                             <Col lg="7" md="12">
@@ -217,7 +242,8 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                                 customClass="mt-4 btn-sm"
                               />
                             </Col>
-
+                            {
+                              // currentMediaUrl && 
                             <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
                               <div onClick={() => setToggler(!toggler)} className="video-open playbtn" style={{ cursor: 'pointer' }}>
                                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="80px" height="80px" viewBox="0 0 213.7 213.7" enableBackground="new 0 0 213.7 213.7" xmlSpace="preserve">
@@ -227,6 +253,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                                 <span className="w-trailor text-uppercase">Watch Trailer</span>
                               </div>
                             </Col>
+                            }
                           </Row>
                         </div>
                       </div>
@@ -246,10 +273,13 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
         </div>
       </section>
 
+      {
+        currentMediaUrl && 
       <FsLightbox
         toggler={toggler}
-        sources={["/assets/images/video/trailer.mp4"]}
+        sources={currentMediaUrl ? [currentMediaUrl] : ["/assets/images/video/trailer.mp4"]}
       />
+      }          
     </Fragment>
   );
 });

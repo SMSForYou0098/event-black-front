@@ -79,6 +79,11 @@ const HighDemand = createDynamicComponent(
   () => <SectionSkeleton title="High Demand" />
 );
 
+const PromotionalEvents = createDynamicComponent(
+  () => import("@/components/sections/PromotionalEvents"),
+  () => <SectionSkeleton title="Trending Events" />
+);
+
 const Organisation = createDynamicComponent(
   () => import("@/components/sections/Organisations"),
   () => <SectionSkeleton title="Popular Events" />
@@ -164,6 +169,14 @@ const OTT = memo(() => {
       <CommonBannerSlider />
       {/* <HomeBannerSlider /> */}
       
+      {/* High priority: Preload when user is getting close */}
+      <PreloadSection 
+        fallback={<SectionSkeleton title="Trending Events" />}
+        preloadMargin="150px"
+      >
+        <PromotionalEvents />
+      </PreloadSection>
+
       {/* High priority: Preload when user is getting close */}
       <PreloadSection 
         fallback={<SectionSkeleton title="High Demand" />}

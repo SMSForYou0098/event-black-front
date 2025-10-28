@@ -155,7 +155,7 @@ const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
   };
 
   return (
-    <>
+    <div className="section-padding">
       <SEOHead
         title={seoTitle}
         description={seoDescription}
@@ -178,7 +178,7 @@ const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
         title={displayTitle}
       />
     </div>
-    </>
+    </div>
   );
 };
 

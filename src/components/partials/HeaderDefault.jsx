@@ -271,7 +271,7 @@ const HeaderDefault = memo(() => {
                     >
                       <Nav.Link
                         aria-expanded={eventsOpen}
-                        href="#"
+                        href="/events"
                         onClick={toggleEventsDropdown}
                         className="fw-bold"
                         style={{ cursor: "pointer" }}
@@ -302,12 +302,21 @@ const HeaderDefault = memo(() => {
                                 transition: "max-height 0.3s ease",
                               }}
                             >
+                              <Nav.Item as="li" key={displayedCategories.length+1}>
+                                  <Link
+                                    href={`/events`}
+                                    className={`nav-link ${location.pathname === `/events}` ? "active" : ""}`}
+                                    // onClick={() => handleNavigation(`/events/category/${category.value || category.id}`)}
+                                  >
+                                    All Events
+                                  </Link>
+                                </Nav.Item>
                               {displayedCategories.map((category) => (
                                 <Nav.Item as="li" key={category.value || category.id}>
                                   <Link
                                     href={`/events/category/${createSlug(category.label).toLowerCase()}?key=${category.value || category.id}`}
                                     className={`nav-link ${location.pathname === `/events/category/${category.value || category.id}` ? "active" : ""}`}
-                                    onClick={() => handleNavigation(`/events/category/${category.value || category.id}`)}
+                                    // onClick={() => handleNavigation(`/events/category/${category.value || category.id}`)}
                                   >
                                     {category.label || category.name}
                                   </Link>

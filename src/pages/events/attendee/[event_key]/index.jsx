@@ -22,7 +22,6 @@ const AttendeePage = () => {
   const [attendeeList, setAttendeesList] = useState([]);
   const dispatch = useDispatch();
   const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
-
   useEffect(() => {
     if (!data) return;
 
