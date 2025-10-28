@@ -1,7 +1,6 @@
 // DynamicAttendeeForm.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { Col, Row, Button, Card, Form, Modal, InputGroup, Spinner } from "react-bootstrap";
-import Select from "react-select";
 import { api } from "@/lib/axiosInterceptor";
 
 import { useQuery } from "@tanstack/react-query";
@@ -43,7 +42,6 @@ const DynamicAttendeeForm = ({
   const { UserData, isMobile, authToken, successAlert, ErrorAlert, AskAlert } = useMyContext();
   const router = useRouter();
   const { k, event_key } = router.query ?? {};
-
   // Local state
   const [existingAttendee, setExistingAttendee] = useState([]);
   const [attendeeData, setAttendeeData] = useState({});
@@ -198,6 +196,7 @@ const DynamicAttendeeForm = ({
 
 
   // Add this helper function at the top of your component (after imports)
+// Add this helper function at the top of your component (after imports)
 const parseFieldOptions = (options) => {
   if (!options) return [];
   if (Array.isArray(options)) return options;
@@ -211,185 +210,264 @@ const parseFieldOptions = (options) => {
   }
 };
 
+// Updated renderField function
+const renderField = (field) => {
+  const { field_name, lable, field_type, field_options = [], field_required } = field;
+  const required = field_required === 1;
+  const value = attendeeData[field_name] ?? "";
+  const lbl = required ? `${lable} <span class="text-primary">*</span>` : lable;
 
-  // renderField - similar to your version but uses handleFieldChange
-  const renderField = (field) => {
-    const { field_name, lable, field_type, field_options = [], field_required } = field;
-    const required = field_required === 1;
-    const value = attendeeData[field_name] ?? "";
-    const lbl = required ? `${lable} <span class="text-primary">*</span>` : lable;
-
-    const onChange = async (e) => {
-      // handle react-select option or native input
-      const val = e?.target ? e.target.value : e;
-      // file handling
-      if (e?.target?.type === "file") {
-        const file = e.target.files[0];
-        if (!file) return;
-        // If photo-like field: try face detect + crop
-        if (
-          field_name?.toLowerCase().includes("photo") ||
-          lable?.toLowerCase().includes("photo") ||
-          field_name?.toLowerCase().includes("passport_size_photo") ||
-          lable?.toLowerCase().includes("passport_size_photo")
-        ) {
-          const reader = new FileReader();
-          reader.onload = async (ev) => {
-            try {
-              const faceImageBase64 = await FaceDetector.cropFaceFromImage(ev.target.result);
-              if (faceImageBase64) {
-                handleFieldChange(field_name, faceImageBase64);
-              } else {
-                // fallback to raw file
-                ErrorAlert('Face Not Detected, Please Upload Proper Image')
-                const processed = await processImageFile(file);
-                handleFieldChange(field_name, processed || file);
-              }
-            } catch (err) {
+  const onChange = async (e) => {
+    // handle react-select option or native input
+    const val = e?.target ? e.target.value : e;
+    
+    // file handling
+    if (e?.target?.type === "file") {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      // If photo-like field: try face detect + crop
+      if (
+        field_name?.toLowerCase().includes("photo") ||
+        lable?.toLowerCase().includes("photo") ||
+        field_name?.toLowerCase().includes("passport_size_photo") ||
+        lable?.toLowerCase().includes("passport_size_photo")
+      ) {
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          try {
+            const faceImageBase64 = await FaceDetector.cropFaceFromImage(ev.target.result);
+            if (faceImageBase64) {
+              handleFieldChange(field_name, faceImageBase64);
+            } else {
+              ErrorAlert('Face Not Detected, Please Upload Proper Image')
               const processed = await processImageFile(file);
               handleFieldChange(field_name, processed || file);
             }
-          };
-          reader.readAsDataURL(file);
-          return;
-        }
-
-        const processedFile = await processImageFile(file);
-        handleFieldChange(field_name, processedFile || file);
+          } catch (err) {
+            const processed = await processImageFile(file);
+            handleFieldChange(field_name, processed || file);
+          }
+        };
+        reader.readAsDataURL(file);
         return;
       }
 
-      // select components that return {label, value}
-      if (val && typeof val === "object" && val.value !== undefined) {
-        handleFieldChange(field_name, val.value);
-        return;
-      }
-
-      // checkbox / radio may pass event
-      handleFieldChange(field_name, val);
-    };
-
-    switch (field_type) {
-      case "text":
-      case "email":
-        return (
-          <>
-            <Form.Group>
-              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-              <Form.Control className="card-glassmorphism__input" type={field_type} value={value} onChange={onChange} required={required} />
-            </Form.Group>
-            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-          </>
-        );
-
-        case "radio":
-          const radioOptions = parseFieldOptions(field_options);
-          return (
-            <>
-              <Form.Group>
-                <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-                <div className="d-flex  gap-2">
-                  {radioOptions.map((option, idx) => (
-                    <Form.Check
-                      key={idx}
-                      type="radio"
-                      id={`${field_name}-${idx}`}
-                      name={field_name}
-                      label={option}
-                      value={option}
-                      checked={value === option}
-                      onChange={(e) => handleFieldChange(field_name, e.target.value)}
-                      required={required}
-                      className="text-white"
-                    />
-                  ))}
-                </div>
-              </Form.Group>
-              <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-            </>
-          );
-    
-        // NEW CASE: Add checkbox handling (if needed)
-        case "checkbox":
-          const checkboxOptions = parseFieldOptions(field_options);
-          return (
-            <>
-              <Form.Group>
-                <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-                <div className="d-flex flex-column gap-2">
-                  {checkboxOptions.map((option, idx) => (
-                    <Form.Check
-                      key={idx}
-                      type="checkbox"
-                      id={`${field_name}-${idx}`}
-                      label={option}
-                      value={option}
-                      checked={(Array.isArray(value) ? value : []).includes(option)}
-                      onChange={(e) => {
-                        const currentValues = Array.isArray(value) ? value : [];
-                        const newValues = e.target.checked
-                          ? [...currentValues, option]
-                          : currentValues.filter(v => v !== option);
-                        handleFieldChange(field_name, newValues);
-                      }}
-                      required={required && idx === 0} // Only first checkbox is required
-                      className="text-white"
-                    />
-                  ))}
-                </div>
-              </Form.Group>
-              <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-            </>
-          );
-
-      case "textarea":
-        return (
-          <>
-            <Form.Group>
-              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-              <Form.Control className="card-glassmorphism__input" as="textarea" rows={3} value={value} onChange={onChange} required={required} />
-            </Form.Group>
-            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-          </>
-        );
-
-      case "number":
-        return (
-          <>
-            <Form.Group>
-              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-              <Form.Control className="card-glassmorphism__input" type="number" value={value} onChange={onChange} required={required} />
-            </Form.Group>
-            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-          </>
-        );
-
-      case "date":
-        return (
-          <>
-            <Form.Group>
-              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-              <Form.Control className="card-glassmorphism__input" type="date" value={value} onChange={onChange} required={required} />
-            </Form.Group>
-            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-          </>
-        );
-
-      case "file":
-        return (
-          <>
-            <Form.Group>
-              <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
-              <Form.Control className="card-glassmorphism__input" type="file" accept="image/*" onChange={onChange} required={required} />
-            </Form.Group>
-            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
-          </>
-        );
-
-      default:
-        return null;
+      const processedFile = await processImageFile(file);
+      handleFieldChange(field_name, processedFile || file);
+      return;
     }
+
+    // select components that return {label, value}
+    if (val && typeof val === "object" && val.value !== undefined) {
+      handleFieldChange(field_name, val.value);
+      return;
+    }
+
+    // checkbox / radio may pass event
+    handleFieldChange(field_name, val);
   };
+
+  switch (field_type) {
+    case "text":
+    case "email":
+      return (
+        <>
+          <Form.Group>
+            <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+            <Form.Control 
+              className="card-glassmorphism__input" 
+              type={field_type} 
+              value={value} 
+              onChange={onChange} 
+              required={required} 
+            />
+          </Form.Group>
+          <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+        </>
+      );
+
+      case "select":
+        const selectOptions = parseFieldOptions(field_options);
+        return (
+          <>
+            <Form.Group className="mb-3">
+              <Form.Label className="text-white mb-2" dangerouslySetInnerHTML={{ __html: lbl }} />
+              <Form.Select
+                className="card-glassmorphism__input"
+                value={value}
+                onChange={onChange}
+                required={required}
+              >
+                <option value="">Select {lable}</option>
+                {selectOptions.map((option, idx) => (
+                  <option key={idx} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            {errors[field_name] && (
+              <Form.Text className="text-danger fw-bold d-block mb-2">
+                {errors[field_name]}
+              </Form.Text>
+            )}
+          </>
+        );
+
+    case "radio":
+      const radioOptions = parseFieldOptions(field_options);
+      return (
+        <>
+          <Form.Group className="mb-3">
+            <Form.Label className="text-white mb-2" dangerouslySetInnerHTML={{ __html: lbl }} />
+            <div className="d-flex gap-3 flex-wrap">
+              {radioOptions.map((option, idx) => (
+                <div key={idx} className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    id={`${field_name}-${idx}`}
+                    name={field_name}
+                    value={option}
+                    checked={value === option}
+                    onChange={(e) => handleFieldChange(field_name, e.target.value)}
+                    required={required}
+                  />
+                  <label 
+                    className="form-check-label text-white" 
+                    htmlFor={`${field_name}-${idx}`}
+                  >
+                    {option}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </Form.Group>
+          {errors[field_name] && (
+            <Form.Text className="text-danger fw-bold d-block mb-2">
+              {errors[field_name]}
+            </Form.Text>
+          )}
+        </>
+      );
+
+    case "checkbox":
+      const checkboxOptions = parseFieldOptions(field_options);
+      return (
+        <>
+          <Form.Group className="mb-3">
+            <Form.Label className="text-white mb-2" dangerouslySetInnerHTML={{ __html: lbl }} />
+            <div className="d-flex flex-column gap-2">
+              {checkboxOptions.map((option, idx) => (
+                <div key={idx} className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id={`${field_name}-${idx}`}
+                    value={option}
+                    checked={(Array.isArray(value) ? value : []).includes(option)}
+                    onChange={(e) => {
+                      const currentValues = Array.isArray(value) ? value : [];
+                      const newValues = e.target.checked
+                        ? [...currentValues, option]
+                        : currentValues.filter(v => v !== option);
+                      handleFieldChange(field_name, newValues);
+                    }}
+                    required={required && idx === 0}
+                  />
+                  <label 
+                    className="form-check-label text-white" 
+                    htmlFor={`${field_name}-${idx}`}
+                  >
+                    {option}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </Form.Group>
+          {errors[field_name] && (
+            <Form.Text className="text-danger fw-bold d-block mb-2">
+              {errors[field_name]}
+            </Form.Text>
+          )}
+        </>
+      );
+
+    case "textarea":
+      return (
+        <>
+          <Form.Group>
+            <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+            <Form.Control 
+              className="card-glassmorphism__input" 
+              as="textarea" 
+              rows={3} 
+              value={value} 
+              onChange={onChange} 
+              required={required} 
+            />
+          </Form.Group>
+          <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+        </>
+      );
+
+    case "number":
+      return (
+        <>
+          <Form.Group>
+            <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+            <Form.Control 
+              className="card-glassmorphism__input" 
+              type="number" 
+              value={value} 
+              onChange={onChange} 
+              required={required} 
+            />
+          </Form.Group>
+          <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+        </>
+      );
+
+    case "date":
+      return (
+        <>
+          <Form.Group>
+            <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+            <Form.Control 
+              className="card-glassmorphism__input" 
+              type="date" 
+              value={value} 
+              onChange={onChange} 
+              required={required} 
+            />
+          </Form.Group>
+          <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+        </>
+      );
+
+    case "file":
+      return (
+        <>
+          <Form.Group>
+            <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
+            <Form.Control 
+              className="card-glassmorphism__input" 
+              type="file" 
+              accept="image/*" 
+              onChange={onChange} 
+              required={required} 
+            />
+          </Form.Group>
+          <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+        </>
+      );
+
+    default:
+      return null;
+  }
+};
+
 
   // Back button
   const Back = () => {

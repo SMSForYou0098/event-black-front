@@ -130,6 +130,7 @@ const CartPage = () => {
       "status",
       "description",
       "user_booking_limit",
+      "sale_date",
     ];
 
     try {
