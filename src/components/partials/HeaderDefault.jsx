@@ -67,6 +67,14 @@ const HeaderDefault = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
   const [eventsOpen, setEventsOpen] = useState(false);
 
+
+    const menu = [
+    { id: 1, title: "Home", href: "/" },
+    { id: 2, title: "About Us", href: "/about-us" },
+    { id: 3, title: "Contact Us", href: "/contact-us" },
+    { id: 4, title: "FAQ", href: "/faq" },
+    { id: 4, title: "Blog", href: "/blogs" },
+  ];
   // NEW: State for show more functionality
   const [showAllEvents, setShowAllEvents] = useState(false);
   const INITIAL_DISPLAY_COUNT = 5; // Show only 5 categories initially
@@ -106,17 +114,6 @@ const HeaderDefault = memo(() => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [location]);
-
-  // Menu query (renamed variables)
-  const {
-    data: menu = [],
-    isLoading: menuLoading,
-    isError: menuError,
-    error: menuErrorObj,
-  } = useQuery({
-    queryKey: ["activeMenu"],
-    queryFn: getActiveMenu,
-  });
 
   // Categories query (renamed variables)
   const {
@@ -251,22 +248,13 @@ const HeaderDefault = memo(() => {
                     id="header-menu"
                   >
                     {menu.map((item) => {
-                      let href =
-                        item.external_url ||
-                        (item.page ? `/${createSlug(item.page.title)}` : "#");
-
-                      if (item.title.toLowerCase() === "home") {
-                        href = "/";
-                      }
-
-                      const isActive = location.asPath === href;
-
+                      const isActive = location.asPath === item?.href;
                       return (
                         <Nav.Item as="li" key={item.id} className="nav-item">
-                          <Link href={href} passHref legacyBehavior>
+                          <Link href={`${item?.href}`} passHref legacyBehavior>
                             <Nav.Link
                               className={`fw-bold ${isActive ? "active" : ""}`}
-                              onClick={() => handleNavigation(href)}
+                              onClick={() => handleNavigation(`${item?.href}`)}
                             >
                               {item.title}
                             </Nav.Link>
@@ -357,7 +345,7 @@ const HeaderDefault = memo(() => {
                         </div>
                       )}
                     </Nav.Item>
-
+{/* 
                     <Nav.Item as="li" className="nav-item">
                       <Link href="/blogs" passHref legacyBehavior>
                         <Nav.Link
@@ -367,7 +355,7 @@ const HeaderDefault = memo(() => {
                           Blogs
                         </Nav.Link>
                       </Link>
-                    </Nav.Item>
+                    </Nav.Item> */}
                   </ul>
                 </Container>
               </Navbar>

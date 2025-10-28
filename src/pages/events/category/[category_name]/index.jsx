@@ -101,7 +101,7 @@ const EventsByCategory = () => {
   return (
     <>
       {/* Add CategorySEO component */}
-      {categoryData && (
+      {categoryData && categoryData.seo !== null && (
         <CategorySEO categoryData={categoryData} categorySlug={category_name} />
       )}
 
