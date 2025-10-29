@@ -20,8 +20,11 @@ const AttendeePage = () => {
   const [categoryData, setCategoryData] = useState(null);
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [attendeeList, setAttendeesList] = useState([]);
+  const [selectedAttendees, setSelectedAttendees] = useState([]);
+
   const dispatch = useDispatch();
   const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
+
   useEffect(() => {
     if (!data) return;
 
@@ -116,7 +119,7 @@ const AttendeePage = () => {
     const q =
       data.newQuantity ??
       data.selectedQuantity ??
-      data?.data?.newQuantity ??
+      data?.data?.quantity ??
       data?.data?.selectedQuantity ??
       0;
     return q;
@@ -140,6 +143,8 @@ const AttendeePage = () => {
               selectedTickets={data?.data}
               quantity={quantity}
               event_key={event_key}
+              selectedAttendees={selectedAttendees}
+              setSelectedAttendees={setSelectedAttendees}
             />
             {hasMissingFields && (
               <div className="mb-3 text-white fw-bold">
@@ -149,9 +154,9 @@ const AttendeePage = () => {
           </Col>
           <Col lg="4">
             <TicketDataSummary
-              eventName={data?.event.name}
-              ticketName={data?.ticket.name}
-              price={data?.ticket.price}
+              eventName={data?.event?.name}
+              ticketName={data?.ticket?.name}
+              price={data?.ticket?.price}
               quantity={quantity}
               hidePrices={true}
             />

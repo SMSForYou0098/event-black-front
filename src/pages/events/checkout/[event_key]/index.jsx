@@ -100,7 +100,7 @@ const CartPage = () => {
       return;
     }
 
-    if (!checkoutData?.ticket?.id && !checkoutData?.data?.itemId) {
+    if (!checkoutData?.ticket?.id && !checkoutData?.data?.id) {
       ErrorAlert('Please select a ticket first');
       return;
     }
@@ -118,8 +118,8 @@ const CartPage = () => {
     applyCouponMutation.mutate({
       userId: checkoutData.event.user_id,
       payload: {
-        ticket_id: checkoutData?.ticket?.id ?? checkoutData?.data?.itemId,
-        amount: calculatedTotal,
+        ticket_id: checkoutData?.data?.id ?? checkoutData?.data?.itemId,
+        amount: checkoutData?.data?.totalBaseAmount,
         promo_code: couponCode.trim(),
       },
     });
@@ -228,7 +228,7 @@ const CartPage = () => {
       return ErrorAlert('Please Complete Your Profile');
     }
     //validate quantity
-    const quantity = Number(checkoutData?.data?.newQuantity) || 0;
+    const quantity = Number(checkoutData?.data?.quantity) || 0;
     if (quantity <= 0) {
       ErrorAlert("Please select at least one ticket.");
       return false;
@@ -296,8 +296,9 @@ const CartPage = () => {
 
   // Create booking payload
   const createBookingPayload = () => {
+    let finalTicketData = checkoutData.data;
     const formData = new FormData();
-    const quantity = Number(checkoutData?.data?.newQuantity) || 0;
+    const quantity = Number(finalTicketData?.quantity) || 0;
 
     // helper: detect file-like objects and extract the actual File/Blob
     const extractFile = (v) => {
@@ -336,18 +337,28 @@ const CartPage = () => {
     formData.append('event_type', checkoutData?.event?.event_type || '');
 
     // Ticket info
-    formData.append('ticket_id', checkoutData?.ticket?.id ? String(checkoutData.ticket.id) : '');
-    formData.append('ticket_price', String(checkoutData?.ticket?.price ?? '0'));
+    formData.append('ticket_id', finalTicketData.id ? String(finalTicketData.id) : '');
+    formData.append('ticket_price', String(finalTicketData?.price ?? '0'));
     formData.append('quantity', String(quantity));
 
     // Pricing
-    formData.append('amount', String(orderData?.total ?? '0'));
-    formData.append('base_amount', String(orderData?.subtotal ?? (checkoutData?.ticket?.price * quantity) ?? '0'));
-    formData.append('discount', String(orderData?.discount ?? '0'));
-    formData.append('convenience_fees', String(orderData?.convenienceFees ?? '0'));
-    formData.append('cgst', String(orderData?.cgst ?? '0'));
-    formData.append('sgst', String(orderData?.sgst ?? '0'));
-    formData.append('total_tax', String((Number(orderData?.cgst || 0) + Number(orderData?.sgst || 0))));
+
+    // new payload
+    const fieldsToDiscard = ['price', 'id']; // example
+
+    Object.entries(finalTicketData)
+      .filter(([key]) => !fieldsToDiscard.includes(key))
+      .forEach(([key, value]) => {
+        formData.append(key, String(value));
+      });
+    // formData.append('amount', String(orderData?.total ?? '0'));
+    // formData.append('base_amount', String(orderData?.subtotal ?? (checkoutData?.data?.totalBaseAmount ) ?? '0'));
+    // formData.append('discount', String(orderData?.discount ?? '0'));
+    // formData.append('convenience_fees', String(orderData?.convenienceFees ?? '0'));
+
+    // formData.append('cgst', String(orderData?.cgst ?? '0'));
+    // formData.append('sgst', String(orderData?.sgst ?? '0'));
+    // formData.append('total_tax', String((Number(orderData?.cgst || 0) + Number(orderData?.sgst || 0))));
 
     // Promo
     if (promo?.appliedCode) formData.append('promo_code', promo.appliedCode);
@@ -567,6 +578,7 @@ const CartPage = () => {
           <Col lg="8" md="5">
             <CheckoutSummarySection
               orderData={orderData}
+              summaryData={checkoutData?.data}
               calculatedTotal={calculatedTotal}
               couponCode={couponCode}
               setCouponCode={setCouponCode}
@@ -580,6 +592,7 @@ const CartPage = () => {
             <OrderReviewSection
               isMobile={isMobile}
               orderData={orderData}
+              summaryData={checkoutData?.data}
               event={checkoutData?.event}
               ticketdata={checkoutData?.ticket}
               calculatedTotal={calculatedTotal}

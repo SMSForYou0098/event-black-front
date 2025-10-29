@@ -4,6 +4,7 @@ import { MotionWrapper, TicketDataSummary } from "./checkout_utils";
 export const OrderReviewSection = ({
   isMobile,
   validatedData,
+  summayData,
   calculatedTotal,
   handleProcess,
   BookingMobileFooter,
@@ -13,13 +14,13 @@ export const OrderReviewSection = ({
   isLoading
 }) => {
   const eventName = validatedData?.event?.name || "Event Name";
-  const ticketName = validatedData?.ticket?.name || "Ticket Name";
-  const isSale = Number(validatedData?.ticket?.sale) === 1;
-  const price = isSale ? validatedData?.ticket?.sale_price : validatedData?.ticket?.price;
-  const quantity = validatedData?.data?.newQuantity || 0;
-  const subTotal = orderData?.baseAmount || 0;
-  const processingFee = orderData?.convenienceFees || 0;
-  const total = orderData?.total || 0;
+  const ticketName = validatedData?.data?.category || "Ticket Name";
+  const isSale = Number(validatedData?.data?.sale) === 1;
+  const price = isSale ? validatedData?.data?.sale_price : validatedData?.data?.price;
+  const quantity = validatedData?.data?.quantity || 0;
+  const subTotal = validatedData?.data?.baseAmount || 0;
+  const processingFee = validatedData?.data?.totalConvenienceFee || 0;
+  const total = validatedData?.data?.totalFinalAmount || 0;
   return (
     <MotionWrapper
       variant="fadeInRight"

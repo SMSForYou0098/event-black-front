@@ -1,5 +1,6 @@
 import React, { Fragment, memo, useEffect, useState } from "react";
 import { Modal, Row, Col, Form, Button, Alert, Card } from "react-bootstrap";
+import { useMutation } from "@tanstack/react-query";
 import { publicApi } from "@/lib/axiosInterceptor";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
@@ -22,7 +23,6 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
   // States
   const [currentView, setCurrentView] = useState(MODAL_VIEWS.SIGN_IN);
   const [otpSent, setOtpSent] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [timerVisible, setTimerVisible] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -37,12 +37,117 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   // Validation states
-  const [validated, setValidated] = useState(false);
+  const [touched, setTouched] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
   const [serverError, setServerError] = useState("");
 
   const MAX_RESEND_ATTEMPTS = 3;
   const RESEND_COOLDOWN = 60; // seconds
+
+  // TanStack Query Mutations
+  const verifyUserMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await publicApi.post("/verify-user", { data });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (data.status) {
+        if (data.pass_req) {
+          setCurrentView(MODAL_VIEWS.PASSWORD);
+          setSessionData({
+            data: credential,
+            session_id: data.session_id,
+            auth_session: data.auth_session,
+          });
+        } else {
+          setTimerVisible(true);
+          setCountdown(30);
+          setCurrentView(MODAL_VIEWS.OTP);
+          setOtpSent(true);
+          setOTP("");
+          setResendCount((prev) => prev + 1);
+          const lastResendKey = `lastOtpResendTime_${credential}`;
+          localStorage.setItem(lastResendKey, Date.now().toString());
+        }
+      }
+    },
+    onError: (error) => {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const isEmail = emailRegex.test(credential);
+      if (isEmail) {
+        setEmail(credential);
+        setNumber("");
+      } else {
+        setNumber(credential);
+        setEmail("");
+      }
+      setCurrentView(MODAL_VIEWS.SIGN_UP);
+    },
+  });
+
+  const createUserMutation = useMutation({
+    mutationFn: async (userData) => {
+      const response = await publicApi.post("/create-user", userData);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (data.status) {
+        setCredential(number || email);
+        verifyUserMutation.mutate(number || email);
+      }
+    },
+    onError: (error) => {
+      setServerError(
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        "Something went wrong"
+      );
+    },
+  });
+
+  const verifyOtpMutation = useMutation({
+    mutationFn: async (loginData) => {
+      const resultAction = await dispatch(signIn(loginData));
+      if (!signIn.fulfilled.match(resultAction)) {
+        throw new Error(resultAction.payload || "OTP verification failed");
+      }
+      return resultAction;
+    },
+    onSuccess: () => {
+      handleModalClose();
+      router.push(redirectPath || `/events/${eventKey}/process`);
+    },
+    onError: (error) => {
+      setServerError(error.message || "An error occurred");
+      setAttempts((prev) => prev + 1);
+      if (attempts >= 2) {
+        dispatch(logout());
+        setCurrentView(MODAL_VIEWS.SIGN_IN);
+      }
+    },
+  });
+
+  const verifyPasswordMutation = useMutation({
+    mutationFn: async (loginData) => {
+      const resultAction = await dispatch(signIn(loginData));
+      if (!signIn.fulfilled.match(resultAction)) {
+        throw new Error(resultAction.payload || "Password verification failed");
+      }
+      return resultAction;
+    },
+    onSuccess: () => {
+      handleModalClose();
+      router.push(redirectPath || `/events/${eventKey}/process`);
+    },
+    onError: (error) => {
+      setServerError(error.message || "An error occurred");
+      setAttempts((prev) => prev + 1);
+      if (attempts >= 2) {
+        dispatch(logout());
+        setCurrentView(MODAL_VIEWS.SIGN_IN);
+      }
+    },
+  });
 
   useEffect(() => {
     let timer;
@@ -63,7 +168,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
   // Clear validation errors on tab change
   useEffect(() => {
     setValidationErrors({});
-    setValidated(false);
+    setTouched({});
     setServerError("");
   }, [currentView]);
 
@@ -80,18 +185,127 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     return validateEmail(credential) || validatePhone(credential);
   };
 
+  // Real-time validation for Sign In
+  useEffect(() => {
+    if (!touched.credential) return;
+    
+    const errors = { ...validationErrors };
+    
+    if (!credential.trim()) {
+      errors.credential = "Email or mobile number is required";
+    } else if (!validateCredential(credential)) {
+      errors.credential = "Please enter a valid email or mobile number";
+    } else {
+      delete errors.credential;
+    }
+    
+    setValidationErrors(errors);
+  }, [credential, touched.credential]);
+
+  // Real-time validation for OTP
+  useEffect(() => {
+    if (!touched.otp) return;
+    
+    const errors = { ...validationErrors };
+    
+    if (!otp.trim()) {
+      errors.otp = "OTP is required";
+    } else if (otp.length !== 6) {
+      errors.otp = "OTP must be 6 digits";
+    } else {
+      delete errors.otp;
+    }
+    
+    setValidationErrors(errors);
+  }, [otp, touched.otp]);
+
+  // Real-time validation for Password
+  useEffect(() => {
+    if (!touched.password) return;
+    
+    const errors = { ...validationErrors };
+    
+    if (!password.trim()) {
+      errors.password = "Password is required";
+    } else {
+      delete errors.password;
+    }
+    
+    setValidationErrors(errors);
+  }, [password, touched.password]);
+
+  // Real-time validation for Sign Up
+  useEffect(() => {
+    if (!touched.name) return;
+    
+    const errors = { ...validationErrors };
+    
+    if (!name.trim()) {
+      errors.name = "Full name is required";
+    } else {
+      delete errors.name;
+    }
+    
+    setValidationErrors(errors);
+  }, [name, touched.name]);
+
+  useEffect(() => {
+    if (!touched.number) return;
+    
+    const errors = { ...validationErrors };
+    
+    if (!number.trim()) {
+      errors.number = "Phone number is required";
+    } else if (!validatePhone(number)) {
+      errors.number = "Please enter a valid phone number (10-12 digits)";
+    } else {
+      delete errors.number;
+    }
+    
+    setValidationErrors(errors);
+  }, [number, touched.number]);
+
+  useEffect(() => {
+    if (!touched.email) return;
+    
+    const errors = { ...validationErrors };
+    
+    if (!email.trim()) {
+      errors.email = "Email is required";
+    } else if (!validateEmail(email)) {
+      errors.email = "Please enter a valid email address";
+    } else {
+      delete errors.email;
+    }
+    
+    setValidationErrors(errors);
+  }, [email, touched.email]);
+
+  useEffect(() => {
+    if (!touched.terms) return;
+    
+    const errors = { ...validationErrors };
+    
+    if (!termsAccepted) {
+      errors.terms = "You must agree to the terms of use";
+    } else {
+      delete errors.terms;
+    }
+    
+    setValidationErrors(errors);
+  }, [termsAccepted, touched.terms]);
+
   const handleModalClose = () => {
     // Reset all form fields and states
     setServerError("");
     setValidationErrors({});
-    setValidated(false);
+    setTouched({});
     setOTP("");
     setEmail("");
     setNumber("");
     setName("");
     setCredential("");
     setResendCount(0);
-    setLoading(false);
     setCurrentView(MODAL_VIEWS.SIGN_IN);
     setOtpSent(false);
     setTimerVisible(false);
@@ -115,9 +329,11 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
       event.stopPropagation();
     }
 
-    const form = event?.currentTarget;
-    let isValid = true;
+    // Mark field as touched
+    setTouched({ credential: true });
+
     const errors = {};
+    let isValid = true;
 
     // Validate credential
     if (!credential.trim()) {
@@ -129,7 +345,6 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     }
 
     setValidationErrors(errors);
-    setValidated(true);
 
     if (!isValid) return;
 
@@ -154,45 +369,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
       return;
     }
 
-    setLoading(true);
     setServerError("");
-
-    try {
-      const response = await publicApi.post("/verify-user", {
-        data: credential,
-      });
-      if (response.data.status) {
-        if (response.data.pass_req) {
-          setCurrentView(MODAL_VIEWS.PASSWORD);
-          setSessionData({
-            data: credential,
-            session_id: response.data.session_id,
-            auth_session: response.data.auth_session,
-          });
-        } else {
-          setTimerVisible(true);
-          setCountdown(30);
-          setCurrentView(MODAL_VIEWS.OTP);
-          setOtpSent(true);
-          setOTP("");
-          setResendCount((prev) => prev + 1);
-          localStorage.setItem(lastResendKey, currentTime?.toString());
-        }
-      }
-    } catch (err) {
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      const isEmail = emailRegex.test(credential);
-      if (isEmail) {
-        setEmail(credential);
-        setNumber("");
-      } else {
-        setNumber(credential);
-        setEmail("");
-      }
-      setCurrentView(MODAL_VIEWS.SIGN_UP);
-    } finally {
-      setLoading(false);
-    }
+    verifyUserMutation.mutate(credential);
   };
 
   const handleVerifyOtp = async (event) => {
@@ -200,6 +378,9 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
       event.preventDefault();
       event.stopPropagation();
     }
+
+    // Mark field as touched
+    setTouched({ otp: true });
 
     const errors = {};
     let isValid = true;
@@ -213,38 +394,12 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     }
 
     setValidationErrors(errors);
-    setValidated(true);
 
     if (!isValid) return;
 
-    setLoading(true);
     setServerError("");
-
-    try {
-      const loginData = { otp, number: credential };
-      const resultAction = await dispatch(signIn(loginData));
-
-      if (signIn.fulfilled.match(resultAction)) {
-        handleModalClose();
-        router.push(redirectPath || `/events/${eventKey}/process`);
-      } else {
-        setServerError(resultAction.payload || "OTP verification failed");
-        setAttempts((prev) => prev + 1);
-        if (attempts >= 2) {
-          dispatch(logout());
-          setCurrentView(MODAL_VIEWS.SIGN_IN);
-        }
-      }
-    } catch (err) {
-      setServerError(err.response?.data?.error || "An error occurred");
-      setAttempts((prev) => prev + 1);
-      if (attempts >= 2) {
-        dispatch(logout());
-        setCurrentView(MODAL_VIEWS.SIGN_IN);
-      }
-    } finally {
-      setLoading(false);
-    }
+    const loginData = { otp, number: credential };
+    verifyOtpMutation.mutate(loginData);
   };
 
   const handleSignUp = async (event) => {
@@ -252,6 +407,14 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
       event.preventDefault();
       event.stopPropagation();
     }
+
+    // Mark all fields as touched
+    setTouched({
+      name: true,
+      number: true,
+      email: true,
+      terms: true,
+    });
 
     const errors = {};
     let isValid = true;
@@ -271,8 +434,11 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
       isValid = false;
     }
 
-    // Validate email (optional)
-    if (email.trim() && !validateEmail(email)) {
+    // Validate email (required)
+    if (!email.trim()) {
+      errors.email = "Email is required";
+      isValid = false;
+    } else if (!validateEmail(email)) {
       errors.email = "Please enter a valid email address";
       isValid = false;
     }
@@ -284,34 +450,16 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     }
 
     setValidationErrors(errors);
-    setValidated(true);
 
     if (!isValid) return;
 
-    setLoading(true);
     setServerError("");
-
-    try {
-      const response = await publicApi.post("/create-user", {
-        name,
-        email,
-        number,
-        role_id: 4,
-      });
-
-      if (response.data.status) {
-        setCredential(number || email);
-        await handleLogin();
-      }
-    } catch (err) {
-      setServerError(
-        err.response?.data?.error ||
-        err.response?.data?.message ||
-        "Something went wrong"
-      );
-    } finally {
-      setLoading(false);
-    }
+    createUserMutation.mutate({
+      name,
+      email,
+      number,
+      role_id: 4,
+    });
   };
 
   const handleVerifyPassword = async (event) => {
@@ -319,6 +467,9 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
       event.preventDefault();
       event.stopPropagation();
     }
+
+    // Mark field as touched
+    setTouched({ password: true });
 
     const errors = {};
     let isValid = true;
@@ -334,53 +485,32 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     }
 
     setValidationErrors(errors);
-    setValidated(true);
 
     if (!isValid) return;
 
-    setLoading(true);
     setServerError("");
-
-    try {
-      const loginData = {
-        password,
-        number: sessionData.data,
-        passwordRequired: true,
-        session_id: sessionData.session_id,
-        auth_session: sessionData.auth_session,
-      };
-
-      const resultAction = await dispatch(signIn(loginData));
-
-      if (signIn.fulfilled.match(resultAction)) {
-        handleModalClose();
-        router.push(redirectPath || `/events/${eventKey}/process`);
-      } else {
-        setServerError(resultAction.payload || "Password verification failed");
-        setAttempts((prev) => prev + 1);
-        if (attempts >= 2) {
-          dispatch(logout());
-          setCurrentView(MODAL_VIEWS.SIGN_IN);
-        }
-      }
-    } catch (err) {
-      setServerError(err.response?.data?.error || "An error occurred");
-      setAttempts((prev) => prev + 1);
-      if (attempts >= 2) {
-        dispatch(logout());
-        setCurrentView(MODAL_VIEWS.SIGN_IN);
-      }
-    } finally {
-      setLoading(false);
-    }
+    const loginData = {
+      password,
+      number: sessionData.data,
+      passwordRequired: true,
+      session_id: sessionData.session_id,
+      auth_session: sessionData.auth_session,
+    };
+    verifyPasswordMutation.mutate(loginData);
   };
 
   const handleBack = () => {
     setCurrentView(MODAL_VIEWS.SIGN_IN);
     setValidationErrors({});
-    setValidated(false);
+    setTouched({});
     setServerError("");
   };
+
+  const isLoading = 
+    verifyUserMutation.isPending || 
+    createUserMutation.isPending || 
+    verifyOtpMutation.isPending || 
+    verifyPasswordMutation.isPending;
 
   return (
     <Modal
@@ -408,7 +538,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
         )}
 
         {currentView === MODAL_VIEWS.OTP ? (
-          <Form noValidate validated={validated} onSubmit={handleVerifyOtp}>
+          <Form noValidate onSubmit={handleVerifyOtp}>
             <div className="">
               <Form.Group controlId="otp" className="mb-3">
                 <Form.Label>Enter OTP</Form.Label>
@@ -418,17 +548,18 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                   autoFocus
                   className="card-glassmorphism__input"
                   placeholder="Enter 6-digit OTP"
-                  onChange={(e) =>
-                    setOTP(e.target.value.replace(/\D/g, "").slice(0, 6))
-                  }
+                  onChange={(e) => {
+                    setOTP(e.target.value.replace(/\D/g, "").slice(0, 6));
+                    setTouched(prev => ({ ...prev, otp: true }));
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleVerifyOtp(e);
                   }}
-                  isInvalid={!!validationErrors.otp}
+                  isInvalid={touched.otp && !!validationErrors.otp}
                   required
                 />
                 <Form.Control.Feedback type="invalid">
-                  {validationErrors.otp || "Please enter a valid 6-digit OTP"}
+                  {validationErrors.otp}
                 </Form.Control.Feedback>
               </Form.Group>
 
@@ -436,17 +567,17 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                 <CustomBtn
                   type="submit"
                   variant="primary"
-                  disabled={loading}
-                  icon={loading ? <LoaderCircle className="spin" /> : null}
-                  buttonText={loading ? "Verifying..." : "Verify OTP"}
+                  disabled={isLoading}
+                  icon={isLoading ? <LoaderCircle className="spin" /> : null}
+                  buttonText={isLoading ? "Verifying..." : "Verify OTP"}
                 />
                 <CustomBtn
                   type="button"
                   variant="secondary"
                   HandleClick={handleBack}
-                  icon={loading ? <LoaderCircle className="spin" /> : null}
+                  icon={isLoading ? <LoaderCircle className="spin" /> : null}
                   buttonText="Back"
-                  disabled={loading}
+                  disabled={isLoading}
                 />
               </div>
 
@@ -461,10 +592,10 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                     variant="link"
                     className="p-0"
                     HandleClick={() => handleLogin()}
-                    disabled={loading}
-                    icon={loading ? <LoaderCircle className="spin" /> : null}
+                    disabled={isLoading}
+                    icon={isLoading ? <LoaderCircle className="spin" /> : null}
                     type="button"
-                    buttonText={loading ? "Sending..." : "Resend OTP"}
+                    buttonText={isLoading ? "Sending..." : "Resend OTP"}
                   />
                 )}
               </div>
@@ -472,7 +603,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
           </Form>
         ) : currentView === MODAL_VIEWS.SIGN_UP ? (
           <>
-            <Form noValidate validated={validated} onSubmit={handleSignUp}>
+            <Form noValidate onSubmit={handleSignUp}>
               <div className="p-3">
                 <Row className="mb-3 g-3">
                   <Col sm={12}>
@@ -484,12 +615,15 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                         value={name}
                         required
                         className="card-glassmorphism__input"
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          setTouched(prev => ({ ...prev, name: true }));
+                        }}
                         autoFocus
-                        isInvalid={!!validationErrors.name}
+                        isInvalid={touched.name && !!validationErrors.name}
                       />
                       <Form.Control.Feedback type="invalid">
-                        {validationErrors.name || "Full name is required"}
+                        {validationErrors.name}
                       </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
@@ -503,26 +637,31 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                         className="card-glassmorphism__input"
                         maxLength={12}
                         required
-                        onChange={(e) =>
-                          setNumber(e.target.value.replace(/\D/g, ""))
-                        }
-                        isInvalid={!!validationErrors.number}
+                        onChange={(e) => {
+                          setNumber(e.target.value.replace(/\D/g, ""));
+                          setTouched(prev => ({ ...prev, number: true }));
+                        }}
+                        isInvalid={touched.number && !!validationErrors.number}
                       />
                       <Form.Control.Feedback type="invalid">
-                        {validationErrors.number || "Phone number is required"}
+                        {validationErrors.number}
                       </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
                   <Col sm={12} md={6}>
                     <Form.Group controlId="email">
-                      <Form.Label>Email</Form.Label>
+                      <Form.Label>Email *</Form.Label>
                       <Form.Control
                         type="email"
                         className="card-glassmorphism__input"
                         placeholder="Enter email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value.toLowerCase())}
-                        isInvalid={!!validationErrors.email}
+                        required
+                        onChange={(e) => {
+                          setEmail(e.target.value.toLowerCase());
+                          setTouched(prev => ({ ...prev, email: true }));
+                        }}
+                        isInvalid={touched.email && !!validationErrors.email}
                       />
                       <Form.Control.Feedback type="invalid">
                         {validationErrors.email}
@@ -537,14 +676,17 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                     id="terms-agreement"
                     label="I agree with the terms of use"
                     checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                    isInvalid={!!validationErrors.terms}
+                    onChange={(e) => {
+                      setTermsAccepted(e.target.checked);
+                      setTouched(prev => ({ ...prev, terms: true }));
+                    }}
+                    isInvalid={touched.terms && !!validationErrors.terms}
                     required
                   />
                   <Form.Control.Feedback
                     type="invalid"
                     style={{
-                      display: validationErrors.terms ? "block" : "none",
+                      display: touched.terms && validationErrors.terms ? "block" : "none",
                     }}
                   >
                     {validationErrors.terms}
@@ -555,9 +697,9 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                   <CustomBtn
                     type="submit"
                     variant="primary"
-                    disabled={loading}
-                    icon={loading ? <LoaderCircle className="spin" /> : null}
-                    buttonText={loading ? "Creating Account..." : "Sign Up"}
+                    disabled={isLoading}
+                    icon={isLoading ? <LoaderCircle className="spin" /> : null}
+                    buttonText={isLoading ? "Creating Account..." : "Sign Up"}
                   />
                 </div>
               </div>
@@ -574,28 +716,27 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
             </p>
           </>
         ) : currentView === MODAL_VIEWS.PASSWORD ? (
-          <Form
-            noValidate
-            validated={validated}
-            onSubmit={handleVerifyPassword}
-          >
+          <Form noValidate onSubmit={handleVerifyPassword}>
             <div className="p-3">
               <Form.Group controlId="password" className="mb-3">
                 <Form.Label>Password</Form.Label>
                 <PasswordField
                   value={password}
-                  setPassword={setPassword}
+                  setPassword={(value) => {
+                    setPassword(value);
+                    setTouched(prev => ({ ...prev, password: true }));
+                  }}
                   handleKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleVerifyPassword(e);
                     }
                   }}
-                  isInvalid={!!validationErrors.password}
+                  isInvalid={touched.password && !!validationErrors.password}
                 />
                 <Form.Control.Feedback
                   type="invalid"
                   style={{
-                    display: validationErrors.password ? "block" : "none",
+                    display: touched.password && validationErrors.password ? "block" : "none",
                   }}
                 >
                   {validationErrors.password}
@@ -606,9 +747,9 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                 <CustomBtn
                   type="submit"
                   variant="primary"
-                  disabled={loading}
-                  icon={loading ? <LoaderCircle className="spin" /> : null}
-                  buttonText={loading ? "Verifying..." : "Login"}
+                  disabled={isLoading}
+                  icon={isLoading ? <LoaderCircle className="spin" /> : null}
+                  buttonText={isLoading ? "Verifying..." : "Login"}
                 />
               </div>
 
@@ -618,9 +759,9 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                   onClick={handleBack}
                   type="button"
                   className="p-0"
-                  disabled={loading}
+                  disabled={isLoading}
                 >
-                  {loading ? "Processing..." : "Back to Login"}
+                  {isLoading ? "Processing..." : "Back to Login"}
                   <ChevronLeft size={16} className="me-1" />
                 </Button>
               </div>
@@ -628,7 +769,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
           </Form>
         ) : (
           <>
-            <Form noValidate validated={validated} onSubmit={handleLogin}>
+            <Form noValidate onSubmit={handleLogin}>
               <div className="p-3">
                 <Form.Group controlId="credential" className="mb-3">
                   <Form.Label>Email or Mobile Number</Form.Label>
@@ -637,17 +778,19 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                     className="card-glassmorphism__input"
                     placeholder="Enter email or mobile number"
                     value={credential}
-                    onChange={(e) => setCredential(e.target.value)}
+                    onChange={(e) => {
+                      setCredential(e.target.value);
+                      setTouched(prev => ({ ...prev, credential: true }));
+                    }}
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleLogin(e);
                     }}
-                    isInvalid={!!validationErrors.credential}
+                    isInvalid={touched.credential && !!validationErrors.credential}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
-                    {validationErrors.credential ||
-                      "Email or mobile number is required"}
+                    {validationErrors.credential}
                   </Form.Control.Feedback>
                 </Form.Group>
 
@@ -661,9 +804,9 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                   <CustomBtn
                     type="submit"
                     variant="primary"
-                    disabled={loading}
-                    icon={loading ? <LoaderCircle className="spin" /> : null}
-                    buttonText={loading ? "Processing..." : "Next"}
+                    disabled={isLoading}
+                    icon={isLoading ? <LoaderCircle className="spin" /> : null}
+                    buttonText={isLoading ? "Processing..." : "Next"}
                   />
                 </div>
               </div>

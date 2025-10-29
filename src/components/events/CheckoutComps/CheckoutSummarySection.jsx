@@ -10,8 +10,10 @@ export const CheckoutSummarySection = ({
   handleApplyCoupon,
   promoCodeLoading,
   isExpanded,
-  setIsExpanded
-}) => (
+  setIsExpanded,
+  summaryData
+}) => {
+  return(
   <div className="modern-checkout-summary">
     <ETicketAlert />
     <MotionWrapper
@@ -29,6 +31,7 @@ export const CheckoutSummarySection = ({
       <div className="p-4">
         <TotalAmountHeader
           orderData={orderData}
+          summaryData={summaryData}
           calculatedTotal={calculatedTotal}
           isExpanded={isExpanded}
           setIsExpanded={setIsExpanded}
@@ -44,15 +47,16 @@ export const CheckoutSummarySection = ({
               exit="collapsed"
               className="mt-3 overflow-hidden"
             >
-              <BreakdownTable orderData={orderData}  calculatedTotal={calculatedTotal}/>
+              <BreakdownTable orderData={orderData} summaryData={summaryData}  calculatedTotal={calculatedTotal}/>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
       {orderData?.discount > 0 && (
-        <SavingsHighlight totalSavings={orderData.discount} />
+        <SavingsHighlight totalSavings={orderData?.discount} />
       )}
     </MotionWrapper>
   </div>
 );
+}

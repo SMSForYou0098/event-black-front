@@ -18,15 +18,27 @@ import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSumma
 const CartPage = () => {
   const { event_key } = useRouter().query;
 
-  const { isMobile, isLoggedIn, fetchCategoryData, convertTo12HourFormat, formatDateRange, UserData, ErrorAlert } = useMyContext();
+  const {
+    isMobile,
+    isLoggedIn,
+    fetchCategoryData,
+    convertTo12HourFormat,
+    formatDateRange,
+    UserData,
+    ErrorAlert,
+  } = useMyContext();
   const { storeCheckoutData } = useCheckoutData();
   const [cartItems, setCartItems] = useState([]);
   const [categoryData, setCategoryData] = useState(null);
   const [selectedTickets, setSelectedTickets] = useState({});
+
+
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [path, setPath] = useState("");
   const router = useRouter();
-  const [isChecking, setIsChecking] = useState(false)
+  const [isChecking, setIsChecking] = useState(false);
+
+  //TAX STATES
 
   const { data: event, isLoading, isError, error } = useEventData(event_key);
   useHeaderSimple({
@@ -40,27 +52,28 @@ const CartPage = () => {
     if (event?.category?.id) {
       getCategoryData();
     }
-    return () => { };
+    return () => {};
   }, [event]);
 
   // console.log(event)
 
   const checkTicketStatus = async () => {
-    setIsChecking(true)
+    setIsChecking(true);
     try {
-      const response = await api.get(`/user-ticket-info/${UserData.id}/${selectedTickets.itemId}`)
+      const response = await api.get(
+        `/user-ticket-info/${UserData.id}/${selectedTickets.id}`
+      );
       if (!response.data.status) {
-        ErrorAlert(response.data.message || 'Booking limit reached');
+        ErrorAlert(response.data.message || "Booking limit reached");
         return false;
       }
       return true; // allowed
     } catch (error) {
-      console.error('Error checking ticket status:', error);
-      ErrorAlert(error || 'Unable to check ticket status. Please try again.');
+      console.error("Error checking ticket status:", error);
+      ErrorAlert(error || "Unable to check ticket status. Please try again.");
       return false;
-    }
-    finally {
-      setIsChecking(false)
+    } finally {
+      setIsChecking(false);
     }
   };
   const handleProcess = async () => {
@@ -112,7 +125,7 @@ const CartPage = () => {
     }
 
     // return `/events/checkout/${event_key}/?k=${dataKey}`;
-  }
+  };
 
   const FetchTickets = async () => {
     if (!event_key) return;
@@ -161,9 +174,8 @@ const CartPage = () => {
   }, [categoryData]);
   // Early return if no items
 
-
   if (isLoading) {
-    return <BookingSummarySkeleton type={'cart'} />;
+    return <BookingSummarySkeleton type={"cart"} />;
   }
 
   const CardContainer = ({ children, className = "" }) => (
@@ -211,7 +223,7 @@ const CartPage = () => {
     {
       icon: Users,
       label: "Event Name",
-      value: event?.name || 'Summer Music Festival 2024'
+      value: event?.name || "Summer Music Festival 2024",
     },
     // {
     //   icon: Tags,
@@ -221,28 +233,33 @@ const CartPage = () => {
     {
       icon: Calendar,
       label: "Date & Time",
-      value: formatDateRange(event?.date_range) + " | " + convertTo12HourFormat(event?.start_time)
+      value:
+        formatDateRange(event?.date_range) +
+        " | " +
+        convertTo12HourFormat(event?.start_time),
     },
     {
       icon: Pin,
       label: "Location",
-      value: event?.address || 'Central Park, New York'
-    }
+      value: event?.address || "Central Park, New York",
+    },
   ];
 
   // Cart data configuration
   const cartData = [
     {
       label: "Quantity",
-      value: selectedTickets?.newQuantity || 0,
-      isHeader: false
+      value: selectedTickets?.quantity || 0,
+      isHeader: false,
     },
     {
       label: "Total",
-      value: `₹${selectedTickets?.subtotal || 0}`,
-      isHeader: true
-    }
+      value: `₹${selectedTickets?.subTotal || 0}`,
+      isHeader: true,
+    },
   ];
+
+
 
   const buttonText = `Proceed to ${attendeeRequired ? "Attendee" : "Checkout"}`;
   return (
@@ -258,8 +275,11 @@ const CartPage = () => {
           <Col lg="8">
             <BookingTickets
               cartItems={cartItems}
-              onQuantityChange={handleQuantityChange}
+              // onQuantityChange={handleQuantityChange}
               isMobile={isMobile}
+              selectedTickets={selectedTickets}
+              setSelectedTickets={setSelectedTickets}
+              event={event}
             />
           </Col>
 
@@ -278,7 +298,11 @@ const CartPage = () => {
               ))}
             </CardContainer>
             <CardContainer className="cart_totals">
-              <CardHeader icon={Ticket} title="Cart Overview" iconColor="text-warning" />
+              <CardHeader
+                icon={Ticket}
+                title="Cart Overview"
+                iconColor="text-warning"
+              />
 
               <div className="css_prefix-woocommerce-cart-box table-responsive">
                 <Table className="table mb-0">
@@ -297,7 +321,9 @@ const CartPage = () => {
                 {/* Cart Info Box */}
                 <div className="cart-info-box my-3 p-3 rounded-3 border-dashed-thin">
                   <span className="text-secondary small">
-                    * This is the base price for selected tickets. Additional charges including service fees, taxes, and processing fees will be calculated in the next step.
+                    * This is the base price for selected tickets. Additional
+                    charges including service fees, taxes, and processing fees
+                    will be calculated in the next step.
                   </span>
                 </div>
 
@@ -311,8 +337,8 @@ const CartPage = () => {
                 <div className="d-none d-sm-block">
                   <CustomBtn
                     disabled={
-                      !selectedTickets?.newQuantity ||
-                      parseInt(selectedTickets.newQuantity) === 0
+                      !selectedTickets?.quantity ||
+                      parseInt(selectedTickets.quantity) === 0
                     }
                     HandleClick={handleProcess}
                     icon={attendeeRequired ? <Users size={20} /> : null}

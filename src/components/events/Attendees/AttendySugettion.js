@@ -5,8 +5,7 @@ import { PlusIcon, Search } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
 
 const AttendySugettion = (props) => {
-  const { requiredFields, data, showAddAttendeeModal, setShowAddAttendeeModal, setAttendeesList, quantity, openAddModal, totalAttendee } = props;
-  const [selectedAttendees, setSelectedAttendees] = useState([]);
+  const { requiredFields, data, showAddAttendeeModal, setShowAddAttendeeModal, setAttendeesList, quantity, openAddModal, totalAttendee, selectedAttendees, setSelectedAttendees } = props;
   const [searchTerm, setSearchTerm] = useState("");
   const { ErrorAlert, isMobile } = useMyContext()
 

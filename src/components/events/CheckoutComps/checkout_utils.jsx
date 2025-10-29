@@ -22,15 +22,15 @@ export const createOrderData = (data, charges) => ({
 
 
 
-export const getBreakdownData = (orderData, calculatedTotal) => [
+export const getBreakdownData = (orderData,summaryData, calculatedTotal) => [
   {
     label: "Sub Total",
-    value: calculatedTotal,
+    value: summaryData.subTotal,
     className: "custom-text-secondary fw-semibold"
   },
   {
     label: "Total Tickets",
-    value: orderData.totalTickets,
+    value: summaryData.quantity,
     className: "custom-text-secondary fw-semibold",
     isNumber: false
   },
@@ -42,26 +42,26 @@ export const getBreakdownData = (orderData, calculatedTotal) => [
   }] : []),
   {
     label: "Base Amount",
-    value: orderData.baseAmount,
+    value: summaryData.totalBaseAmount,
     className: "fw-semibold",
     isBorder: true
   },
   {
     label: "Convenience fees",
-    value: orderData.convenienceFees,
+    value: summaryData.totalConvenienceFee,
     className: "small",
     labelClass: "small"
   },
   {
     label: "Central GST (CGST) @ 9%",
-    value: orderData.cgst,
+    value: summaryData.totalCentralGST,
     className: "small",
     labelClass: "ms-2 ps-3 small text-muted",
     lableStyle: { fontSize: '0.65rem' }
   },
   {
     label: "State GST (SGST) @ 9%",
-    value: orderData.sgst,
+    value: summaryData.totalStateGST,
     className: "small",
     labelClass: "ms-2 ps-3 small text-muted",
     lableStyle: { fontSize: '0.65rem' }
@@ -86,6 +86,7 @@ export const SavingsHighlight = ({ totalSavings }) => (
 
 export const TotalAmountHeader = ({
   orderData,
+  summaryData,
   calculatedTotal,
   isExpanded,
   setIsExpanded
@@ -105,17 +106,24 @@ export const TotalAmountHeader = ({
     <div>
       <h5 className="mb-1 fw-bold">Total Amount</h5>
       <small className="">
-        {orderData.totalTickets} ticket{orderData.totalTickets > 1 ? 's' : ''}
+        {summaryData?.quantity} ticket{summaryData?.quantity > 1 ? 's' : ''}
         {orderData?.discount > 0 && (
           <span className="text-success ms-2">
             • You save ₹{orderData?.discount?.toLocaleString()}
           </span>
         )}
+        {/* {orderData.totalTickets} ticket{orderData.totalTickets > 1 ? 's' : ''}
+        {orderData?.discount > 0 && (
+          <span className="text-success ms-2">
+            • You save ₹{orderData?.discount?.toLocaleString()}
+          </span>
+        )} */}
       </small>
     </div>
     <div className="d-flex align-items-center gap-2">
       <h4 className="mb-0 custom-text-secondary fw-bold">
-        ₹{calculatedTotal?.toLocaleString()}
+        {/* ₹{calculatedTotal?.toLocaleString()} */}
+        ₹{summaryData?.totalFinalAmount?.toLocaleString()}
       </h4>
       <motion.div
         variants={ANIMATION_VARIANTS.chevron}
@@ -235,8 +243,8 @@ export const BreakdownRow = ({ item, index }) => (
   </motion.tr>
 );
 
-export const BreakdownTable = ({ orderData, calculatedTotal }) => {
-  const breakdownData = getBreakdownData(orderData, calculatedTotal);
+export const BreakdownTable = ({ orderData,summaryData, calculatedTotal }) => {
+  const breakdownData = getBreakdownData(orderData,summaryData, calculatedTotal);
 
   return (
     <div className="rounded-2">

@@ -36,7 +36,8 @@ const DynamicAttendeeForm = ({
   disable = false,
   showActions = true,
   requiredFields = [],
-  loadingCategory
+  loadingCategory,
+  selectedAttendees, setSelectedAttendees
 
 }) => {
   const { UserData, isMobile, authToken, successAlert, ErrorAlert, AskAlert } = useMyContext();
@@ -73,7 +74,7 @@ const DynamicAttendeeForm = ({
     queryKey: ["existingAttendees", UserData?.id, categoryId, isCorporate, isAgent],
     queryFn: fetchExistingAttendees,
     enabled: !!UserData?.id && !!categoryId && showAttendeeSuggetion,
-    staleTime: 5 * 60 * 1000,
+    // staleTime: 5 * 60 * 1000,
     onSuccess: (data) => {
 
     },
@@ -183,18 +184,33 @@ const DynamicAttendeeForm = ({
     handleCloseModal();
   };
 
-  const handleDeleteAttendee = (index) => {
-    AskAlert("You won't be able to revert this!", "Yes, delete it!", "The attendee has been deleted.")
-      .then((confirmed) => {
-        if (confirmed) {
-          const updatedList = attendeeList.filter((_, i) => i !== index);
-          setAttendeesList(updatedList);
-          successAlert?.("The attendee has been deleted.");
-        }
-      });
+  const handleDeleteAttendee = (index) => {  
+    AskAlert(
+      "You won't be able to revert this!",
+      "Yes, delete it!",
+      "The attendee has been deleted."
+    ).then((confirmed) => {
+      if (!confirmed) return;
+  
+      // 1️⃣ Create the updated attendee list (remove deleted one)
+      const updatedList = attendeeList.filter((_, i) => i !== index);
+      setAttendeesList(updatedList);
+  
+      // 2️⃣ Keep only those selected attendees whose IDs are still present
+      const validIds = new Set(updatedList.map((a) => a.id));
+      const updatedSelected = selectedAttendees.filter((attendee) =>
+        validIds.has(attendee.id)
+      );
+      setSelectedAttendees(updatedSelected);
+  
+      // 3️⃣ Success message
+      successAlert?.("The attendee has been deleted.");
+    });
   };
+  
 
-
+  console.log('aaa',attendeeList)
+  console.log('selected attendee',selectedAttendees)
   // Add this helper function at the top of your component (after imports)
   // Add this helper function at the top of your component (after imports)
   const parseFieldOptions = (options) => {
@@ -533,6 +549,8 @@ const DynamicAttendeeForm = ({
         openAddModal={setShowModal}
         requiredFields={requiredFields}
         setAttendeesList={setAttendeesList}
+        selectedAttendees={selectedAttendees}
+        setSelectedAttendees={setSelectedAttendees}
       />
       {/* }  */}
       {/* )} */}

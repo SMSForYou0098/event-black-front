@@ -1,14 +1,75 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import CustomCounter from "../CustomCounter";
 import { Table } from "react-bootstrap";
 import CommonPricingComp from "../../components/Tickets/CommonPricingComp";
 import { useMyContext } from "@/Context/MyContextProvider";
 
-const BookingTickets = ({ cartItems, onQuantityChange, isMobile }) => {
+const BookingTickets = ({
+    cartItems,
+    isMobile,
+    setSelectedTickets,
+    selectedTickets
+  }) => {
+  
     const { getCurrencySymbol } = useMyContext();
     const [resetCounterTrigger, setResetCounterTrigger] = useState(0);
-    const [selectedTicketID, setSelectedTicketID] = useState(null);
-    const [selectedTickets, setSelectedTickets] = useState({});
+
+
+
+    const getTicketCount = useCallback((quantity, category, price, id) => {
+        setSelectedTickets(() => {
+          if (quantity === 0) return null;
+      
+          const round = (n) => +Number(n ?? 0).toFixed(2);
+      
+          // Per-unit
+          const baseAmount = round(price);
+          const centralGST = round(baseAmount * 0.09);
+          const stateGST = round(baseAmount * 0.09);
+          const convenienceFee = round(baseAmount * 0.01);
+          const totalTax = round(centralGST + stateGST + convenienceFee);
+          const finalAmount = round(baseAmount + totalTax);
+      
+          // Totals
+          const totalBaseAmount = round(baseAmount * quantity);
+          const totalCentralGST = round(centralGST * quantity);
+          const totalStateGST = round(stateGST * quantity);
+          const totalConvenienceFee = round(convenienceFee * quantity);
+          const totalTaxTotal = round(totalCentralGST + totalStateGST + totalConvenienceFee);
+          const totalFinalAmount = round(totalBaseAmount + totalTaxTotal);
+      
+          // Single object (not inside an array)
+          return {
+            id,
+            category,
+            quantity,
+            price: round(price),
+      
+            // per-unit
+            baseAmount,
+            centralGST,
+            stateGST,
+            convenienceFee,
+            totalTax,
+            finalAmount,
+      
+            // totals
+            totalBaseAmount,
+            totalCentralGST,
+            totalStateGST,
+            totalConvenienceFee,
+            totalTaxTotal,
+            totalFinalAmount,
+      
+            // convenience
+            subTotal: round(price * quantity),
+            grandTotal: totalFinalAmount,
+          };
+        });
+      }, [setSelectedTickets]);
+      
+      
+
 
     const getSubtotal = (item) => {
         const price = Number(item?.sale === 1 ? item?.sale_price : item?.price);
@@ -18,19 +79,6 @@ const BookingTickets = ({ cartItems, onQuantityChange, isMobile }) => {
         }
         return 0;
     };
-
-    const getTicketCount = (quantity, category, price, id) => {
-        const numQuantity = Number(quantity);
-        const numPrice = Number(price);
-        const subtotal = numQuantity > 0 ? numPrice * numQuantity : 0;
-        if (selectedTicketID && selectedTicketID !== id && quantity > 0) {
-            setResetCounterTrigger((prev) => prev + 1);
-        }
-        setSelectedTicketID(id);
-        onQuantityChange(id, numQuantity, subtotal);
-        setSelectedTickets({ category, quantity: numQuantity, price: numPrice, id, subtotal });
-    };
-
     //   const handleToggle = (id) => {
     //     setExpandedId(expandedId === id ? null : id);
     //   };
