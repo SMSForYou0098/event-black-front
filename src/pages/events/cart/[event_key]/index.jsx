@@ -259,8 +259,6 @@ const CartPage = () => {
     },
   ];
 
-
-
   const buttonText = `Proceed to ${attendeeRequired ? "Attendee" : "Checkout"}`;
   return (
     <div className="cart-page section-padding">

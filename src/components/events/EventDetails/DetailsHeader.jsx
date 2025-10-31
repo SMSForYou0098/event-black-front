@@ -32,7 +32,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
         },
         {
             icon: "fa-solid fa-location-dot", // Location icon
-            value: `${eventData?.city}, ${eventData?.state}`,
+            value: `${eventData?.venue?.address}, ${eventData?.venue?.city}, ${eventData?.venue?.state}`,
             valueClass: "fw-semibold",
         },
         {

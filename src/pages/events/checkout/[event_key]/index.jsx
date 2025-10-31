@@ -142,11 +142,12 @@ const CartPage = () => {
     },
   });
 
-  const orderDataBase = createOrderData(checkoutData?.data, charges);
+  // const orderDataBase = createOrderData(checkoutData?.data, charges);
 
   const discountAmount = useMemo(() => {
     let amount = 0;
-    const total = orderDataBase.baseAmount + orderDataBase.cgst + orderDataBase.sgst + orderDataBase.convenienceFees;
+    // const total = orderDataBase.baseAmount + orderDataBase.cgst + orderDataBase.sgst + orderDataBase.convenienceFees;
+    const total = checkoutData?.data?.totalFinalAmount
     //console.log('Calculating discount for total:', total, 'with promo:', promo);
     if (promo.discountType === "Percentage") {
       amount = (Number(total) * Number(promo.discount)) / 100;
@@ -156,22 +157,26 @@ const CartPage = () => {
     if (amount < 0) amount = 0;
     if (amount > total) amount = total;
     return amount;
-  }, [promo, orderDataBase]);
+  // }, [promo, orderDataBase]);
+  }, [promo, ]);
 
-
-
-  const calculatedTotal = Number(
-    orderDataBase.baseAmount +
-    orderDataBase.cgst +
-    orderDataBase.sgst +
-    orderDataBase.convenienceFees
-    - discountAmount
-  ).toFixed(2);
+  // const calculatedTotal = Number(
+  //   orderDataBase.baseAmount +
+  //   orderDataBase.cgst +
+  //   orderDataBase.sgst +
+  //   orderDataBase.convenienceFees
+  //   - discountAmount
+  // ).toFixed(2);
 
   const orderData = {
-    ...orderDataBase,
+    // ...orderDataBase,
     discount: discountAmount,
-    total: Number(calculatedTotal),
+    // total: Number(calculatedTotal),
+  };
+
+  const summaryData = {
+    ...checkoutData?.data,
+    discount:discountAmount,
   };
 
   useEffect(() => {
@@ -446,7 +451,7 @@ const CartPage = () => {
   const handleBookingResponse = async (response) => {
 
     // Handle free booking
-    if (orderData.total === 0 && response.data.status) {
+    if (summaryData.totalFinalAmount === 0 && response.data.status) {
       await handleFreeBooking(response.data);
       return;
     }
@@ -489,8 +494,6 @@ const CartPage = () => {
   // Handle free booking
   const handleFreeBooking = async (responseData) => {
     try {
-
-
       const sessionId = responseData?.bookings?.[0]?.session_id || responseData?.bookings?.session_id;
       // if no sessionId, just push to event summary without query param
       if (!sessionId) {
@@ -577,9 +580,8 @@ const CartPage = () => {
         <Row>
           <Col lg="8" md="5">
             <CheckoutSummarySection
-              orderData={orderData}
-              summaryData={checkoutData?.data}
-              calculatedTotal={calculatedTotal}
+              summaryData={summaryData}
+              // calculatedTotal={calculatedTotal}
               couponCode={couponCode}
               setCouponCode={setCouponCode}
               handleApplyCoupon={handleApplyCoupon}
@@ -592,11 +594,10 @@ const CartPage = () => {
             <OrderReviewSection
               isMobile={isMobile}
               orderData={orderData}
-              summaryData={checkoutData?.data}
+              summaryData={summaryData}
               event={checkoutData?.event}
               ticketdata={checkoutData?.ticket}
-              calculatedTotal={calculatedTotal}
-              summary={checkoutData?.data}
+              // calculatedTotal={calculatedTotal}
               validatedData={checkoutData}
               handleProcess={handleProcess}
               BookingMobileFooter={BookingMobileFooter}

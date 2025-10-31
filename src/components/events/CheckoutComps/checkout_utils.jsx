@@ -8,60 +8,46 @@ import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY } from '../../.
 import { decrypt } from '../../../utils/crypto';
 import Image from "next/image";
 
-export const createOrderData = (data, charges) => ({
-  baseAmount: Number((data?.subtotal || 0).toFixed(2)),
-  // subTotal:   || 0,
-  totalTickets: data?.newQuantity || 0,
-  discount: Number((data?.discount || 0).toFixed(2)),
-  cgst: Number((charges?.centralGST || 0).toFixed(2)),
-  sgst: Number((charges?.stateGST || 0).toFixed(2)),
-  convenienceFees: Number((charges?.convenienceFees || 0).toFixed(2)),
-  totalSavings: 150
-});
-
-
-
-
-export const getBreakdownData = (orderData,summaryData, calculatedTotal) => [
+export const getBreakdownData = (summaryData) => [
   {
     label: "Sub Total",
-    value: summaryData.subTotal,
+    value: summaryData?.subTotal,
     className: "custom-text-secondary fw-semibold"
   },
   {
     label: "Total Tickets",
-    value: summaryData.quantity,
+    value: summaryData?.quantity,
     className: "custom-text-secondary fw-semibold",
     isNumber: false
   },
-  ...(orderData.discount > 0 ? [{
+  ...(summaryData.discount > 0 ? [{
     label: "Discount",
-    value: orderData.discount,
+    value: summaryData?.discount,
     className: "text-success fw-semibold",
     prefix: "-"
   }] : []),
   {
     label: "Base Amount",
-    value: summaryData.totalBaseAmount,
+    value: summaryData?.totalBaseAmount,
     className: "fw-semibold",
     isBorder: true
   },
   {
     label: "Convenience fees",
-    value: summaryData.totalConvenienceFee,
+    value: summaryData?.totalConvenienceFee,
     className: "small",
     labelClass: "small"
   },
   {
     label: "Central GST (CGST) @ 9%",
-    value: summaryData.totalCentralGST,
+    value: summaryData?.totalCentralGST,
     className: "small",
     labelClass: "ms-2 ps-3 small text-muted",
     lableStyle: { fontSize: '0.65rem' }
   },
   {
     label: "State GST (SGST) @ 9%",
-    value: summaryData.totalStateGST,
+    value: summaryData?.totalStateGST,
     className: "small",
     labelClass: "ms-2 ps-3 small text-muted",
     lableStyle: { fontSize: '0.65rem' }
@@ -85,9 +71,7 @@ export const SavingsHighlight = ({ totalSavings }) => (
 );
 
 export const TotalAmountHeader = ({
-  orderData,
   summaryData,
-  calculatedTotal,
   isExpanded,
   setIsExpanded
 }) => (
@@ -107,17 +91,11 @@ export const TotalAmountHeader = ({
       <h5 className="mb-1 fw-bold">Total Amount</h5>
       <small className="">
         {summaryData?.quantity} ticket{summaryData?.quantity > 1 ? 's' : ''}
-        {orderData?.discount > 0 && (
+        {summaryData?.discount > 0 && (
           <span className="text-success ms-2">
-            • You save ₹{orderData?.discount?.toLocaleString()}
+            • You save ₹{summaryData?.discount?.toLocaleString()}
           </span>
         )}
-        {/* {orderData.totalTickets} ticket{orderData.totalTickets > 1 ? 's' : ''}
-        {orderData?.discount > 0 && (
-          <span className="text-success ms-2">
-            • You save ₹{orderData?.discount?.toLocaleString()}
-          </span>
-        )} */}
       </small>
     </div>
     <div className="d-flex align-items-center gap-2">
@@ -243,8 +221,8 @@ export const BreakdownRow = ({ item, index }) => (
   </motion.tr>
 );
 
-export const BreakdownTable = ({ orderData,summaryData, calculatedTotal }) => {
-  const breakdownData = getBreakdownData(orderData,summaryData, calculatedTotal);
+export const BreakdownTable = ({ summaryData }) => {
+  const breakdownData = getBreakdownData(summaryData);
 
   return (
     <div className="rounded-2">
@@ -331,12 +309,12 @@ export const TicketDataSummary = (props) => {
             </div>
           </>
         }
-        {(netAmount || sale_price) &&
+        {/* {(netAmount || sale_price) &&
           <div className="d-flex justify-content-between align-items-center">
             <span className="text-white fw-bold fs-5">Total Amount</span>
             <span className='custom-text-secondary h5 fw-bold'>{currency ? getCurrencySymbol(currency) : '₹'}{sale_price && sale_price !== 'null' ? sale_price : netAmount}</span>
           </div>
-        }
+        } */}
         {attendees?.length !== 0 && showAttBtn &&
         <div className="float-end">
           <CustomBtn size='sm' variant="primary" HandleClick={handleOpen} buttonText="View Attendees"/>

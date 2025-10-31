@@ -231,7 +231,7 @@ const GlobalSearch = ({ show, handleShow }) => {
       
       <Modal.Body className="px-4 py-3">
         {/* Category Filter Badges */}
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <h6 className="fw-bold mb-2">Filter by Category:</h6>
           <div className="d-flex flex-wrap gap-2">
             {tabs.map((category) => {
@@ -259,17 +259,17 @@ const GlobalSearch = ({ show, handleShow }) => {
               );
             })}
           </div>
-        </div>
+        </div> */}
 
         {/* Results Header */}
-        <div className="mb-3">
+        {/* <div className="mb-3">
           <h5 className="fw-bold mb-3">
             {searchTerm && searchResults.length > 0 
               ? `Search Results for "${searchTerm}"` 
               : 'Trending Now'
             }
           </h5>
-        </div>
+        </div> */}
 
         {/* Search Results */}
         <ListGroup variant="flush">

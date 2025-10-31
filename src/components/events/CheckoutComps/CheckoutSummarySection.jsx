@@ -3,7 +3,6 @@ import { BreakdownTable, ETicketAlert, MotionWrapper, PromoCodeSection, SavingsH
 import { ANIMATION_VARIANTS } from "../../../utils/consts";
 import { motion } from "framer-motion";
 export const CheckoutSummarySection = ({
-  orderData,
   calculatedTotal,
   couponCode,
   setCouponCode,
@@ -30,9 +29,8 @@ export const CheckoutSummarySection = ({
 
       <div className="p-4">
         <TotalAmountHeader
-          orderData={orderData}
           summaryData={summaryData}
-          calculatedTotal={calculatedTotal}
+          // calculatedTotal={calculatedTotal}
           isExpanded={isExpanded}
           setIsExpanded={setIsExpanded}
         />
@@ -47,14 +45,14 @@ export const CheckoutSummarySection = ({
               exit="collapsed"
               className="mt-3 overflow-hidden"
             >
-              <BreakdownTable orderData={orderData} summaryData={summaryData}  calculatedTotal={calculatedTotal}/>
+              <BreakdownTable summaryData={summaryData} />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {orderData?.discount > 0 && (
-        <SavingsHighlight totalSavings={orderData?.discount} />
+      {summaryData?.discount > 0 && (
+        <SavingsHighlight totalSavings={summaryData?.discount} />
       )}
     </MotionWrapper>
   </div>

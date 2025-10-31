@@ -38,13 +38,16 @@ const EventsContainerCat = ({ events = [], loading = false, title }) => {
 
   return (
     <div>
-      {title && <h5 className="main-title text-capitalize mb-0">{title}</h5>}
-      <Row className="row-cols-xl-6 row-cols-md-4 row-cols-2">
+      <Row className="">
+        <Col xs={12}>
+        
+      {title && <h5 className="main-title text-capitalize mb-3">{title}</h5>}
+        </Col>
         {events.map((data, index) => (
-          <Col key={index} className="  ">
+          <Col xs={2} key={index} className="  ">
             <CardStyle
               key={data.id}
-              image={data.thumbnail}
+              image={data.thumbnail || data?.event_media?.thumbnail}
               title={data.name}
               movieTime={data.date_range}
               watchlistLink="/play-list"

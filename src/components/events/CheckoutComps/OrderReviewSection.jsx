@@ -5,12 +5,10 @@ export const OrderReviewSection = ({
   isMobile,
   validatedData,
   summayData,
-  calculatedTotal,
   handleProcess,
   BookingMobileFooter,
   CustomBtn,
   Link,
-  orderData,
   isLoading
 }) => {
   const eventName = validatedData?.event?.name || "Event Name";
@@ -61,7 +59,7 @@ export const OrderReviewSection = ({
                 icon={<i className="fa-solid fa-arrow-left"></i>}
               />
               <CustomBtn
-                disabled={!validatedData?.data}
+                disabled={isLoading}
                 HandleClick={handleProcess}
                 buttonText={"Checkout"}
                 loading={isLoading}

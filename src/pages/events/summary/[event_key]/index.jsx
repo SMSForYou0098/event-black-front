@@ -36,7 +36,6 @@ const emailIcon = ReactDOMServer.renderToString(<MdEmail size={20} color="#ff000
 
     const mutation = useMutation({
         mutationFn: async (sid) => {
-            console.log(sid)
             if (sid === undefined || sid === 'undefined') {
                 throw new Error('Invalid Session');
             }
@@ -110,6 +109,7 @@ const emailIcon = ReactDOMServer.renderToString(<MdEmail size={20} color="#ff000
     if (mutation.isError) return <p>Error verifying booking.</p>;
 
     const booking = mutation.data?.bookings || {};
+
     const ticket = mutation?.data?.ticket || {};
     const event = mutation?.data?.event || {};
     // const organizer = event.user || {};
@@ -255,13 +255,15 @@ const emailIcon = ReactDOMServer.renderToString(<MdEmail size={20} color="#ff000
                             ticketName={ticket?.name}
                             price={ticket?.price}
                             quantity={booking?.bookings?.length || 1}
-                            hidePrices={true}
+                            hidePrices={false}
                             handleOpen={handleOpen}
                             attendees={attendees}
                             sale_price={ticket?.sale_price}
                             currency={ticket?.currency}
                             showAttBtn={true}
-                            netAmount={booking?.amount} />
+                            subTotal={mutation?.data?.taxes?.base_amount}
+                            processingFee={mutation?.data?.taxes?.total_tax}
+                            total={mutation?.data?.taxes?.final_amount || booking?.amount} />
                         {/* Payment Information Card */}
                         {/* <Card className='custom-dark-bg'>
                             <Card.Body className="p-4">

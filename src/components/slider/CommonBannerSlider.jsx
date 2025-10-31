@@ -115,6 +115,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     );
   }
 
+
   const handleBannerNavigation = (banner) => {
     // treat fallback banner like an internal link to /events
     if (banner?.id === 'fallback') {
@@ -149,6 +150,27 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
       }
       router.push(`/events/category/${createSlug(banner?.category).toLowerCase()}`);
       return;
+    }
+
+    // conditiion for orgs
+    if(type=== 'organization'){
+      if (banner?.external_url) {
+        window.open(banner.external_url, '_blank', 'noopener,noreferrer');
+        return;
+      }
+      if (banner?.event_key) {
+        router.push(`/events/${banner?.event?.venue?.city}/${createSlug(banner.event?.user?.organisation)}/${createSlug(banner.event.name)}/${banner.event_key}`);
+        return;
+      }
+      if (banner?.button_link) {
+        const isExternal = /^(https?:)?\/\//i.test(banner.button_link);
+        if (isExternal) {
+          window.open(banner.button_link, '_blank', 'noopener,noreferrer');
+        } else {
+          router.push(banner.button_link);
+        }
+        return;
+      }
     }
 
     // fallback: prefer button_link if available, else go to category page
@@ -213,6 +235,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                   const imageUrl = banner.images || ''; // fallback to empty string if null
                   const backgroundStyle = imageUrl ? `url("${imageUrl}")` : 'none';
                   const isFallback = banner.id === 'fallback';
+                  const hasMedia = Boolean(banner?.media_url);
 
                   return (
                     <SwiperSlide key={banner.id || index}>
@@ -244,18 +267,21 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                                 customClass="mt-4 btn-sm"
                               />
                             </Col>
-                            {
-                              // currentMediaUrl && 
-                            <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
-                              <div onClick={() => setToggler(!toggler)} className="video-open playbtn" style={{ cursor: 'pointer' }}>
-                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="80px" height="80px" viewBox="0 0 213.7 213.7" enableBackground="new 0 0 213.7 213.7" xmlSpace="preserve">
-                                  <polygon className="triangle" fill="none" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" points="73.5,62.5 148.5,105.8 73.5,149.1 "></polygon>
-                                  <circle className="circle" fill="none" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" cx="106.8" cy="106.8" r="103.3"></circle>
-                                </svg>
-                                <span className="w-trailor text-uppercase">Watch Trailer</span>
-                              </div>
-                            </Col>
-                            }
+                            {hasMedia && (
+            <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
+              <div
+                onClick={() => handleMediaClick(banner)}   // ← use your function here
+                className="video-open playbtn"
+                style={{ cursor: 'pointer' }}
+              >
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="80px" height="80px" viewBox="0 0 213.7 213.7">
+                  <polygon className="triangle" fill="none" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" points="73.5,62.5 148.5,105.8 73.5,149.1 " />
+                  <circle className="circle" fill="none" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" cx="106.8" cy="106.8" r="103.3" />
+                </svg>
+                <span className="w-trailor text-uppercase">Watch Trailer</span>
+              </div>
+            </Col>
+          )}
                           </Row>
                         </div>
                       </div>

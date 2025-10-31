@@ -58,7 +58,6 @@ const EventsContainer = memo(({
     retry,
     enabled: useReactQuery && !!queryFn
   });
-
   // Effect for non-React Query approach
   useEffect(() => {
     if (!useReactQuery) {
@@ -91,16 +90,16 @@ const EventsContainer = memo(({
     );
   }
 
-  if (isError) {
-    return (
-      <div className="section-top-spacing">
-        <Alert variant="danger" className="mx-3">
-          <Alert.Heading>Oops! Something went wrong</Alert.Heading>
-          <p className="mb-0">{errorText}</p>
-        </Alert>
-      </div>
-    );
-  }
+  // if (isError) {
+  //   return (
+  //     <div className="section-top-spacing">
+  //       <Alert variant="danger" className="mx-3">
+  //         <Alert.Heading>Oops! Something went wrong</Alert.Heading>
+  //         <p className="mb-0">{errorText}</p>
+  //       </Alert>
+  //     </div>
+  //   );
+  // }
 
   // Show message when no events found
   if (!eventsList || eventsList.length === 0) {
