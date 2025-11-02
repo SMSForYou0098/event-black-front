@@ -51,7 +51,7 @@ const OverviewTab = ({ recentBookings, user, monthlyStats }) => (
       </GlassCard>
 
       {/* Quick Actions */}
-      <GlassCard>
+      {/* <GlassCard>
         <Card.Header>
           <h5 className="mb-0">Quick Actions</h5>
         </Card.Header>
@@ -70,11 +70,10 @@ const OverviewTab = ({ recentBookings, user, monthlyStats }) => (
             ))}
           </ListGroup>
         </Card.Body>
-      </GlassCard>
+      </GlassCard> */}
     </Col>
 
-    <Col lg={4}>
-      {/* Membership Status */}
+    {/* <Col lg={4}>
       <GlassCard className="mb-4">
         <Card.Header>
           <h5 className="mb-0">Membership Status</h5>
@@ -102,7 +101,7 @@ const OverviewTab = ({ recentBookings, user, monthlyStats }) => (
         </Card.Body>
       </GlassCard>
 
-      {/* Monthly Stats */}
+
       <GlassCard className="mb-4">
         <Card.Header>
           <h5 className="mb-0">This Month</h5>
@@ -113,7 +112,7 @@ const OverviewTab = ({ recentBookings, user, monthlyStats }) => (
           ))}
         </Card.Body>
       </GlassCard>
-    </Col>
+    </Col> */}
   </Row>
 );
 

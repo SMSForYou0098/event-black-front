@@ -5,7 +5,7 @@ import * as XLSX from "xlsx";
 import loader from "../assets/event/stock/loader111.gif";
 import currencyData from "../JSON/currency.json";
 import { api as commonapi } from '../lib//axiosInterceptor';
-
+import { useMediaQuery } from 'react-responsive';
 // TanStack Query
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -24,9 +24,10 @@ export const MyContextProvider = ({ children }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [currencyMaster, setCurrencyMaster] = useState([]);
   const [systemSetting, setSystemSetting] = useState();
-  const [isMobile, setIsMobile] = useState(false);
   const [hideMobileMenu, setHideMobileMenu] = useState(false);
 
+
+  const isMobile = useMediaQuery({ maxWidth: 575 });
   // --- Fetcher for system settings
   const fetchSystemSettings = async () => {
     const res = await commonapi.get(`/settings`);
@@ -204,16 +205,6 @@ export const MyContextProvider = ({ children }) => {
       },
     });
   };
-
-  function modifyNumber(number) {
-    let mob_number = String(number);
-    if (mob_number.length === 10) {
-      mob_number = "91" + mob_number;
-      return mob_number;
-    } else if (mob_number.length === 12) {
-      return number;
-    }
-  }
 
   const extractDetails = (data) => {
     const getNestedValue = (paths, fallback) => {

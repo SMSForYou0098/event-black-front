@@ -1,9 +1,9 @@
 import React from "react";
 import CardStyle from "@/components/cards/CardStyle";
 import { useMyContext } from "@/Context/MyContextProvider";
-import { Button, Col, Container, Image, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import SkeletonLoader from '../../../utils/SkeletonUtils/SkeletonLoader'
-import { LoaderCircle, RefreshCcw, Ticket } from "lucide-react";
+import { Ticket } from "lucide-react";
 import CustomBtn from "../../../utils/CustomBtn";
 import { useRouter } from "next/router";
 
@@ -40,11 +40,10 @@ const EventsContainerCat = ({ events = [], loading = false, title }) => {
     <div>
       <Row className="">
         <Col xs={12}>
-        
-      {title && <h5 className="main-title text-capitalize mb-3">{title}</h5>}
+          {title && <h5 className="main-title text-capitalize mb-3">{title}</h5>}
         </Col>
         {events.map((data, index) => (
-          <Col xs={2} key={index} className="  ">
+          <Col xs={2} key={index}>
             <CardStyle
               key={data.id}
               image={data.thumbnail || data?.event_media?.thumbnail}

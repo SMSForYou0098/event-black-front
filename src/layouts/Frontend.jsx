@@ -29,7 +29,7 @@ const Frontend = (({ children }) => {
         <MobileBottomMenu />
       </div>
       <StickyContent />
-      <SettingOffCanvas />
+      {/* <SettingOffCanvas /> */}
     </>
   )
 })

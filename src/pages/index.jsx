@@ -84,11 +84,6 @@ const PromotionalEvents = createDynamicComponent(
   () => <SectionSkeleton title="Trending Events" />
 );
 
-const Organisation = createDynamicComponent(
-  () => import("@/components/sections/Organisations"),
-  () => <SectionSkeleton title="Popular Events" />
-);
-
 const EventsSection = createDynamicComponent(
   () => import("@/components/sections/EventsSection"),
   () => <SectionSkeleton title="Events" />

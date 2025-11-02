@@ -1,11 +1,11 @@
-import React, { useState, memo, Fragment,useEffect } from 'react'
+import React, { useState, memo, Fragment, useEffect } from 'react'
 import { Minus, Plus } from 'lucide-react';
 import { useMyContext } from '@/Context/MyContextProvider';
 //React-bootstrap
 import { Button } from 'react-bootstrap'
 
 const CustomCounter = memo((props) => {
- const { getTicketCount, category, price, limit, ticketID, disabled = false, selectedTickets, resetCounterTrigger } = props
+    const { getTicketCount, category, price, limit, ticketID, disabled = false, selectedTickets, resetCounterTrigger } = props
     const { ErrorAlert } = useMyContext()
     const [counter, setCount] = useState(0);
 
@@ -16,19 +16,26 @@ const CustomCounter = memo((props) => {
     }, [resetCounterTrigger]);
 
     useEffect(() => {
+        // If this ticket is selected, show its quantity
         if (selectedTickets?.id === ticketID) {
             setCount(selectedTickets?.quantity || 0);
         } 
-        else {
-            // setCount();
+        // If another ticket is selected, reset this counter to 0
+        else if (selectedTickets && selectedTickets.id !== ticketID) {
+            setCount(0);
+        }
+        // If no ticket is selected, reset to 0
+        else if (!selectedTickets) {
+            setCount(0);
         }
     }, [selectedTickets, ticketID]);
 
     const increase = () => {
         if (parseInt(counter) === parseInt(limit)) {
-            ErrorAlert(`You can select max ${limit} tickets`)
+            ErrorAlert(`You can select max ${limit} tickets`);
             return;
         }
+        
         const newCount = counter < limit ? counter + 1 : counter;
         setCount(newCount);
         // Call getTicketCount after state update
@@ -45,6 +52,7 @@ const CustomCounter = memo((props) => {
             getTicketCount(newCount, category, price, ticketID);
         }, 0);
     };
+
     return (
         <Fragment>
             <div
@@ -53,8 +61,8 @@ const CustomCounter = memo((props) => {
                 role="group"
                 style={{
                     pointerEvents: disabled ? 'none' : 'auto',
-                    fontSize: '1.25rem', // Increase font size
-                    minHeight: '48px',   // Increase height
+                    fontSize: '1.25rem',
+                    minHeight: '48px',
                 }}
             >
                 <button
@@ -65,7 +73,7 @@ const CustomCounter = memo((props) => {
                         lineHeight: 'initial',
                     }}
                 >
-                    <Minus size={22} color='white' /> {/* Increased icon size */}
+                    <Minus size={22} color='white' />
                 </button>
                 <input
                     name='quantity'
@@ -76,8 +84,8 @@ const CustomCounter = memo((props) => {
                     title="Qty"
                     placeholder=""
                     style={{
-                        width: '48px',         // Wider input
-                        fontSize: '1.25rem',   // Larger font
+                        width: '48px',
+                        fontSize: '1.25rem',
                         textAlign: 'center',
                         padding: '8px 0',
                     }}
@@ -90,7 +98,7 @@ const CustomCounter = memo((props) => {
                         lineHeight: 'initial',
                     }}
                 >
-                    <Plus size={22} color='white' /> {/* Increased icon size */}
+                    <Plus size={22} color='white' />
                 </button>
             </div>
         </Fragment>

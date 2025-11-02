@@ -9,79 +9,72 @@ const BookingTickets = ({
     isMobile,
     setSelectedTickets,
     selectedTickets
-  }) => {
+}) => {
   
     const { getCurrencySymbol } = useMyContext();
     const [resetCounterTrigger, setResetCounterTrigger] = useState(0);
 
-
-
     const getTicketCount = useCallback((quantity, category, price, id) => {
         setSelectedTickets(() => {
-          if (quantity === 0) return null;
+            // If quantity is 0, clear selection
+            if (quantity === 0) return null;
       
-          const round = (n) => +Number(n ?? 0).toFixed(2);
+            const round = (n) => +Number(n ?? 0).toFixed(2);
       
-          // Per-unit
-          const baseAmount = round(price);
-          const centralGST = round(baseAmount * 0.09);
-          const stateGST = round(baseAmount * 0.09);
-          const convenienceFee = round(baseAmount * 0.01);
-          const totalTax = round(centralGST + stateGST + convenienceFee);
-          const finalAmount = round(baseAmount + totalTax);
+            // Per-unit
+            const baseAmount = round(price);
+            const centralGST = round(baseAmount * 0.09);
+            const stateGST = round(baseAmount * 0.09);
+            const convenienceFee = round(baseAmount * 0.01);
+            const totalTax = round(centralGST + stateGST + convenienceFee);
+            const finalAmount = round(baseAmount + totalTax);
       
-          // Totals
-          const totalBaseAmount = round(baseAmount * quantity);
-          const totalCentralGST = round(centralGST * quantity);
-          const totalStateGST = round(stateGST * quantity);
-          const totalConvenienceFee = round(convenienceFee * quantity);
-          const totalTaxTotal = round(totalCentralGST + totalStateGST + totalConvenienceFee);
-          const totalFinalAmount = round(totalBaseAmount + totalTaxTotal);
+            // Totals
+            const totalBaseAmount = round(baseAmount * quantity);
+            const totalCentralGST = round(centralGST * quantity);
+            const totalStateGST = round(stateGST * quantity);
+            const totalConvenienceFee = round(convenienceFee * quantity);
+            const totalTaxTotal = round(totalCentralGST + totalStateGST + totalConvenienceFee);
+            const totalFinalAmount = round(totalBaseAmount + totalTaxTotal);
       
-          // Single object (not inside an array)
-          return {
-            id,
-            category,
-            quantity,
-            price: round(price),
+            // Single object (not inside an array)
+            return {
+                id,
+                category,
+                quantity,
+                price: round(price),
       
-            // per-unit
-            baseAmount,
-            centralGST,
-            stateGST,
-            convenienceFee,
-            totalTax,
-            finalAmount,
+                // per-unit
+                baseAmount,
+                centralGST,
+                stateGST,
+                convenienceFee,
+                totalTax,
+                finalAmount,
       
-            // totals
-            totalBaseAmount,
-            totalCentralGST,
-            totalStateGST,
-            totalConvenienceFee,
-            totalTaxTotal,
-            totalFinalAmount,
+                // totals
+                totalBaseAmount,
+                totalCentralGST,
+                totalStateGST,
+                totalConvenienceFee,
+                totalTaxTotal,
+                totalFinalAmount,
       
-            // convenience
-            subTotal: round(price * quantity),
-            grandTotal: totalFinalAmount,
-          };
+                // convenience
+                subTotal: round(price * quantity),
+                grandTotal: totalFinalAmount,
+            };
         });
-      }, [setSelectedTickets]);
-      
-      
-
+    }, [setSelectedTickets]);
 
     const getSubtotal = (item) => {
         const price = Number(item?.sale === 1 ? item?.sale_price : item?.price);
         const quantity = Number(selectedTickets?.quantity);
-        if (quantity > 0 && selectedTickets?.category === item.name) {
+        if (quantity > 0 && selectedTickets?.category === item.name && selectedTickets?.id === item.id) {
             return price * quantity;
         }
         return 0;
     };
-    //   const handleToggle = (id) => {
-    //     setExpandedId(expandedId === id ? null : id);
-    //   };
 
     return (
         <Table responsive className="cart-table rounded-4">

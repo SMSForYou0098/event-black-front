@@ -29,7 +29,7 @@ const ProfileHeader = ({ user, onEditClick, onAvatarUpload, loading }) => {
                   src={user.avatar}
                   alt="Profile"
                   name={user.name}
-                  size={isMobile ? 70 : 100}
+                  size={isMobile ? 40 : 100}
                 />
 
                 {/* Loader overlay when uploading */}
@@ -57,7 +57,7 @@ const ProfileHeader = ({ user, onEditClick, onAvatarUpload, loading }) => {
                   size="sm"
                   className="position-absolute px-1 px-3"
                   style={{
-                    bottom: isMobile ? "-20px"  : "-5px",
+                    bottom: isMobile ? "-20px" : "-5px",
                     right: isMobile ? "-20px" : "-5px",
                     borderRadius: "50%",
                     background: "linear-gradient(135deg, #ffc107, #fd7e14)",
@@ -75,24 +75,23 @@ const ProfileHeader = ({ user, onEditClick, onAvatarUpload, loading }) => {
             </Col>
 
             <Col md={7} xs={8}>
-              <div className="d-flex align-items-center mb-2">
-                <h2 className="mb-0 me-3">{user.name}</h2>
-                {user.verified && (
-                  <CustomBadge variant="outline-success" className="me-2">
-                    <CheckCircle size={14} className="me-1" />
-                    Verified
-                  </CustomBadge>
-                )}
-              </div>
               <Row>
                 {[
                   { label: "Name", value: user.name },
                   { label: "Number", value: user.phone },
-                  { label: "Email", value: user.email , col : 8 },
+                  { label: "Email", value: user.email, col: 8 },
                 ].map((stat, index) => (
-                  <Col key={index} xs={stat?.col ?? 6} md={4} className="mb-2">
+                  <Col key={index} xs={stat?.col ?? 6} md={4} className="mb-2 d-flex align-items-center gap-2 flex-column">
                     <small className="text-muted">{stat.label}</small>
-                    <h6 className="mb-0">{stat.value}</h6>
+                    <div className='d-flex align-items-center gap-2'>
+                      <h6 className="mb-0">{stat.value}</h6>
+                      {stat.label == "Name" &&
+                        <CustomBadge variant="outline-success" className="me-2">
+                          <CheckCircle size={14} className="me-1" />
+                          Verified
+                        </CustomBadge>
+                      }
+                    </div>
                   </Col>
                 ))}
               </Row>

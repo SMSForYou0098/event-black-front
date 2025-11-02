@@ -3,7 +3,7 @@ import BookingFooterLayout from "../BookingFooterLayout";
 
 const BookingMobileFooter = ({ handleClick, selectedTickets }) => (
   <BookingFooterLayout
-    left={<h5 className="p-0 m-0 fw-bold">Total: ₹ {selectedTickets?.grandTotal || 0}</h5>}
+    left={<h5 className="p-0 m-0 fw-bold">Total: ₹{selectedTickets?.grandTotal || 0}</h5>}
     middle={<span style={{ fontSize: "0.9rem" }}>{selectedTickets?.quantity || 0} Tickets Selected</span>}
     right={
       <Button

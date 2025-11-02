@@ -1,13 +1,14 @@
 import React from 'react';
 import { Container, Nav } from 'react-bootstrap';
-import { User, Ticket, Heart, Gift, Settings } from 'lucide-react';
+import { User, Ticket, Heart, Gift, Settings, LifeBuoy, Headset } from 'lucide-react';
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: User },
   { id: 'bookings', label: 'My Bookings', icon: Ticket },
   // { id: 'wishlist', label: 'Wishlist', icon: Heart },
   { id: 'rewards', label: 'Rewards', icon: Gift },
-  { id: 'settings', label: 'Settings', icon: Settings }
+ { id: 'support', label: 'Support', icon: Headset },
+  // { id: 'settings', label: 'Settings', icon: Settings }
 ];
 
 const TabNavigation = ({ activeTab, onTabChange }) => {

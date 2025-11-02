@@ -103,14 +103,7 @@ const EventsContainer = memo(({
 
   // Show message when no events found
   if (!eventsList || eventsList.length === 0) {
-    return (
-      <div className={`${className} text-center py-5`}>
-        <div className="text-light">
-          <h3>No Events Available</h3>
-          <p className="text-muted">Check back later for upcoming events!</p>
-        </div>
-      </div>
-    );
+    return null;
   }
   return (
 <Fragment>

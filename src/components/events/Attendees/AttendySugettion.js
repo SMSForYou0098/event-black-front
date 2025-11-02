@@ -76,6 +76,14 @@ const AttendySugettion = (props) => {
     setShowAddAttendeeModal(false);
   }
   
+    // Auto-close modal when required quantity is reached
+  useEffect(() => {
+    if (selectedAttendees?.length === quantity && showAddAttendeeModal) {
+      setShowAddAttendeeModal(false);
+    }
+  }, [selectedAttendees?.length, quantity, showAddAttendeeModal, setShowAddAttendeeModal]);
+
+
   const filteredAttendees = useMemo(() => {
     if (!searchTerm.trim()) return data;
     const searchLower = searchTerm.toLowerCase();

@@ -13,6 +13,7 @@ import { useDispatch } from 'react-redux';
 import { updateUser } from '../../store/auth/authSlice'
 import toast from 'react-hot-toast';
 import UserProfileModal from '../../components/events/Profile/UserProfileModal';
+import SupportOptions from '../../components/events/Profile/SupportOptions';
 
 const useUserData = () => {
   const { UserData, ErrorAlert } = useMyContext();
@@ -70,6 +71,7 @@ const UserProfile = () => {
     });
     return res.data;
   };
+
   const {
     data: apiProfile,
     isLoading,
@@ -211,6 +213,8 @@ const UserProfile = () => {
       //   return <WishlistTab />;
       case 'rewards':
         return <RewardsTab rewards={rewards} pointsHistory={pointsHistory} />;
+      case 'support':
+        return <SupportOptions  />;
       // case 'settings':
       //   return <SettingsTab />;
       default:

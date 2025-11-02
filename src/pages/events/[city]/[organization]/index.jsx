@@ -176,13 +176,16 @@ const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
           banners={bannersRaw}
           loading={bannersLoading}
         />
-
       </div>
+
+      <section className="py-5 px-3">
         <EventsContainerCat
           events={orgData}
           loading={orgLoading}
           title={''}
         />
+      </section>
+      
     </div>
   );
 };

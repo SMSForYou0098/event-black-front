@@ -12,6 +12,7 @@ import { TicketDataSummary } from "../../../../components/events/CheckoutComps/c
 import CustomBtn from "../../../../utils/CustomBtn";
 import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
 import Timer from "../../../../utils/BookingUtils/Timer";
+import MobileTwoButtonFooter from "../../../../utils/MobileTwoButtonFooter";
 
 const AttendeePage = () => {
   const router = useRouter();
@@ -124,12 +125,12 @@ const AttendeePage = () => {
       0;
     return q;
   }, [data]);
-//  console.log(k)
+  //  console.log(k)
   return (
     <div className="mt-5 pt-5">
       <Container>
         <CartSteps id={2} showAttendee={true} />
-         <Timer timestamp={data?.timestamp}/>
+        <Timer timestamp={data?.timestamp} />
         <Row className="m-0 p-0">
           <Col lg="8" className="px-0 px-sm-2">
             <DynamicAttendeeForm
@@ -148,7 +149,7 @@ const AttendeePage = () => {
             />
             {hasMissingFields && (
               <div className="mb-3 text-white fw-bold">
-               <span className="text-primary">*</span> Please fill all required fields for each attendee before saving.
+                <span className="text-primary">*</span> Please fill all required fields for each attendee before saving.
               </div>
             )}
           </Col>
@@ -161,9 +162,24 @@ const AttendeePage = () => {
               hidePrices={true}
             />
             {isMobile ? (
-              <BookingMobileFooter
-                HandleClick={handleSaveAttendees}
-                selectedTickets={data?.data}
+              <MobileTwoButtonFooter
+                leftButton={
+                  <CustomBtn
+                    className="custom-dark-content-bg border-0 w-100"
+                    HandleClick={() => window.history.back()}
+                    buttonText="Back"
+                    icon={<i className="fa-solid fa-arrow-left"></i>}
+                  />
+                }
+                rightButton={
+                  <CustomBtn
+                    className="border-0 w-100"
+                    disabled={hasMissingFields || (attendeeList?.length !== quantity)}
+                    HandleClick={handleSaveAttendees}
+                    buttonText="Continue"
+                    icon={<i className="fa-solid fa-arrow-right"></i>}
+                  />
+                }
               />
             ) : (
               <div className="d-flex align-items-center justify-content-between gap-3 mb-sm-5 mb-0">

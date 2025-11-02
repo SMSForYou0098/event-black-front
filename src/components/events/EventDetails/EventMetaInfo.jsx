@@ -4,6 +4,7 @@ import { useMyContext } from "@/Context/MyContextProvider";
 import { useRouter } from "next/router";
 import BookingFooterLayout from "../../../utils/BookingFooterLayout";
 import CustomBtn from "../../../utils/CustomBtn";
+import CustomDrawer from "../../../utils/CustomDrawer";
 const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const { setShowHeaderBookBtn, isMobile } = useMyContext();
   const bookBtnRef = useRef(null);
@@ -35,9 +36,14 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   }, [setShowHeaderBookBtn, isMobile]);
 
   const handleBookNow = () => {
-    setShowOffcanvas(true);
+    // Check if booking_notice exists and is not empty/blank
+    if (eventData?.booking_notice && eventData?.booking_notice?.trim() !== '') {
+      setShowOffcanvas(true);
+    } else {
+      handleContinue();
+    }
   };
-  console.log(eventData)
+
   return (
     <>
       <div className="product-meta-wrapper mt-2">
@@ -75,36 +81,26 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                 <div className="text-primary">Pricing :</div>
                 <span className="fw-bold d-flex align-items-center gap-2">
                   {(() => {
-                    // Convert all price values to numbers
-                    const salePrice = Number(eventData?.lowest_sale_price);
-                    const ticketPrice = Number(eventData?.lowest_ticket_price);
-                    const normalPrice = Number(eventData?.price);
-
-                    // Get the lowest available (non-zero, non-null) price
-                    const validPrices = [salePrice, ticketPrice, normalPrice].filter(
-                      (p) => !isNaN(p)
-                    );
-
-                    const minPrice = Math.min(...validPrices);
-
-                    // Decide which price should display
-                    const showPrice = minPrice || 0;
-
-                    // Display “Free” if 0 or falsy
-                    if (showPrice === 0) {
-                      return <span>Free</span>;
+                    let displayPrice = 0;
+                    let showSaleBadge = false;
+                    // If event is on sale and has a sale price
+                    if (eventData?.on_sale && eventData?.lowest_sale_price) {
+                      displayPrice = Number(eventData.lowest_sale_price);
+                      showSaleBadge = true;
                     }
+                    // Otherwise use regular lowest ticket price
+
+                    else if (eventData?.lowest_ticket_price) {
+                      displayPrice = Number(eventData.lowest_ticket_price);
+                    }
+                    //console.log(eventData)
+                    // Show "Free" if price is 0 or null
+                    if (!displayPrice || displayPrice === 0) return <span>Free</span>;
 
                     return (
                       <>
-                        ₹{showPrice} <span className="fw-normal">Onwards</span>
-
-                        {/* Show badge only if on sale AND sale price < normal price */}
-                        {eventData?.on_sale && salePrice < normalPrice && (
-                          <Badge bg="danger" className="ms-2">
-                            On Sale
-                          </Badge>
-                        )}
+                        ₹{displayPrice} <span className="fw-normal">Onwards</span>
+                        {showSaleBadge && <Badge bg="danger" className="ms-2">On Sale</Badge>}
                       </>
                     );
                   })()}
@@ -112,22 +108,19 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
               </h4>
 
 
-
               <Button
                 ref={bookBtnRef}
                 size="sm"
                 className="fw-bold px-5 py-2 d-flex align-items-center rounded-3"
                 onClick={handleBookNow}
-                style={{
-                  height: "3rem",
-                  fontSize: "16px",
-                }}
+                style={{ height: "3rem", fontSize: "16px" }}
               >
                 <span className="me-2">Book Now</span>
                 <i className="fa-solid fa-arrow-right"></i>
               </Button>
             </Col>
           </Row>
+
         </div>
       </div>
 
@@ -156,22 +149,13 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         />
       </div>
 
-      <Offcanvas
-        show={showOffcanvas}
-        onHide={() => setShowOffcanvas(false)}
-        placement={isMobile ? "bottom" : "top"}
-      // placement="bottom"
-      >
-        <Offcanvas.Header>
-          <Offcanvas.Title>Booking Info</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <div>
-            <p>Some content goes here. Confirm your booking details.</p>
-            <CustomBtn variant="primary" buttonText="Continue" HandleClick={handleContinue} className="position-relative float-end" />
-          </div>
-        </Offcanvas.Body>
-      </Offcanvas>
+      {/* drwaer */}
+      <CustomDrawer title="Booking Info" showOffcanvas={showOffcanvas} setShowOffcanvas={setShowOffcanvas}>
+        <div>
+          <p>{eventData?.booking_notice}.</p>
+          <CustomBtn variant="primary" buttonText="Continue" HandleClick={handleContinue} className="position-relative float-end" />
+        </div>
+      </CustomDrawer>
     </>
   );
 };

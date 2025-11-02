@@ -97,7 +97,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
             <Col lg="9" md="12" className="ps-lg-4">
                 {/* --- Main Event Info --- */}
                 <div className="d-flex justify-content-between">
-                    <h2 className="">{capitalize(eventData?.name)}</h2>
+                    <h2 className="text-capitalize">{eventData?.name}</h2>
                     <CustomBtn
                         icon={<Share2 />}
                         className="p-1 m-0"

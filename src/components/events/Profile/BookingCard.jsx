@@ -180,12 +180,12 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
               </Dropdown.Menu>
             </Dropdown>
 
-            <CustomBtn
+            {/* <CustomBtn
               buttonText="Share"
               icon={<Share2 size={14} className="me-1" />}
               className="mb-3 btn-sm"
               variant="outline-secondary"
-            />
+            /> */}
           </div>
         </div>
       </div>
