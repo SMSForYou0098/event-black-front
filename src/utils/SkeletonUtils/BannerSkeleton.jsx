@@ -9,7 +9,7 @@ const BannerSkeleton = memo(() => {
   const themeSchemeDirection = useSelector(theme_scheme_direction);
 
   return (
-    <section className="banner-container section-padding-bottom">
+    <section className="banner-container section-padding">
       <div className="movie-banner">
         <div id="banner-detail-slider" className="banner-container">
           <Swiper

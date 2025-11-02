@@ -205,13 +205,13 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
           }}
         >
           <Row className="g-3 justify-content-between align-items-center">
-            {buttons.map((item) => (
+            {buttons.map(({ key, ...buttonProps }) => (
               <Col
-                key={item.key}
+                key={key}
                 className="text-center"
                 style={{ flex: '1', minWidth: 'auto' }}
               >
-                <AnimatedButton {...item} isActive={activeButton === item.key} />
+                <AnimatedButton {...buttonProps} isActive={activeButton === key} />
               </Col>
             ))}
           </Row>

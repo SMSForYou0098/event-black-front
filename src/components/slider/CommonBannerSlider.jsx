@@ -69,7 +69,6 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
   const {  createSlug } = useMyContext();
   const router = useRouter();
   const [currentMediaUrl, setCurrentMediaUrl] = useState(''); // NEW: Track current media URL
-
   // Only call API when type is 'main'
   const { data: apiBanners, isLoading: apiLoading, isError } = useQuery({
     queryKey: ['banners'],
@@ -99,10 +98,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
   // use a banner array to render; if empty use the fallbackBanner
   const bannersToRender = rawBanners && rawBanners?.length > 0 ? rawBanners : [];
 
-  // show skeleton while loading
-  if (loading) {
-    return <BannerSkeleton themeSchemeDirection={themeSchemeDirection} />;
-  }
+  // show skeleton while load
 
   // show error message on network error (only for main type)
   if (isError && type === 'main') {
@@ -219,16 +215,20 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
         <div className="movie-banner">
           <div id="banner-detail-slider" className="banner-container">
             <MobileOnly>
-              <CommonMobileSlider
-                banners={bannersToRender}
-                themeSchemeDirection={themeSchemeDirection}
-                createSlug={createSlug}
-                type={type}
-                handleBannerNavigation={handleBannerNavigation}
-              />
+              {loading ? <BannerSkeleton themeSchemeDirection={themeSchemeDirection} /> : (
+
+                <CommonMobileSlider
+                  banners={bannersToRender}
+                  themeSchemeDirection={themeSchemeDirection}
+                  createSlug={createSlug}
+                  type={type}
+                  handleBannerNavigation={handleBannerNavigation}
+                />
+              )}
             </MobileOnly>
 
             <DesktopOnly>
+              {loading ? <BannerSkeleton themeSchemeDirection={themeSchemeDirection} /> : (
               <Swiper key={`desktop-${String(themeSchemeDirection)}`} {...desktopSwiperConfig}>
                 {bannersToRender.map((banner, index) => {
                   // Direct usage - no extraction needed
@@ -296,6 +296,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                   <i className="iconly-Arrow-Left-2 icli arrow-icon"></i>
                 </div>
               </Swiper>
+              )}
             </DesktopOnly>
           </div>
         </div>

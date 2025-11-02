@@ -9,12 +9,12 @@ const ShopSectionSlider = memo((props) => {
     <Fragment>
       <div className="category-inner position-relative">
         <div className="category_image">
-          <Link href={`/merchandise/shop`}>
+          <Link href={`/`}>
             <img src={props.shopsellingImg} className="img-fluid" alt="" />
           </Link>
           <div className="category-details">
             <h5 className="category-title">
-              <Link href={`/merchandise/shop`}>{props.shopsellingText}</Link>
+              <Link href={`/`}>{props.shopsellingText}</Link>
             </h5>
           </div>
         </div>

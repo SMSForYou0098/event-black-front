@@ -207,10 +207,7 @@ const DynamicAttendeeForm = ({
       successAlert?.("The attendee has been deleted.");
     });
   };
-  
 
-  console.log('aaa',attendeeList)
-  console.log('selected attendee',selectedAttendees)
   // Add this helper function at the top of your component (after imports)
   // Add this helper function at the top of your component (after imports)
   const parseFieldOptions = (options) => {

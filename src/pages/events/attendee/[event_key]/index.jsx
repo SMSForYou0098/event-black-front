@@ -25,7 +25,6 @@ const AttendeePage = () => {
 
   const dispatch = useDispatch();
   const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
-
   useEffect(() => {
     if (!data) return;
 
@@ -156,8 +155,8 @@ const AttendeePage = () => {
           <Col lg="4">
             <TicketDataSummary
               eventName={data?.event?.name}
-              ticketName={data?.ticket?.name}
-              price={data?.ticket?.price}
+              ticketName={data?.data?.category}
+              price={data?.data?.price}
               quantity={quantity}
               hidePrices={true}
             />
