@@ -153,7 +153,7 @@ const emailIcon = ReactDOMServer.renderToString(<MdEmail size={20} color="#ff000
     };
 
     return (
-        <div className="cart-page section-padding">
+        <div className="cart-page">
             <Container className="">
                 {/* Header */}
                 <CartSteps id={'last'} />

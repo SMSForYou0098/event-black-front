@@ -225,7 +225,7 @@ const UserProfile = () => {
   if (isError) return <p>Error: {String(error?.message || error)}</p>;
 
   return (
-    <div className="section-padding">
+    <div>
       <ProfileHeader user={profile} onEditClick={handleEditClick} loading={updateMutation.isPending} onAvatarUpload={(formData) => updateMutation.mutate(formData)}
       />
       <UserProfileModal

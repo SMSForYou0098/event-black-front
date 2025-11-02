@@ -18,9 +18,9 @@ const EventbyId = () => {
   }
 
   return (
-    <div className='mt-5 pt-5'>
+    <section>
       <EventDetailPage eventData={event} event_key={event_key} />
-    </div>
+    </section>
   );
 };
 

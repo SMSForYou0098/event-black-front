@@ -12,10 +12,13 @@ import SettingOffCanvas from "../components/setting/SettingOffCanvas";
 import StickyContent from "../utils/StickyContent";
 import HeaderDecider from "./HeaderDecider";
 import { HeaderProvider } from "@/Context/HeaderContext";
+import { useRouter } from "next/router";
 const Frontend = (({ children }) => {
+  const router = useRouter();
+  const isHomePage = router.pathname === '/' || router.pathname === '/home';
   return (
     <>
-      <main className="main-content">
+      <main className={`main-content ${!isHomePage ? 'section-padding' : ''}`}>
         <BreadCrumbWidget />
         {/* <HeaderDecider /> */}
         <HeaderProvider>

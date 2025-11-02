@@ -7,7 +7,7 @@
 }
 
 .section-padding {
-  padding: 6.25rem 0;
+  padding: var(--header-height);
 }
 
 .section-padding-top {
@@ -191,7 +191,8 @@
 
   .section-padding {
     // padding: 1.875rem 0;
-    padding: 6.25rem 0;
+    // padding: 6.25rem 0;
+    padding: 4rem 0;
   }
 
   .section-padding-top {

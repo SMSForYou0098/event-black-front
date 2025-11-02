@@ -168,7 +168,7 @@ const BLogs = memo(() => {
   return (
     <Fragment>
       <SEOHead {...defaultSEO} />
-      <div className="section-padding">
+      <div >
         <Container>
           {/* Filter Controls - Always visible, not affected by loading state */}
           <BlogFilterControls

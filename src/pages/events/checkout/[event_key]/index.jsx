@@ -567,7 +567,7 @@ const CartPage = () => {
   };
 
   return (
-    <div className="cart-page section-padding">
+    <div className="cart-page">
       {isLoading && (
         <LoaderComp imgLoader={paymentLoader} />
       )}

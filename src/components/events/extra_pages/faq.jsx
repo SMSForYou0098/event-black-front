@@ -62,7 +62,7 @@ const FAQPage = memo(() => {
   // Handle loading and error states
   if (isLoading) {
     return (
-      <div className="section-padding">
+      <div >
         <Container>
           <Row>
             <Col lg="12" sm="12">
@@ -80,7 +80,7 @@ const FAQPage = memo(() => {
 
   if (isError) {
     return (
-      <div className="section-padding">
+      <div>
         <Container>
           <Row>
             <Col lg="12" sm="12">
@@ -101,7 +101,7 @@ const FAQPage = memo(() => {
 
   return (
     <Fragment>
-      <div className="section-padding">
+      <div>
         <Container>
           <Row>
             <Col lg="12" sm="12">

@@ -96,7 +96,7 @@ const ContactPage = memo(() => {
 
   return (
     <Fragment>
-      <div className="section-padding">
+      <div >
         <Container>
           <Row>
             <Col lg="8">

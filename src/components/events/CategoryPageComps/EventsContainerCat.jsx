@@ -43,7 +43,7 @@ const EventsContainerCat = ({ events = [], loading = false, title }) => {
           {title && <h5 className="main-title text-capitalize mb-3">{title}</h5>}
         </Col>
         {events.map((data, index) => (
-          <Col xs={2} key={index}>
+          <Col xs={6} md={2} key={index}>
             <CardStyle
               key={data.id}
               image={data.thumbnail || data?.event_media?.thumbnail}

@@ -14,7 +14,7 @@ const BookingSummarySkeleton = ({type, itemCount=3}) => {
     };
 
     return (
-        <div className="cart-page section-padding">
+        <div className="cart-page">
             <Container className="">
                 {/* Header */}
                 {/* <CartSteps id={'last'} /> */}
