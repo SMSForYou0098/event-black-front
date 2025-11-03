@@ -252,20 +252,16 @@ export const parseUrlData = (data, ticket, edata) => {
 
 export const TicketDataSummary = (props) => {
   const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, netAmount, sale_price, currency,handleOpen,attendees,showAttBtn } = props;
-  const sectionIconStyle = {
-    color: CUSTOM_SECONDORY,
-    size: 20,
-    style: { marginRight: '10px' }
-  };
+
   const { getCurrencySymbol } = useMyContext()
 
   return (
     <Card className="mb-4 custom-dark-bg">
       <Card.Body className="p-4">
-        <div className="d-flex align-items-center mb-3">
+        {/* <div className="d-flex align-items-center mb-3">
           <Ticket {...sectionIconStyle} />
           <h5 className="text-white mb-0 fw-bold">Ticket Details</h5>
-        </div>
+        </div> */}
 
         <div className="d-flex justify-content-between align-items-start mb-3">
           <div>
@@ -315,11 +311,7 @@ export const TicketDataSummary = (props) => {
             <span className='custom-text-secondary h5 fw-bold'>{currency ? getCurrencySymbol(currency) : '₹'}{sale_price && sale_price !== 'null' ? sale_price : netAmount}</span>
           </div>
         } */}
-        {attendees?.length !== 0 && showAttBtn &&
-        <div className="float-end">
-          <CustomBtn size='sm' variant="primary" HandleClick={handleOpen} buttonText="View Attendees"/>
-        </div>
-        }
+        
       </Card.Body>
 
     </Card>

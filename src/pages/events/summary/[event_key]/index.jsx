@@ -1,6 +1,6 @@
 import React from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { Calendar, Clock, MapPin, User, Mail, Phone, Ticket, CreditCard, Crown, MessageSquare } from 'lucide-react';
+import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Calendar, Clock, MapPin, User, } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
 import { CUSTOM_SECONDORY } from '../../../../utils/consts';
 import { useRouter } from "next/router";
@@ -14,6 +14,7 @@ import BookingSummarySkeleton from '../../../../utils/SkeletonUtils/BookingSumma
 import { FaWhatsapp, FaSms } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import Swal from 'sweetalert2';
+import CustomBtn from '../../../../utils/CustomBtn';
 
 const BookingSummary = () => {
     const sectionIconStyle = {
@@ -30,9 +31,9 @@ const BookingSummary = () => {
     const sessionId = Array.isArray(raw) ? raw[0] : raw;
     const { event_key } = router.query; // Get eventId from URL params (e.g., AA00001)
 
-const whatsappIcon = ReactDOMServer.renderToString(<FaWhatsapp size={20} color="#25D366" />);
-const smsIcon = ReactDOMServer.renderToString(<FaSms size={20} color="#007bff" />);
-const emailIcon = ReactDOMServer.renderToString(<MdEmail size={20} color="#ff0000" />);
+    const whatsappIcon = ReactDOMServer.renderToString(<FaWhatsapp size={20} color="#25D366" />);
+    const smsIcon = ReactDOMServer.renderToString(<FaSms size={20} color="#007bff" />);
+    const emailIcon = ReactDOMServer.renderToString(<MdEmail size={20} color="#ff0000" />);
 
     const mutation = useMutation({
         mutationFn: async (sid) => {
@@ -121,8 +122,8 @@ const emailIcon = ReactDOMServer.renderToString(<MdEmail size={20} color="#ff000
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
+            month: 'short',
             year: 'numeric',
-            month: 'long',
             day: 'numeric'
         });
     };
@@ -158,94 +159,7 @@ const emailIcon = ReactDOMServer.renderToString(<MdEmail size={20} color="#ff000
                 {/* Header */}
                 <CartSteps id={'last'} />
                 <Row>
-                    {/* Left Column */}
-                    <Col lg={4} className="mb-4">
-                        {/* Event Details Card */}
-                        <Card className="custom-dark-bg mb-4">
-                            <Card.Body className="p-4">
-                                <div className="d-flex align-items-center mb-3">
-                                    <Calendar {...sectionIconStyle} />
-                                    <h5 className="text-white mb-0 fw-bold">Event Details</h5>
-                                </div>
 
-                                <h3 className="text-white fw-bold mb-4">
-                                    {event.name || 'Event Name'}
-                                </h3>
-
-                                <Row className="mb-4">
-                                    <Col xs={6}>
-                                        <div className="d-flex align-items-center">
-                                            <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Date</div>
-                                                <div className="text-white fw-bold">{getEventDates()}</div>
-                                            </div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6}>
-                                        <div className="d-flex align-items-center">
-                                            <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Time</div>
-                                                <div className="text-white fw-bold">{getEventTimes()}</div>
-                                            </div>
-                                        </div>
-                                    </Col>
-                                </Row>
-
-                                <div className="d-flex align-items-start">
-                                    <MapPin size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
-                                    <div>
-                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Venue</div>
-                                        <div className="text-white fw-bold">{event.address || 'Venue Address'}</div>
-                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>
-                                            {event.city || 'City'}, {event.state || 'State'}, {event.country || 'Country'}
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card.Body>
-                        </Card>
-
-                        {/* Contact Information Card */}
-                        {/* <Card className="custom-dark-bg">
-                            <Card.Body className="p-4">
-                                <div className="d-flex align-items-center mb-3">
-                                    <User {...sectionIconStyle} />
-                                    <h5 className="text-white mb-0 fw-bold">Contact Information</h5>
-                                </div>
-
-                                <div className="mb-3">
-                                    <div className="d-flex align-items-center">
-                                        <User size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                        <div>
-                                            <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Full Name</div>
-                                            <div className="text-white fw-bold">{user.name || 'N/A'}</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="mb-3">
-                                    <div className="d-flex align-items-center">
-                                        <Mail size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                        <div>
-                                            <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Email Address</div>
-                                            <div className="text-white fw-bold">{user.email || booking.email || 'N/A'}</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div className="d-flex align-items-center">
-                                        <Phone size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                        <div>
-                                            <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Phone Number</div>
-                                            <div className="text-white fw-bold">{user.number ? `+${user.number}` : booking.number ? `+${booking.number}` : 'N/A'}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card.Body>
-                        </Card> */}
-                    </Col>
 
                     {/* Right Column */}
                     <Col lg={8}>
@@ -302,6 +216,79 @@ const emailIcon = ReactDOMServer.renderToString(<MdEmail size={20} color="#ff000
                             attendees={attendees}
                             title="Event Attendees"
                         />
+                    </Col>
+
+                    {/* Left Column */}
+                    <Col lg={4}>
+                        {/* Event Details Card */}
+                        <Card className="custom-dark-bg mb-4">
+                            <Card.Body className="p-4">
+                                {/* <div className="d-flex align-items-center mb-3">
+                                    <Ticket {...sectionIconStyle} />
+                                    <h5 className="text-white mb-0 fw-bold">{event.name || 'Event Name'}</h5>
+                                </div> */}
+
+                                <Row className="g-3 mb-3">
+                                    <Col xs={6}>
+                                        <div className="d-flex align-items-center">
+                                            <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                                            <div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Date</div>
+                                                <div className="text-white fw-bold">{getEventDates()}</div>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col xs={6}>
+                                        <div className="d-flex align-items-center">
+                                            <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                                            <div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Time</div>
+                                                <div className="text-white fw-bold">{getEventTimes()}</div>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col xs={6}>
+                                        <div className="d-flex align-items-start">
+                                            <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+                                            <div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Booking Date</div>
+                                                <div className="text-white fw-bold">{formatDate(booking?.created_at) || 'N/A'}</div>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col xs={6}>
+                                        <div className="d-flex align-items-start">
+                                            <User size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+                                            <div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Contact Number</div>
+                                                <div className="text-white fw-bold">{user?.number || 'N/A'}</div>
+                                                {/* <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>
+                                            {event.city || 'City'}, {event.state || 'State'}, {event.country || 'Country'}
+                                        </div> */}
+                                            </div>
+                                        </div>
+                                    </Col>
+                                </Row>
+
+                                <div className="d-flex align-items-start">
+                                    <MapPin size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+                                    <div>
+                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Venue</div>
+                                        <div className="text-white fw-bold">{event.address || 'Venue Address'}</div>
+                                        {/* <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>
+                                            {event.city || 'City'}, {event.state || 'State'}, {event.country || 'Country'}
+                                        </div> */}
+                                    </div>
+                                </div>
+
+                            </Card.Body>
+                        </Card>
+                        {attendees?.length !== 0 &&
+                            <div className="d-flex gap-2 justify-content-between">
+                                <CustomBtn size='sm' variant="primary" HandleClick={handleOpen} buttonText="Download Tickets" />
+                                <CustomBtn size='sm' variant="primary" HandleClick={handleOpen} buttonText="View Attendees" />
+                            </div>
+                        }
                     </Col>
                 </Row>
             </Container>

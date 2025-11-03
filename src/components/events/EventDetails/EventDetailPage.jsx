@@ -32,15 +32,16 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
         <Container>
           <DetailsHeader eventData={eventData} event_key={event_key} />
           
-          {/* Add EventCrew component here */}
-          <EventCrew crews={eventData?.artists_list} />
-          <EventPhotoGallery eventPhotos={eventData?.event_media?.images || []} />
+        
           {/* --- Tabs Section --- */}
           <EventTabs
             eventData={eventData}
             startDate={startDate}
             endDate={endDate}
           />
+            {/* Add EventCrew component here */}
+          <EventCrew crews={eventData?.artists_list} />
+          <EventPhotoGallery eventPhotos={eventData?.event_media?.images || []} />
         </Container>
       </div>
     </Fragment>

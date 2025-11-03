@@ -8,7 +8,6 @@ import CustomBtn from "../../../../utils/CustomBtn";
 import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
 import { CheckoutSummarySection } from "../../../../components/events/CheckoutComps/CheckoutSummarySection";
 import { OrderReviewSection } from "../../../../components/events/CheckoutComps/OrderReviewSection";
-import { createOrderData } from "../../../../components/events/CheckoutComps/checkout_utils";
 import { useSelector } from "react-redux";
 import { selectCheckoutDataByKey } from "@/store/customSlices/checkoutDataSlice";
 import { api } from "@/lib/axiosInterceptor";
@@ -23,11 +22,10 @@ import { useEventData } from "../../../../services/events";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 const CartPage = () => {
   const router = useRouter();
-  const { isMobile, ErrorAlert, successAlert, UserData } = useMyContext();
+  const { isMobile, ErrorAlert, successAlert, UserData ,systemSetting } = useMyContext();
   const { event_key, k } = router.query;
   const [isLoading, setIsLoading] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [error, setError] = useState('');
   const [checkoutData, setCheckoutData] = useState(null);
   const [errorMessages, setErrorMessages] = useState([]);
@@ -46,6 +44,10 @@ const CartPage = () => {
     discountType: "",
     appliedCode: "",
   });
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isTimerExpired, setIsTimerExpired] = useState(false);
+
+
   const data = useSelector((state) =>
     k ? selectCheckoutDataByKey(state, k) : null
   );
@@ -105,7 +107,7 @@ const CartPage = () => {
       return;
     }
 
-    if (!calculatedTotal) {
+    if (!checkoutData?.data?.totalFinalAmount || checkoutData?.data?.totalFinalAmount <= 0) {
       ErrorAlert('Total amount cannot be zero');
       return;
     }
@@ -157,8 +159,8 @@ const CartPage = () => {
     if (amount < 0) amount = 0;
     if (amount > total) amount = total;
     return amount;
-  // }, [promo, orderDataBase]);
-  }, [promo, ]);
+    // }, [promo, orderDataBase]);
+  }, [promo,]);
 
   // const calculatedTotal = Number(
   //   orderDataBase.baseAmount +
@@ -176,7 +178,7 @@ const CartPage = () => {
 
   const summaryData = {
     ...checkoutData?.data,
-    discount:discountAmount,
+    discount: discountAmount,
   };
 
   useEffect(() => {
@@ -222,8 +224,42 @@ const CartPage = () => {
     });
   }, [taxData, commissionData, checkoutData]);
 
+  const validatePricingIntegrity = () => {
+    const baseAmount = Number(checkoutData?.data?.totalBaseAmount) || 0;
+    const finalAmount = Number(checkoutData?.data?.totalFinalAmount) || 0;
+    const calculatedDiscount = Number(discountAmount) || 0;
+
+    // Validate discount doesn't exceed base amount
+    if (calculatedDiscount > baseAmount) {
+      ErrorAlert('Invalid discount amount');
+      return false;
+    }
+
+    // Validate final amount is non-negative
+    if (finalAmount < 0) {
+      ErrorAlert('Invalid total amount');
+      return false;
+    }
+
+    // Log for debugging
+    // console.log('Price validation:', { baseAmount, finalAmount, calculatedDiscount });
+
+    return true;
+  };
+
+
 
   const ValidateBooking = () => {
+
+    if (isTimerExpired) {
+      ErrorAlert("Your session has expired. Please start over.");
+      router.push(`/events/cart/${event_key}`);
+      return false;
+    }
+
+    if (!validatePricingIntegrity()) {
+      return false;
+    }
 
     if (!checkoutData) {
       ErrorAlert("Checkout data is missing.");
@@ -268,6 +304,12 @@ const CartPage = () => {
 
   // Main booking process function
   const ProcessBooking = async () => {
+
+    if (isProcessing) {
+      ErrorAlert('Booking already in progress');
+      return;
+    }
+
     if (!ValidateBooking()) return;
     // Show confirmation dialog
     const result = await Swal.fire({
@@ -287,9 +329,6 @@ const CartPage = () => {
       const payload = createBookingPayload();
       const response = await initiateBooking(payload);
       await handleBookingResponse(response);
-
-
-
 
     } catch (error) {
       handleBookingError(error);
@@ -426,66 +465,106 @@ const CartPage = () => {
 
   // Initiate booking API call
   const initiateBooking = async (payload) => {
-    const apiCall = async () => {
-      return await api.post(`/initiate-payment`, payload, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        }
-      });
-    };
+    // const apiCall = async () => {
+    //   return await api.post(`/initiate-payment`, payload, {
+    //     headers: {
+    //       'Content-Type': 'multipart/form-data',
+    //     }
+    //   });
+    // };
 
-    try {
-      return await apiCall();
-    } catch (error) {
-      console.warn('Initial booking failed, retrying...');
+    const MAX_RETRIES = 1;
+    let lastError;
+
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       try {
-        return await apiCall(); // Retry once
-      } catch (retryError) {
-        console.error('Retry failed', retryError);
-        throw retryError;
+        const response = await api.post(`/initiate-payment`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            // 🔧 Add idempotency key to prevent duplicate bookings
+            'X-Idempotency-Key': `${UserData?.id}-${event_key}-${Date.now()}`
+          }
+        });
+        return response;
+      } catch (error) {
+        lastError = error;
+
+        // 🔧 Only retry on network errors (5xx), NOT on validation errors (4xx)
+        const status = error.response?.status;
+        if (status && status >= 400 && status < 500) {
+          console.error('❌ Client error, not retrying:', error.response?.data);
+          throw error; // Don't retry validation errors
+        }
+
+        if (attempt < MAX_RETRIES) {
+          console.warn(`⚠️ Attempt ${attempt + 1} failed, retrying in 1s...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
     }
+    throw lastError;
   };
 
   // Handle booking response
   const handleBookingResponse = async (response) => {
-
     // Handle free booking
-    if (summaryData.totalFinalAmount === 0 && response.data.status) {
+    if (Number(summaryData.totalFinalAmount) === 0 && response.data.status) {
       await handleFreeBooking(response.data);
-      return;
+      return;  // ✅ Exit early for free bookings
     }
 
-    // Handle paid booking
-    if (
-      response.data?.result?.status === 1 ||
-      response.data?.result?.success ||
-      response.data.status ||
-      response.data?.payment_url
-    ) {
-      // Store session data
-      const sessionData = {
-        session_id: response.data?.txnid || response.data?.order_data?.cf_order_id,
-        booking_data: checkoutData,
-        order_data: orderData
-      };
-      localStorage.setItem('ticketSession', JSON.stringify(sessionData));
+    if (response.data.status || response.data?.result?.status === 1 || response.data?.result?.success || response.data?.payment_url) {
+      // Store session data for paid bookings
+      const sessionId =
+        response.data?.txnid ||
+        response.data?.order_data?.cf_order_id ||
+        response.data?.session_id;
 
+      const sessionData = {
+        session_id: sessionId,
+        event_key: event_key,
+        timestamp: Date.now(),
+        expires: Date.now() + (15 * 60 * 1000) // 15 minutes
+      };
+
+      
+      const saveSessionData = (sdata) => {
+        try {
+          localStorage.setItem('ticketSession', JSON.stringify(sdata));
+          return true;
+        } catch (error) {
+          console.error('❌ Failed to save to localStorage:', error);
+          try {
+            sessionStorage.setItem('ticketSession', JSON.stringify(sdata));
+            return true;
+          } catch (e) {
+            console.error('❌ Failed to save to sessionStorage:', e);
+            ErrorAlert('Unable to save session. Please enable storage and try again.');
+            return false;
+          }
+        }
+      };
+
+      // return
+      if (!saveSessionData(sessionData)) {
+        throw new Error('Failed to save session data');
+      }
       // Handle Razorpay
+      // console.log('status after condition:', response.data.callback_url);
       if (response.data.callback_url) {
-        handleRazorpayPayment(response.data);
-        return;
+        handleRazorpayPayment(response.data , systemSetting);
+        return;  // ✅ Exit after initiating Razorpay
       }
 
       // Handle other payment gateways
       const paymentUrl = response.data?.url || response.data?.payment_url;
       if (paymentUrl) {
         window.location.href = paymentUrl;
+        return;  // ✅ Exit after redirect (important!)
       } else {
         throw new Error('Payment URL missing from response.');
       }
-      const sessionId = response?.bookings?.[0]?.session_id || response?.bookings?.session_id;
-      router.push(`/events/summary/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(sessionId)}`)
+
     } else {
       throw new Error('Payment initiation failed');
     }
@@ -513,12 +592,13 @@ const CartPage = () => {
   };
 
   // Handle Razorpay payment
-  const handleRazorpayPayment = (orderData) => {
+  const handleRazorpayPayment = (orderData , systemSetting) => {
+    console.log(systemSetting , 'systemSetting');
     const options = {
       key: orderData.key,
       amount: orderData.amount,
       currency: orderData.currency || 'INR',
-      name: `${systemSetting?.app_name || 'Event Booking'}`,
+      name: `${systemSetting?.app_name || 'Trava Get Your Ticket Pvt Ltd'}`,
       description: "Ticket Booking",
       order_id: orderData.order_id,
       prefill: orderData.prefill || {
@@ -531,16 +611,19 @@ const CartPage = () => {
         color: '#000',
       },
       handler: function (response) {
-        // Handle successful payment
-        console.log('Payment successful:', response);
+        console.log('💳 Payment successful:', response);
+        verifyPaymentAndRedirect(response);
       },
       modal: {
         ondismiss: function () {
-          // Handle payment cancellation
           setIsLoading(false);
+          setIsProcessing(false); // 🔧 Reset processing state
           ErrorAlert('Payment was cancelled.');
-        }
-      }
+        },
+        escape: false, // 🔧 Prevent accidental dismissal
+        backdropclose: false,
+        confirm_close: true // 🔧 Ask for confirmation
+      },
     };
 
     const rzp = new window.Razorpay(options);
@@ -549,16 +632,57 @@ const CartPage = () => {
 
   // Handle booking errors
   const handleBookingError = (error) => {
-    console.error('Booking error:', error);
+    // ✅ NEW: Specific error handling with retry option
+    let errorMessage = 'An error occurred while processing your booking.';
+    let shouldRetry = false;
 
-    const errorMessage =
-      error.response?.data?.message ||
-      error.response?.data?.error ||
-      error.message ||
-      'An error occurred while processing your booking.';
+    // Network errors
+    console.log(error, 'error');
+    if (!error.response) {
+      errorMessage = 'Network error. Please check your internet connection and try again.';
+      shouldRetry = true;
+    }
+    // Server errors (5xx)
+    else if (error.response.status >= 500) {
+      errorMessage = 'Server error. Please try again in a moment.';
+      shouldRetry = true;
+    }
+    // Client errors (4xx)
+    else if (error.response.status >= 400) {
+      errorMessage = error.response.data?.message ||
+        error.response.data?.error ||
+        'Invalid booking request. Please check your details.';
+
+      // Specific error codes
+      if (error.response.status === 409) {
+        errorMessage = 'Tickets are no longer available. Please try a different ticket.';
+      } else if (error.response.status === 401) {
+        errorMessage = 'Session expired. Please refresh and try again.';
+      }
+    }
 
     setError(errorMessage);
-    ErrorAlert(errorMessage);
+
+    // 🔧 Offer retry for recoverable errors
+    if (shouldRetry) {
+      Swal.fire({
+        title: 'Booking Failed',
+        text: errorMessage,
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonText: 'Retry',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          ProcessBooking();
+        }
+      });
+    } else {
+      ErrorAlert(errorMessage);
+    }
+
+    // 🔧 Reset processing state
+    setIsProcessing(false);
   };
 
   // Event handler for the process button
@@ -576,7 +700,11 @@ const CartPage = () => {
           id={2}
           showAttendee={checkoutData?.event?.category?.attendy_required === 1}
         />
-        <Timer timestamp={data?.timestamp} />
+        <Timer
+          timestamp={data?.timestamp}
+          navigateOnExpire={() => router.push(`/events/cart/${event_key}`)}
+          onExpire={() => setIsTimerExpired(true)}
+        />
         <Row>
           <Col lg="8" md="5">
             <CheckoutSummarySection

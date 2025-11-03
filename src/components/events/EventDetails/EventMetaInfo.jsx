@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import BookingFooterLayout from "../../../utils/BookingFooterLayout";
 import CustomBtn from "../../../utils/CustomBtn";
 import CustomDrawer from "../../../utils/CustomDrawer";
+import { CustomTooltip } from "../../../utils/CustomTooltip";
 const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const { setShowHeaderBookBtn, isMobile } = useMyContext();
   const bookBtnRef = useRef(null);
@@ -51,21 +52,23 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
           {metaInfo?.map((info, i) => (
             <div
               key={i}
-              className="custom-dark-content-bg d-flex align-items-start px-3 py-2 rounded-3 border"
+              className="cursor-pointer custom-dark-content-bg d-flex align-items-start px-3 py-2 rounded-3 border"
             >
+              <CustomTooltip text={info.description || ''} placement="bottom">
               <span className="me-3">
                 {" "}
                 <i className={info.icon}></i>
               </span>
-              <span className="text-muted" style={{ fontSize: "13px" }}>
+              {/* <span className="text-muted" style={{ fontSize: "13px" }}>
                 {info.label}
-              </span>
+              </span> */}
               <span
                 className={info.valueClass}
                 style={{ fontSize: "15px", fontWeight: 500 }}
               >
                 {info.value}
               </span>
+              </CustomTooltip>
             </div>
           ))}
         </div>

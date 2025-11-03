@@ -186,7 +186,7 @@ const CartPage = () => {
 
   // Reusable Card Header Component
   const CardHeader = ({ icon: Icon, title, iconColor = "text-warning" }) => (
-    <h5 className="mb-4 font-size-18 fw-500 text-light d-flex align-items-center gap-2">
+    <h5 className="mb-3 font-size-18 fw-500 text-light d-flex align-items-center gap-2">
       <Icon size={20} className={iconColor} /> {title}
     </h5>
   );
@@ -221,7 +221,7 @@ const CartPage = () => {
   // Event details configuration
   const eventDetails = [
     {
-      icon: Users,
+      icon: Ticket,
       label: "Event Name",
       value: event?.name || "Summer Music Festival 2024",
     },
@@ -284,7 +284,7 @@ const CartPage = () => {
           {/* Cart Totals */}
           <Col lg="4">
             <CardContainer>
-              <CardHeader icon={Ticket} title="Event Details" />
+              {/* <CardHeader icon={Ticket} title="Event Details" />œ */}
               {eventDetails.map((detail, index) => (
                 <DetailItem
                   key={detail.label}
@@ -317,11 +317,9 @@ const CartPage = () => {
                 </Table>
 
                 {/* Cart Info Box */}
-                <div className="cart-info-box my-3 p-3 rounded-3 border-dashed-thin">
-                  <span className="text-secondary small">
-                    * This is the base price for selected tickets. Additional
-                    charges including service fees, taxes, and processing fees
-                    will be calculated in the next step.
+                <div className="cart-info-box my-2 p-3 rounded-3 border-dashed-thin">
+                  <span className="text-white small">
+                    * Base price only — fees & taxes added at checkout.
                   </span>
                 </div>
 

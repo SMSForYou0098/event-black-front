@@ -16,9 +16,9 @@ const DetailsHeader = ({ eventData, event_key }) => {
     const { convertTo12HourFormat, formatDateRange } = useMyContext();
     const [showFullDesc, setShowFullDesc] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
-    const event_date =  formatDateRange(eventData?.date_range) +
-                " | " +
-                `${convertTo12HourFormat(eventData?.start_time)}` 
+    const event_date = formatDateRange(eventData?.date_range) +
+        " | " +
+        `${convertTo12HourFormat(eventData?.start_time)}`
     const metaInfo = [
         {
             icon: "fa-regular fa-bookmark", // Category icon
@@ -29,6 +29,9 @@ const DetailsHeader = ({ eventData, event_key }) => {
             icon: "fa-regular fa-calendar", // Event Type icon
             value: eventData?.event_type,
             valueClass: "fw-semibold text-capitalize",
+            description : eventData?.event_type === 'daily' ?
+            'daily ticket QR code is valid only for the specific event and date' : 
+            'season ticket QR that allows access throughout the season, but only one entry per day',
         },
         {
             icon: "fa-solid fa-location-dot", // Location icon
@@ -37,7 +40,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
         },
         {
             icon: "fa-regular fa-clock", // Date & Time icon
-            value:event_date,
+            value: event_date,
             valueClass: "fw-semibold",
         },
     ];
@@ -67,8 +70,8 @@ const DetailsHeader = ({ eventData, event_key }) => {
         setShowShareModal(true);
     };
 
-    const currentUrl = typeof window !== 'undefined' 
-        ? window.location.href 
+    const currentUrl = typeof window !== 'undefined'
+        ? window.location.href
         : '';
     return (
         <Row>
@@ -87,7 +90,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
                         src={eventData?.event_media?.thumbnail || 'https://placehold.co/500x400'}
                         alt={eventData?.name}
                         className="img-fluid rounded-4"
-                        width={300}
+                        width={200}
                         height={400}
                         priority
                         style={{ maxHeight: "400px", objectFit: "cover" }}
@@ -97,7 +100,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
             <Col lg="9" md="12" className="ps-lg-4">
                 {/* --- Main Event Info --- */}
                 <div className="d-flex justify-content-between">
-                    <h2 className="text-capitalize">{eventData?.name}</h2>
+                    <h4 className="text-primary text-capitalize">{eventData?.name}</h4>
                     <CustomBtn
                         icon={<Share2 />}
                         className="p-1 m-0"
@@ -107,7 +110,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 {/* <h5 className="text-secondary">{eventData?.tagline || 'tagline'}</h5> */}
 
                 {/* Event Description */}
-                <h4 className="text-primary">About The Event</h4>
+
                 <div ref={descRef}>
                     <div
                         className="description-content"
