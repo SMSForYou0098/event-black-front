@@ -1,18 +1,22 @@
 import React from 'react';
 import { Container, Nav } from 'react-bootstrap';
-import { User, Ticket, Heart, Gift, Settings, LifeBuoy, Headset } from 'lucide-react';
+import { User, Ticket,  Gift,  LifeBuoy, Headset } from 'lucide-react';
 
 const TABS = [
-  { id: 'overview', label: 'Overview', icon: User },
   { id: 'bookings', label: 'My Bookings', icon: Ticket },
+  // { id: 'overview', label: 'Overview', icon: User },
   // { id: 'wishlist', label: 'Wishlist', icon: Heart },
-  { id: 'rewards', label: 'Rewards', icon: Gift },
+  // { id: 'rewards', label: 'Rewards', icon: Gift },
  { id: 'support', label: 'Support', icon: Headset },
   // { id: 'settings', label: 'Settings', icon: Settings }
 ];
 
 const TabNavigation = ({ activeTab, onTabChange }) => {
-  const getActiveIndex = () => TABS.findIndex(tab => tab.id === activeTab);
+  const effectiveActive = activeTab ?? TABS[0].id;
+  const getActiveIndex = () => {
+    const idx = TABS.findIndex(tab => tab.id === effectiveActive);
+    return idx === -1 ? 0 : idx;
+  };
   const tabCount = TABS.length;
   return (
     <Container className="my-4">
@@ -35,7 +39,7 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
           {TABS.map(({ id, label, icon: IconComponent }) => (
             <Nav.Item key={id}>
               <Nav.Link
-                active={activeTab === id}
+                active={effectiveActive === id}
                 onClick={() => onTabChange(id)}
                 style={{ zIndex: 1 }}
               >

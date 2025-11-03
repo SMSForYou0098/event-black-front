@@ -16,7 +16,7 @@ const PriceData = (props) => {
           <div className="movie-price">
             <div className="d-flex align-items-center gap-2">
               {props.lowest_ticket_price === 0 ? (
-                <span className="text-success fw-bold">Free</span>
+                <span className="text-primary fw-bold">Free</span>
               ) : props.on_sale &&
                 Number(props.lowest_sale_price) < props.lowest_ticket_price ? (
                 <div className="d-flex align-items-center gap-2">

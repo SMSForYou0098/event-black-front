@@ -20,13 +20,6 @@ export const CheckoutSummarySection = ({
       delay={0.2} 
       className="custom-dark-bg summary-card border rounded-3 shadow-sm overflow-hidden"
     >
-      <PromoCodeSection
-        couponCode={couponCode}
-        setCouponCode={setCouponCode}
-        handleApplyCoupon={handleApplyCoupon}
-        promoCodeLoading={promoCodeLoading}
-      />
-
       <div className="p-4">
         <TotalAmountHeader
           summaryData={summaryData}

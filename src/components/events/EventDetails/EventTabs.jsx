@@ -18,17 +18,30 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
         <Tab.Container defaultActiveKey="description">
           <Nav
             variant="pills"
-            className="iq-custom-tab tab-bg-gredient-center d-flex nav nav-pills align-items-center text-center mb-5 justify-content-center list-inline"
-            style={{ gap: "10px" }}
+            className={[
+              "nav nav-pills d-flex flex-wrap align-items-center justify-content-center text-center",
+              "gap-2 mb-3 mb-md-5",
+            ].join(" ")}
           >
             {tabItems.map((item) => (
-              <Nav.Item key={item.key}>
-                <Nav.Link eventKey={item.key} className="d-flex align-items-center">
+              <Nav.Item
+                key={item.key}
+                className="flex-fill flex-md-grow-0"
+                style={{
+                  flexBasis: "48%", // 2 per row on mobile
+                  maxWidth: "48%", // keep it aligned
+                }}
+              >
+                <Nav.Link
+                  eventKey={item.key}
+                  className="d-flex align-items-center justify-content-center w-100"
+                >
                   {item.label}
                 </Nav.Link>
               </Nav.Item>
             ))}
           </Nav>
+
 
           <Tab.Content className="tab-content">
             <Tab.Pane eventKey="description" className="p-4  rounded">
@@ -78,17 +91,17 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 </Col>
               </Row>
             </Tab.Pane>
-            
+
             <Tab.Pane eventKey="location" className="p-4 rounded">
-  <Row>
-    <Col md="12">
-      <Card className="border-0 shadow-sm">
-        <Card.Body className="p-0">
+              <Row>
+                <Col md="12">
+                  <Card className="border-0 shadow-sm">
+                    <Card.Body className="p-0">
 
-          {/* Venue Thumbnail */}
+                      {/* Venue Thumbnail */}
 
-          {/* thumbnail and images of venue */}
-          {/* {typeof eventData?.venue?.thumbnail === "string" && eventData.venue.thumbnail ? (
+                      {/* thumbnail and images of venue */}
+                      {/* {typeof eventData?.venue?.thumbnail === "string" && eventData.venue.thumbnail ? (
             <NextImage
               src={eventData.venue.thumbnail}
               alt="Venue thumbnail"
@@ -157,21 +170,21 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
             return null;
           })()} */}
 
-          {/* Embedded Map */}
-          {eventData?.venue?.aembeded_code ? (
-            <div
-              className="ratio ratio-16x9"
-              dangerouslySetInnerHTML={{ __html: eventData.venue.aembeded_code }}
-            />
-          ) : (
-            <div className="p-3 text-muted text-center">No map available for this venue.</div>
-          )}
+                      {/* Embedded Map */}
+                      {eventData?.venue?.aembeded_code ? (
+                        <div
+                          className="ratio ratio-16x9"
+                          dangerouslySetInnerHTML={{ __html: eventData.venue.aembeded_code }}
+                        />
+                      ) : (
+                        <div className="p-3 text-muted text-center">No map available for this venue.</div>
+                      )}
 
-        </Card.Body>
-      </Card>
-    </Col>
-  </Row>
-</Tab.Pane>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </Tab.Pane>
 
 
             <Tab.Pane eventKey="additional-info" className="p-4  rounded">

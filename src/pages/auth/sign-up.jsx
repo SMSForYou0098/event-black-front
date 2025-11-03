@@ -152,18 +152,25 @@ const SignUp = () => {
             </Col>
           ))}
         </Row>
-        <Form.Group className="list-group-item d-flex align-items-center mt-5 mb-3 text-white">
-          {/* Applied the checkbox style */}
-          <Form.Check.Input
-            type="checkbox"
-            required
-            className="m-0 me-2 card-glassmorphism__checkbox"
-            style={{ width: "24px", height: "24px" }}
-          />
-          I've read and accept the
-          <Link href="/extra/terms-of-use" className="ms-1 text-primary fw-bold">
-            terms & conditions*
-          </Link>
+        <Form.Group className="list-group-item mt-5 mb-3 text-white">
+          <Form.Check className="d-flex align-items-center gap-2 flex-wrap m-0" required>
+            <Form.Check.Input
+              type="checkbox"
+              className="m-0 card-glassmorphism__checkbox"
+              style={{ width: "24px", height: "24px" }}
+              defaultChecked
+            />
+            <Form.Check.Label className="m-0 d-flex align-items-center gap-1 flex-wrap">
+              <span className="mb-0">I agreed to the</span>
+              <Link href='/terms-and-conditions'>
+                Terms & Conditions
+              </Link>
+              <span className="mb-0">and</span>
+              <Link href='/privacy-policy'>
+                Privacy Policy
+              </Link>
+            </Form.Check.Label>
+          </Form.Check>
         </Form.Group>
 
         <Row className="text-center">

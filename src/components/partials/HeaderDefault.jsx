@@ -368,21 +368,81 @@ const HeaderDefault = memo(() => {
                   </ul>
                 </Container>
               </Navbar>
-              <div className="right-panel">
-                <Button
-                  id="navbar-toggle"
-                  bsPrefix="navbar-toggler"
-                  type="button"
-                  aria-expanded={show}
-                  data-bs-toggle="collapse"
-                  className="fw-bold"
-                  data-bs-target="#navbarSupportedContent"
-                  onClick={() => setShow(!show)}
-                >
-                  <span className="navbar-toggler-btn">
-                    <span className="navbar-toggler-icon"></span>
-                  </span>
-                </Button>
+              <div className="right-panel d-flex align">
+                <div className={`search-box d-flex align-items-center ${isOpen ? "show" : ""} `}>
+                  <Dropdown show={isOpen} onToggle={handleToggle}>
+                    <Dropdown.Toggle
+                      as={CustomToggle}
+                      href="#"
+                      variant="nav-link p-0"
+                      onClick={handleToggleClick}
+                    >
+                      <div className="btn-icon btn-sm rounded-pill btn-action">
+                        <span className="btn-inner">
+                          <SearchIcon size={20} />
+                        </span>
+                      </div>
+                    </Dropdown.Toggle>
+                  </Dropdown>
+                </div>
+                {isLoggedIn ? (
+                  <Dropdown as="li" className="">
+                    <Dropdown.Toggle
+                      as={CustomToggle}
+                      href="#"
+                      variant=" nav-link d-flex align-items-center"
+                      size="sm"
+                      id="dropdownMenuButton1"
+                    >
+                      <div className="btn-icon rounded-pill user-icons">
+                        <span className="btn-inner">
+                          <UserIcon size={18} />
+                        </span>
+                      </div>
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu
+                      as="ul"
+                      className="dropdown-menu-end dropdown-user border-0 p-0 m-0"
+                    >
+                      <li className="user-info d-flex align-items-center gap-3 mb-3">
+                        <AvatarImage src={UserData.photo} alt="Profile" name={UserData.name} size={43} />
+                        <span className="font-size-14 fw-500 text-capitalize text-white">
+                          {UserData?.name}
+                        </span>
+                      </li>
+                      <li>
+                        <Link href="/profile" className="iq-sub-card d-flex align-items-center gap-3">
+                          <UserIcon size={16} />
+                          <h6 className="mb-0 font-size-14 fw-normal">My Profile</h6>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/extra/pricing-plan" className="iq-sub-card d-flex align-items-center gap-3">
+                          <CreditCardIcon size={16} />
+                          <h6 className="mb-0 font-size-14 fw-normal">Bookings</h6>
+                        </Link>
+                      </li>
+                      <li>
+                        <Button
+                          href="/auth/login"
+                          className="border-0 iq-sub-card iq-logout-2 mt-1 d-flex justify-content-center gap-2"
+                          onClick={handleLogout}
+                        >
+                          <LogOutIcon size={16} />
+                          <h6 className="mb-0 font-size-14 fw-normal">Logout</h6>
+                        </Button>
+                      </li>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                ) : (
+                  <CustomBtn
+                    style={{ padding: "8px 16px" }}
+                    buttonText={"Login"}
+                    className={"ms-3"}
+                    icon={<Fingerprint size={20} />}
+                    HandleClick={() => location.push("/auth/login")}
+                  />
+                )}
                 <div
                   className={`fw-bold navbar-collapse ${show === true ? "collapse show" : "collapse"}`}
                   id="navbarSupportedContent"
@@ -397,92 +457,32 @@ const HeaderDefault = memo(() => {
                         size="sm"
                         style={{
                           height: "3rem",
-                          marginRight : '1rem',
+                          marginRight: '1rem',
                           fontSize: "16px",
                         }} Ï
                         buttonText="Book Now"
                       />
                     )}
-                    <Dropdown as="li" className="nav-item dropdown iq-responsive-menu">
-                      <div className={`search-box ${isOpen ? "show" : ""}`}>
-                        <Dropdown show={isOpen} onToggle={handleToggle}>
-                          <Dropdown.Toggle
-                            as={CustomToggle}
-                            href="#"
-                            variant="nav-link p-0"
-                            onClick={handleToggleClick}
-                          >
-                            <div className="btn-icon btn-sm rounded-pill btn-action">
-                              <span className="btn-inner">
-                                <SearchIcon size={20} />
-                              </span>
-                            </div>
-                          </Dropdown.Toggle>
-                        </Dropdown>
-                      </div>
-                    </Dropdown>
-
-                    {isLoggedIn ? (
-                      <Dropdown as="li" className="nav-item">
-                        <Dropdown.Toggle
-                          as={CustomToggle}
-                          href="#"
-                          variant=" nav-link d-flex align-items-center"
-                          size="sm"
-                          id="dropdownMenuButton1"
-                        >
-                          <div className="btn-icon rounded-pill user-icons">
-                            <span className="btn-inner">
-                              <UserIcon size={18} />
-                            </span>
-                          </div>
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu
-                          as="ul"
-                          className="dropdown-menu-end dropdown-user border-0 p-0 m-0"
-                        >
-                          <li className="user-info d-flex align-items-center gap-3 mb-3">
-                            <AvatarImage src={UserData.photo} alt="Profile" name={UserData.name} size={43} />
-                            <span className="font-size-14 fw-500 text-capitalize text-white">
-                              {UserData?.name}
-                            </span>
-                          </li>
-                          <li>
-                            <Link href="/profile" className="iq-sub-card d-flex align-items-center gap-3">
-                              <UserIcon size={16} />
-                              <h6 className="mb-0 font-size-14 fw-normal">My Profile</h6>
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/extra/pricing-plan" className="iq-sub-card d-flex align-items-center gap-3">
-                              <CreditCardIcon size={16} />
-                              <h6 className="mb-0 font-size-14 fw-normal">Bookings</h6>
-                            </Link>
-                          </li>
-                          <li>
-                            <Button
-                              href="/auth/login"
-                              className="border-0 iq-sub-card iq-logout-2 mt-1 d-flex justify-content-center gap-2"
-                              onClick={handleLogout}
-                            >
-                              <LogOutIcon size={16} />
-                              <h6 className="mb-0 font-size-14 fw-normal">Logout</h6>
-                            </Button>
-                          </li>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    ) : (
-                      <CustomBtn
-                        style={{ padding: "8px 16px" }}
-                        buttonText={"Login"}
-                        className={"ms-3"}
-                        icon={<Fingerprint size={20} />}
-                        HandleClick={() => location.push("/auth/login")}
-                      />
-                    )}
+                    {/* <Dropdown as="li" className="nav-item dropdown iq-responsive-menu">
+                      
+                    </Dropdown> */}
                   </ul>
                 </div>
-              </div>
+                {/* <Button
+                  id="navbar-toggle"
+                  bsPrefix="navbar-toggler"
+                  type="button"
+                  aria-expanded={show}
+                  data-bs-toggle="collapse"
+                  className="fw-bold"
+                  data-bs-target="#navbarSupportedContent"
+                  onClick={() => setShow(!show)}
+                >
+                  <span className="navbar-toggler-btn">
+                    <span className="navbar-toggler-icon"></span>
+                  </span>
+                </Button> */}
+              </div>   
             </div>
           </Container>
         </Navbar>

@@ -198,13 +198,13 @@ const OTT = memo(() => {
       </LazySection>
       
       {/* Low priority: Load only when visible */}
-      <LazySection 
+      {/* <LazySection 
         fallback={<SectionSkeleton title="Past Events" />}
         threshold={0.1}
         rootMargin="50px"
       >
         <ExpiredEvents />
-      </LazySection>
+      </LazySection> */}
       
       {/* Footer: Load when approaching */}
       <LazySection 

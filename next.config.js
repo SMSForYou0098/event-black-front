@@ -20,10 +20,10 @@ const nextConfig = {
   },
   images: {
   remotePatterns: [
-    {
-      protocol: 'http',
-      hostname: 'dark.getyourticket.in',
-    },
+    // {
+    //   protocol: 'http',
+    //   hostname: 'dark.getyourticket.in',
+    // },
     {
       protocol: 'https',
       hostname: 'dark.getyourticket.in',

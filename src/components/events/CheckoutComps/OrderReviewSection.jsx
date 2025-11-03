@@ -1,16 +1,18 @@
 import { Ticket } from "lucide-react";
-import { MotionWrapper, TicketDataSummary } from "./checkout_utils";
+import { MotionWrapper, PromoCodeSection, TicketDataSummary } from "./checkout_utils";
+import { Form } from "react-bootstrap";
 
-export const OrderReviewSection = ({
-  isMobile,
-  validatedData,
-  summayData,
-  handleProcess,
-  BookingMobileFooter,
-  CustomBtn,
-  Link,
-  isLoading
-}) => {
+export const OrderReviewSection = (props) => {
+  const {
+    isMobile,
+    validatedData,
+    summaryData,
+    handleProcess,
+    BookingMobileFooter,
+    CustomBtn,
+    Link,
+    isLoading
+  } = props
   const eventName = validatedData?.event?.name || "Event Name";
   const ticketName = validatedData?.data?.category || "Ticket Name";
   const isSale = Number(validatedData?.data?.sale) === 1;
@@ -36,18 +38,22 @@ export const OrderReviewSection = ({
           processingFee={processingFee}
           total={total}
         />
-        <div className=" d-flex flex-column align-items-center p-4">
-          <small className="text-center mb-2">
-            Your personal data will be used to process your order, support your
-            experience throughout this website, and for other purposes described
-            in our <Link href="/extra/privacy-policy">privacy policy</Link>.
-          </small>
+        <div className=" d-flex flex-column align-items-center ">
+          <Form.Check className="d-flex align-items-center gap-2 m-0">
+            <Form.Check.Input type="checkbox" defaultChecked />
+            <Form.Check.Label className="m-0">
+              <small className="text-center m-0">
+                I agree to all terms and conditions, privacy policy and ticket terms
+              </small>
+            </Form.Check.Label>
+          </Form.Check>
           <div className="d-block d-sm-none">
             <BookingMobileFooter
               handleClick={handleProcess}
               selectedTickets={validatedData?.data}
             />
           </div>
+          <PromoCodeSection {...props}/>
           <div className="d-none d-sm-block">
             <div className="d-flex align-items-center justify-content-between gap-3">
               <CustomBtn

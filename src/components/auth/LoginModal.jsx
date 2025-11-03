@@ -704,16 +704,6 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                 </div>
               </div>
             </Form>
-            <p className="text-center">
-              Already have an account?{" "}
-              <Button
-                variant="link"
-                onClick={() => setCurrentView(MODAL_VIEWS.SIGN_IN)}
-                className="p-0"
-              >
-                Sign in
-              </Button>
-            </p>
           </>
         ) : currentView === MODAL_VIEWS.PASSWORD ? (
           <Form noValidate onSubmit={handleVerifyPassword}>
