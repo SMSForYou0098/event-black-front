@@ -90,7 +90,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
                         src={eventData?.event_media?.thumbnail || 'https://placehold.co/500x400'}
                         alt={eventData?.name}
                         className="img-fluid rounded-4"
-                        width={200}
+                        width={310}
                         height={400}
                         priority
                         style={{ maxHeight: "400px", objectFit: "cover" }}

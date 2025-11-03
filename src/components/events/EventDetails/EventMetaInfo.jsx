@@ -6,6 +6,7 @@ import BookingFooterLayout from "../../../utils/BookingFooterLayout";
 import CustomBtn from "../../../utils/CustomBtn";
 import CustomDrawer from "../../../utils/CustomDrawer";
 import { CustomTooltip } from "../../../utils/CustomTooltip";
+import CustomBadge from "../../../utils/ProfileUtils/getBadgeClass";
 const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const { setShowHeaderBookBtn, isMobile } = useMyContext();
   const bookBtnRef = useRef(null);
@@ -103,7 +104,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                     return (
                       <>
                         ₹{displayPrice} <span className="fw-normal">Onwards</span>
-                        {showSaleBadge && <Badge bg="danger" className="ms-2">On Sale</Badge>}
+                        {showSaleBadge && <CustomBadge variant="outline-primary" className="ms-2">On Sale</CustomBadge>}
                       </>
                     );
                   })()}
