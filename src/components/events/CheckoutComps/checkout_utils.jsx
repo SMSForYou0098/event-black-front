@@ -136,20 +136,18 @@ export const ETicketAlert = () => (
     <Alert variant="success" className="mb-4 border-0 shadow-sm">
       <div className="d-flex align-items-center mb-2">
         <Receipt size={20} className="me-2" />
-        <strong>E-Ticket Terms and Conditions</strong>
-      </div>
-      <div className="mb-2" style={{ fontWeight: 500 }}>
         <span>E-Ticket saves the planet. Go for eco-clean.</span>
       </div>
+      <div className="mb-2" style={{ fontWeight: 500 }}>
+      </div>
       <ol className="mt-2 mb-0">
+ 
         <li>
-          Customers can access their tickets from the{" "}
-          <b>"My Profile"</b> section on the mobile web.
+        View tickets in 'My Profile' on mobile web.
         </li>
-        <li>It is mandatory to present the ticket at the venue.</li>
+        <li>E-ticket required for entry. Download and present at the venue.</li>
         <li>
-          No physical tickets are required to enter the venue.
-          Download E-ticket before visiting the event venue.
+        Check our entry guide video on YouTube & Inst agram.
         </li>
       </ol>
     </Alert>
@@ -258,11 +256,6 @@ export const TicketDataSummary = (props) => {
   return (
     <Card className="mb-4 custom-dark-bg">
       <Card.Body className="p-4">
-        {/* <div className="d-flex align-items-center mb-3">
-          <Ticket {...sectionIconStyle} />
-          <h5 className="text-white mb-0 fw-bold">Ticket Details</h5>
-        </div> */}
-
         <div className="d-flex justify-content-between align-items-start mb-3">
           <div>
             <div className="text-white fw-bold fs-5">

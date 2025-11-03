@@ -102,6 +102,7 @@ const CartPage = () => {
       city: event?.city,
       user_id: event?.user_id,
       category: categoryData?.categoryData,
+      tax_data: event?.tax_data,
     };
 
     const selectedTicket = cartItems.find(
@@ -273,7 +274,7 @@ const CartPage = () => {
           <Col lg="8">
             <BookingTickets
               cartItems={cartItems}
-              // onQuantityChange={handleQuantityChange}
+              tax_data={event?.tax_data}
               isMobile={isMobile}
               selectedTickets={selectedTickets}
               setSelectedTickets={setSelectedTickets}

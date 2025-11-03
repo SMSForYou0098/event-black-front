@@ -22,7 +22,7 @@ import { useEventData } from "../../../../services/events";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 const CartPage = () => {
   const router = useRouter();
-  const { isMobile, ErrorAlert, successAlert, UserData ,systemSetting } = useMyContext();
+  const { isMobile, ErrorAlert, successAlert, UserData, systemSetting } = useMyContext();
   const { event_key, k } = router.query;
   const [isLoading, setIsLoading] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -149,26 +149,18 @@ const CartPage = () => {
   const discountAmount = useMemo(() => {
     let amount = 0;
     // const total = orderDataBase.baseAmount + orderDataBase.cgst + orderDataBase.sgst + orderDataBase.convenienceFees;
-    const total = checkoutData?.data?.totalFinalAmount
+    const total = checkoutData?.data?.totalBaseAmount
     //console.log('Calculating discount for total:', total, 'with promo:', promo);
-    if (promo.discountType === "Percentage") {
+    if (promo.discountType == "percentage") {
       amount = (Number(total) * Number(promo.discount)) / 100;
-    } else if (promo.discountType === "fixed") {
+    } else if (promo.discountType == "fixed") {
       amount = Number(promo.discount);
     }
     if (amount < 0) amount = 0;
     if (amount > total) amount = total;
     return amount;
     // }, [promo, orderDataBase]);
-  }, [promo,]);
-
-  // const calculatedTotal = Number(
-  //   orderDataBase.baseAmount +
-  //   orderDataBase.cgst +
-  //   orderDataBase.sgst +
-  //   orderDataBase.convenienceFees
-  //   - discountAmount
-  // ).toFixed(2);
+  }, [promo]);
 
   const orderData = {
     // ...orderDataBase,
@@ -340,10 +332,9 @@ const CartPage = () => {
 
   // Create booking payload
   const createBookingPayload = () => {
-    let finalTicketData = checkoutData.data;
-    const formData = new FormData();
-    const quantity = Number(finalTicketData?.quantity) || 0;
 
+    const formData = new FormData();
+    const quantity = Number(summaryData?.quantity) || 0;
     // helper: detect file-like objects and extract the actual File/Blob
     const extractFile = (v) => {
       if (!v) return null;
@@ -381,28 +372,27 @@ const CartPage = () => {
     formData.append('event_type', checkoutData?.event?.event_type || '');
 
     // Ticket info
-    formData.append('ticket_id', finalTicketData.id ? String(finalTicketData.id) : '');
-    formData.append('ticket_price', String(finalTicketData?.price ?? '0'));
+    formData.append('ticket_id', summaryData.id ? String(summaryData.id) : '');
+    formData.append('ticket_price', String(summaryData?.price ?? '0'));
     formData.append('quantity', String(quantity));
 
     // Pricing
 
     // new payload
-    const fieldsToDiscard = ['price', 'id']; // example
-
-    Object.entries(finalTicketData)
+    const fieldsToDiscard = ['price', 'id', 'discount', 'totalFinalAmount']; // example
+    formData.append
+    Object.entries(summaryData)
       .filter(([key]) => !fieldsToDiscard.includes(key))
       .forEach(([key, value]) => {
         formData.append(key, String(value));
       });
-    // formData.append('amount', String(orderData?.total ?? '0'));
-    // formData.append('base_amount', String(orderData?.subtotal ?? (checkoutData?.data?.totalBaseAmount ) ?? '0'));
-    // formData.append('discount', String(orderData?.discount ?? '0'));
-    // formData.append('convenience_fees', String(orderData?.convenienceFees ?? '0'));
 
-    // formData.append('cgst', String(orderData?.cgst ?? '0'));
-    // formData.append('sgst', String(orderData?.sgst ?? '0'));
-    // formData.append('total_tax', String((Number(orderData?.cgst || 0) + Number(orderData?.sgst || 0))));
+    const round2 = (n) => +Number(n ?? 0).toFixed(2);
+    const gross = round2(summaryData?.totalFinalAmount);
+    const discount = round2(summaryData?.discount);
+    const payable = Math.max(0, round2(gross - discount));
+
+    formData.append('totalFinalAmount', String(payable));
 
     // Promo
     if (promo?.appliedCode) formData.append('promo_code', promo.appliedCode);
@@ -527,7 +517,7 @@ const CartPage = () => {
         expires: Date.now() + (15 * 60 * 1000) // 15 minutes
       };
 
-      
+
       const saveSessionData = (sdata) => {
         try {
           localStorage.setItem('ticketSession', JSON.stringify(sdata));
@@ -552,7 +542,7 @@ const CartPage = () => {
       // Handle Razorpay
       // console.log('status after condition:', response.data.callback_url);
       if (response.data.callback_url) {
-        handleRazorpayPayment(response.data , systemSetting);
+        handleRazorpayPayment(response.data, systemSetting);
         return;  // ✅ Exit after initiating Razorpay
       }
 
@@ -592,8 +582,7 @@ const CartPage = () => {
   };
 
   // Handle Razorpay payment
-  const handleRazorpayPayment = (orderData , systemSetting) => {
-    console.log(systemSetting , 'systemSetting');
+  const handleRazorpayPayment = (orderData, systemSetting) => {
     const options = {
       key: orderData.key,
       amount: orderData.amount,
@@ -719,9 +708,11 @@ const CartPage = () => {
             />
           </Col>
           <Col lg="4" md="5">
+
             <OrderReviewSection
               isMobile={isMobile}
               orderData={orderData}
+              discount={discountAmount}
               summaryData={summaryData}
               event={checkoutData?.event}
               ticketdata={checkoutData?.ticket}
@@ -732,6 +723,11 @@ const CartPage = () => {
               CustomBtn={CustomBtn}
               Link={Link}
               isLoading={isLoading}
+              // promo code props
+              couponCode={couponCode}
+              setCouponCode={setCouponCode}
+              handleApplyCoupon={handleApplyCoupon}
+              promoCodeLoading={applyCouponMutation.isPending}
             />
 
           </Col>
