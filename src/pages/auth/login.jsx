@@ -7,7 +7,7 @@ import { signIn, getSession } from "next-auth/react";
 import { publicApi } from "@/lib/axiosInterceptor";
 import { useMyContext } from "@/Context/MyContextProvider";
 import AuthLayout from "@/layouts/AuthLayout";
-import { Home } from "lucide-react";
+import { ChevronRight, Home } from "lucide-react";
 import CustomBtn from "../../utils/CustomBtn";
 import ShakyButton from "@/utils/ShakyButton";
 import { setAuthToken, setUserData } from "../../utils/cookieUtils";
@@ -39,32 +39,32 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     setIsSubmitting(true);
     setError("");
-    
+
     try {
       const result = await signIn('google', {
         redirect: false,
-        callbackUrl: '/' 
+        callbackUrl: '/'
       });
-      
+
       if (result?.error) {
         setError('Google sign-in failed. Please try again.');
         console.error('NextAuth error:', result.error);
       } else if (result?.ok) {
         // Get the session which contains backend response
         const session = await getSession();
-        
+
         if (session?.sessionData) {
           // Update Redux state with backend authentication data
           const { token, user } = session.sessionData;
-          
+
           // Store token in cookies/localStorage (using your existing utility)
           if (token) {
             setAuthToken(token);
           }
-          
+
           if (user) {
             setUserData(user);
-            
+
             // Update Redux auth state
             dispatch({
               type: 'auth/loginSuccess', // or whatever action you use
@@ -75,7 +75,7 @@ const Login = () => {
               }
             });
           }
-          
+
           // Redirect to home or dashboard
           router.push('/');
         } else {
@@ -203,13 +203,14 @@ const Login = () => {
 
         <Form.Group className="mb-3">
           <Row className="g-2">
-          <Col xs={12} lg={6} md={6}>
+            <Col xs={12} lg={6} md={6}>
               <ShakyButton
                 shake={shake}
                 onShakeComplete={() => setShake(false)}
                 type="submit"
+                icon={<ChevronRight/>}
                 disabled={isSubmitting || loading}
-                buttonText={isSubmitting || loading ? "Processing..." : "Next"}
+                buttonText={isSubmitting || loading ? "Processing..." : "Sign In"}
                 className="w-100 btn-sm"
               />
             </Col>
@@ -226,37 +227,37 @@ const Login = () => {
           </Row>
         </Form.Group>
       </Form>
-      <Form.Group className="list-group-item mt-5 mb-3 text-white">
-          <Form.Check className="d-flex align-items-center gap-2 flex-wrap m-0" required>
-            <Form.Check.Input
-              type="checkbox"
-              className="m-0 card-glassmorphism__checkbox"
-              style={{ width: "24px", height: "24px" }}
-              defaultChecked
-            />
-            <Form.Check.Label className="m-0 d-flex align-items-center gap-1 flex-wrap">
-              <span className="mb-0">I agreed to the</span>
-              <Link href='/terms-and-conditions'>
-                Terms & Conditions
-              </Link>
-              <span className="mb-0">and</span>
-              <Link href='/privacy-policy'>
-                Privacy Policy
-              </Link>
-            </Form.Check.Label>
-          </Form.Check>
-        </Form.Group>
+      <Form.Group className="list-group-item text-white align-items-center d-flex gap-2 ">
+        <Form.Check className="ps-0 m-0" required>
+          <Form.Check.Input
+            type="checkbox"
+            className="m-0 card-glassmorphism__checkbox"
+            style={{ width: "24px", height: "24px" }}
+            defaultChecked
+          />
+        </Form.Check>
+        <Form.Check.Label className="m-0 text-small d-block">
+          <span className="mb-0">I agreed to the</span>
+          <Link href='/terms-and-conditions'>
+            &nbsp;Terms & Conditions&nbsp;
+          </Link>
+          <span className="mb-0">and</span>
+          <Link href='/privacy-policy'>
+            &nbsp;Privacy Policy
+          </Link>
+        </Form.Check.Label>
+      </Form.Group>
 
       {/* Social Login Section */}
-      <div className="text-center mb-3">
+      {/* <div className="text-center">
         <div className="position-relative">
           <span className="">
             continue with
           </span>
         </div>
-      </div>
+      </div> */}
 
-      <Row className="g-2">
+      {/* <Row className="g-2">
         <Col xs={12} lg={6} md={6}>
           <CustomBtn
             variant="outline-light"
@@ -296,15 +297,15 @@ const Login = () => {
           >
           </CustomBtn>
         </Col>
-      </Row>
+      </Row> */}
 
-      <p className="my-4 text-center fw-500 text-white">
+      <p className="my-2 text-center fw-500 text-white">
         Login as organizer?{" "}
-        <Link 
-        // href="https://admin.getyourticket.in/" 
-        href={`${process.env.NEXT_PUBLIC_ADMIN_ROUTE}`} 
+        <Link
+          // href="https://admin.getyourticket.in/" 
+          href={`${process.env.NEXT_PUBLIC_ADMIN_ROUTE}`}
           className="text-primary ms-1"
-          >
+        >
           Click Here
         </Link>
       </p>

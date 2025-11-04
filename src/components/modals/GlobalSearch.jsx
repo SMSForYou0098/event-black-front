@@ -215,7 +215,7 @@ const GlobalSearch = ({ show, handleShow }) => {
       centered
       className="trending-modal"
     >
-      <Modal.Header closeButton className="border-0 pb-2">
+      <Modal.Header className="border-0 pb-2">
         <Modal.Title className="w-100">
           <Form.Control
             type="text"

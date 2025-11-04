@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Row, Col, Card, Image } from "react-bootstrap";
 import { useMyContext } from "@/Context/MyContextProvider";
-
+import Logo from "@/components/partials/Logo";
 const AuthLayout = ({ children }) => {
   const { systemSetting } = useMyContext();
   return (
@@ -21,11 +21,7 @@ const AuthLayout = ({ children }) => {
             <Col lg="5" md="12" className="align-self-center">
               <Card className="user-login-card p-4 card-glassmorphism">
                 <div className="text-center">
-                  <Image
-                    height={150}
-                    src={systemSetting?.auth_logo || "/path/to/default/logo.png"}
-                    alt="Logo"
-                  />
+                  <Logo size={80} />
                 </div>
                 {children}
               </Card>

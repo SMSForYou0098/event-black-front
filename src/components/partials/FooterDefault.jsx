@@ -4,6 +4,8 @@ import { Container, Row, Col, Image } from "react-bootstrap";
 import { useQuery } from '@tanstack/react-query';
 import { getFooterData } from "@/services/home";
 import DOMPurify from 'dompurify';
+import { MailCheck } from "lucide-react";
+import Logo from "./Logo";
 
 const FooterMega = memo(() => {
   const [animationClass, setAnimationClass] = useState("animate__fadeIn");
@@ -72,6 +74,27 @@ const FooterMega = memo(() => {
       </footer>
     );
   }
+const footerStaticData = {
+  groups: [
+    {
+      id: 1,
+      title: "Company",
+      footer_menu: [
+        { id: 1, title: "About Us", page_id: "about-us" },
+        { id: 2, title: "Contact Us", page_id: "contact-us" },
+        { id: 5, title: "FAQ", page_id: "faq" },
+      ],
+    },
+    {
+      id: 2,
+      title: "Legal",
+      footer_menu: [
+        { id: 3, title: "Privacy Policy", page_id: "privacy-policy" },
+        { id: 4, title: "Terms & Conditions", page_id: "terms-and-conditions" },
+      ],
+    },
+  ],
+};
 
   return (
     <>
@@ -84,52 +107,28 @@ const FooterMega = memo(() => {
                   {/* Logo and Contact Section */}
                   <Col xl={3} lg={6} className="mb-5 mb-lg-0">
                     <div className="footer-logo">
-                      {data.config.footer_logo ? (
-                        <Image
-                          height={60}
-                          src={data.config.footer_logo}
-                          alt="Footer Logo"
-                        />
-                      ) : (
-                        <h4 className="text-white">Your Logo</h4>
-                      )}
+                      <Logo size={120} />
                     </div>
-                    {data.config.footer_email && (
                       <p className="mb-4 font-size-14">
-                        Email us:{" "}
+                        <MailCheck color="var(--bs-primary)" /> {" "}
                         <a
-                          href={`mailto:${data.config.footer_email}`}
+                          href={`mailto:${'contact@getyourticket.in'}`}
                           className="text-white"
                         >
-                          {data.config.footer_email}
+                          {'contact@getyourticket.in'}
                         </a>
                       </p>
-                    )}
-                    {data.config.footer_contact && (
-                      <>
-                        <p className="text-uppercase letter-spacing-1 font-size-14 mb-1">
-                          customer services
-                        </p>
-                        <p className="mb-0 contact text-white">
-                          {data.config.footer_contact}
-                        </p>
-                      </>
-                    )}
-                  </Col>
-
-                  <Col xl={3} lg={6} className="mb-5 mb-lg-0">
-                    Dynamic options or static options
                   </Col>
 
                   {/* Dynamic Footer Link Groups - Limited to 2 groups for layout */}
-                  {data.groups.slice(0, 2).map((group, index) => (
-                    <Col xl={2} lg={6} className="mb-5 mb-lg-0" key={group.id}>
+                  {footerStaticData.groups.map((group, index) => (
+                    <Col xl={3} lg={6} className="mb-5 mb-lg-0" key={group.id}>
                       <h4 className="footer-link-title">{group.title}</h4>
                       <ul className="list-unstyled footer-menu">
                         {group.footer_menu.map((link) => (
                           <li className="mb-3" key={link.id}>
                             <Link
-                              href={`/page/${link.page_id}`}
+                              href={`/${link.page_id}`}
                               className="ms-3"
                             >
                               {link.title}
@@ -139,25 +138,6 @@ const FooterMega = memo(() => {
                       </ul>
                     </Col>
                   ))}
-
-                  {/* Additional group if exists */}
-                  {/* {data.groups[2] && (
-                    <Col xl={2} lg={6} className="mb-5 mb-lg-0">
-                      <h4 className="footer-link-title">{data.groups[2].title}</h4>
-                      <ul className="list-unstyled footer-menu">
-                        {data.groups[2].footer_menu.map((link) => (
-                          <li className="mb-3" key={link.id}>
-                            <Link
-                              href={`/page/${link.page_id}`}
-                              className="ms-3"
-                            >
-                              {link.title}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </Col>
-                  )} */}
 
                   {/* Newsletter and Social Media Section */}
                   <Col xl={3} lg={6}>

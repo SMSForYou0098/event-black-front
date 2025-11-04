@@ -63,7 +63,7 @@ const SupportOptions = () => {
                     variant={buttonVariant} 
                     size="sm" 
                     buttonText={buttonText}
-                    onClick={action}
+                    HandleClick={action}
                   />
                 </Col>
               </Row>

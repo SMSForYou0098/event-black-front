@@ -18,7 +18,7 @@ import toast from "react-hot-toast";
 import { PasswordField } from "../../components/auth/CustomFormFields";
 import AuthLayout from "@/layouts/AuthLayout";
 import CustomBtn from "@/utils/CustomBtn";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const VerifyPassword = memo(() => {
   const router = useRouter();
@@ -117,6 +117,8 @@ const VerifyPassword = memo(() => {
       <div className="full-button">
         <CustomBtn
           type="button"
+          size="sm"
+          icon={<ChevronRight/>}
           disabled={!password || loading}
           HandleClick={handleVerification}
           buttonText={loading ? "Verifying..." : "Sign In"}

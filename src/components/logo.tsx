@@ -1,6 +1,4 @@
 import React, { memo, Fragment } from "react";
-
-//router
 import Link from "next/link";
 
 const Logo = memo(() => {

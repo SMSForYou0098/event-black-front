@@ -52,11 +52,12 @@ const HeaderDefault = memo(() => {
     UserData,
     createSlug,
     isLoggedIn,
+    isMobile,
     systemSetting,
     showHeaderBookBtn,
     fetchEventCategories,
   } = useMyContext();
-
+  // console.log(isMobile, "isMobile---");
   const [isMega, setIsMega] = useState(true);
   const [categoryList, setCategoryList] = useState([]);
   const location = useRouter();
@@ -204,6 +205,7 @@ const HeaderDefault = memo(() => {
         >
           <Container fluid className="navbar-inner">
             <div className="d-flex align-items-center justify-content-between w-100 landing-header">
+                <Logo size={150} />
               <div className="d-flex gap-3 gap-xl-0 align-items-center">
                 <div>
                   <button
@@ -368,7 +370,7 @@ const HeaderDefault = memo(() => {
                   </ul>
                 </Container>
               </Navbar>
-              <div className="right-panel d-flex align">
+              <div className="right-panel d-flex ">
                 <div className={`search-box d-flex align-items-center ${isOpen ? "show" : ""} `}>
                   <Dropdown show={isOpen} onToggle={handleToggle}>
                     <Dropdown.Toggle
@@ -377,7 +379,7 @@ const HeaderDefault = memo(() => {
                       variant="nav-link p-0"
                       onClick={handleToggleClick}
                     >
-                      <div className="btn-icon btn-sm rounded-pill btn-action">
+                      <div className="btn-icon btn-sm rounded-pill btn-action text-white">
                         <span className="btn-inner">
                           <SearchIcon size={20} />
                         </span>
@@ -437,7 +439,7 @@ const HeaderDefault = memo(() => {
                 ) : (
                   <CustomBtn
                     style={{ padding: "8px 16px" }}
-                    buttonText={"Login"}
+                    buttonText={!isMobile && "Login"}
                     className={"ms-3"}
                     icon={<Fingerprint size={20} />}
                     HandleClick={() => location.push("/auth/login")}

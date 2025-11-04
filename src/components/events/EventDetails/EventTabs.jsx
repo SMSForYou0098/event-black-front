@@ -9,39 +9,37 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
     { key: "location", label: "Location" },
     { key: "layout", label: "Layout" },
     { key: "additional-info", label: "Event Info" },
-    { key: "organizer", label: "Organizer" },
+    // { key: "organizer", label: "Organizer" },
     { key: "terms", label: "Terms" },
   ];
   return (
-    <div className="px-0">
+    <div className="mt-3">
       <div className="product-detail-tab" id="event-details">
         <Tab.Container defaultActiveKey="description">
           <Nav
             variant="pills"
-            className={[
-              "nav nav-pills d-flex flex-wrap align-items-center justify-content-center text-center",
-              "gap-2 mb-3 mb-md-5",
-            ].join(" ")}
+            className="nav nav-pills mb-3 mb-md-5"
           >
-            {tabItems.map((item) => (
-              <Nav.Item
-                key={item.key}
-                className="flex-fill flex-md-grow-0"
-                style={{
-                  flexBasis: "48%", // 2 per row on mobile
-                  maxWidth: "48%", // keep it aligned
-                }}
-              >
-                <Nav.Link
-                  eventKey={item.key}
-                  className="d-flex align-items-center justify-content-center w-100"
+            <Row className="w-100 g-2">
+              {tabItems.map((item) => (
+                <Col 
+                  xs={6} 
+                  md="auto" 
+                  key={item.key}
+                  className="flex-md-fill"
                 >
-                  {item.label}
-                </Nav.Link>
-              </Nav.Item>
-            ))}
+                  <Nav.Item className="w-100">
+                    <Nav.Link
+                      eventKey={item.key}
+                      className="d-flex align-items-center justify-content-center w-100 rounded-3"
+                    >
+                      {item.label}
+                    </Nav.Link>
+                  </Nav.Item>
+                </Col>
+              ))}
+            </Row>
           </Nav>
-
 
           <Tab.Content className="tab-content">
             <Tab.Pane eventKey="description" className="p-4  rounded">
@@ -66,23 +64,22 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 <Col md="12">
                   <Card className="border-0 shadow-sm">
                     <Card.Body className="p-0">
-                      {/* <Image  /> */}
                       {typeof eventData?.event_media?.layout_image === "string" ? (
-                        <NextImage
-                          src={eventData.event_media.layout_image}
-                          alt="Event layout image"
-                          width={800}
-                          height={600}
-                          quality={75}
-                          loading="lazy"
-                          placeholder="blur"
-                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..." // keep your tiny base64
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          style={{ width: "100%", height: "auto", objectFit: "cover" }}
-                          // onLoad={() => console.log("Image loaded")}
-                          onError={(e) => console.error("Image failed to load", e)}
-                          priority={false}
-                        />
+                        <div className="text-center">
+                          <NextImage
+                            src={eventData.event_media.layout_image}
+                            alt="Event layout image"
+                            width={400}
+                            height={600}
+                            loading="lazy"
+                            placeholder="blur"
+                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..." // keep your tiny base64
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            style={{ height: "auto", objectFit: "cover" }}
+                            onError={(e) => console.error("Image failed to load", e)}
+                            priority={false}
+                          />
+                        </div>
                       ) : (
                         <div className="p-4 text-muted">No layout image available.</div>
                       )}
@@ -97,80 +94,6 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 <Col md="12">
                   <Card className="border-0 shadow-sm">
                     <Card.Body className="p-0">
-
-                      {/* Venue Thumbnail */}
-
-                      {/* thumbnail and images of venue */}
-                      {/* {typeof eventData?.venue?.thumbnail === "string" && eventData.venue.thumbnail ? (
-            <NextImage
-              src={eventData.venue.thumbnail}
-              alt="Venue thumbnail"
-              width={1200}
-              height={675}
-              quality={75}
-              loading="lazy"
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..." // tiny base64
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
-              style={{ width: "100%", height: "auto", objectFit: "cover" }}
-              onLoad={() => console.log("Thumbnail loaded")}
-              onError={(e) => console.error("Thumbnail failed to load", e)}
-              priority={false}
-            />
-          ) : (
-            <div className="p-4 text-muted">No layout image available.</div>
-          )}
-
-          {(() => {
-            let images = [];
-            const raw = eventData?.venue?.venue_images;
-
-            try {
-              if (Array.isArray(raw)) {
-                images = raw;
-              } else if (typeof raw === "string" && raw.trim()) {
-                images = JSON.parse(raw);
-              }
-            } catch (e) {
-              console.error("Invalid venue_images format", e);
-            }
-
-            if (Array.isArray(images) && images.length > 0) {
-              return (
-                <Row className="g-3 p-3">
-                  {images.map((img, idx) => {
-                    const src = String(img || "")
-                      .replace(/\\\//g, "/")     // unescape slashes
-                      .replace(/^"+|"+$/g, "");  // strip stray quotes
-
-                    if (!src) return null;
-
-                    return (
-                      <Col key={idx} xs={12} sm={6} md={4} lg={3}>
-                        <div className="position-relative" style={{ width: "100%", aspectRatio: "4 / 3" }}>
-                          <NextImage
-                            src={src}
-                            alt={`Venue image ${idx + 1}`}
-                            fill
-                            sizes="(max-width: 576px) 100vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                            quality={75}
-                            loading="lazy"
-                            placeholder="empty"
-                            style={{ objectFit: "cover" }}
-                            onError={(e) => console.error(`Venue image ${idx + 1} failed`, e)}
-                          />
-                        </div>
-                      </Col>
-                    );
-                  })}
-                </Row>
-              );
-            }
-
-            return null;
-          })()} */}
-
-                      {/* Embedded Map */}
                       {eventData?.venue?.aembeded_code ? (
                         <div
                           className="ratio ratio-16x9"
@@ -179,13 +102,11 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                       ) : (
                         <div className="p-3 text-muted text-center">No map available for this venue.</div>
                       )}
-
                     </Card.Body>
                   </Card>
                 </Col>
               </Row>
             </Tab.Pane>
-
 
             <Tab.Pane eventKey="additional-info" className="p-4  rounded">
               <Row className="g-3">

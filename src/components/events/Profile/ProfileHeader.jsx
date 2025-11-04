@@ -26,7 +26,7 @@ const ProfileHeader = ({ user, onEditClick, onAvatarUpload, loading }) => {
             <Col md={2} xs={4} className="text-center mb-3 mb-md-0">
               <div className="position-relative d-inline-block">
                 <AvatarImage
-                  src={user.avatar}
+                  src={user.photo}
                   alt="Profile"
                   name={user.name}
                   size={isMobile ? 40 : 100}

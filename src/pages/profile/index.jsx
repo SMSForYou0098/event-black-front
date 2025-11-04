@@ -129,12 +129,11 @@ const UserProfile = () => {
     mutationFn: updateUserData,
     onSuccess: (res) => {
       refetch();
-      toast.success(res?.data?.message || res?.message || "Profile updated");
+      toast.success("Profile updated");
       handleCloseEdit();
     },
     onError: (err) => {
-      console.error("Update failed", err);
-      toast.error(err?.response?.data?.message || err?.response?.data?.error || "Update failed");
+      toast.error("Update failed");
     },
   });
 
@@ -142,6 +141,7 @@ const UserProfile = () => {
     name: "",
     email: "",
     phone: "",
+    photo:'',
   });
 
   // populate form when opening edit modal

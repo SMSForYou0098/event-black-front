@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Badge, Button, Col, Offcanvas, Row } from "react-bootstrap";
+import { Badge, Button, Col, Row } from "react-bootstrap";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useRouter } from "next/router";
 import BookingFooterLayout from "../../../utils/BookingFooterLayout";
@@ -60,9 +60,6 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                 {" "}
                 <i className={info.icon}></i>
               </span>
-              {/* <span className="text-muted" style={{ fontSize: "13px" }}>
-                {info.label}
-              </span> */}
               <span
                 className={info.valueClass}
                 style={{ fontSize: "15px", fontWeight: 500 }}
@@ -153,10 +150,10 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         />
       </div>
 
-      {/* drwaer */}
+      {/* drawer */}
       <CustomDrawer title="Booking Info" showOffcanvas={showOffcanvas} setShowOffcanvas={setShowOffcanvas}>
         <div>
-          <p>{eventData?.booking_notice}.</p>
+          <p className="p-0 m-0">{eventData?.booking_notice}.</p>
           <CustomBtn variant="primary" buttonText="Continue" HandleClick={handleContinue} className="position-relative float-end" />
         </div>
       </CustomDrawer>
