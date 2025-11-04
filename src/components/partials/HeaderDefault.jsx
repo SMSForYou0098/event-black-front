@@ -418,12 +418,12 @@ const HeaderDefault = memo(() => {
                           <h6 className="mb-0 font-size-14 fw-normal">My Profile</h6>
                         </Link>
                       </li>
-                      <li>
+                      {/* <li>
                         <Link href="/extra/pricing-plan" className="iq-sub-card d-flex align-items-center gap-3">
                           <CreditCardIcon size={16} />
                           <h6 className="mb-0 font-size-14 fw-normal">Bookings</h6>
                         </Link>
-                      </li>
+                      </li> */}
                       <li>
                         <Button
                           href="/auth/login"

@@ -104,7 +104,7 @@ const ProfileHeader = ({ user, onEditClick, onAvatarUpload, loading }) => {
                 onClick={onEditClick}
               >
                 <Settings size={16} className="me-1" />
-                Edit Profile
+                Edit
               </CustomBadge>
             </Col>
           </Row>

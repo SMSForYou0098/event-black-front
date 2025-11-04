@@ -205,8 +205,8 @@ const UserProfile = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'overview':
-        return <OverviewTab recentBookings={recentBookings} user={user} monthlyStats={monthlyStats} />;
+      // case 'overview':
+      //   return <OverviewTab recentBookings={recentBookings} user={user} monthlyStats={monthlyStats} />;
       case 'bookings':
         return <BookingsTab bookings={userBookings?.bookings} userBookings={userBookings?.bookings ?? userBookings ?? []} loading={isLoadingBookings} />;
       // case 'wishlist':
@@ -218,7 +218,7 @@ const UserProfile = () => {
       // case 'settings':
       //   return <SettingsTab />;
       default:
-        return <OverviewTab recentBookings={recentBookings} user={user} monthlyStats={monthlyStats} />;
+         return <BookingsTab bookings={userBookings?.bookings} userBookings={userBookings?.bookings ?? userBookings ?? []} loading={isLoadingBookings} />;
     }
   };
   if (isLoading) return <p>Loading...</p>;
