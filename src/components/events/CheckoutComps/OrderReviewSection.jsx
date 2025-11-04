@@ -38,12 +38,13 @@ export const OrderReviewSection = (props) => {
           processingFee={processingFee}
           total={total}
         />
+        <PromoCodeSection {...props}/>
         <div className=" d-flex flex-column align-items-center ">
           <Form.Check className="d-flex align-items-center gap-2 m-0">
             <Form.Check.Input type="checkbox" defaultChecked />
             <Form.Check.Label className="m-0">
               <small className="text-center m-0">
-                I agree to all terms and conditions, privacy policy and ticket terms
+                I agree to the <Link href='/pricing-policy'>Pricing Policy</Link>, <Link href='terms-and-conditions'>Terms & Conditions</Link> & <Link href='/privacy-policy'>Privacy Policy</Link>.
               </small>
             </Form.Check.Label>
           </Form.Check>
@@ -53,15 +54,15 @@ export const OrderReviewSection = (props) => {
               selectedTickets={validatedData?.data}
             />
           </div>
-          <PromoCodeSection {...props}/>
+          
           <div className="d-none d-sm-block">
-            <div className="d-flex align-items-center justify-content-between gap-3">
+            <div className="d-flex align-items-center justify-content-between mt-2 gap-3">
               <CustomBtn
                 style={{ background: 'rgba(255, 255, 255, 0.1)' }}
                 variant="secondary"
                 disabled={!validatedData?.data}
                 HandleClick={() => window.history.back()}
-                buttonText={"Back to Tickets"}
+                buttonText={"Back"}
                 icon={<i className="fa-solid fa-arrow-left"></i>}
               />
               <CustomBtn

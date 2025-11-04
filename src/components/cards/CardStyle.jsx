@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 const SaleTag = () => (
-  <span className="bg-primary fs-6 position-relative p-1 me-2 rounded-3">
+  <span className="bg-primary text-white fs-6 position-relative p-1 me-2 rounded-3">
     On Sale!
   </span>
 );
@@ -38,9 +38,9 @@ const PriceData = (props) => {
                   <div className="text-fw-normal">onwards</div>
                 </>
               )}
-              <div className="d-none d-sm-block">
+              {/* <div className="d-none d-sm-block">
                 {props.on_sale && <SaleTag />}
-              </div>
+              </div> */}
             </div>
           </div>
         )}
@@ -58,11 +58,11 @@ const CardStyle = memo((props) => {
               href={props.link}
               className="overly-images"
             >
-              {/* {props.on_sale && (
+              {props.on_sale && (
                 <span className="position-absolute top-0 end-0 m-2 z-index-3">
                   <SaleTag />
                 </span>
-              )} */}
+              )}
               <Image
                 src={props?.image || 'https://placehold.co/500x400'}
                 alt="movie-card"

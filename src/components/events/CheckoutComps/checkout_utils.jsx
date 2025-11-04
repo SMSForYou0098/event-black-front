@@ -160,7 +160,7 @@ export const PromoCodeSection = ({
   handleApplyCoupon,
   promoCodeLoading,
 }) => (
-  <MotionWrapper variant="fadeIn" delay={0.4} className="p-4 border-bottom">
+  <MotionWrapper variant="fadeIn" delay={0.4} className="p-2 m-2 border-bottom">
     <InputGroup>
       <InputGroup.Text className="custom-dark-content-bg border-0 rounded-3 rounded-end-0">
         <Tag size={18} />
@@ -254,16 +254,16 @@ export const TicketDataSummary = (props) => {
   const { getCurrencySymbol } = useMyContext()
 
   return (
-    <Card className="mb-4 custom-dark-bg">
-      <Card.Body className="p-4">
+    <Card className="custom-dark-bg">
+      <Card.Body className="p-4 pb-0">
         <div className="d-flex justify-content-between align-items-start mb-3">
           <div>
-            <div className="text-white fw-bold fs-5">
+            <div className="text-white fw-bold fs-6">
               {eventName}
             </div>
             <div className="d-flex align-items-center mt-1">
               <Crown size={18} className='text-warning fw-bold me-2' />
-              <span className='text-warning fw-bold'>{ticketName}</span>
+              <span className='text-warning fs-6 fw-bold'>{ticketName}</span>
             </div>
           </div>
           <div className="text-end">
