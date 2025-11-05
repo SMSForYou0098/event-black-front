@@ -15,6 +15,7 @@ import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 import { Calendar, Pin, Ticket, Users } from "lucide-react";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
+import CustomDrawer from "../../../../utils/CustomDrawer";
 const CartPage = () => {
   const { event_key } = useRouter().query;
 
@@ -180,14 +181,14 @@ const CartPage = () => {
   }
 
   const CardContainer = ({ children, className = "" }) => (
-    <div className={`custom-dark-bg p-4 rounded-3 mb-4 ${className}`}>
+    <div className={`custom-dark-bg p-0 rounded-3 mb-4 ${className}`}>
       {children}
     </div>
   );
 
   // Reusable Card Header Component
   const CardHeader = ({ icon: Icon, title, iconColor = "text-warning" }) => (
-    <h5 className="mb-3 font-size-18 fw-500 text-light d-flex align-items-center gap-2">
+    <h5 className="mb-3 font-size-16 fw-500 text-light d-flex align-items-center gap-2">
       <Icon size={20} className={iconColor} /> {title}
     </h5>
   );
@@ -344,6 +345,7 @@ const CartPage = () => {
                     style={{ width: "100%" }}
                     loading={isChecking}
                   />
+                  {/* <CustomDrawer /> */}
                 </div>
               </div>
             </CardContainer>

@@ -3,14 +3,13 @@ import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import { Button, Container, Modal, Card, Row, Col } from "react-bootstrap";
 import Swal from "sweetalert2";
-// import { Swiper, SwiperSlide } from "swiper/react";
-// import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import moment from "moment";
+import imgLoader from "../../../assets/event/stock/loader111.gif"
 import {
   CalendarRange,
   Clock,
@@ -169,24 +168,15 @@ const UserCard = () => {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#f8f9fa",
-        padding: "2rem 1rem",
-      }}
-    >
+    <div className="min-vh-100 py-5 px-3">
       <Container>
         {loading ? (
-          <div
-            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
-            style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', zIndex: 9999 }}
-          >
+          <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 9999 }}>
             <Image
-              src="/assets/event/stock/loader111.gif"
+              src={imgLoader}
               alt="Loading..."
-              width={60}
-              height={60}
+              width={200}
+              height={200}
               unoptimized
             />
           </div>
@@ -199,14 +189,15 @@ const UserCard = () => {
                   alt="Logo"
                   width={200}
                   height={60}
+                  className="mh-100"
                   style={{ maxHeight: 60, width: 'auto', objectFit: "contain" }}
                   unoptimized
                 />
               </div>
             )}
 
-            <Card className="mb-4 shadow-sm" style={{ border: "none", background: "#fff" }}>
-              <Card.Body style={{ color: "#000" }}>
+            <Card className="mb-4 shadow-sm">
+              <Card.Body className="text-white">
                 {/* Event, Location, and Order Summary */}
                 <Row className="g-3 g-md-4">
                   {/* Event Details */}
@@ -235,7 +226,7 @@ const UserCard = () => {
                         <span>{ticketData?.event?.entry_time || "N/A"}</span>
                       </div>
                       <div className="d-flex align-items-center">
-                        <Clock size={16} className="me-2 " />
+                        <Clock size={16} className="me-2" />
                         <span className="fw-medium me-1">Start Time:</span>
                         <span>{ticketData?.event?.start_time || "N/A"}</span>
                       </div>
@@ -245,7 +236,7 @@ const UserCard = () => {
                   <Col xs={12} md={4} className="border-end-md px-md-3">
                     <h6 className="mb-3 fw-semibold text-dark d-flex align-items-center">
                       <MapPin className="me-2" size={18} /> Location
-                      <span style={{ fontWeight: '400', marginLeft:"1rem" }}>
+                      <span className="fw-normal ms-4">
                         {ticketData?.event?.address || "N/A"}
                       </span>
                     </h6>
@@ -263,11 +254,8 @@ const UserCard = () => {
                           ? `${ticketData?.ticket?.currency} ${ticketData?.ticket?.price}`
                           : "Free"}
                       </div>
-                      <div className="">
-                        <strong
-                          className="text-primary"
-                          style={{ fontSize: "1.1rem" }}
-                        >
+                      <div>
+                        <strong className="text-primary fs-5">
                           Total:{" "}
                           {ticketData?.ticket?.amount > 0
                             ? `${
@@ -315,7 +303,7 @@ const UserCard = () => {
             </div>
             
             <Card className="mt-5 shadow-sm">
-              <Card.Body style={{ overflowY: "auto", color: "black" }}>
+              <Card.Body className="overflow-auto text-dark">
                 <h5 className="mb-3">Terms & Conditions</h5>
                 <ul className="mb-0 ps-3">
                   {ticketData?.event?.ticket_terms
@@ -331,7 +319,7 @@ const UserCard = () => {
         ) : (
           <Card className="text-center py-4">
             <Card.Body>
-              <p className="text-danger">
+              <p className="text-danger mb-0">
                 {errorMsg || "No ticket data available"}
               </p>
             </Card.Body>
@@ -354,7 +342,7 @@ const UserCard = () => {
               spaceBetween={20}
               slidesPerView={1}
               pagination={{ clickable: true }}
-              style={{ paddingBottom: "40px" }}
+              className="pb-5"
             >
               {ticketData?.data?.map((item, index) => (
                 <SwiperSlide key={item.token}>

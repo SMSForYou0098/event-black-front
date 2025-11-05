@@ -45,6 +45,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
         },
     ];
 
+
     const handleReadMore = () => {
         const el = document.getElementById("event-details");
         if (el) {
@@ -85,27 +86,42 @@ const DetailsHeader = ({ eventData, event_key }) => {
             />
             <Col lg="3" md="12" className="mb-4 mb-lg-0">
                 {/* --- Single Event Image --- */}
-                <div className="product-image-container d-flex justify-content-center align-items-center">
-                    <Image
-                        src={eventData?.event_media?.thumbnail || 'https://placehold.co/500x400'}
-                        alt={eventData?.name}
-                        className="img-fluid rounded-4"
-                        width={210}
-                        height={400}
-                        priority
-                        style={{ maxHeight: "400px", objectFit: "cover" }}
-                    />
-                </div>
+                <div
+  className="product-image-container d-flex justify-content-center align-items-center position-relative"
+>
+  <Image
+    src={eventData?.event_media?.thumbnail || "https://placehold.co/500x400"}
+    alt={eventData?.name}
+    className="img-fluid rounded-4"
+    width={210}
+    height={400}
+    priority
+    style={{ maxHeight: "400px", objectFit: "cover" }}
+  />
+
+  {/* Share button at top-right */}
+  <div
+    style={{
+      position: "absolute",
+      top: "10px",
+      right: "100px",
+      zIndex: 10,
+    }}
+  >
+    <CustomBtn
+      icon={<Share2 />}
+      className="p-1 m-0"
+      HandleClick={handleShare}
+    />
+  </div>
+</div>
+
             </Col>
             <Col lg="9" md="12" className="ps-lg-4">
                 {/* --- Main Event Info --- */}
                 <div className="d-flex justify-content-between">
-                    <h4 className="text-primary text-capitalize">{eventData?.name}</h4>
-                    <CustomBtn
-                        icon={<Share2 />}
-                        className="p-1 m-0"
-                        HandleClick={handleShare}
-                    />
+                    <h4 className="text-primary fw-bold d-none d-sm-block text-capitalize">{eventData?.name}</h4>
+
                 </div>
                 {/* <h5 className="text-secondary">{eventData?.tagline || 'tagline'}</h5> */}
 

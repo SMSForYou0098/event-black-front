@@ -6,9 +6,9 @@ import { Card, Col, Nav, Row, Tab } from "react-bootstrap";
 const EventTabs = ({ eventData, startDate, endDate }) => {
   const tabItems = [
     { key: "description", label: "Description" },
-    { key: "location", label: "Location" },
+    { key: "location", label: "Locate" },
     { key: "layout", label: "Layout" },
-    { key: "additional-info", label: "Event Info" },
+    // { key: "additional-info", label: "Event Info" },
     // { key: "organizer", label: "Organizer" },
     { key: "terms", label: "Terms" },
   ];
@@ -39,6 +39,7 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 </Col>
               ))}
             </Row>
+            
           </Nav>
 
           <Tab.Content className="tab-content">
@@ -58,57 +59,6 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                   </Card>
                 </Col>
               </Row>
-            </Tab.Pane>
-            <Tab.Pane eventKey="layout" className="p-4  rounded">
-              <Row>
-                <Col md="12">
-                  <Card className="border-0 shadow-sm">
-                    <Card.Body className="p-0">
-                      {typeof eventData?.event_media?.layout_image === "string" ? (
-                        <div className="text-center">
-                          <NextImage
-                            src={eventData.event_media.layout_image}
-                            alt="Event layout image"
-                            width={400}
-                            height={600}
-                            loading="lazy"
-                            placeholder="blur"
-                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..." // keep your tiny base64
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            style={{ height: "auto", objectFit: "cover" }}
-                            onError={(e) => console.error("Image failed to load", e)}
-                            priority={false}
-                          />
-                        </div>
-                      ) : (
-                        <div className="p-4 text-muted">No layout image available.</div>
-                      )}
-                    </Card.Body>
-                  </Card>
-                </Col>
-              </Row>
-            </Tab.Pane>
-
-            <Tab.Pane eventKey="location" className="p-4 rounded">
-              <Row>
-                <Col md="12">
-                  <Card className="border-0 shadow-sm">
-                    <Card.Body className="p-0">
-                      {eventData?.venue?.aembeded_code ? (
-                        <div
-                          className="ratio ratio-16x9"
-                          dangerouslySetInnerHTML={{ __html: eventData.venue.aembeded_code }}
-                        />
-                      ) : (
-                        <div className="p-3 text-muted text-center">No map available for this venue.</div>
-                      )}
-                    </Card.Body>
-                  </Card>
-                </Col>
-              </Row>
-            </Tab.Pane>
-
-            <Tab.Pane eventKey="additional-info" className="p-4  rounded">
               <Row className="g-3">
                 <Col md="6">
                   <Card className="border-0 shadow-sm">
@@ -167,6 +117,58 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 </Col>
               </Row>
             </Tab.Pane>
+            <Tab.Pane eventKey="layout" className="p-4  rounded">
+              <Row>
+                <Col md="12">
+                  <Card className="border-0 shadow-sm">
+                    <Card.Body className="p-0">
+                      {typeof eventData?.event_media?.layout_image === "string" ? (
+                        <div className="text-center">
+                          <NextImage
+                            src={eventData.event_media.layout_image}
+                            alt="Event layout image"
+                            width={400}
+                            height={600}
+                            loading="lazy"
+                            placeholder="blur"
+                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..." // keep your tiny base64
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            style={{ height: "auto", objectFit: "cover" }}
+                            onError={(e) => console.error("Image failed to load", e)}
+                            priority={false}
+                          />
+                        </div>
+                      ) : (
+                        <div className="p-4 text-muted">No layout image available.</div>
+                      )}
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </Tab.Pane>
+
+            <Tab.Pane eventKey="location" className="p-4 rounded">
+              <Row>
+                <Col md="12">
+                  <Card className="border-0 shadow-sm">
+                    <Card.Body className="p-0">
+                      {eventData?.venue?.aembeded_code ? (
+                        <div
+                          className="ratio ratio-16x9"
+                          dangerouslySetInnerHTML={{ __html: eventData.venue.aembeded_code }}
+                        />
+                      ) : (
+                        <div className="p-3 text-muted text-center">No map available for this venue.</div>
+                      )}
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </Tab.Pane>
+
+            {/* <Tab.Pane eventKey="additional-info" className="p-4  rounded">
+              
+            </Tab.Pane> */}
 
             <Tab.Pane eventKey="organizer" className="p-4  rounded">
               <Card className="border-0 shadow-sm">

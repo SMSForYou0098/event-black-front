@@ -181,14 +181,16 @@ const AttendeePage = () => {
                 }
               />
             ) : (
-              <div className="d-flex align-items-center justify-content-between gap-3 mb-sm-5 mb-0">
+              <div className="d-flex align-items-center justify-content-between gap-3 mb-sm-5 mt-3 mb-0">
                 <CustomBtn
+                size='sm'
                   className="custom-dark-content-bg border-secondary"
                   HandleClick={() => window.history.back()}
-                  buttonText={"Back to Tickets"}
+                  buttonText={"Back"}
                   icon={<i className="fa-solid fa-arrow-left"></i>}
                 />
                 <CustomBtn
+                size='sm'
                   disabled={hasMissingFields || (attendeeList?.length !== quantity)}
                   HandleClick={handleSaveAttendees}
                   buttonText={"Save & Continue"}

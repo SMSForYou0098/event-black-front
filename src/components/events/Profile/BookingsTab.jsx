@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Card, Form, Button, Spinner, InputGroup } from 'react-bootstrap';
+import { Card, Form, Button, Spinner, InputGroup, Modal } from 'react-bootstrap';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import BookingCard from './BookingCard';
 import GlassCard from './../../../utils/ProfileUtils/GlassCard';
+import { SearchIcon } from 'lucide-react';
 
 // Constants
 const DEBOUNCE_DELAY = 300;
@@ -22,6 +23,7 @@ const BookingsTab = ({ userBookings = [], loading = false }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState([]);
   const [isFiltering, setIsFiltering] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   const flatpickrRef = useRef(null);
   const debounceTimeoutRef = useRef(null);
@@ -230,14 +232,10 @@ const BookingsTab = ({ userBookings = [], loading = false }) => {
   const handleDateRangeChange = useCallback((dates) => setDateRange(dates || []), []);
   const handleClearDateRange = useCallback(() => {
     setDateRange([]);
-    if (flatpickrRef.current?.flatpickr) {
-      try {
-        flatpickrRef.current.flatpickr.clear();
-      } catch (err) {
-        /* ignore */
-      }
-    }
+    // Avoid direct Flatpickr instance calls to prevent DOM errors
   }, []);
+  const openSearchModal = useCallback(() => setShowSearchModal(true), []);
+  const closeSearchModal = useCallback(() => setShowSearchModal(false), []);
 
   // Memoize states
   const isLoading = loading || isFiltering;
@@ -246,34 +244,38 @@ const BookingsTab = ({ userBookings = [], loading = false }) => {
   // Search controls
   const searchControls = useMemo(
     () => (
-      <div className="d-flex gap-2 align-items-center">
-        <InputGroup>
-          <Form.Control
-            size="sm"
-            type="text"
-            placeholder="Search by name, email, ticket, event, city, payment method..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            aria-label="Search bookings"
-          />
-          {searchTerm && (
-            <Button size="sm" variant="outline-secondary" onClick={handleClearSearch} aria-label="Clear search">
-              ×
-            </Button>
-          )}
-        </InputGroup>
-
+      <div
+        className="d-flex align-items-center justify-content-between gap-2 w-100"
+      >
+        <h6>My Bookings</h6>
+        {/* Date Range Picker */}
+        <div style={{ minWidth: '200px', flexGrow: 1 }}>
           <Flatpickr
             ref={flatpickrRef}
             value={dateRange}
             options={FLATPICKR_OPTIONS}
             placeholder="Select date range"
             onChange={handleDateRangeChange}
+            className="form-control form-control-sm"
           />
+        </div>
+  
+        {/* Search Button */}
+        {/* <Button
+          variant="outline-secondary"
+          className="d-inline-flex align-items-center justify-content-center"
+          onClick={openSearchModal}
+          aria-label="Open search"
+        >
+          <i className="fa fa-search" aria-hidden="true"></i>
+        </Button> */}
+        <SearchIcon size={16} onClick={openSearchModal} />
       </div>
     ),
-    [searchTerm, dateRange, handleSearchChange, handleClearSearch, handleDateRangeChange, handleClearDateRange]
+    [searchTerm, dateRange, handleSearchChange, handleClearSearch, handleDateRangeChange]
   );
+  
+  
 
   // Booking cards render — use uniqueFilteredBookings and stable keys
   const bookingCards = useMemo(() => {
@@ -294,19 +296,52 @@ const BookingsTab = ({ userBookings = [], loading = false }) => {
       );
     }
 
-    return uniqueFilteredBookings.map((booking, idx) => (
-      <BookingCard key={makeBookingKey(booking, idx)} booking={booking} />
-    ));
+    return (
+      <div className="row g-3">
+        {uniqueFilteredBookings.map((booking, idx) => (
+          <div key={makeBookingKey(booking, idx)} className="col-12 col-md-6 col-lg-4">
+            <BookingCard booking={booking} />
+          </div>
+        ))}
+      </div>
+    );
   }, [uniqueFilteredBookings, isLoading, isEmpty, searchTerm, dateRange, makeBookingKey]);
 
   return (
     <GlassCard>
-      <Card.Header className="d-flex justify-content-between align-items-center">
-        <h5 className="mb-0">My Bookings</h5>
+      <Card.Header className="d-flex justify-content-between align-items-center flex-column flex-sm-row gap-2">
+        {/* <h5 className="mb-0">My Bookings</h5> */}
         {searchControls}
       </Card.Header>
 
-      <Card.Body className="px-0 px-sm-4">{bookingCards}</Card.Body>
+      <Card.Body className="px-2 px-sm-4">{bookingCards}</Card.Body>
+
+      <Modal show={showSearchModal} onHide={closeSearchModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Search Bookings</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <InputGroup>
+            <Form.Control
+              autoFocus
+              size="sm"
+              type="text"
+              placeholder="Search by event name..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              aria-label="Search bookings"
+            />
+            {searchTerm && (
+              <Button size="sm" variant="outline-secondary" onClick={handleClearSearch} aria-label="Clear search">
+                ×
+              </Button>
+            )}
+          </InputGroup>
+        </Modal.Body>
+        {/* <Modal.Footer>
+          <Button variant="secondary" onClick={closeSearchModal}>Close</Button>
+        </Modal.Footer> */}
+      </Modal>
     </GlassCard>
   );
 };

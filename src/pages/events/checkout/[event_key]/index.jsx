@@ -20,6 +20,7 @@ import LoaderComp from "../../../../utils/LoaderComp";
 import Timer from "../../../../utils/BookingUtils/Timer";
 import { useEventData } from "../../../../services/events";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
+import { SavingsHighlight } from "../../../../components/events/CheckoutComps/checkout_utils";
 const CartPage = () => {
   const router = useRouter();
   const { isMobile, ErrorAlert, successAlert, UserData, systemSetting } = useMyContext();
@@ -696,7 +697,10 @@ const CartPage = () => {
           onExpire={() => setIsTimerExpired(true)}
         />
         <Row>
-          <Col lg="8" md="5">
+               {summaryData?.discount > 0 && (
+        <SavingsHighlight totalSavings={summaryData?.discount} />
+      )}
+          <Col className="d-none d-sm-block" lg="8" md="5">
             <CheckoutSummarySection
               summaryData={summaryData}
               // calculatedTotal={calculatedTotal}
@@ -729,6 +733,11 @@ const CartPage = () => {
               setCouponCode={setCouponCode}
               handleApplyCoupon={handleApplyCoupon}
               promoCodeLoading={applyCouponMutation.isPending}
+
+              isExpanded={isExpanded}
+              setIsExpanded={setIsExpanded}
+
+              step={2}
             />
 
           </Col>

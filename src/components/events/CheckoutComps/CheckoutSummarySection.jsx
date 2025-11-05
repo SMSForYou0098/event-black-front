@@ -14,7 +14,7 @@ export const CheckoutSummarySection = ({
 }) => {
   return(
   <div className="modern-checkout-summary">
-    <ETicketAlert />
+    {/* <ETicketAlert /> */}
     <MotionWrapper
       variant="fadeInUp" 
       delay={0.2} 
@@ -44,9 +44,7 @@ export const CheckoutSummarySection = ({
         </AnimatePresence>
       </div>
 
-      {summaryData?.discount > 0 && (
-        <SavingsHighlight totalSavings={summaryData?.discount} />
-      )}
+ 
     </MotionWrapper>
   </div>
 );

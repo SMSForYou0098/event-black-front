@@ -61,8 +61,8 @@ const CustomCounter = memo((props) => {
                 role="group"
                 style={{
                     pointerEvents: disabled ? 'none' : 'auto',
-                    fontSize: '1.25rem',
-                    minHeight: '48px',
+                    fontSize: '1rem',
+                    minHeight: '35px',
                 }}
             >
                 <button
@@ -73,7 +73,7 @@ const CustomCounter = memo((props) => {
                         lineHeight: 'initial',
                     }}
                 >
-                    <Minus size={22} color='white' />
+                    <Minus size={18} color='white' />
                 </button>
                 <input
                     name='quantity'
@@ -85,7 +85,7 @@ const CustomCounter = memo((props) => {
                     placeholder=""
                     style={{
                         width: '48px',
-                        fontSize: '1.25rem',
+                        fontSize: '1rem',
                         textAlign: 'center',
                         padding: '8px 0',
                     }}
@@ -98,7 +98,7 @@ const CustomCounter = memo((props) => {
                         lineHeight: 'initial',
                     }}
                 >
-                    <Plus size={22} color='white' />
+                    <Plus size={18} color='white' />
                 </button>
             </div>
         </Fragment>

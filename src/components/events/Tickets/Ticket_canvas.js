@@ -30,11 +30,9 @@ const TicketCanvas = (props) => {
   };
 
   useEffect(() => {
-    console.log('ticketBG:', ticketBG);
     if (ticketBG) {
       fetchImage();
     }
-    //  console.log(ticketName, userName, number, address, ticketBG, date, time, photo, OrderId)
   }, [ticketBG]);
 
   const getTextWidth = (text, fontSize = 16, fontFamily = 'Arial') => {

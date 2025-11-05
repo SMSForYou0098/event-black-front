@@ -60,11 +60,8 @@ export const SavingsHighlight = ({ totalSavings }) => (
     className="rounded-2 p-3 border-top"
   >
     <div className="d-flex justify-content-between align-items-center">
-      <span className="text-success fw-semibold">
-        🎉 Total Savings on this order
-      </span>
-      <span className="fw-bold text-success fs-5">
-        ₹{totalSavings.toLocaleString()}
+      <span className="text-success w-100 text-center fs-3 fw-semibold">
+        🎉 Great job! You saved ₹{totalSavings.toLocaleString()}!
       </span>
     </div>
   </MotionWrapper>
@@ -99,10 +96,31 @@ export const TotalAmountHeader = ({
       </small>
     </div>
     <div className="d-flex align-items-center gap-2">
-      <h4 className="mb-0 custom-text-secondary fw-bold">
-        {/* ₹{calculatedTotal?.toLocaleString()} */}
+    <h4 className="mb-0 fw-bold">
+  {summaryData?.discount > 0 ? (
+    <>
+      {/* Original Price (strikethrough) */}
+      <span
+        className="text-muted me-2"
+        style={{ textDecoration: "line-through", fontWeight: "500" }}
+      >
         ₹{summaryData?.totalFinalAmount?.toLocaleString()}
-      </h4>
+      </span>
+
+      {/* Discounted Price */}
+      <span className="text-success fw-bold">
+        ₹{(summaryData?.totalFinalAmount - summaryData?.discount)?.toLocaleString()}
+      </span>
+    </>
+  ) : (
+    // No discount — show the normal total
+    <span className="custom-text-secondary fw-bold">
+      ₹{summaryData?.totalFinalAmount?.toLocaleString()}
+    </span>
+  )}
+</h4>
+
+
       <motion.div
         variants={ANIMATION_VARIANTS.chevron}
         animate={isExpanded ? "expanded" : "collapsed"}
@@ -262,8 +280,8 @@ export const TicketDataSummary = (props) => {
               {eventName}
             </div>
             <div className="d-flex align-items-center mt-1">
-              <Crown size={18} className='text-warning fw-bold me-2' />
-              <span className='text-warning fs-6 fw-bold'>{ticketName}</span>
+              <Ticket size={18} className='text-warning fw-bold me-2' />
+              <span className='text-warning fs-6 fw-bold'>{ticketName} * {quantity} </span>
             </div>
           </div>
           <div className="text-end">
@@ -271,14 +289,14 @@ export const TicketDataSummary = (props) => {
             <small>per ticket</small>
           </div>
         </div>
-
+{/* 
         <div className="custom-dark-content-bg d-flex justify-content-between align-items-center my-3 p-3 rounded-3">
           <div className="d-flex align-items-center">
             <Ticket size={18} style={{ marginRight: '10px' }} />
             <span style={{ color: '#b0b0b0' }}>Quantity</span>
           </div>
           <span className="text-white fw-bold fs-6">{quantity}</span>
-        </div>
+        </div> */}
         {!hidePrices &&
           <>
             <div className="d-flex justify-content-between align-items-center mb-2">
@@ -290,12 +308,12 @@ export const TicketDataSummary = (props) => {
               <span>Processing Fee</span>
               <span className="text-white fw-bold">{currency ? getCurrencySymbol(currency) : '₹'}{processingFee || 0}</span>
             </div>
-            <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' />
+            {/* <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' /> */}
 
-            <div className="d-flex justify-content-between align-items-center">
+            {/* <div className="d-flex justify-content-between align-items-center">
               <span className="text-white fw-bold fs-5">Total Amount</span>
               <span className='custom-text-secondary h5 fw-bold'>{currency ? getCurrencySymbol(currency) : '₹'}{total}</span>
-            </div>
+            </div> */}
           </>
         }
         {/* {(netAmount || sale_price) &&

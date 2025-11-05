@@ -76,11 +76,11 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
           <Row className="mt-4 mb-3">
             <Col
               sm="12"
-              className="d-flex justify-content-between align-items-center border-dashed p-3 rounded-3"
+              className="d-flex justify-content-between align-items-center border-dashed  rounded-3"
             >
               <h4 className="price mt-3 mb-3 d-flex gap-2 align-items-center">
-                <div className="text-primary">Pricing :</div>
-                <span className="fw-bold d-flex align-items-center gap-2">
+                <div className="text-primary fs-5">Pricing :</div>
+                <span className="fw-bold d-flex align-items-center gap-2 fs-5">
                   {(() => {
                     let displayPrice = 0;
                     let showSaleBadge = false;
@@ -116,7 +116,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                 onClick={handleBookNow}
                 style={{ height: "3rem", fontSize: "16px" }}
               >
-                <span className="me-2">Book Now</span>
+                <span className="me-2">Book</span>
                 <i className="fa-solid fa-arrow-right"></i>
               </Button>
             </Col>
@@ -143,7 +143,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
               className="btn btn-primary btn-lg px-3"
               style={{ fontSize: "16px", fontWeight: "600" }}
             >
-              <span className="me-2">Book Now</span>
+              <span className="me-2">Book</span>
               <i className="fa-solid fa-arrow-right"></i>
             </Button>
           }

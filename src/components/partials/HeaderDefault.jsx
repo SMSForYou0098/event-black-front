@@ -29,6 +29,7 @@ import {
   ChevronDown,
   Plus,
   Minus,
+  MenuIcon,
 } from "lucide-react";
 
 // components
@@ -207,18 +208,6 @@ const HeaderDefault = memo(() => {
             <div className="d-flex align-items-center justify-content-between w-100 landing-header">
                 <Logo size={150} />
               <div className="d-flex gap-3 gap-xl-0 align-items-center">
-                <div>
-                  <button
-                    type="button"
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#navbar_main"
-                    aria-controls="navbar_main"
-                    className="d-xl-none btn btn-primary rounded-pill p-1 pt-0 toggle-rounded-btn"
-                    onClick={() => setShow1(!show1)}
-                  >
-                    <ArrowLeftIcon size={20} />
-                  </button>
-                </div>
                 <Link href={"/"}>
                   <Image height={65} src={systemSetting?.auth_logo || ""} />
                 </Link>
@@ -370,7 +359,7 @@ const HeaderDefault = memo(() => {
                   </ul>
                 </Container>
               </Navbar>
-              <div className="right-panel d-flex ">
+              <div className="right-panel d-flex gap-1">
                 <div className={`search-box d-flex align-items-center ${isOpen ? "show" : ""} `}>
                   <Dropdown show={isOpen} onToggle={handleToggle}>
                     <Dropdown.Toggle
@@ -392,13 +381,13 @@ const HeaderDefault = memo(() => {
                     <Dropdown.Toggle
                       as={CustomToggle}
                       href="#"
-                      variant=" nav-link d-flex align-items-center"
+                      variant=" nav-link d-flex align-items-center p-0"
                       size="sm"
                       id="dropdownMenuButton1"
                     >
                       <div className="btn-icon rounded-pill user-icons">
                         <span className="btn-inner">
-                          <UserIcon size={18} />
+                          <UserIcon size={20} />
                         </span>
                       </div>
                     </Dropdown.Toggle>
@@ -413,24 +402,24 @@ const HeaderDefault = memo(() => {
                         </span>
                       </li>
                       <li>
+                        <Link href="/my-bookings" className="iq-sub-card d-flex align-items-center gap-3">
+                          <CreditCardIcon size={20} />
+                          <h6 className="mb-0 font-size-14 fw-normal">Bookings</h6>
+                        </Link>
+                      </li>
+                      <li>
                         <Link href="/profile" className="iq-sub-card d-flex align-items-center gap-3">
-                          <UserIcon size={16} />
+                          <UserIcon size={20} />
                           <h6 className="mb-0 font-size-14 fw-normal">My Profile</h6>
                         </Link>
                       </li>
-                      {/* <li>
-                        <Link href="/extra/pricing-plan" className="iq-sub-card d-flex align-items-center gap-3">
-                          <CreditCardIcon size={16} />
-                          <h6 className="mb-0 font-size-14 fw-normal">Bookings</h6>
-                        </Link>
-                      </li> */}
                       <li>
                         <Button
                           href="/auth/login"
                           className="border-0 iq-sub-card iq-logout-2 mt-1 d-flex justify-content-center gap-2"
                           onClick={handleLogout}
                         >
-                          <LogOutIcon size={16} />
+                          <LogOutIcon size={20} />
                           <h6 className="mb-0 font-size-14 fw-normal">Logout</h6>
                         </Button>
                       </li>
@@ -438,9 +427,9 @@ const HeaderDefault = memo(() => {
                   </Dropdown>
                 ) : (
                   <CustomBtn
-                    style={{ padding: "8px 16px" }}
+                    style={{ padding: "0px 0px" }}
                     buttonText={!isMobile && "Login"}
-                    className={"ms-3"}
+                    // className={"ms-3"}
                     icon={<Fingerprint size={20} />}
                     HandleClick={() => location.push("/auth/login")}
                   />
@@ -454,7 +443,7 @@ const HeaderDefault = memo(() => {
                       <CustomBtn
                         variant="outline-primary"
                         icon={<i className="fa-solid fa-arrow-right ms-2"></i>}
-                        className="fw-bold px-4 py-2 d-flex align-items-center rounded-3"
+                        className="fw-bold  d-flex align-items-center rounded-3"
                         HandleClick={handleBookClick}
                         size="sm"
                         style={{
@@ -470,7 +459,19 @@ const HeaderDefault = memo(() => {
                     </Dropdown> */}
                   </ul>
                 </div>
-                {/* <Button
+                {/* <div>
+                  <button
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#navbar_main"
+                    aria-controls="navbar_main"
+                    className="d-xl-none btn btn-primary rounded-pill p-1 pt-0 toggle-rounded-btn"
+                    onClick={() => setShow1(!show1)}
+                  >
+                    <ArrowLeftIcon size={20} />
+                  </button>
+                </div> */}
+                <Button
                   id="navbar-toggle"
                   bsPrefix="navbar-toggler"
                   type="button"
@@ -478,12 +479,13 @@ const HeaderDefault = memo(() => {
                   data-bs-toggle="collapse"
                   className="fw-bold"
                   data-bs-target="#navbarSupportedContent"
-                  onClick={() => setShow(!show)}
+                  onClick={() => setShow1(!show1)}
                 >
-                  <span className="navbar-toggler-btn">
+                  {/* <span className="navbar-toggler-btn">
                     <span className="navbar-toggler-icon"></span>
-                  </span>
-                </Button> */}
+                  </span> */}
+                  <MenuIcon size={20} />
+                </Button>
               </div>   
             </div>
           </Container>

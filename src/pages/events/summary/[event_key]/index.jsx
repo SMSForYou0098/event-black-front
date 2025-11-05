@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import ReactDOMServer from "react-dom/server";
-import { AttendeesOffcanvas, TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
+import { AttendeesOffcanvas, ETicketAlert, TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
 import { api } from "@/lib/axiosInterceptor"
 import { useMyContext } from "@/Context/MyContextProvider";
 import BookingSummarySkeleton from '../../../../utils/SkeletonUtils/BookingSummarySkeleton';
@@ -165,7 +165,7 @@ const BookingSummary = () => {
             text: "Choose how you want to download your ticket. Once a ticket type is selected, it can't be changed!",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonText: 'Combine',
+            confirmButtonText: 'Group',
             cancelButtonText: isMaster ? 'Individual' : 'Cancel',
             reverseButtons: true,
         }).then((result) => {
@@ -190,6 +190,7 @@ const BookingSummary = () => {
             />
             <Container className="">
                 <CartSteps id={'last'} />
+                <ETicketAlert/>
                 <Row>
                     {/* Right Column */}
                     <Col lg={8}>
@@ -268,23 +269,26 @@ const BookingSummary = () => {
                                 </div>
                             </Card.Body>
                         </Card>
-                        <div className="d-flex gap-2 justify-content-between">
-                            <CustomBtn 
-                                size='sm' 
-                                variant="primary" 
-                                HandleClick={HandleDownload} 
-                                buttonText="Download Tickets" 
-                                icon={<i className="fa-solid fa-download"></i>} 
+                        <div
+                            className="d-flex gap-2 justify-content-center align-items-center"
+                        >
+                            <CustomBtn
+                                size="sm"
+                                variant="primary"
+                                HandleClick={HandleDownload}
+                                buttonText="Download Tickets"
+                                icon={<i className="fa-solid fa-download"></i>}
                             />
-                            {attendees?.length !== 0 &&
-                                <CustomBtn 
-                                    size='sm' 
-                                    variant="primary" 
-                                    HandleClick={handleOpen} 
-                                    buttonText="View Attendees" 
+                            {attendees?.length !== 0 && (
+                                <CustomBtn
+                                    size="sm"
+                                    variant="primary"
+                                    HandleClick={handleOpen}
+                                    buttonText="View Attendees"
                                 />
-                            }
+                            )}
                         </div>
+
                     </Col>
                 </Row>
             </Container>

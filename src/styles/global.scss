@@ -24,6 +24,26 @@
   }
 }
 
+.custom-dropdown-menu {
+  background: #000; /* keep normal white bg */
+  border-radius: 8px;
+  overflow: hidden;
+
+  .custom-dropdown-item {
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(223, 193, 193, 0.3) !important; /* black with 30% opacity */
+      color: #fff !important; /* ensure text stays visible */
+    }
+
+    &:active {
+      background-color: rgba(0, 0, 0, 0.4) !important; /* slightly darker on click */
+      color: #fff !important;
+    }
+  }
+}
+
 
 
 //custpm btn start

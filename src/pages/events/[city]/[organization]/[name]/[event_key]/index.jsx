@@ -1,21 +1,13 @@
-import { useRouter } from 'next/router';
-import { getEventById, getEventData, useEventData } from '../../../../../../services/events';
+// pages/.../index.jsx
 import EventDetailPage from '../../../../../../components/events/EventDetails/EventDetailPage';
-import EventDetailPageSkeleton from '../../../../../../utils/SkeletonUtils/EventDetailPageSkeleton';
+import { useEventData, getEventById } from '../../../../../../services/events';
+import { QueryClient, dehydrate } from '@tanstack/react-query';
 
-const EventbyId = () => {
-  const router = useRouter();
-  const { event_key } = router.query;
+const queryKey = (event_key) => ['event', event_key];
 
-  const { data: event, isLoading, isError, error } = useEventData(event_key);
-  // 4. Handle UI States
-  if (isLoading) {
-    return <div className='mt-5 pt-5'><EventDetailPageSkeleton /></div>;
-  }
-
-  if (isError) {
-    return <div className='mt-5 pt-5'>Error fetching event: {error.message}</div>;
-  }
+const EventById = ({ event_key }) => {
+  const { data: event } = useEventData(event_key); // instantly hydrated
+  if (!event) return <div className="mt-5 pt-5">Event not found.</div>;
 
   return (
     <section>
@@ -24,5 +16,28 @@ const EventbyId = () => {
   );
 };
 
-export default EventbyId;
+export const getServerSideProps = async (ctx) => {
+  const { event_key } = ctx.params || {};
+  const qc = new QueryClient();
 
+  try {
+    await qc.prefetchQuery({
+      queryKey: queryKey(event_key),
+      queryFn: () => getEventById(event_key), // or getEventData(event_key)
+    });
+
+    const dehydratedState = dehydrate(qc);
+
+    // ensure the same key is used in your useEventData hook
+    return {
+      props: {
+        dehydratedState,
+        event_key,
+      },
+    };
+  } catch (e) {
+    return { notFound: true };
+  }
+};
+
+export default EventById;

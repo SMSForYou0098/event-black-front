@@ -1,6 +1,7 @@
 import { Ticket } from "lucide-react";
-import { MotionWrapper, PromoCodeSection, TicketDataSummary } from "./checkout_utils";
+import { MotionWrapper, PromoCodeSection, TicketDataSummary, TotalAmountHeader } from "./checkout_utils";
 import { Form } from "react-bootstrap";
+import { CheckoutSummarySection } from "./CheckoutSummarySection";
 
 export const OrderReviewSection = (props) => {
   const {
@@ -11,7 +12,14 @@ export const OrderReviewSection = (props) => {
     BookingMobileFooter,
     CustomBtn,
     Link,
-    isLoading
+    isLoading,
+    setIsExpanded,
+    isExpanded,
+    promoCodeLoading,
+    handleApplyCoupon,
+    couponCode,
+    setCouponCode,
+    step,
   } = props
   const eventName = validatedData?.event?.name || "Event Name";
   const ticketName = validatedData?.data?.category || "Ticket Name";
@@ -38,20 +46,36 @@ export const OrderReviewSection = (props) => {
           processingFee={processingFee}
           total={total}
         />
+
+<div className="d-block d-sm-none">
+
+<CheckoutSummarySection
+              summaryData={summaryData}
+              // calculatedTotal={calculatedTotal}
+              couponCode={couponCode}
+              setCouponCode={setCouponCode}
+              handleApplyCoupon={handleApplyCoupon}
+              isExpanded={isExpanded}
+              setIsExpanded={setIsExpanded}
+              promoCodeLoading={promoCodeLoading}
+            />
+</div>
         <PromoCodeSection {...props}/>
         <div className=" d-flex flex-column align-items-center ">
-          <Form.Check className="d-flex align-items-center gap-2 m-0">
+          {/* <Form.Check className="d-flex align-items-center gap-2 m-0">
             <Form.Check.Input type="checkbox" defaultChecked />
             <Form.Check.Label className="m-0">
               <small className="text-center m-0">
                 I agree to the <Link href='/pricing-policy'>Pricing Policy</Link>, <Link href='/terms-and-conditions'>Terms & Conditions</Link> & <Link href='/privacy-policy'>Privacy Policy</Link>.
               </small>
             </Form.Check.Label>
-          </Form.Check>
+          </Form.Check> */}
           <div className="d-block d-sm-none">
             <BookingMobileFooter
               handleClick={handleProcess}
-              selectedTickets={validatedData?.data}
+              selectedTickets={summaryData}
+              step={step}
+              summaryData={summaryData}
             />
           </div>
           

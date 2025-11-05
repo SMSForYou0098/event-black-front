@@ -24,9 +24,7 @@ const BookingTickets = ({
                 // Per-unit base
                 const baseAmount = round(price);
 
-                // --- GST (kept as-is) ---
-                const centralGST = round(baseAmount * 0.09);
-                const stateGST = round(baseAmount * 0.09);
+                
 
                 // --- Convenience Fee (from tax_data) ---
                 // Supports:
@@ -44,6 +42,9 @@ const BookingTickets = ({
                     // default/fallback: no convenience fee
                     convenienceFee = 0;
                 }
+                // --- GST (kept as-is) ---
+                const centralGST = round(convenienceFee * 0.09);
+                const stateGST = round(convenienceFee * 0.09);
                 const totalTax = round(centralGST + stateGST + convenienceFee);
                 const finalAmount = round(baseAmount + totalTax);
                 // Totals
@@ -104,17 +105,17 @@ const BookingTickets = ({
         <Table responsive className="cart-table rounded-4">
             <thead className="border-bottom">
                 <tr>
-                    <th scope="col" className="font-size-18 fw-500">
+                    <th scope="col" className="font-size-16 fw-500">
                         Title
                     </th>
                     <th
                         scope="col"
-                        className={`font-size-18 fw-500 ${isMobile ? "text-end" : ""}`}
+                        className={`font-size-16 fw-500 ${isMobile ? "text-end" : "text-center"}`}
                     >
                         Quantity
                     </th>
                     {!isMobile && (
-                        <th scope="col" className="font-size-18 fw-500">
+                        <th scope="col" className="font-size-16 fw-500">
                             Subtotal
                         </th>
                     )}
@@ -137,7 +138,7 @@ const BookingTickets = ({
                                 </span>
                             </span>
                         </td>
-                        <td className={isMobile ? "text-end" : ""}>
+                        <td className={isMobile ? "text-end" : "text-center"}>
                             <CustomCounter
                                 resetCounterTrigger={resetCounterTrigger}
                                 getTicketCount={getTicketCount}
