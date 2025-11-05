@@ -52,6 +52,7 @@ const CartPage = () => {
     k ? selectCheckoutDataByKey(state, k) : null
   );
   const { data: event } = useEventData(event_key);
+  
   useHeaderSimple({
     title: event?.name || "Event Details",
   });

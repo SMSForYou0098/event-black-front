@@ -44,7 +44,7 @@ export const OrderReviewSection = (props) => {
             <Form.Check.Input type="checkbox" defaultChecked />
             <Form.Check.Label className="m-0">
               <small className="text-center m-0">
-                I agree to the <Link href='/pricing-policy'>Pricing Policy</Link>, <Link href='terms-and-conditions'>Terms & Conditions</Link> & <Link href='/privacy-policy'>Privacy Policy</Link>.
+                I agree to the <Link href='/pricing-policy'>Pricing Policy</Link>, <Link href='/terms-and-conditions'>Terms & Conditions</Link> & <Link href='/privacy-policy'>Privacy Policy</Link>.
               </small>
             </Form.Check.Label>
           </Form.Check>
@@ -56,10 +56,11 @@ export const OrderReviewSection = (props) => {
           </div>
           
           <div className="d-none d-sm-block">
-            <div className="d-flex align-items-center justify-content-between mt-2 gap-3">
+            <div className="d-flex align-items-center justify-content-between w-100 mt-2 gap-3">
               <CustomBtn
                 style={{ background: 'rgba(255, 255, 255, 0.1)' }}
                 variant="secondary"
+                className="w-100"
                 disabled={!validatedData?.data}
                 HandleClick={() => window.history.back()}
                 buttonText={"Back"}
@@ -69,6 +70,7 @@ export const OrderReviewSection = (props) => {
                 disabled={isLoading}
                 HandleClick={handleProcess}
                 buttonText={"Checkout"}
+                className="w-100"
                 loading={isLoading}
               />
             </div>

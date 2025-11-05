@@ -160,7 +160,7 @@ export const PromoCodeSection = ({
   handleApplyCoupon,
   promoCodeLoading,
 }) => (
-  <MotionWrapper variant="fadeIn" delay={0.4} className="p-2 m-2 border-bottom">
+  <MotionWrapper variant="fadeIn" delay={0.4} className="py-2 border-bottom">
     <InputGroup>
       <InputGroup.Text className="custom-dark-content-bg border-0 rounded-3 rounded-end-0">
         <Tag size={18} />

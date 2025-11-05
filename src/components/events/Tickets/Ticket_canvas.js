@@ -30,6 +30,7 @@ const TicketCanvas = (props) => {
   };
 
   useEffect(() => {
+    console.log('ticketBG:', ticketBG);
     if (ticketBG) {
       fetchImage();
     }

@@ -95,7 +95,6 @@ const TicketModal = (props) => {
             }
         }
     }, [show, ticketData, card_url, bgRequired, isIdCard]);
-
     return (
         <Modal show={show} onHide={() => handleCloseModal()} size={ticketType?.type === 'zip' ? 'xl' : ''}>
             <Modal.Body>
@@ -125,7 +124,6 @@ const TicketModal = (props) => {
                                             // Safely extract event and ticket data
                                             const event = item?.ticket?.event || {};
                                             const ticket = item?.ticket || {};
-
                                             return (
                                                 <SwiperSlide className="card-slide" key={index}>
                                                     <Col lg={12} md={12} xl={12}>
