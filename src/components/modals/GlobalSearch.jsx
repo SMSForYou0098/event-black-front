@@ -14,38 +14,38 @@ const GlobalSearch = ({ show, handleShow }) => {
   const { createSlug } = useMyContext();
 
   // Memoized trending items from API response
-  const trendingItems = useMemo(() => {
-    return [
-      {
-        id: 33,
-        title: "Indroda Nature And Amusement Park",
-        category: "Amusement",
-        type: "event", // Added type to determine route
-        thumbnail: "http://192.168.0.112:8000/uploads/thumbnail/67ea728760f14_67d7fd2dcc91f_12222333.jpg"
-      },
-      {
-        id: 65,
-        title: "Music Fest 2025",
-        category: "Live Concert",
-        type: "event",
-        thumbnail: "https://cricket.getyourticket.in/uploads/thumbnail/683ac8f0670bd_avp.jpg"
-      },
-      {
-        id: 70,
-        title: "Navratri",
-        category: "Garba Night",
-        type: "event",
-        thumbnail: "https://cricket.getyourticket.in/uploads/thumbnail/688b2dfbc72ab_ff.jpg"
-      },
-      {
-        id: 73,
-        title: "Conference",
-        category: "Business Seminars",
-        type: "event",
-        thumbnail: "http://192.168.0.120:8000/uploads/thumbnail/6883682f3e737_Management (600 x 725 px).jpg"
-      }
-    ];
-  }, []);
+  // const trendingItems = useMemo(() => {
+  //   return [
+  //     {
+  //       id: 33,
+  //       title: "Indroda Nature And Amusement Park",
+  //       category: "Amusement",
+  //       type: "event", // Added type to determine route
+  //       thumbnail: "http://192.168.0.112:8000/uploads/thumbnail/67ea728760f14_67d7fd2dcc91f_12222333.jpg"
+  //     },
+  //     {
+  //       id: 65,
+  //       title: "Music Fest 2025",
+  //       category: "Live Concert",
+  //       type: "event",
+  //       thumbnail: "https://cricket.getyourticket.in/uploads/thumbnail/683ac8f0670bd_avp.jpg"
+  //     },
+  //     {
+  //       id: 70,
+  //       title: "Navratri",
+  //       category: "Garba Night",
+  //       type: "event",
+  //       thumbnail: "https://cricket.getyourticket.in/uploads/thumbnail/688b2dfbc72ab_ff.jpg"
+  //     },
+  //     {
+  //       id: 73,
+  //       title: "Conference",
+  //       category: "Business Seminars",
+  //       type: "event",
+  //       thumbnail: "http://192.168.0.120:8000/uploads/thumbnail/6883682f3e737_Management (600 x 725 px).jpg"
+  //     }
+  //   ];
+  // }, []);
 
   // Function to handle navigation based on item type
   const handleItemClick = useCallback((item) => {
@@ -156,7 +156,19 @@ const GlobalSearch = ({ show, handleShow }) => {
       );
     }
 
-    const itemsToShow = searchTerm && searchResults.length > 0 ? searchResults : trendingItems;
+     // No input yet — show friendly empty state
+  if (!searchTerm.trim()) {
+    return (
+      <div className="text-center py-5">
+        <h6 className="mb-2">Search your events</h6>
+        <p className="text-muted mb-0" style={{ fontSize: '14px' }}>
+          Try keywords like <em>“music”</em>, <em>“navratri”</em>, <em>“cricket”</em>, or <em>“movies”</em>.
+        </p>
+      </div>
+    );
+  }
+
+    const itemsToShow = searchTerm && searchResults.length > 0 ? searchResults : [];
     
     if (searchTerm && searchResults.length === 0) {
       return (
@@ -205,7 +217,7 @@ const GlobalSearch = ({ show, handleShow }) => {
         ))}
       </Row>
     );
-  }, [isLoading, searchTerm, searchResults, trendingItems, handleItemClick]);
+  }, [isLoading, searchTerm, searchResults, handleItemClick]);
 
   return (
     <Modal 
@@ -272,6 +284,7 @@ const GlobalSearch = ({ show, handleShow }) => {
         </div> */}
 
         {/* Search Results */}
+        
         <ListGroup variant="flush">
           {searchResultsDisplay}
         </ListGroup>

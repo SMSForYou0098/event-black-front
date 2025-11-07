@@ -34,10 +34,27 @@ const DetailsHeader = ({ eventData, event_key }) => {
             'season ticket QR that allows access throughout the season, but only one entry per day',
         },
         {
-            icon: "fa-solid fa-location-dot", // Location icon
-            value: `${eventData?.venue?.address}, ${eventData?.venue?.city}, ${eventData?.venue?.state}`,
+            icon: "fa-solid fa-location-dot",
+            value: (
+              <>
+                {eventData?.venue?.address}, {eventData?.venue?.city}, {eventData?.venue?.state}
+                ...{" "}
+                    <a
+                        href={eventData?.venue?.map_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                            color: "#B51515", // Bootstrap primary blue
+                            fontWeight: 600,
+                        }}
+                    >
+                  click here
+                </a>
+              </>
+            ),
             valueClass: "fw-semibold",
-        },
+          }
+,          
         {
             icon: "fa-regular fa-clock", // Date & Time icon
             value: event_date,

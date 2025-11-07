@@ -18,7 +18,8 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
         <Tab.Container defaultActiveKey="description">
           <Nav
             variant="pills"
-            className="nav nav-pills mb-3 mb-md-5"
+            // className="nav nav-pills mb-3 mb-md-5"
+            className="iq-custom-tab tab-bg-gredient-center d-flex nav nav-pills align-items-center text-center mb-5 justify-content-center list-inline"
           >
             <Row className="w-100 g-2">
               {tabItems.map((item) => (

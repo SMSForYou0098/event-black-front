@@ -13,14 +13,13 @@ import { selectCheckoutDataByKey } from "@/store/customSlices/checkoutDataSlice"
 import { api } from "@/lib/axiosInterceptor";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ErrorExtractor } from "@/utils/consts";
-import paymentLoader from "../../../../assets/event/stock/payment_processing.gif";
 import { checkForDuplicateAttendees, sanitizeInput, validateAttendeeData } from "../../../../components/CustomComponents/AttendeeStroreUtils";
 import Swal from "sweetalert2";
-import LoaderComp from "../../../../utils/LoaderComp";
 import Timer from "../../../../utils/BookingUtils/Timer";
 import { useEventData } from "../../../../services/events";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import { SavingsHighlight } from "../../../../components/events/CheckoutComps/checkout_utils";
+import Image from "next/image";
 const CartPage = () => {
   const router = useRouter();
   const { isMobile, ErrorAlert, successAlert, UserData, systemSetting } = useMyContext();
@@ -682,10 +681,22 @@ const CartPage = () => {
   };
 
   return (
-    <div className="cart-page">
-      {isLoading && (
-        <LoaderComp imgLoader={paymentLoader} />
-      )}
+    <div className="cart-page position-relative">
+    {/* Loader Overlay */}
+    {isLoading && (
+      <div className="loader-overlay">
+        <Image
+          src={'/assets/stock/payment_processing.gif' || '/assets/stock/loader111.gif'}
+          alt="loader"
+          className="img-fluid bg-transparent shadow-none"
+          width={200}
+          height={200}
+        />
+      </div>
+    )}
+  
+    {/* Main Content (will be blurred when loader is active) */}
+    <div className={isLoading ? "content-blur" : ""}>
       <Container>
         <CartSteps
           id={2}
@@ -697,13 +708,12 @@ const CartPage = () => {
           onExpire={() => setIsTimerExpired(true)}
         />
         <Row>
-               {summaryData?.discount > 0 && (
-        <SavingsHighlight totalSavings={summaryData?.discount} />
-      )}
+          {summaryData?.discount > 0 && (
+            <SavingsHighlight totalSavings={summaryData?.discount} />
+          )}
           <Col className="d-none d-sm-block" lg="8" md="5">
             <CheckoutSummarySection
               summaryData={summaryData}
-              // calculatedTotal={calculatedTotal}
               couponCode={couponCode}
               setCouponCode={setCouponCode}
               handleApplyCoupon={handleApplyCoupon}
@@ -713,7 +723,6 @@ const CartPage = () => {
             />
           </Col>
           <Col lg="4" md="5">
-
             <OrderReviewSection
               isMobile={isMobile}
               orderData={orderData}
@@ -721,29 +730,26 @@ const CartPage = () => {
               summaryData={summaryData}
               event={checkoutData?.event}
               ticketdata={checkoutData?.ticket}
-              // calculatedTotal={calculatedTotal}
               validatedData={checkoutData}
               handleProcess={handleProcess}
               BookingMobileFooter={BookingMobileFooter}
               CustomBtn={CustomBtn}
               Link={Link}
               isLoading={isLoading}
-              // promo code props
               couponCode={couponCode}
               setCouponCode={setCouponCode}
               handleApplyCoupon={handleApplyCoupon}
               promoCodeLoading={applyCouponMutation.isPending}
-
               isExpanded={isExpanded}
               setIsExpanded={setIsExpanded}
-
               step={2}
             />
-
           </Col>
         </Row>
       </Container>
     </div>
+  </div>
+  
   );
 };
 

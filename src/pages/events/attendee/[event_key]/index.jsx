@@ -126,7 +126,7 @@ const AttendeePage = () => {
   }, [data]);
   //  console.log(k)
   return (
-    <div className="mt-5 pt-5">
+    <div className="">
       <Container>
         <CartSteps id={2} showAttendee={true} />
         <Timer timestamp={data?.timestamp} />

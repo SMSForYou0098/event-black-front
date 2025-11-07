@@ -1,5 +1,6 @@
 // pages/_app.tsx
 import { useState } from 'react';
+import Head from 'next/head'; // ✅ Import Head
 import { SessionProvider } from 'next-auth/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -22,7 +23,10 @@ import { Toaster } from 'react-hot-toast';
 
 const layouts = { Blank, Frontend };
 
-export default function App({ Component, pageProps: { session, dehydratedState, ...pageProps } }) {
+export default function App({
+  Component,
+  pageProps: { session, dehydratedState, ...pageProps },
+}) {
   const Layout = layouts[Component.layout] || layouts.Frontend;
 
   const [queryClient] = useState(
@@ -38,25 +42,32 @@ export default function App({ Component, pageProps: { session, dehydratedState, 
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <HydrationBoundary state={dehydratedState}>
-        <SessionProvider session={session}>
-          <Provider store={store}>
-            <PersistGate loading={null} persistor={persistor}>
-              <MyContextProvider>
-                <AppLayout>
-                  <AppContent>
-                    <Layout>
-                      <Toaster />
-                      <Component {...pageProps} />
-                    </Layout>
-                  </AppContent>
-                </AppLayout>
-              </MyContextProvider>
-            </PersistGate>
-          </Provider>
-        </SessionProvider>
-      </HydrationBoundary>
-    </QueryClientProvider>
+    <>
+      {/* ✅ Add viewport meta here */}
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </Head>
+
+      <QueryClientProvider client={queryClient}>
+        <HydrationBoundary state={dehydratedState}>
+          <SessionProvider session={session}>
+            <Provider store={store}>
+              <PersistGate loading={null} persistor={persistor}>
+                <MyContextProvider>
+                  <AppLayout>
+                    <AppContent>
+                      <Layout>
+                        <Toaster />
+                        <Component {...pageProps} />
+                      </Layout>
+                    </AppContent>
+                  </AppLayout>
+                </MyContextProvider>
+              </PersistGate>
+            </Provider>
+          </SessionProvider>
+        </HydrationBoundary>
+      </QueryClientProvider>
+    </>
   );
 }

@@ -50,25 +50,51 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
     <>
       <div className="product-meta-wrapper mt-2">
         <div className="event-meta-compact d-flex flex-wrap gap-3 mt-3">
-          {metaInfo?.map((info, i) => (
-            <div
-              key={i}
-              className="cursor-pointer custom-dark-content-bg d-flex align-items-start px-3 py-2 rounded-3 border"
-            >
-              <CustomTooltip text={info.description || ''} placement="bottom">
-              <span className="me-3">
-                {" "}
-                <i className={info.icon}></i>
-              </span>
-              <span
-                className={info.valueClass}
-                style={{ fontSize: "15px", fontWeight: 500 }}
+          {metaInfo?.map((info, i) => {
+            // Apply a colored badge only if event type is 'daily'
+            const isDailyEvent =
+              info.icon === "fa-regular fa-calendar" && info.value?.toLowerCase() === "daily";
+            const isSeasonalEvent =
+              info.icon === "fa-regular fa-calendar" && info.value?.toLowerCase() === "seasonal";
+
+            const content = (
+              <>
+                <span className="me-3">
+                  <i className={info.icon}></i>
+                </span>
+                <span
+                  className={`${info.valueClass} ${isDailyEvent ? "bg-warning text-dark px-2 py-1 rounded-pill" : ""} ${isSeasonalEvent ? "bg-info text-dark px-2 py-1 rounded-pill" : ""}`}
+
+                  style={{ fontSize: "15px", fontWeight: 500 }}
+                >
+                  {info.value}
+                </span>
+              </>
+            );
+
+            return (
+              <div
+                key={i}
+                className="cursor-pointer custom-dark-content-bg d-flex align-items-start px-3 py-2 rounded-3 border"
               >
-                {info.value}
-              </span>
-              </CustomTooltip>
-            </div>
-          ))}
+                <CustomTooltip text={info.description || ''} placement="bottom">
+                  {info.link ? (
+                    <a
+                      href={info.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-decoration-none text-reset"
+                    >
+                      {content}
+                    </a>
+                  ) : (
+                    content
+                  )}
+                </CustomTooltip>
+              </div>
+            );
+          })}
+
         </div>
 
         {/* Desktop Button - only show on non-mobile */}

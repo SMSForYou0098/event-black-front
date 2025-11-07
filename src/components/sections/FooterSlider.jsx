@@ -38,7 +38,7 @@ const FooterSlider = ({ themeSchemeDirection = 'ltr' }) => {
 
   // Render the slider only if data fetching is successful and events exist
   return (
-    <div>
+    <div className=''>
       <div className="">
         <h4 className="my-4 mt-md-3 mt-sm-3">Our Events</h4>
       </div>

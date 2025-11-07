@@ -2,7 +2,7 @@ import { memo, useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useEnterExit } from "@/utilities/usePage";
 import BannerSkeleton from "@/utils/SkeletonUtils/BannerSkeleton";
-
+import ContactButtons from "@/components/CustomComponents/ContactButtons"
 // Enhanced intersection observer hook - LOAD ONCE + CLEANUP
 const useLoadOnce = (threshold = 0.1, rootMargin = '50px') => {
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -163,7 +163,7 @@ const OTT = memo(() => {
       {/* Critical: Above the fold - load immediately */}
       <CommonBannerSlider />
       {/* <HomeBannerSlider /> */}
-      
+      {/* <ContactButtons /> */}
       {/* High priority: Preload when user is getting close */}
       <PreloadSection 
         fallback={<SectionSkeleton title="Trending Events" />}

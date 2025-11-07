@@ -162,8 +162,22 @@ const TicketCanvas = (props) => {
                 selectable: false,
                 evented: false,
               });
+              const radius = Math.max(ticketNumberText.width, ticketNumberText.height) / 2 + padding;
 
-              canvas.add(qrBackground, qrImg, ticketNumberText);
+              const ticketNumberBadge = new fabric.Circle({
+                left: ticketNumberText.left,
+                top: ticketNumberText.top+9,
+                radius,
+                fill: '#fff',
+                stroke: '#ddd',          // subtle outline; use '#000' if you want stronger
+                strokeWidth: 1,
+                originX: 'center',
+                originY: 'center',
+                selectable: false,
+                evented: false,
+              });
+
+              canvas.add(qrBackground, qrImg,ticketNumberBadge, ticketNumberText);
               canvas.renderAll();
             });
           }

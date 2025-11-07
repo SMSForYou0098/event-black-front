@@ -76,6 +76,7 @@ export const OrderReviewSection = (props) => {
               selectedTickets={summaryData}
               step={step}
               summaryData={summaryData}
+              isLoading={isLoading}
             />
           </div>
           

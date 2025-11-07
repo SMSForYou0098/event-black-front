@@ -427,7 +427,7 @@ const HeaderDefault = memo(() => {
                   </Dropdown>
                 ) : (
                   <CustomBtn
-                    style={{ padding: "0px 0px" }}
+                    style={{ padding:!isMobile?  "8px 8px" : "4px" }}
                     buttonText={!isMobile && "Login"}
                     // className={"ms-3"}
                     icon={<Fingerprint size={20} />}

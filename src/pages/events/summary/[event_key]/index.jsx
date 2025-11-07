@@ -16,17 +16,18 @@ import { MdEmail } from "react-icons/md";
 import Swal from 'sweetalert2';
 import CustomBtn from '../../../../utils/CustomBtn';
 import TicketModal from '../../../../components/Tickets/TicketModal';
+import BookingFooterLayout from '../../../../utils/BookingFooterLayout';
 
 const BookingSummary = () => {
     // All useState hooks at the top
     const [showAttendees, setShowAttendees] = useState(false);
     const [show, setShow] = useState(false);
     const [ticketType, setTicketType] = useState({ type: '', id: '' });
-    
+
     // Context and router hooks
     const { ErrorAlert, formatDateRange } = useMyContext();
     const router = useRouter();
-    
+
     // Derived values from router
     const raw = router.query.session_id;
     const sessionId = Array.isArray(raw) ? raw[0] : raw;
@@ -170,9 +171,9 @@ const BookingSummary = () => {
             reverseButtons: true,
         }).then((result) => {
             if (result.isConfirmed) {
-                 handleTicketPreview('combine', booking?.id);
+                handleTicketPreview('combine', booking?.id);
             } else if (result.dismiss === Swal.DismissReason.cancel && isMaster) {
-                 handleTicketPreview('individual', booking?.id);
+                handleTicketPreview('individual', booking?.id);
             }
         });
     };
@@ -190,7 +191,7 @@ const BookingSummary = () => {
             />
             <Container className="">
                 <CartSteps id={'last'} />
-                <ETicketAlert/>
+                <ETicketAlert />
                 <Row>
                     {/* Right Column */}
                     <Col lg={8}>
@@ -207,7 +208,7 @@ const BookingSummary = () => {
                             showAttBtn={true}
                             subTotal={mutation?.data?.taxes?.base_amount}
                             processingFee={mutation?.data?.taxes?.total_tax}
-                            total={mutation?.data?.taxes?.final_amount || booking?.amount} 
+                            total={mutation?.data?.taxes?.final_amount || booking?.amount}
                         />
                         <AttendeesOffcanvas
                             show={showAttendees}
@@ -269,8 +270,31 @@ const BookingSummary = () => {
                                 </div>
                             </Card.Body>
                         </Card>
+                        <div className='d-block d-sm-none'>
+                            <BookingFooterLayout
+                                center={<div className='d-flex gap-2 justify-content-center align-items-center d-sm-none'>
+                                    <CustomBtn
+                                        size="sm"
+                                        variant="primary"
+                                        HandleClick={HandleDownload}
+                                        buttonText="Download Tickets"
+                                        icon={<i className="fa-solid fa-download"></i>}
+                                    />
+                                    {attendees?.length !== 0 && (
+                                        <CustomBtn
+                                            size="sm"
+                                            variant="primary"
+                                            HandleClick={handleOpen}
+                                            buttonText="View Attendees"
+                                        />
+                                    )}
+                                </div>}
+                            />
+                        </div>
+
+                        {/* <div className='d-none d-sm-flex gap-2 justify-content-center align-items-center'> */}
                         <div
-                            className="d-flex gap-2 justify-content-center align-items-center"
+                            className=" d-none d-sm-flex gap-2 justify-content-center align-items-center"
                         >
                             <CustomBtn
                                 size="sm"

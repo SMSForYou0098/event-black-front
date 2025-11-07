@@ -2,8 +2,9 @@ import { useState, useCallback } from "react";
 import { Button, Alert } from "react-bootstrap";
 import BookingFooterLayout from "../BookingFooterLayout";
 import CustomDrawer from "../../utils/CustomDrawer"; // Adjust path as needed
+import CustomBtn from "../CustomBtn";
 
-const BookingMobileFooter = ({ handleClick, selectedTickets, step=0 }) => {
+const BookingMobileFooter = ({ handleClick, selectedTickets, step=0,isLoading=false }) => {
   const [showDrawer, setShowDrawer] = useState(false);
 
   const handleProceedClick = useCallback(() => {
@@ -29,13 +30,14 @@ left={
 }
         middle={<h5 className="p-0 m-0 fw-bold">Ticket: {selectedTickets?.quantity || 0}</h5>}
         right={
-          <Button
-            onClick={handleProceedClick}
-            className="btn-sm d-flex align-items-center justify-content-center gap-3"
-          >
-            Proceed
-            <i className="fa-solid fa-play"></i>
-          </Button>
+          // <Button
+          //   onClick={handleProceedClick}
+          //   className="btn-sm d-flex align-items-center justify-content-center gap-3"
+          // >
+          //   Proceed
+          //   <i className="fa-solid fa-play"></i>
+          // </Button>
+          <CustomBtn HandleClick={handleProceedClick} buttonText='Proceed' loading={isLoading} />
         }
       />
 

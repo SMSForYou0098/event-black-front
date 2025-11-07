@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const SaleTag = () => (
   <span className="bg-primary text-white fs-6 position-relative p-1 me-2 rounded-3">
-    On Sale!
+    Sale!
   </span>
 );
 

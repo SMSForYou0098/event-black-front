@@ -248,7 +248,7 @@ const TicketModal = (props) => {
                 </Row>
                 <Modal.Footer>
                 <div className="text-center text-secondary small p-0">
-                    <p>No physical ticket needed! Download your Ticket & enjoy unlimited fun. Watch the video for easy entry.</p>
+                    <p>No physical ticket needed! Download your Ticket & enjoy unlimited fun.</p>
                     <span className="fw-semibold">
                        Watch the video to get entry without any hassle
                         <a

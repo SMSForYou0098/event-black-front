@@ -91,6 +91,7 @@ const footerStaticData = {
       footer_menu: [
         { id: 3, title: "Privacy Policy", page_id: "privacy-policy" },
         { id: 4, title: "Terms & Conditions", page_id: "terms-and-conditions" },
+        { id: 4, title: "Pricing Policy", page_id: "pricing-policy" },
       ],
     },
   ],
@@ -107,7 +108,12 @@ const footerStaticData = {
                   {/* Logo and Contact Section */}
                   <Col xl={3} lg={6} className="mb-5 mb-lg-0">
                     <div className="footer-logo">
-                      <Logo size={120} />
+                      {/* <Logo size={120} /> */}
+                      <Logo
+                        desktopUrl="/assets/images/logo/footer-logo.png"
+                        mobileUrl="/assets/images/logo/footer-logo.png"
+                        size={250}
+                      />
                     </div>
                       <p className="mb-4 font-size-14">
                         <MailCheck color="var(--bs-primary)" /> {" "}

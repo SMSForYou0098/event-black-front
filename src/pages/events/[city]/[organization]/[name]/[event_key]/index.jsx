@@ -2,13 +2,17 @@
 import EventDetailPage from '../../../../../../components/events/EventDetails/EventDetailPage';
 import { useEventData, getEventById } from '../../../../../../services/events';
 import { QueryClient, dehydrate } from '@tanstack/react-query';
+import EventDetailPageSkeleton from '../../../../../../utils/SkeletonUtils/EventDetailPageSkeleton';
 
 const queryKey = (event_key) => ['event', event_key];
 
 const EventById = ({ event_key }) => {
-  const { data: event } = useEventData(event_key); // instantly hydrated
+  const { data: event,isLoading } = useEventData(event_key); // instantly hydrated
+  console.log('loading',isLoading);
+  if(isLoading){
+    return <EventDetailPageSkeleton />
+  }
   if (!event) return <div className="mt-5 pt-5">Event not found.</div>;
-
   return (
     <section>
       <EventDetailPage eventData={event} event_key={event_key} />
