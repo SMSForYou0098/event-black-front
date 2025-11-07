@@ -252,7 +252,7 @@ const TicketModal = (props) => {
                     <span className="fw-semibold">
                        Watch the video to get entry without any hassle
                         <a
-                            href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
+                            href="https://www.youtube.com/watch?v=QIVkT5Iie3c"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary text-decoration-underline ms-1 me-2"
@@ -261,7 +261,7 @@ const TicketModal = (props) => {
                         </a>
                         &
                         <a
-                            href="https://www.instagram.com/YOUR_INSTAGRAM_LINK"
+                            href="https://www.instagram.com/getyourticket.in/p/DQZXxmHCNYU/"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary text-decoration-underline ms-2"

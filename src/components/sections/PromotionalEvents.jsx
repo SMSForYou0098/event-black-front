@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { useMyContext } from '@/Context/MyContextProvider';
 import CardStyle from '../cards/CardStyle';
 import SectionSlider from '../slider/SectionSlider';
+import ProductCard from '../cards/ProductCard';
 
 export const usePromotionalEvents = (options = {}) => {
   return useQuery({
@@ -30,15 +31,22 @@ const PromotionalEvents = () => {
   if (isError) return <div className="text-center py-5 text-danger">Error: {error?.message}</div>;
 
   return (
-    <section className='promo-cards'>
-      <SectionSlider list={data}>
+    <section className=''>
+      <SectionSlider title={'Organisations'} slidesPerView={6} list={data}>
         {(event, index) => (
-          <CardStyle
+          <ProductCard
             key={index}
-            image={event?.image}
+            thumbnail={event?.image}
             link={`/events/${createSlug(event.org?.city).toLowerCase()}/${createSlug(event?.org?.organisation).toLowerCase()}`}
             countValue={index + 1}
+            noPrice={true}
           />
+          // <CardStyle
+          //   key={index}
+          //   image={event?.image}
+          //   link={`/events/${createSlug(event.org?.city).toLowerCase()}/${createSlug(event?.org?.organisation).toLowerCase()}`}
+          //   countValue={index + 1}
+          // />
         )}
       </SectionSlider>
     </section>

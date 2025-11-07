@@ -3,6 +3,10 @@ import dynamic from "next/dynamic";
 import { useEnterExit } from "@/utilities/usePage";
 import BannerSkeleton from "@/utils/SkeletonUtils/BannerSkeleton";
 import ContactButtons from "@/components/CustomComponents/ContactButtons"
+import HomeArtists from "@/components/sections/HomeArtists";
+import OurEvents from "@/components/sections/OurEvents";
+import PastEvents from "@/components/sections/PastEvents";
+import BlogSection from "@/components/sections/BlogSection";
 // Enhanced intersection observer hook - LOAD ONCE + CLEANUP
 const useLoadOnce = (threshold = 0.1, rootMargin = '50px') => {
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -165,12 +169,11 @@ const OTT = memo(() => {
       {/* <HomeBannerSlider /> */}
       {/* <ContactButtons /> */}
       {/* High priority: Preload when user is getting close */}
-      <PreloadSection 
+      {/* <PreloadSection 
         fallback={<SectionSkeleton title="Trending Events" />}
         preloadMargin="150px"
       >
-        <PromotionalEvents />
-      </PreloadSection>
+      </PreloadSection> */}
 
       {/* High priority: Preload when user is getting close */}
       <PreloadSection 
@@ -180,15 +183,6 @@ const OTT = memo(() => {
         <HighDemand />
       </PreloadSection>
       
-      {/* High-medium priority: Load when close */}
-      <PreloadSection 
-        fallback={<SectionSkeleton title="Organisation Events" />}
-        preloadMargin="100px"
-      >
-        {/* <Organisation /> */}
-      </PreloadSection>
-      
-      {/* Medium priority: Load when in view */}
       <LazySection 
         fallback={<SectionSkeleton title="Events" />}
         threshold={0.1}
@@ -196,23 +190,41 @@ const OTT = memo(() => {
       >
         <EventsSection />
       </LazySection>
+      {/* High-medium priority: Load when close */}
+      <PreloadSection 
+        fallback={<SectionSkeleton title="Organisation Events" />}
+        preloadMargin="100px"
+      >
+        {/* <Organisation /> */}
+      </PreloadSection>
+
+      
+      <OurEvents />
+
+      <PastEvents />
+      {/* Medium priority: Load when in view */}
+
       
       {/* Low priority: Load only when visible */}
       {/* <LazySection 
         fallback={<SectionSkeleton title="Past Events" />}
         threshold={0.1}
         rootMargin="50px"
-      >
+        >
         <ExpiredEvents />
-      </LazySection> */}
-      
+        </LazySection> */}
+              <PromotionalEvents />
+
+        <HomeArtists />
+        
+        <BlogSection />
       {/* Footer: Load when approaching */}
       <LazySection 
         fallback={<FooterSkeleton />}
         threshold={0.1}
         rootMargin="100px"
       >
-        <FooterSlider />
+        {/* <FooterSlider /> */}
       </LazySection>
     </>
   );

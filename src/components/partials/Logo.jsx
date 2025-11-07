@@ -2,30 +2,41 @@ import Image from "next/image";
 import React from "react";
 
 const Logo = ({
+  height = 50,
+  width = 50,
   size = 50,
-  desktopUrl = "/assets/images/logo/logo.webp", // default desktop logo
-  mobileUrl = "/assets/images/logo/logo-sm.webp", // default mobile logo
+  desktopUrl = "/assets/images/logo/logo.png",
+  mobileUrl = "/assets/images/logo/logo-sm.webp",
+  handleClick,
 }) => {
   return (
     <>
       {/* Desktop logo (visible on sm and above) */}
-      <div className="d-none d-sm-block">
+      <div
+        className={`d-none d-sm-block ${handleClick ? "cursor-pointer" : ""}`}
+        onClick={handleClick}
+        style={{ display: "inline-block" }}
+      >
         <Image
           src={desktopUrl}
           alt="Logo"
-          width={size}
-          height={size * 1} // maintain aspect ratio
+          width={width || size}
+          height={height || size}
           priority
         />
       </div>
 
       {/* Mobile logo (visible below sm) */}
-      <div className="d-block d-sm-none">
+      <div
+        className={`d-block d-sm-none ${handleClick ? "cursor-pointer" : ""}`}
+        onClick={handleClick}
+        style={{ display: "inline-block" }}
+      >
         <Image
           src={mobileUrl}
           alt="Logo Small"
           width={size * 0.8}
-          height={size * 0.32} // maintain aspect ratio
+          height={size * 0.32}
           priority
         />
       </div>

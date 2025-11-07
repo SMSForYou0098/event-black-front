@@ -33,7 +33,6 @@ import {
 } from "lucide-react";
 
 // components
-import Logo from "../logo";
 import CustomToggle from "../CustomToggle";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useQuery } from "@tanstack/react-query";
@@ -43,6 +42,7 @@ import { logout } from "@/store/auth/authSlice";
 import CustomBtn from "@/utils/CustomBtn";
 import AvatarImage from "../../utils/ProfileUtils/AvatarImage";
 import GlobalSearch from "../modals/GlobalSearch";
+import Logo from "./Logo";
 
 
 
@@ -206,11 +206,14 @@ const HeaderDefault = memo(() => {
         >
           <Container fluid className="navbar-inner">
             <div className="d-flex align-items-center justify-content-between w-100 landing-header">
-                <Logo size={150} />
+                {/* <Logo size={150} /> */}
+                <Logo height={40} width={80} />
+                {/* <L */}
               <div className="d-flex gap-3 gap-xl-0 align-items-center">
-                <Link href={"/"}>
+                
+                {/* <Link href={"/"}>
                   <Image height={65} src={systemSetting?.auth_logo || ""} />
-                </Link>
+                </Link> */}
               </div>
               <Navbar
                 expand="xl"
@@ -426,13 +429,16 @@ const HeaderDefault = memo(() => {
                     </Dropdown.Menu>
                   </Dropdown>
                 ) : (
-                  <CustomBtn
-                    style={{ padding:!isMobile?  "8px 8px" : "4px" }}
-                    buttonText={!isMobile && "Login"}
-                    // className={"ms-3"}
-                    icon={<Fingerprint size={20} />}
-                    HandleClick={() => location.push("/auth/login")}
-                  />
+                  // <CustomBtn
+                  //   style={{ fontSize:"10px", padding:!isMobile?  "8px 8px" : "4px" }}
+                  //   buttonText={!isMobile && "Login"}
+                  //   // className={"ms-3"}
+                  //   icon={<Fingerprint size={20} />}
+                  //   HandleClick={() => location.push("/auth/login")}
+                  // />
+                  <Button onClick={() => location.push("/auth/login")} size='sm' className="p-1 text-xs">
+                    {!isMobile && "Login"} <Fingerprint size={16}/>
+                  </Button>
                 )}
                 <div
                   className={`fw-bold navbar-collapse ${show === true ? "collapse show" : "collapse"}`}

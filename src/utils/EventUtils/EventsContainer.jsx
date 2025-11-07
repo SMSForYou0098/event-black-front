@@ -4,9 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useMyContext } from "@/Context/MyContextProvider";
 import CardStyle from "@/components/cards/CardStyle";
+import ProductCard from "@/components/cards/ProductCard";
 import SectionSlider from "@/components/slider/SectionSlider";
 import TopTenCard from './TopTenCard';
 import SkeletonLoader from '../SkeletonUtils/SkeletonLoader'
+
 const EventsContainer = memo(({ 
   title = "Events",
   className = "recommended-block section-top-spacing streamit-block",
@@ -125,19 +127,34 @@ const EventsContainer = memo(({
               )}/${createSlug(data?.name)}/${data?.event_key}`}
             />
           ) : (
-            <CardStyle
-              image={data.event_media?.thumbnail}
-              title={data.name}
-              movieTime={data.date_range}
-              watchlistLink="/play-list"
-              link={`/events/${createSlug(data?.city)}/${createSlug(
-                data?.organisation
-              )}/${createSlug(data?.name)}/${data?.event_key}`}
-              lowest_ticket_price={data.lowest_ticket_price}
-              lowest_sale_price={data.lowest_sale_price}
-              on_sale={data.on_sale}
-              countValue={finalIndex + 1} 
-            />
+            // <CardStyle
+            //   image={data.event_media?.thumbnail}
+            //   title={data.name}
+            //   movieTime={data.date_range}
+            //   watchlistLink="/play-list"
+            //   link={`/events/${createSlug(data?.city)}/${createSlug(
+            //     data?.organisation
+            //   )}/${createSlug(data?.name)}/${data?.event_key}`}
+            //   lowest_ticket_price={data.lowest_ticket_price}
+            //   lowest_sale_price={data.lowest_sale_price}
+            //   on_sale={data.on_sale}
+            //   countValue={finalIndex + 1} 
+            // />
+            <ProductCard
+                          thumbnail={data?.event_media?.thumbnail}
+                          product_name={data.name}
+                          lowest_ticket_price={data.lowest_ticket_price}
+                          lowest_sale_price={data.lowest_sale_price}
+                          rating="5"
+                          count1={finalIndex + 1}
+                          on_sale={data.on_sale}
+                          city={data?.city}
+                          // is_new={data.is_new}
+                          slug={data.slug}
+                          link={`/events/${createSlug(data?.city)}/${createSlug(
+                                data?.organisation
+                              )}/${createSlug(data?.name)}/${data?.event_key}`}
+                        />
           );
         }}
 </SectionSlider>

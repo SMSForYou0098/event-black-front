@@ -58,17 +58,17 @@ const SectionSlider = ({
 
   return (
     <div className={className}>
-      <Container fluid={containerFluid} className={containerFluid ? "p-0" : ""}>
+      <Container fluid>
         <div className="overflow-hidden card-style-slider" ref={slider}>
-          <div className="d-flex align-items-center justify-content-between px-3 my-4">
+          <div className="d-flex align-items-center justify-content-between px-3 my-2">
             <h5 className="main-title text-capitalize mb-0">{title}</h5>
-            <Link
-              href={link ? link : "#"}
+            {/* <Link
+              href={link ? link : "/view-all"}
               className="text-primary iq-view-all text-decoration-none"
               onClick={onViewAll}
             >
               View All
-            </Link>
+            </Link> */}
           </div>
           <Swiper
             key={String(themeSchemeDirection)}
@@ -104,12 +104,10 @@ const SectionSlider = ({
                 spaceBetween: 0,
               },
             }}
-            onSwiper={initSwiper}
-            onSlideChange={initSwiper}
             modules={modules}
           >
             {list?.map((data, index) => (
-              <SwiperSlide tag="li" key={index + "slider"}>
+              <SwiperSlide slidesPerView={6} spaceBetween={0}>
                 {children(data)}
               </SwiperSlide>
             ))}
@@ -121,5 +119,7 @@ const SectionSlider = ({
     </div>
   );
 };
+
+SectionSlider.displayName = "SectionSlider";
 
 export default SectionSlider;

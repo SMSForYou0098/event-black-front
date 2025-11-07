@@ -7,7 +7,7 @@ import { getFeatureEvents } from "@/services/home";
 const HighDemand = memo(() => {
   return (
     <EventsContainer
-      title="High Demand"
+      title="Popular Events"
       loadingText="Loading Popular Shows..."
       errorText="Failed to load popular shows. Please try again later."
       useReactQuery={true}

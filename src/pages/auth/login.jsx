@@ -180,7 +180,7 @@ const Login = () => {
   return (
     <AuthLayout>
       <Form noValidate validated={validated} onSubmit={handleLogin}>
-        <h4 className="text-center mb-4 text-white">Login</h4>
+        <h5 className="text-center mt-3 mb-4 text-white">Login</h5>
         {error && <Alert variant="primary">{error}</Alert>}
 
         <Form.Group className="mb-3">

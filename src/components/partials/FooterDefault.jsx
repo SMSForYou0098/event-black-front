@@ -110,9 +110,15 @@ const footerStaticData = {
                     <div className="footer-logo">
                       {/* <Logo size={120} /> */}
                       <Logo
-                        desktopUrl="/assets/images/logo/footer-logo.png"
-                        mobileUrl="/assets/images/logo/footer-logo.png"
-                        size={250}
+                        desktopUrl="/assets/images/logo/footer-logo.webp"
+                        mobileUrl="/assets/images/logo/footer-logo.webp"
+                        height={150}
+                        width={275}
+                        handleClick={() => {
+                          const phoneNumber = "918000408888";
+                          const message = encodeURIComponent("Chat");
+                          window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
+                        }}
                       />
                     </div>
                       <p className="mb-4 font-size-14">

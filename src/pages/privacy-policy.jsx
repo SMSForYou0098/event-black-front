@@ -28,157 +28,16 @@ const PrivacyPolicy = () => {
                 type="article"
                 structuredData={structuredData}
             />
-      <style>{`
-        .privacy-hero {
-          background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e3a8a 100%);
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .privacy-hero::before {
-          content: '';
-          position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
-          animation: pulse 4s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 1; }
-        }
-        
-        .gradient-text {
-          background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #c084fc 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        
-        .privacy-section {
-          background: linear-gradient(135deg, rgba(31, 41, 55, 0.5) 0%, rgba(17, 24, 39, 0.7) 100%);
-          border: 1px solid rgba(75, 85, 99, 0.3);
-          border-radius: 20px;
-          padding: 2.5rem;
-          margin-bottom: 2rem;
-          backdrop-filter: blur(10px);
-          transition: all 0.3s ease;
-        }
-        
-        .privacy-section:hover {
-          border-color: rgba(96, 165, 250, 0.5);
-          transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(96, 165, 250, 0.1);
-        }
-        
-        .section-title {
-          color: #60a5fa;
-          font-size: 1.5rem;
-          font-weight: 700;
-          margin-bottom: 1.25rem;
-          padding-bottom: 0.75rem;
-          border-bottom: 2px solid rgba(96, 165, 250, 0.3);
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-        
-        .section-icon {
-          width: 36px;
-          height: 36px;
-          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.25rem;
-        }
-        
-        .privacy-content {
-          color: #d1d5db;
-          line-height: 1.8;
-          font-size: 1rem;
-        }
-        
-        .privacy-content p {
-          margin-bottom: 1rem;
-        }
-        
-        .privacy-content strong {
-          color: #93c5fd;
-          font-weight: 600;
-        }
-        
-        .highlight-box {
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
-          border-left: 4px solid #60a5fa;
-          padding: 1.25rem;
-          border-radius: 12px;
-          margin: 1.5rem 0;
-        }
-        
-        .info-badge {
-          display: inline-block;
-          background: rgba(96, 165, 250, 0.2);
-          color: #60a5fa;
-          padding: 0.35rem 1rem;
-          border-radius: 20px;
-          font-size: 0.875rem;
-          font-weight: 600;
-          margin-bottom: 1rem;
-          border: 1px solid rgba(96, 165, 250, 0.3);
-        }
-        
-        .list-styled {
-          padding-left: 1.5rem;
-          margin: 1rem 0;
-        }
-        
-        .list-styled li {
-          margin-bottom: 0.75rem;
-          color: #d1d5db;
-        }
-        
-        .list-styled li::marker {
-          color: #60a5fa;
-        }
-        
-        .definition-item {
-          margin-bottom: 1.5rem;
-          padding: 1rem;
-          background: rgba(59, 130, 246, 0.05);
-          border-radius: 10px;
-          border-left: 3px solid #60a5fa;
-        }
-        
-        .definition-term {
-          color: #93c5fd;
-          font-weight: 700;
-          margin-bottom: 0.5rem;
-        }
-        
-        .last-updated {
-          color: #9ca3af;
-          font-size: 0.9rem;
-          text-align: center;
-          margin-top: 3rem;
-          padding-top: 2rem;
-          border-top: 1px solid rgba(75, 85, 99, 0.3);
-        }
-      `}</style>
 
       {/* Hero Section */}
-      <section className="privacy-hero text-white py-5" style={{ paddingTop: '5rem', paddingBottom: '5rem' }}>
+      <section className="hero-section text-white py-5" style={{ paddingTop: '5rem', paddingBottom: '5rem' }}>
         <Container className="position-relative" style={{ zIndex: 10 }}>
           <Row className="justify-content-center text-center">
             <Col lg={10}>
               <div className="mb-3" style={{ fontSize: '3.5rem' }}>🔒</div>
-              <h1 className="display-3 fw-bold mb-4" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
+              <h4 className="display-3 fw-bold mb-4" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
                 Privacy Policy
-              </h1>
+              </h4>
               <p className="lead fs-5" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
                 Your privacy is important to us. Learn how we collect, use, and protect your personal information.
               </p>

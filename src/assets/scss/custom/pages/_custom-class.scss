@@ -145,7 +145,8 @@
   background-clip: text;
   -webkit-background-clip: text;
   line-height: normal;
-  background-image: url("/assets/images/pages/texure.webp");
+  background-color: #fff;
+  // background-image: url("/assets/images/pages/texure.webp");
    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2))
          drop-shadow(-2px -2px 2px rgba(0, 0, 0, 0.2))
          drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.2))
@@ -179,15 +180,15 @@
 }
 
 @media (max-width: 991px) {
-  .texture-text {
-    font-size: 3.4375rem !important;
-  }
+  // .texture-text {
+  //   font-size: 3.4375rem !important;
+  // }
 }
 
 @media (max-width: 767px) {
-  .texture-text {
-    font-size: 1.5615rem !important;
-  }
+  // .texture-text {
+  //   font-size: 1.5615rem !important;
+  // }
 
   .section-padding {
     // padding: 1.875rem 0;

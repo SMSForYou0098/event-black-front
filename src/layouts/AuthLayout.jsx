@@ -21,7 +21,7 @@ const AuthLayout = ({ children }) => {
             <Col lg="5" md="12" className="align-self-center">
               <Card className="user-login-card p-4 card-glassmorphism">
                 <div className="text-center">
-                  <Logo size={80} />
+                  <Logo height={40} width={80} />
                 </div>
                 {children}
               </Card>

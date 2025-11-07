@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Alert, Form, Button, Table, Card, InputGroup, Spinner, Offcanvas, ListGroup } from 'react-bootstrap';
-import { Receipt, Tag, ChevronDown, Ticket, Crown } from 'lucide-react';
+import { Receipt, Tag, ChevronDown, Ticket, Crown, InstagramIcon } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
 import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY } from '../../../utils/consts';
 import { decrypt } from '../../../utils/crypto';
 import Image from "next/image";
+import { FaInstagram, FaYoutube } from "react-icons/fa";
 
 export const getBreakdownData = (summaryData) => [
   {
@@ -163,9 +164,27 @@ export const ETicketAlert = () => (
         <li>
         View tickets in 'My Profile' on mobile web.
         </li>
-        <li>E-ticket required for entry. Download and present at the venue.</li>
+        <li>E-ticket required. Download and present.</li>
         <li>
-        Check our entry guide video on YouTube & Inst agram.
+        Download ticket, skip the line! Watch video for easy entry <span className="fw-semibold">
+                        <a
+                            href="https://www.youtube.com/watch?v=QIVkT5Iie3c"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary text-decoration-underline ms-1 me-2"
+                        >
+                            <FaYoutube className="me-0" />
+                        </a>
+                        &
+                        <a
+                            href="https://www.instagram.com/getyourticket.in/p/DQZXxmHCNYU/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary text-decoration-underline ms-2"
+                        >
+                            <FaInstagram className="me-1" />
+                        </a>
+                    </span>.
         </li>
       </ol>
     </Alert>

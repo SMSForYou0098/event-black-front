@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { HomeIcon, LayoutDashboard, MenuIcon, TicketIcon, UserIcon } from "lucide-react";
+import { HomeIcon, LayoutDashboard, MenuIcon, Telescope, TicketIcon, UserIcon } from "lucide-react";
 import { Button, Col, Container, Nav, Offcanvas, Row } from "react-bootstrap";
 import CustomMenu from "../CustomComponents/CustomMenu";
 import { useMyContext } from "@/Context/MyContextProvider";
@@ -118,10 +118,40 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
         router.push("/events");
         setActiveButton("events");
       },
-      Icon: LayoutDashboard,
+      Icon: TicketIcon,
       text: "Events",
       animation: { rotate: [0, -20, 0] },
     },
+    {
+      key: "offers",
+      onClick: () => {
+        router.push("/events/offer");
+        setActiveButton("events");
+      },
+      Icon: LayoutDashboard,
+      text: "Offers",
+      animation: { rotate: [0, -20, 0] },
+    },
+    {
+      key: "live",
+      onClick: () => {
+        router.push("/events/live");
+        setActiveButton("events");
+      },
+      Icon: Telescope,
+      text: "Live",
+      animation: { rotate: [0, -20, 0] },
+    },
+    // {
+    //   key: "menu",
+    //   onClick: () => {
+    //     handleShow();
+    //     setActiveButton("menu");
+    //   },
+    //   Icon: MenuIcon,
+    //   text: "Menu",
+    //   animation: { scale: [1, 1.2, 1] },
+    // },
     {
       key: "profile",
       onClick: () => {
@@ -130,16 +160,6 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
       },
       Icon: UserIcon,
       text: "Profile",
-      animation: { scale: [1, 1.2, 1] },
-    },
-    {
-      key: "menu",
-      onClick: () => {
-        handleShow();
-        setActiveButton("menu");
-      },
-      Icon: MenuIcon,
-      text: "Menu",
       animation: { scale: [1, 1.2, 1] },
     },
   ];
@@ -188,18 +208,18 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
           left: 0,
           right: 0,
           zIndex: 98,
-          bottom: 25,
-          maxWidth: "calc(100% - 2rem)",
-          margin: '0 auto',
+          bottom: 0,
+          maxWidth: "calc(100%)",
+          margin: '0',
         }}
       >
         <Container
-          fluid
           className="d-flex flex-column justify-content-end card-glassmorphism"
           style={{
             padding: '12px 16px',
-            borderRadius: '20px',
-            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '0px',
+            // background: 'rgba(255, 255, 255, 1)',
+            background:"#000",
             border: '1px solid rgba(255, 255, 255, 0.1)',
             boxShadow: '0 4px 24px 0 rgba(0, 0, 0, 0.1)'
           }}

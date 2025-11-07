@@ -25,13 +25,13 @@ const Frontend = (({ children }) => {
           {children}
         </HeaderProvider>
       </main>
+      <div className="d-block d-sm-none" style={{marginTop:"5rem"}}>
+        <MobileBottomMenu />
+      </div>
       <div className="d-none d-sm-block">
         <FooterDefault />
       </div>
-      <div className="d-block d-sm-none">
-        <MobileBottomMenu />
-      </div>
-      <StickyContent />
+      {/* <StickyContent /> */}
       {/* <SettingOffCanvas /> */}
     </>
   )

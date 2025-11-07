@@ -1,6 +1,6 @@
 .product-block {
     position: relative;
-    margin: 0 0 2em;
+    margin: 0 0 0em;
     transition: all 0.45s ease-in-out;
 
     .onsale {
@@ -20,6 +20,21 @@
         z-index: 2;
     }
 
+    .top-ten-numbers {
+        position: absolute;
+        bottom: -30px;
+        right: 0;
+        font-weight: 800;
+        font-size: 5.5em;
+        transition: all 0.4s ease-out;
+        z-index: 2;
+      }
+  
+    &:hover {
+        .top-ten-numbers {
+          bottom: -38px;
+        }
+    }
     .product-image {
         position: relative;
 
@@ -168,6 +183,7 @@
     }
 }
 
+
 // grid
 .product-view-button {
     padding: 0.5em 0.8em;
@@ -212,5 +228,10 @@
 @media (max-width:991px) {
     .product-view-button {
         display: none;
+    }
+    .product-block{
+        .top-ten-numbers {
+          font-size: 4rem;
+  }
     }
 }

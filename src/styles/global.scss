@@ -341,17 +341,17 @@ canvas {
   }
 }
 
-.iq-card {
-  .block-images {
+// .iq-card {
+//   .block-images {
 
-    &::after,
-    &::before,
-    .img-box img {
-      border-radius: 1rem !important;
-      transition: all 0.3s ease-in-out;
-    }
-  }
-}
+//     &::after,
+//     &::before,
+//     .img-box img {
+//       border-radius: 1rem !important;
+//       transition: all 0.3s ease-in-out;
+//     }
+//   }
+// }
 
 .category_image {
   a .img-fluid {
@@ -410,86 +410,86 @@ canvas {
 // .iq-card img {
 //   height: 10rem !important;
 // }
-.iq-card .block-images::after {
-  bottom: -4.1rem;
-}
+// .iq-card .block-images::after {
+//   bottom: -4.1rem;
+// }
 
-.iq-card {
-  margin-bottom: 2.5rem;
-  transition: margin-bottom 0.3s ease;
+// .iq-card {
+//   margin-bottom: 2.5rem;
+//   transition: margin-bottom 0.3s ease;
 
-  @media (max-width: 576px) {
-    margin-bottom: 0rem;
-  }
+//   @media (max-width: 576px) {
+//     margin-bottom: 0rem;
+//   }
 
-  .block-images {
-    aspect-ratio: 4/5;
-    overflow: hidden;
-    border-radius: 0.5rem;
-    position: relative;
+//   .block-images {
+//     aspect-ratio: 4/5;
+//     overflow: hidden;
+//     border-radius: 0.5rem;
+//     position: relative;
 
-    @media (max-width: 576px) {
-      aspect-ratio: 3/4; // More compact ratio for mobile
-    }
+//     @media (max-width: 576px) {
+//       aspect-ratio: 3/4; // More compact ratio for mobile
+//     }
 
-    .img-box {
-      position: relative;
-      width: 100%;
-      height: 100%;
+//     .img-box {
+//       position: relative;
+//       width: 100%;
+//       height: 100%;
 
-      .card-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-      }
+//       .card-img {
+//         width: 100%;
+//         height: 100%;
+//         object-fit: cover;
+//         transition: transform 0.3s ease;
+//       }
 
-      // Add overlay gradient by default with low opacity
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 40% !important; // Only cover bottom half
-        background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-    }
-  }
+//       // Add overlay gradient by default with low opacity
+//       &::after {
+//         content: '';
+//         position: absolute;
+//         bottom: 0;
+//         left: 0;
+//         right: 0;
+//         height: 40% !important; // Only cover bottom half
+//         background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+//         opacity: 0;
+//         transition: opacity 0.3s ease;
+//       }
+//     }
+//   }
 
-  &:hover {
-    margin-bottom: 2rem; // Reduced from 3rem to 2rem
+//   &:hover {
+//     margin-bottom: 2rem; // Reduced from 3rem to 2rem
 
-    .card-img {
-      transform: scale(1.03); // Reduced from 1.05 for subtler zoom
-    }
+//     .card-img {
+//       transform: scale(1.03); // Reduced from 1.05 for subtler zoom
+//     }
 
-    .img-box::after {
-      opacity: 1;
-    }
+//     .img-box::after {
+//       opacity: 1;
+//     }
 
-    .card-description {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+//     .card-description {
+//       opacity: 1;
+//       transform: translateY(0);
+//     }
+//   }
 
-  .card-description {
-    position: absolute;
-    bottom: 0.5rem; // Moved up slightly
-    left: 0;
-    right: 0;
-    padding: 1rem;
-    z-index: 1;
-    opacity: 0;
-    transform: translateY(10px); // Reduced from 100%
-    transition: all 0.3s ease;
-    color: white;
-    pointer-events: none; // Prevent overlay from blocking clicks
-  }
-}
+//   .card-description {
+//     position: absolute;
+//     bottom: 0.5rem; // Moved up slightly
+//     left: 0;
+//     right: 0;
+//     padding: 1rem;
+//     z-index: 1;
+//     opacity: 0;
+//     transform: translateY(10px); // Reduced from 100%
+//     transition: all 0.3s ease;
+//     color: white;
+//     pointer-events: none; // Prevent overlay from blocking clicks
+//   }
+// }
 
 .card-description {
   position: absolute;
