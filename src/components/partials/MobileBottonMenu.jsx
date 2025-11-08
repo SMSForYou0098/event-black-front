@@ -80,19 +80,31 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
   const router = useRouter();
 
   // Define routes where menu should be visible
-  const visibleRoutes = [
-    '/',
-    '/events',
-    '/profile',
-    '/event-details',
-    '/about-us',
-    '/blogs',
-    '/faq'
-    // Add more routes as needed
-  ];
-
-  // Check if current route should show menu
-  const shouldShowMenu = visibleRoutes.includes(router.pathname);
+  const visibleRoutes = new Set([
+    "/",
+    "/events",
+    "/events/offers",
+    "/events/live",
+    "/profile",
+    "/event-details",
+    "/about-us",
+    "/blogs",
+    "/faq",
+  ]);
+  
+  // Normalize current path
+  const normalizePath = (p = "") => {
+    const clean = p.split("?")[0].split("#")[0];
+    return clean.endsWith("/") && clean.length > 1 ? clean.slice(0, -1) : clean;
+  };
+  
+  const rawPath =
+    typeof window !== "undefined" ? router.asPath : router.pathname;
+  
+  const currentPath = normalizePath(rawPath);
+  
+  // Show only if the exact path matches one in visibleRoutes
+  const shouldShowMenu = visibleRoutes.has(currentPath);
 
   // Return null if menu should be hidden
   if (hideMenu || !shouldShowMenu) return null;
@@ -125,8 +137,8 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     {
       key: "offers",
       onClick: () => {
-        router.push("/events/offer");
-        setActiveButton("events");
+        router.push("/events/offers");
+        setActiveButton("offers");
       },
       Icon: LayoutDashboard,
       text: "Offers",
@@ -136,7 +148,7 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
       key: "live",
       onClick: () => {
         router.push("/events/live");
-        setActiveButton("events");
+        setActiveButton("live");
       },
       Icon: Telescope,
       text: "Live",
@@ -218,13 +230,13 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
           style={{
             padding: '12px 16px',
             borderRadius: '0px',
-            // background: 'rgba(255, 255, 255, 1)',
+            // background: 'rgba(255, 255, 255, 0.2)',
             background:"#000",
             border: '1px solid rgba(255, 255, 255, 0.1)',
             boxShadow: '0 4px 24px 0 rgba(0, 0, 0, 0.1)'
           }}
         >
-          <Row className="g-3 justify-content-between align-items-center">
+          <Row className="g-0 justify-content-between align-items-center">
             {buttons.map(({ key, ...buttonProps }) => (
               <Col
                 key={key}

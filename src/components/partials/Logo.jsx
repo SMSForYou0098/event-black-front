@@ -35,8 +35,8 @@ const Logo = ({
         <Image
           src={mobileUrl}
           alt="Logo Small"
-          width={size * 0.8}
-          height={size * 0.32}
+          width={width || size}
+          height={height || size}
           priority
         />
       </div>

@@ -240,7 +240,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                   return (
                     <SwiperSlide key={banner.id || index}>
                       <div
-                        className="movie-banner-image"
+                        className=""
                         style={{
                           backgroundImage: backgroundStyle,
                           backgroundSize: 'cover',
@@ -252,9 +252,9 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                         <div className="shows-content h-100">
                           <Row className="row align-items-center h-100">
                             <Col lg="7" md="12">
-                              <h1 className=" big-font letter-spacing-1 line-count-1 text-uppercase RightAnimate-two" data-animation-in="fadeInLeft" data-delay-in="0.6">
+                              <h3 className="  letter-spacing-1 line-count-1 text-uppercase RightAnimate-two" data-animation-in="fadeInLeft" data-delay-in="0.6">
                                 {banner?.title}
-                              </h1>
+                              </h3>
                               <div className="flex-wrap align-items-center fadeInLeft animated" data-animation-in="fadeInLeft" style={{ opacity: 1 }}>
                                 <p className="movie-banner-text line-count-3 mt-3" data-animation-in="fadeInUp" data-delay-in="1.2">
                                   {banner?.description}

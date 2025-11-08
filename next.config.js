@@ -50,6 +50,10 @@ const nextConfig = {
     },
     {
       protocol: 'https',
+      hostname: 'tbz.getyourticket.in',
+    },
+    {
+      protocol: 'https',
       hostname: 'images.unsplash.com',
     },
     {

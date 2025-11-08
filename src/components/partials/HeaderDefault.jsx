@@ -207,7 +207,7 @@ const HeaderDefault = memo(() => {
           <Container fluid className="navbar-inner">
             <div className="d-flex align-items-center justify-content-between w-100 landing-header">
                 {/* <Logo size={150} /> */}
-                <Logo height={40} width={80} />
+                <Logo height={40} width={70} />
                 {/* <L */}
               <div className="d-flex gap-3 gap-xl-0 align-items-center">
                 
@@ -429,16 +429,16 @@ const HeaderDefault = memo(() => {
                     </Dropdown.Menu>
                   </Dropdown>
                 ) : (
-                  // <CustomBtn
-                  //   style={{ fontSize:"10px", padding:!isMobile?  "8px 8px" : "4px" }}
-                  //   buttonText={!isMobile && "Login"}
-                  //   // className={"ms-3"}
-                  //   icon={<Fingerprint size={20} />}
-                  //   HandleClick={() => location.push("/auth/login")}
-                  // />
-                  <Button onClick={() => location.push("/auth/login")} size='sm' className="p-1 text-xs">
-                    {!isMobile && "Login"} <Fingerprint size={16}/>
-                  </Button>
+                  <CustomBtn
+                    // labelStyle={{ fontSize:"0.8rem !important"}}
+                    buttonText={!isMobile && <span style={{fontSize:"0.8rem"}}>Login</span>}
+                    className={"btn-sm p-1 text-xs"}
+                    icon={<Fingerprint size={16} />}
+                    HandleClick={() => location.push("/auth/login")}
+                  />
+                  // <Button onClick={() => location.push("/auth/login")} size='sm' className="p-1 text-xs">
+                  //   {!isMobile && "Login"} <Fingerprint size={16}/>
+                  // </Button>
                 )}
                 <div
                   className={`fw-bold navbar-collapse ${show === true ? "collapse show" : "collapse"}`}

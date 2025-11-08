@@ -75,7 +75,7 @@ const GlobalSearch = ({ show, handleShow }) => {
         router.push(`/artists/${createSlug(item.title || item.name)}/${item.id}`);
         break;
       default: // Default to event route
-        router.push(`/events/${createSlug(item?.city || '')}/${createSlug(
+        router.push(`/events/${createSlug(item?.venue_event?.city || '')}/${createSlug(
           item?.organizer?.organisation || ''
         )}/${createSlug(item?.name || item?.title)}/${item?.event_key || item?.id}`);
         break;

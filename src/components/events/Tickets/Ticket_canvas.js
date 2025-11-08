@@ -10,10 +10,12 @@ const TicketCanvas = (props) => {
   const { showDetails, ticketName, userName, number, address, ticketBG, date, time, photo, OrderId, showPrintButton, ticketNumber } = props
   const { api } = useMyContext()
   const canvasRef = useRef(null);
-  const qrCodeRef = useRef(null);
+  const qrContainerRef = useRef(null);
+  const fabricCanvasRef = useRef(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingImage, setLoadingImage] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState(null);
   const textColor = '#000'
   const fetchImage = async () => {
     try {
@@ -34,6 +36,53 @@ const TicketCanvas = (props) => {
       fetchImage();
     }
   }, [ticketBG]);
+
+  // Generate QR code data URL when OrderId is available
+  useEffect(() => {
+    if (!OrderId) {
+      return;
+    }
+    
+    let extracted = false;
+    
+    const extractQRCode = () => {
+      if (extracted) return;
+      
+      // Find the canvas element inside the hidden div
+      const qrCanvas = qrContainerRef.current?.querySelector('canvas');
+      
+      if (qrCanvas) {
+        try {
+          const dataUrl = qrCanvas.toDataURL('image/png');
+          setQrDataUrl(dataUrl);
+          extracted = true;
+          return true;
+        } catch (error) {
+          console.error('Error extracting QR code:', error);
+          return false;
+        }
+      } else {
+        return false;
+      }
+    };
+
+    // Try multiple times with increasing delays
+    const delays = [100, 300, 500, 800, 1000];
+    const timeouts = [];
+    
+    delays.forEach((delay) => {
+      const timeout = setTimeout(() => {
+        if (!extracted) {
+          extractQRCode();
+        }
+      }, delay);
+      timeouts.push(timeout);
+    });
+
+    return () => {
+      timeouts.forEach(timeout => clearTimeout(timeout));
+    };
+  }, [OrderId]);
 
   const getTextWidth = (text, fontSize = 16, fontFamily = 'Arial') => {
     const tempText = new fabric.Text(text, {
@@ -62,8 +111,26 @@ const TicketCanvas = (props) => {
 
     return textObject; // Return the fabric.Text object if needed
   };
+  const loadFabricImage = (url, options = {}) => {
+    return new Promise((resolve, reject) => {
+      fabric.Image.fromURL(
+        url,
+        (img) => {
+          if (img && img.getElement()) {
+            resolve(img);
+          } else {
+            reject(new Error('Failed to load image'));
+          }
+        },
+        { crossOrigin: 'anonymous', ...options }
+      );
+    });
+  };
+
   useEffect(() => {
     const canvas = new fabric.Canvas(canvasRef.current);
+    fabricCanvasRef.current = canvas;
+
     const showLoadingIndicator = () => {
       const loaderText = new fabric.Text('Generating Ticket...', {
         left: canvas.width / 2,
@@ -91,148 +158,141 @@ const TicketCanvas = (props) => {
       return loaderText;
     };
 
-
-    const loadBackgroundImage = (url) => {
-      return new Promise((resolve, reject) => {
-        fabric.Image.fromURL(url, (img) => {
-          if (img) {
-            resolve(img);
-          } else {
-            reject(new Error('Failed to load image'));
-          }
-        }, { crossOrigin: 'anonymous' });
-      });
-    };
-
     const drawCanvas = async () => {
       const loader = showLoadingIndicator();
-      if (imageUrl) {
-        try {
-          canvas.remove(loader);
-          const img = await loadBackgroundImage(imageUrl);
-          const imgWidth = img.width;
-          const imgHeight = img.height;
+      try {
+        if (!imageUrl) {
+          return;
+        }
 
-          canvas.setDimensions({ width: imgWidth, height: imgHeight });
-          img.scaleToWidth(imgWidth);
-          img.scaleToHeight(imgHeight);
-          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-            crossOrigin: 'anonymous',
+        // Load background image
+        const img = await loadFabricImage(imageUrl);
+        const imgWidth = img.width;
+        const imgHeight = img.height;
+
+        canvas.setDimensions({ width: imgWidth, height: imgHeight });
+        img.scaleToWidth(imgWidth);
+        img.scaleToHeight(imgHeight);
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+
+        canvas.remove(loader);
+
+        // Load and add QR code if available
+        if (qrDataUrl) {
+          const qrImg = await loadFabricImage(qrDataUrl);
+          
+          const qrCodeWidth = 100;
+          const qrCodeHeight = 100;
+          const padding = 5;
+          const qrPositionX = 100;
+          const qrPositionY = 100;
+
+          // Add white background for QR code
+          const qrBackground = new fabric.Rect({
+            left: qrPositionX - padding,
+            top: qrPositionY - padding,
+            width: qrCodeWidth + padding * 2,
+            height: qrCodeHeight + padding * 2,
+            fill: 'white',
+            selectable: false,
+            evented: false,
           });
 
-          // Always show QR code
-          const qrCodeCanvas = qrCodeRef.current;
-          if (qrCodeCanvas) {
-            const qrCodeDataURL = qrCodeCanvas.toDataURL('image/png');
+          // Scale and position QR code
+          qrImg.set({
+            left: qrPositionX,
+            top: qrPositionY,
+            selectable: false,
+            evented: false,
+            scaleX: qrCodeWidth / qrImg.width,
+            scaleY: qrCodeHeight / qrImg.height,
+          });
 
-            fabric.Image.fromURL(qrCodeDataURL, (qrImg) => {
-              const qrCodeWidth = 100;
-              const qrCodeHeight = 100;
-              const padding = 5;
-              const qrPositionX = 100;
-              const qrPositionY = 100;
+          // Add ticket number below QR code
+          const ticketNumberText = new fabric.Text(`${ticketNumber || '1'}`, {
+            left: qrPositionX + 50,
+            top: qrPositionY + qrCodeHeight + 21,
+            fontSize: 16,
+            fontFamily: 'Arial',
+            originX: 'center',
+            textAlign: 'center',
+            fill: "#000",
+            selectable: false,
+            evented: false,
+          });
+          const radius = Math.max(ticketNumberText.width, ticketNumberText.height) / 2 + padding;
 
-              const qrBackground = new fabric.Rect({
-                left: qrPositionX - padding,
-                top: qrPositionY - padding,
-                width: qrCodeWidth + padding * 2,
-                height: qrCodeHeight + padding * 2,
-                fill: 'white',
-                selectable: false,
-                evented: false,
-              });
+          const ticketNumberBadge = new fabric.Circle({
+            left: ticketNumberText.left,
+            top: ticketNumberText.top + 9,
+            radius,
+            fill: '#fff',
+            stroke: '#ddd',
+            strokeWidth: 1,
+            originX: 'center',
+            originY: 'center',
+            selectable: false,
+            evented: false,
+          });
 
-              qrImg.set({
-                left: qrPositionX,
-                top: qrPositionY,
-                selectable: false,
-                evented: false,
-                scaleX: qrCodeWidth / qrImg.width,
-                scaleY: qrCodeHeight / qrImg.height,
-              });
-
-              const ticketNumberText = new fabric.Text(`${ticketNumber || '1'}`, {
-                left: qrPositionX + 50,
-                top: qrPositionY + qrCodeHeight + 21, // Position below QR code
-                fontSize: 16,
-                fontFamily: 'Arial',
-                originX: 'center', // ✅ makes the text align from its center
-                textAlign: 'center',
-                fill: "#000",
-                selectable: false,
-                evented: false,
-              });
-              const radius = Math.max(ticketNumberText.width, ticketNumberText.height) / 2 + padding;
-
-              const ticketNumberBadge = new fabric.Circle({
-                left: ticketNumberText.left,
-                top: ticketNumberText.top+9,
-                radius,
-                fill: '#fff',
-                stroke: '#ddd',          // subtle outline; use '#000' if you want stronger
-                strokeWidth: 1,
-                originX: 'center',
-                originY: 'center',
-                selectable: false,
-                evented: false,
-              });
-
-              canvas.add(qrBackground, qrImg,ticketNumberBadge, ticketNumberText);
-              canvas.renderAll();
-            });
-          }
-
-          // Conditionally show other ticket details
-          if (showDetails) {
-            centerText(`${ticketName}` || 'Ticket Name', 16, 'Arial', canvas, 50);
-            centerText(`${userName}` || 'User Name', 16, 'Arial', canvas, 190);
-            centerText(`${number}` || 'User Number', 16, 'Arial', canvas, 210);
-
-            const eventVenueText = new fabric.Textbox(`Venue: ${address}`, {
-              left: 30,
-              top: 240,
-              fontSize: 16,
-              fontFamily: 'Arial',
-              fill: textColor,
-              selectable: false,
-              evented: false,
-              width: 250,
-              lineHeight: 1.2,
-            });
-
-            const eventDateText = new fabric.Textbox(`Date: ${date} : ${time}`, {
-              left: 30,
-              top: 320,
-              width: 200,
-              fontSize: 16,
-              fontFamily: 'Arial',
-              fill: textColor,
-              selectable: false,
-              evented: false,
-              lineHeight: 1.2,
-            });
-
-
-
-            canvas.add(eventDateText, eventVenueText);
-            canvas.renderAll();
-          }
-
-        } catch (error) {
-          console.error('Error drawing canvas:', error);
+          canvas.add(qrBackground);
+          canvas.add(qrImg);
+          canvas.add(ticketNumberBadge);
+          canvas.add(ticketNumberText);
         }
+
+        // Conditionally show other ticket details
+        if (showDetails) {
+          centerText(`${ticketName}` || 'Ticket Name', 16, 'Arial', canvas, 50);
+          centerText(`${userName}` || 'User Name', 16, 'Arial', canvas, 190);
+          centerText(`${number}` || 'User Number', 16, 'Arial', canvas, 210);
+
+          const eventVenueText = new fabric.Textbox(`Venue: ${address}`, {
+            left: 30,
+            top: 240,
+            fontSize: 16,
+            fontFamily: 'Arial',
+            fill: textColor,
+            selectable: false,
+            evented: false,
+            width: 250,
+            lineHeight: 1.2,
+          });
+
+          const eventDateText = new fabric.Textbox(`Date: ${date} : ${time}`, {
+            left: 30,
+            top: 320,
+            width: 200,
+            fontSize: 16,
+            fontFamily: 'Arial',
+            fill: textColor,
+            selectable: false,
+            evented: false,
+            lineHeight: 1.2,
+          });
+
+          canvas.add(eventDateText, eventVenueText);
+        }
+
+        // Final render
+        canvas.renderAll();
+      } catch (error) {
+        console.error('Error drawing canvas:', error);
+        canvas.remove(loader);
       }
     };
 
     drawCanvas();
 
     return () => {
-      canvas.dispose();
+      if (fabricCanvasRef.current) {
+        fabricCanvasRef.current.dispose();
+      }
       if (imageUrl) {
         URL.revokeObjectURL(imageUrl);
       }
     };
-  }, [imageUrl, OrderId, ticketName, userName, address, time, date, photo, number, showDetails]);
+  }, [imageUrl, qrDataUrl, OrderId, ticketName, userName, address, time, date, photo, number, showDetails, ticketNumber]);
 
 
   // Download functionality
@@ -344,8 +404,14 @@ const TicketCanvas = (props) => {
           </Col>
         </Row>
       }
-      <div style={{ display: 'none' }}>
-        <QRCodeCanvas ref={qrCodeRef} value={OrderId} size={150} />
+      {/* Hidden QR Code Generator */}
+      <div ref={qrContainerRef} style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+        <QRCodeCanvas 
+          value={OrderId || ''} 
+          size={150} 
+          level="H" 
+          includeMargin={true}
+        />
       </div>
     </>
   );

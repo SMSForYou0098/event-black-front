@@ -1,12 +1,13 @@
 import { FC, Fragment, memo } from "react";
 import Link from "next/link";
+import { ProgressBar } from "react-bootstrap";
 
 
 const ContinueWatchCard = memo(
   ({ link, imagePath, dataLeftTime, progressValue, title }) => {
     const trimmedTitle =
       title && title.length > 15 ? title.substring(0, 25) + "..." : title;
-
+    console.log('first',imagePath)
     return (
       <Fragment>
         <div className="iq-watching-block">

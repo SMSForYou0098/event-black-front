@@ -5,7 +5,7 @@ import HighDemand from "@/components/sections/HighDemand";
 const Events = memo(() => {
 
   return <>
-    <div className="mt-5">
+    <div className="">
       {/* <HomeOrgs/> */}
       <HighDemand />
       <EventsSection />

@@ -1,6 +1,6 @@
 // pages/.../index.jsx
 import EventDetailPage from '../../../../../../components/events/EventDetails/EventDetailPage';
-import { useEventData, getEventById } from '../../../../../../services/events';
+import { useEventData } from '../../../../../../services/events';
 import { QueryClient, dehydrate } from '@tanstack/react-query';
 import EventDetailPageSkeleton from '../../../../../../utils/SkeletonUtils/EventDetailPageSkeleton';
 
@@ -27,7 +27,7 @@ export const getServerSideProps = async (ctx) => {
   try {
     await qc.prefetchQuery({
       queryKey: queryKey(event_key),
-      queryFn: () => getEventById(event_key), // or getEventData(event_key)
+      queryFn: () => useEventData(event_key), // or getEventData(event_key)
     });
 
     const dehydratedState = dehydrate(qc);
