@@ -29,8 +29,6 @@ const PastEvents = memo(({ type='events', viewSlider=true, hideViewAll=true }) =
     refetchOnReconnect: true,
   });
 
-  console.log('api',apiEvents);
-
   // 🔸 Commented out placeholder logic
   /*
   const placeholders = useMemo(
@@ -58,7 +56,7 @@ const PastEvents = memo(({ type='events', viewSlider=true, hideViewAll=true }) =
 
   // Handle case when no events are returned
   if (!apiEvents.length) {
-    return <div>No past events found.</div>;
+    return <div></div>;
   }
 
   return (
@@ -88,15 +86,14 @@ const PastEvents = memo(({ type='events', viewSlider=true, hideViewAll=true }) =
       list={apiEvents}
       className=""
       slidesPerView={6}
-      onViewAll='/events/past'>
+      onViewAll='/events/past'
+      hideViewAll={hideViewAll}>
       {(item) => (
         <ContinueWatchCard
           imagePath={item?.thumbnail || item?.banner || item?.posterUrl}
           progressValue={0}
           title={item?.title}
         link={item?.url}
-        hideViewAll={hideViewAll}
-
         />
       )}
     </SectionList>

@@ -17,8 +17,7 @@ const CommonMobileSlider = ({ banners = [], themeSchemeDirection, handleBannerNa
       className="position-relative"
     >
       {banners.map((banner, index) => {
-
-const imgSrc = banner.sm_image?.trim() || banner.images?.trim() || "/assets/images/fallback-banner.jpg";
+        const imgSrc = banner.sm_image?.trim() || banner.images?.trim() || "/assets/images/fallback-banner.jpg";
 
         return (
           <SwiperSlide className="slide m-0 p-0 home-slider" key={banner.id || index}>
@@ -40,7 +39,7 @@ const imgSrc = banner.sm_image?.trim() || banner.images?.trim() || "/assets/imag
       })}
 
       <div className="swiper-banner-button-prev swiper-nav" id="home-banner-slider-prev">
-        <i></i>
+        <i style={{ transform: 'rotate(180deg)', display: 'inline-block' }}></i>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="44" height="44" fill="none" stroke="currentColor">
           <circle r="20" cy="22" cx="22"></circle>
         </svg>

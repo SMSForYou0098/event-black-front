@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Badge, Button, Col, Row } from "react-bootstrap";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import BookingFooterLayout from "../../../utils/BookingFooterLayout";
 import CustomBtn from "../../../utils/CustomBtn";
 import CustomDrawer from "../../../utils/CustomDrawer";
@@ -12,6 +13,8 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const bookBtnRef = useRef(null);
   const [showOffcanvas, setShowOffcanvas] = useState(false);
   const router = useRouter();
+
+  const isHouseFull = eventData?.event_controls?.house_full === 1;
 
   const handleContinue = () => {
     // Continue logic here (e.g., navigate to checkout)
@@ -38,6 +41,8 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   }, [setShowHeaderBookBtn, isMobile]);
 
   const handleBookNow = () => {
+    if (isHouseFull) return; // Prevent booking if house full
+    
     // Check if booking_notice exists and is not empty/blank
     if (eventData?.booking_notice && eventData?.booking_notice?.trim() !== '') {
       setShowOffcanvas(true);
@@ -102,8 +107,25 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
           <Row className="mt-4 mb-3">
             <Col
               sm="12"
-              className="d-flex justify-content-between align-items-center border-dashed  rounded-3"
+              className="d-flex justify-content-between align-items-center border-dashed rounded-3 position-relative"
             >
+              {/* House Full Stamp for Desktop */}
+              {isHouseFull && (
+                <Image
+                  src="/assets/images/hfull.webp"
+                  alt="Fully booked"
+                  width={100}
+                  height={100}
+                  className="position-absolute top-50 end-0 translate-middle-y z-3"
+                  style={{
+                    transform: "translateY(-50%) rotate(-15deg)",
+                    marginRight: "120px",
+                    pointerEvents: "none",
+                    objectFit: "contain"
+                  }}
+                />
+              )}
+
               <h4 className="price mt-3 mb-3 d-flex gap-2 align-items-center">
                 <div className="text-primary fs-5">Pricing :</div>
                 <span className="fw-bold d-flex align-items-center gap-2 fs-5">
@@ -120,7 +142,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                     else if (eventData?.lowest_ticket_price) {
                       displayPrice = Number(eventData.lowest_ticket_price);
                     }
-                    //console.log(eventData)
+                    
                     // Show "Free" if price is 0 or null
                     if (!displayPrice || displayPrice === 0) return <span>Free</span>;
 
@@ -134,20 +156,24 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                 </span>
               </h4>
 
-
               <Button
                 ref={bookBtnRef}
                 size="sm"
                 className="fw-bold px-5 py-2 d-flex align-items-center rounded-3"
                 onClick={handleBookNow}
-                style={{ height: "3rem", fontSize: "16px" }}
+                disabled={isHouseFull}
+                style={{ 
+                  height: "3rem", 
+                  fontSize: "16px",
+                  opacity: isHouseFull ? 0.6 : 1,
+                  cursor: isHouseFull ? "not-allowed" : "pointer"
+                }}
               >
-                <span className="me-2">Book</span>
-                <i className="fa-solid fa-arrow-right"></i>
+                <span className="me-2">{isHouseFull ? "Sold Out" : "Book"}</span>
+                {!isHouseFull && <i className="fa-solid fa-arrow-right"></i>}
               </Button>
             </Col>
           </Row>
-
         </div>
       </div>
 
@@ -155,9 +181,27 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       <div className="d-block d-sm-none">
         <BookingFooterLayout
           left={
-            <span className="p-0 m-0">
+            <span className="p-0 m-0 position-relative">
+              {/* House Full Stamp for Mobile */}
+              {isHouseFull && (
+                <Image
+                  src="/assets/images/hfull.webp"
+                  alt="Fully booked"
+                  width={60}
+                  height={60}
+                  className="position-absolute"
+                  style={{
+                    transform: "rotate(-15deg) translate(-50%, -80%)",
+                    left: "50%",
+                    top: "0",
+                    pointerEvents: "none",
+                    objectFit: "contain",
+                    zIndex: 10
+                  }}
+                />
+              )}
               Starts From{" "}
-              <h5 className=" fw-bold">
+              <h5 className="fw-bold">
                 ₹
                 {eventData?.lowest_sale_price || eventData?.lowest_ticket_price}
               </h5>
@@ -166,11 +210,17 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
           right={
             <Button
               onClick={handleBookNow}
+              disabled={isHouseFull}
               className="btn btn-primary btn-lg px-3"
-              style={{ fontSize: "16px", fontWeight: "600" }}
+              style={{ 
+                fontSize: "16px", 
+                fontWeight: "600",
+                opacity: isHouseFull ? 0.6 : 1,
+                cursor: isHouseFull ? "not-allowed" : "pointer"
+              }}
             >
-              <span className="me-2">Book</span>
-              <i className="fa-solid fa-arrow-right"></i>
+              <span className="me-2">{isHouseFull ? "Sold Out" : "Book"}</span>
+              {!isHouseFull && <i className="fa-solid fa-arrow-right"></i>}
             </Button>
           }
         />

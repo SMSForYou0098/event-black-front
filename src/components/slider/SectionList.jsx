@@ -1,77 +1,75 @@
-import React from "react";
-
-// react-bootstrap
-import { Container, Row, Col } from "react-bootstrap";
-
-// Next-Link
+import React, { useRef } from "react";
+import { Container } from "react-bootstrap";
 import Link from "next/link";
-
-// Redux selector
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation } from "swiper";
 import { useSelector } from "react-redux";
 import { theme_scheme_direction } from "../../store/setting/selectors";
 
-const SectionList = ({
+const SectionSlider = ({
   children,
   title,
   list = [],
+  slidesPerView = 6,
+  loop = false,
+  spaceBetween = 0,
   className = "",
-  link,
   containerFluid = true,
   onViewAll,
-  columns = 6, // roughly similar to slidesPerView
-  hideViewAll=false,
+  hideViewAll = false,
 }) => {
   const themeSchemeDirection = useSelector(theme_scheme_direction);
+  const slider = useRef(null);
 
-  // Calculate bootstrap column size based on desired columns (like slidesPerView)
-  const getColSize = () => {
-    if (columns >= 6) return 2; // 6 per row
-    if (columns === 4) return 3; // 4 per row
-    if (columns === 3) return 4; // 3 per row
-    return 6; // default 2 per row
-  };
-
-  const colSize = getColSize();
-  console.log('fff',hideViewAll);
   return (
     <div className={className}>
       <Container fluid={containerFluid}>
-        <div className="overflow-hidden card-style-slider">
+        <div className="overflow-hidden card-style-slider" ref={slider}>
           <div className="d-flex align-items-center justify-content-between px-3 my-2">
             <h5 className="main-title text-capitalize mb-0">{title}</h5>
-            {
-                hideViewAll !==false && 
-            <Link
-              href={onViewAll ? onViewAll : "/view-all"}
-              className="text-primary iq-view-all text-decoration-none"
-            //   onClick={onViewAll}
-            >
-              View All
-            </Link>
-            }
-          </div>
-
-          <Row className="gx-2 gy-3 px-3">
-            {list?.map((data, index) => (
-              <Col
-                key={index}
-                xs={6}
-                sm={6}
-                md={4}
-                lg={colSize}
-                xl={colSize}
-                className="d-flex"
+            {hideViewAll !==false && (
+              <Link
+                href={onViewAll || "/view-all"}
+                className="text-primary iq-view-all text-decoration-none"
               >
+                View All
+              </Link>
+            )}
+          </div>
+          <Swiper
+            key={String(themeSchemeDirection)}
+            dir={String(themeSchemeDirection)}
+            className="position-relative swiper swiper-card"
+            slidesPerView={slidesPerView}
+            loop={loop}
+            watchSlidesProgress
+            spaceBetween={spaceBetween}
+            navigation={{
+              prevEl: ".swiper-button-prev",
+              nextEl: ".swiper-button-next",
+            }}
+            breakpoints={{
+              0: { slidesPerView: 2, spaceBetween: 0 },
+              576: { slidesPerView: 2, spaceBetween: 0 },
+              768: { slidesPerView: 3, spaceBetween: 0 },
+              1025: { slidesPerView: slidesPerView, spaceBetween: 0 },
+              1500: { slidesPerView: slidesPerView, spaceBetween: 0 },
+            }}
+            modules={[Autoplay, Navigation]}
+          >
+            {list?.map((data, index) => (
+              <SwiperSlide key={index}>
                 {children(data)}
-              </Col>
+              </SwiperSlide>
             ))}
-          </Row>
+            <div className="swiper-button swiper-button-next"></div>
+            <div className="swiper-button swiper-button-prev"></div>
+          </Swiper>
         </div>
       </Container>
     </div>
   );
 };
 
-SectionList.displayName = "SectionList";
-
-export default SectionList;
+SectionSlider.displayName = "SectionSlider";
+export default SectionSlider;

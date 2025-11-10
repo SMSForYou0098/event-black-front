@@ -1,7 +1,7 @@
 import React from "react";
 import { useMyContext } from "@/Context/MyContextProvider";
 
-const CommonPricingComp = ({ currency, isSale, price, salePrice }) => {
+const CommonPricingComp = ({ currency, isSale, price, salePrice, soldOut }) => {
   const { getCurrencySymbol } = useMyContext();
 
   const symbol =
@@ -14,7 +14,7 @@ const CommonPricingComp = ({ currency, isSale, price, salePrice }) => {
   const onSale = isSale === 1 && Number.isFinite(sp);
 
   return (
-    <span>
+    <>
       {onSale ? (
         <>
           <span
@@ -28,7 +28,10 @@ const CommonPricingComp = ({ currency, isSale, price, salePrice }) => {
       ) : (
         `${symbol}${fmt(p)}`
       )}
-    </span>
+      {
+        soldOut && <p className="text-primary p-0 m-0">Sold Out</p>
+      }
+    </>
   );
 };
 

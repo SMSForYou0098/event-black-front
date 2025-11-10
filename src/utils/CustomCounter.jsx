@@ -5,7 +5,7 @@ import { useMyContext } from '@/Context/MyContextProvider';
 import { Button } from 'react-bootstrap'
 
 const CustomCounter = memo((props) => {
-    const { getTicketCount, category, price, limit, ticketID, disabled = false, selectedTickets, resetCounterTrigger } = props
+    const { getTicketCount, category, price, limit, ticketID, disabled = false, selectedTickets, resetCounterTrigger, isDisable } = props
     const { ErrorAlert } = useMyContext()
     const [counter, setCount] = useState(0);
 
@@ -68,7 +68,7 @@ const CustomCounter = memo((props) => {
                 <button
                     className='iq-quantity-minus border-0 btn-sm'
                     onClick={decrease}
-                    disabled={counter === 0}
+                    disabled={counter === 0 || isDisable}
                     style={{
                         lineHeight: 'initial',
                     }}
@@ -97,6 +97,7 @@ const CustomCounter = memo((props) => {
                     style={{
                         lineHeight: 'initial',
                     }}
+                    disabled={isDisable}
                 >
                     <Plus size={18} color='white' />
                 </button>

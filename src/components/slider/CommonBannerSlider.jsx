@@ -267,7 +267,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                                 customClass="mt-4 btn-sm"
                               />
                             </Col>
-                            {hasMedia && (
+                            {/* {hasMedia && (
             <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
               <div
                 onClick={() => handleMediaClick(banner)}   // ← use your function here
@@ -281,7 +281,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                 <span className="w-trailor text-uppercase">Watch Trailer</span>
               </div>
             </Col>
-          )}
+          )} */}
                           </Row>
                         </div>
                       </div>

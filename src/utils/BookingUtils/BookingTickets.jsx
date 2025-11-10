@@ -122,43 +122,63 @@ const BookingTickets = ({
                 </tr>
             </thead>
             <tbody>
-                {cartItems.map((item) => (
-                    <tr key={item.id} data-item="list">
-                        <td>
-                            <span className="fw-500 d-flex flex-column justify-content-start">
-                                {item.name}
-                                <span>
-                                    Price:{" "}
-                                    <CommonPricingComp
-                                        currency={item?.currency}
-                                        price={item?.price}
-                                        isSale={item?.sale}
-                                        salePrice={item?.sale_price}
-                                    />
-                                </span>
-                            </span>
-                        </td>
-                        <td className={isMobile ? "text-end" : "text-center"}>
-                            <CustomCounter
-                                resetCounterTrigger={resetCounterTrigger}
-                                getTicketCount={getTicketCount}
-                                category={item.name}
-                                price={item?.sale === 1 ? item?.sale_price : item?.price}
-                                limit={10}
-                                ticketID={item.id}
-                                selectedTickets={selectedTickets}
-                            />
-                        </td>
-                        {!isMobile && (
-                            <td>
-                                <span className="fw-500">
-                                    {item?.currency ? getCurrencySymbol(item.currency) : "₹"}
-                                    {getSubtotal(item).toLocaleString("en-IN")}
-                                </span>
-                            </td>
-                        )}
-                    </tr>
-                ))}
+            {(() => {
+  const activeItems = cartItems?.filter((item) => Number(item.status) === 1) || [];
+
+  if (activeItems.length === 0) {
+    return (
+      <tr>
+        <td colSpan={isMobile ? 2 : 3} className="text-center py-4 text-muted fw-semibold">
+          No tickets available.
+        </td>
+      </tr>
+    );
+  }
+
+  return activeItems.map((item) => (
+    <tr key={item.id} data-item="list">
+      <td>
+        <span className="fw-500 d-flex flex-column justify-content-start">
+          {item.name}
+          <span>
+            Price:{" "}
+            <CommonPricingComp
+              currency={item?.currency}
+              price={item?.price}
+              isSale={item?.sale}
+              salePrice={item?.sale_price}
+              soldOut={item?.sold_out === 1}
+            />
+          </span>
+        </span>
+      </td>
+
+      <td className={isMobile ? "text-end" : "text-center"}>
+        <CustomCounter
+          resetCounterTrigger={resetCounterTrigger}
+          getTicketCount={getTicketCount}
+          category={item.name}
+          price={item?.sale === 1 ? item?.sale_price : item?.price}
+          limit={10}
+          ticketID={item.id}
+          selectedTickets={selectedTickets}
+          isDisable={item?.sold_out === 1}
+        />
+      </td>
+
+      {!isMobile && (
+        <td>
+          <span className="fw-500">
+            {item?.currency ? getCurrencySymbol(item.currency) : "₹"}
+            {getSubtotal(item).toLocaleString("en-IN")}
+          </span>
+        </td>
+      )}
+    </tr>
+  ));
+})()}
+
+
             </tbody>
         </Table>
     );

@@ -4,6 +4,7 @@ import { CheckCircle, Camera, PenLine } from 'lucide-react';
 import AvatarImage from '../../../utils/ProfileUtils/AvatarImage';
 import { useIsMobile } from '../../../utils/consts';
 import CustomBadge from '../../../utils/ProfileUtils/getBadgeClass';
+import Link from 'next/link';
 
 const ProfileHeader = ({ user = {}, onEditClick, onAvatarUpload, loading }) => {
   const fileInputRef = useRef(null);
@@ -139,6 +140,7 @@ const ProfileHeader = ({ user = {}, onEditClick, onAvatarUpload, loading }) => {
 
                 <div className="text-muted small mt-1">{user?.email || '-'}</div>
                 <div className="text-muted small">{user?.username || user?.number || ''}</div>
+                <Link  href='/my-bookings'>View My Bookings</Link>
               </div>
             </div>
           </Col>

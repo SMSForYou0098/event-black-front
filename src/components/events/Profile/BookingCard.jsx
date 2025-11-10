@@ -56,15 +56,28 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
   const { isMobile, formatDateRange, getCurrencySymbol } = useMyContext();
 
   // Memoized booking data normalization
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    const date = new Date(dateStr);
+    return date.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
   const bookingData = useMemo(() => {
     const normalizeBooking = booking?.bookings ? booking.bookings[0] : booking;
     return {
       ticket: normalizeBooking?.ticket,
       quantity: booking?.bookings ? booking?.bookings?.length : 1,
       name: normalizeBooking?.ticket?.event?.name,
-      amount: normalizeBooking?.amount,
+      amount: booking?.total_amount,
       type: normalizeBooking?.type,
-      created_at: normalizeBooking?.created_at
+      created_at: formatDate(booking?.created_at),
+      thumbnail: normalizeBooking?.ticket?.event?.event_media?.thumbnail
     };
   }, [booking]);
 
@@ -156,7 +169,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
       <div className={`d-flex align-items-center justify-content-between flex-column flex-sm-row ${compact ? 'mb-3 p-3' : 'mb-4 p-4'} rounded custom-dark-content-bg rounded-4`}>
         <div className="d-flex">
           <Image
-            src={bookingData.ticket?.background_image}
+            src={bookingData.thumbnail}
             alt={bookingData.ticket?.name}
             width={imageDimensions.width}
             height={imageDimensions.height}
@@ -180,10 +193,10 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
               )}
             </div>
             
-            <small className="text-muted d-block">
+            {/* <small className="text-muted d-block">
               <MapPin size={14} className='custom-text-secondary' /> 
               {bookingData.ticket?.event?.address}
-            </small>
+            </small> */}
             
             <small className="text-muted d-block">
               <Calendar size={14} className='text-warning' /> 
@@ -211,17 +224,19 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
         as={Button}
         variant="primary"
         size="sm"
-        className="iq-button fw-bold rounded-3"
+        className="iq-button fw-bold rounded-3 d-inline-flex align-items-center gap-2 text-nowrap"
         style={{
           background: 'var(--bs-primary)',
           border: 'none',
-          padding: '0.5rem 1rem',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          whiteSpace: 'nowrap',
+          lineHeight: 1.2,
         }}
         disabled={ticketType && ticketType.id === booking.id}
       >
-        <span className="d-flex gap-2 align-items-center justify-content-center">
-          Download
-        </span>
+        Download
       </Dropdown.Toggle>
 
       <Dropdown.Menu align="end" className="custom-dropdown-menu">

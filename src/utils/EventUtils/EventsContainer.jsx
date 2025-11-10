@@ -125,6 +125,7 @@ const EventsContainer = memo(({
               link={`/events/${createSlug(data?.city)}/${createSlug(
                 data?.organisation
               )}/${createSlug(data?.name)}/${data?.event_key}`}
+              houseFull={data?.house_full === 1}
             />
           ) : (
             // <CardStyle
@@ -154,6 +155,7 @@ const EventsContainer = memo(({
                           link={`/events/${createSlug(data?.city)}/${createSlug(
                                 data?.organisation
                               )}/${createSlug(data?.name)}/${data?.event_key}`}
+                              houseFull={data?.house_full === 1}
                         />
           );
         }}
