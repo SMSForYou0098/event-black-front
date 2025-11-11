@@ -191,7 +191,7 @@ const OTT = memo(() => {
 
       {/* ====================== HIGH PRIORITY: NEAR FOLD ====================== */}
       {/* Preload when user scrolls close */}
-      <PreloadSection 
+      <PreloadSection className='pt-2'
         fallback={<SectionSkeleton title="High Demand" itemCount={4} />}
         // preloadMargin="150px"
         // minHeight="400px"
@@ -204,14 +204,24 @@ const OTT = memo(() => {
         threshold={0.1}
         // rootMargin="100px"
         // minHeight="500px"
+        className='pt-2'
       >
         <EventsSection />
       </LazySection>
 
       {/* ====================== MEDIUM PRIORITY: MID PAGE ====================== */}
       {/* Static components - Always loaded */}
-      <OurEvents />
       <PreloadSection 
+      className='pt-2'
+        fallback={<SectionSkeleton title="" itemCount={4} />}
+        // preloadMargin="100px"
+        // minHeight="400px"
+      >
+      {/* <PastEvents /> */}
+      <OurEvents />
+      </PreloadSection>
+      <PreloadSection 
+      className='pt-2'
         fallback={<SectionSkeleton title="Past Events" itemCount={4} />}
         // preloadMargin="100px"
         // minHeight="400px"
@@ -220,7 +230,7 @@ const OTT = memo(() => {
       </PreloadSection>
 
       {/* Lazy load promotional content */}
-      <PreloadSection 
+      <PreloadSection className='pt-2'
         fallback={<SectionSkeleton title="Promotional Events" itemCount={4} />}
         // preloadMargin="100px"
         // minHeight="400px"

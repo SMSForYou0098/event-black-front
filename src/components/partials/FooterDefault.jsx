@@ -45,13 +45,13 @@ const FooterMega = memo(() => {
   // Fix for the TypeScript error - safely handle the site_credit string
   const getCopyrightText = () => {
     if (!data?.config?.site_credit) return `All Rights Reserved`;
-    
+
     // Safely replace {year} with currentYear
     const creditText = data.config.site_credit;
     if (typeof creditText === 'string') {
       return creditText.replace(/{year}/g, currentYear.toString());
     }
-    
+
     return `All Rights Reserved`;
   };
 
@@ -74,28 +74,37 @@ const FooterMega = memo(() => {
       </footer>
     );
   }
-const footerStaticData = {
-  groups: [
-    {
-      id: 1,
-      title: "Company",
-      footer_menu: [
-        { id: 1, title: "About Us", page_id: "about-us" },
-        { id: 2, title: "Contact Us", page_id: "contact-us" },
-        { id: 5, title: "FAQ", page_id: "faq" },
-      ],
-    },
-    {
-      id: 2,
-      title: "Legal",
-      footer_menu: [
-        { id: 3, title: "Privacy Policy", page_id: "privacy-policy" },
-        { id: 4, title: "Terms & Conditions", page_id: "terms-and-conditions" },
-        { id: 4, title: "Pricing Policy", page_id: "pricing-policy" },
-      ],
-    },
-  ],
-};
+  const footerStaticData = {
+    groups: [
+      {
+        id: 1,
+        title: "Company",
+        footer_menu: [
+          { id: 1, title: "About Us", page_id: "about-us" },
+          { id: 2, title: "Contact Us", page_id: "contact-us" },
+          { id: 5, title: "FAQ", page_id: "faq" },
+        ],
+      },
+      {
+        id: 2,
+        title: "Legal",
+        footer_menu: [
+          { id: 3, title: "Privacy Policy", page_id: "privacy-policy" },
+          { id: 4, title: "Terms & Conditions", page_id: "terms-and-conditions" },
+          { id: 4, title: "Pricing Policy", page_id: "pricing-policy" },
+        ],
+      },
+      {
+        id: 2,
+        title: "Links",
+        footer_menu: [
+          { id: 3, title: "Offers and Sale", page_id: "events/offers" },
+          { id: 4, title: "Live Events", page_id: "events/live" },
+
+        ],
+      },
+    ],
+  };
 
   return (
     <>
@@ -106,8 +115,8 @@ const footerStaticData = {
               <div className="footer-top">
                 <Row>
                   {/* Logo and Contact Section */}
-                  <Col xl={3} lg={6} className="mb-5 mb-lg-0">
-                    <div className="footer-logo">
+                  <Col xl={3} lg={6} className="mb-5 mb-lg-0 d-flex flex-column align-items-center text-center">
+                    <div className="footer-logo d-flex justify-content-center">
                       {/* <Logo size={120} /> */}
                       <Logo
                         desktopUrl="/assets/images/logo/footer-logo.webp"
@@ -121,38 +130,40 @@ const footerStaticData = {
                         }}
                       />
                     </div>
-                      <p className="mb-4 font-size-14">
-                        <MailCheck color="var(--bs-primary)" /> {" "}
-                        <a
-                          href={`mailto:${'contact@getyourticket.in'}`}
-                          className="text-white"
-                        >
-                          {'contact@getyourticket.in'}
-                        </a>
-                      </p>
+                    <p className="mb-4 font-size-14 text-center">
+                      <MailCheck color="var(--bs-primary)" /> {" "}
+                      <a
+                        href={`mailto:${'contact@getyourticket.in'}`}
+                        className="text-white"
+                      >
+                        {'contact@getyourticket.in'}
+                      </a>
+                    </p>
                   </Col>
 
                   {/* Dynamic Footer Link Groups - Limited to 2 groups for layout */}
-                  {footerStaticData.groups.map((group, index) => (
-                    <Col xl={3} lg={6} className="mb-5 mb-lg-0" key={group.id}>
-                      <h4 className="footer-link-title">{group.title}</h4>
-                      <ul className="list-unstyled footer-menu">
-                        {group.footer_menu.map((link) => (
-                          <li className="mb-3" key={link.id}>
-                            <Link
-                              href={`/${link.page_id}`}
-                              className="ms-3"
-                            >
-                              {link.title}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </Col>
-                  ))}
+                  <Col xl={6} lg={6} className="mb-5 mb-lg-0">
+                    <Row>
+                      {footerStaticData.groups.map((group) => (
+                        <Col xs={12} sm={4} key={group.id} className="mb-4">
+                          <h4 className="footer-link-title">{group.title}</h4>
+                          <ul className="list-unstyled footer-menu">
+                            {group.footer_menu.map((link) => (
+                              <li className="mb-3" key={link.id}>
+                                <Link href={`/${link.page_id}`} className="ms-3">
+                                  {link.title}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </Col>
+                      ))}
+                    </Row>
+                  </Col>
+
 
                   {/* Newsletter and Social Media Section */}
-                  <Col xl={3} lg={6}>
+                  <Col xl={3} lg={6} className="text-center d-flex flex-column align-items-center">
                     <h4 className="footer-link-title">Subscribe Newsletter</h4>
                     <div className="mailchimp mailchimp-dark">
                       <div className="input-group mb-3 mt-4">
@@ -173,11 +184,11 @@ const footerStaticData = {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Social Media Links */}
-                    <div className="d-flex align-items-center mt-5">
-                      <span className="font-size-14 me-2">Follow Us:</span>
-                      <ul className="p-0 m-0 list-unstyled widget_social_media">
+                    <div className="d-flex align-items-center justify-content-center mt-5 gap-2">
+                      <span className="font-size-14">Follow Us:</span>
+                      <ul className="p-0 m-0 list-unstyled widget_social_media d-flex align-items-center justify-content-center gap-3">
                         {data.socialLinks?.facebook && (
                           <li>
                             <Link
@@ -272,22 +283,22 @@ const footerStaticData = {
                         ))
                       )}
                     </ul> */}
-                    
+
                     {/* Copyright Text */}
                   </Col>
-                    <Container className=" footer-border">
-                        <Row>
-                            <Col md={12} className="text-center" >
-                                <p className="mb-0 d-flex gap-2 justify-content-center">
-                                    © {currentYear} {data?.config?.site_credit && (
-                                        <span
-                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data?.config?.site_credit) }}
-                                        />
-                                    )}
-                                </p>
-                            </Col>
-                        </Row>
-                    </Container>
+                  <Container className=" footer-border">
+                    <Row>
+                      <Col md={12} className="text-center" >
+                        <p className="mb-0 d-flex gap-2 justify-content-center">
+                          © {currentYear} {data?.config?.site_credit && (
+                            <span
+                              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data?.config?.site_credit) }}
+                            />
+                          )}
+                        </p>
+                      </Col>
+                    </Row>
+                  </Container>
                   {/* <Col md={3}></Col>
                   <Col md={3}>
                     <h6 className="font-size-14 pb-1">Download Streamit Apps</h6>

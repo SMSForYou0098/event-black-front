@@ -181,7 +181,7 @@ const CartPage = () => {
   }
 
   const CardContainer = ({ children, className = "" }) => (
-    <div className={`custom-dark-bg p-0 rounded-3 mb-4 ${className}`}>
+    <div className={`custom-dark-bg p-2 rounded-3 mb-4 ${className}`}>
       {children}
     </div>
   );

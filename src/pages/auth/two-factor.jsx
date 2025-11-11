@@ -53,6 +53,10 @@ const TwoFactor = memo(() => {
             setError("Please enter the OTP.");
             return;
         }
+        if (otp.length !== 6) {
+            setError("OTP must be exactly 6 digits.");
+            return;
+        }
         setLoading(true);
         setError('');
 
@@ -91,7 +95,7 @@ const TwoFactor = memo(() => {
     };
 
     const handleKeyDown = (event) => {
-        if (event.key === 'Enter' && otp) {
+        if (event.key === 'Enter' && otp && otp.length === 6) {
             handleVerifyOtp();
         }
     };
@@ -113,10 +117,15 @@ const TwoFactor = memo(() => {
                                     <Form.Group className="mb-4">
                                         {/* Applied the input style */}
                                         <Form.Control
-                                            type="number"
+                                            type="text"
                                             value={otp}
-                                            placeholder="Enter OTP"
-                                            onChange={(e) => setOTP(e.target.value)}
+                                            placeholder="Enter 6-digit OTP"
+                                            maxLength={6}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                                setOTP(value);
+                                                if (error) setError('');
+                                            }}
                                             onKeyDown={handleKeyDown}
                                             autoFocus
                                             className="text-center card-glassmorphism__input"
@@ -128,26 +137,22 @@ const TwoFactor = memo(() => {
                                         <CustomBtn
                                             className="btn text-uppercase position-relative w-100 "
                                             HandleClick={handleVerifyOtp}
-                                            disabled={!otp || loading || authLoading}
+                                            disabled={!otp || otp.length !== 6 || loading || authLoading}
                                             buttonText={loading || authLoading ? 'Verifying...' : 'Verify OTP'}
                                             size='sm'
                                         />
                                     </div>
 
-                                    <div className="mt-3 d-flex justify-content-between">
+                                    <div className="mt-3 d-flex justify-content-between align-items-center">
                                         <Link href="/auth/login" className="text-primary fw-bold d-flex align-items-center">
-                                            <ChevronLeft /> Back to Login
+                                            <ChevronLeft size={16} /> Back to Login
                                         </Link>
-                                        {/* <Link href="#" onClick={handleSendOtp} className="fw-bold">
-                                            Resend Otp
-                                        </Link> */}
                                         {timerVisible && otpSent ? (
-                                            <p className='mt-3'>Resend OTP in {countdown} seconds</p>
+                                            <p className='mb-0 text-white-75'>Resend OTP in {countdown}s</p>
                                         ) : (
-                                            // Applied the link button style
                                             <CustomBtn
                                                 buttonText={loading ? 'Sending...' : 'Resend OTP'}
-                                                className="link-glassmorphism"
+                                                className="link-glassmorphism p-1"
                                                 HandleClick={handleSendOtp}
                                                 disabled={loading}
                                                 size='sm'
@@ -165,4 +170,5 @@ const TwoFactor = memo(() => {
 });
 
 TwoFactor.displayName = "TwoFactor";
+TwoFactor.layout = "Blank";
 export default TwoFactor;

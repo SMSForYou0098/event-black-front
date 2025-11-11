@@ -635,3 +635,22 @@ input[type="number"] {
   pointer-events: none;
   user-select: none;
 }
+
+
+// mobile footer margin scss
+.mt-mobile-custom {
+  margin-top: 5.25rem !important; /* More margin on mobile */
+}
+
+@media (min-width: 768px) {
+  .mt-mobile-custom {
+    margin-top: 2.5rem !important; /* Slightly less margin on tablets */
+  }
+}
+
+@media (min-width: 992px) {
+  .mt-mobile-custom {
+    margin-top: 0 !important; /* Reset on desktop since element is hidden anyway */
+  }
+}
+

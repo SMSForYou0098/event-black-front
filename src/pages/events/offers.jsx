@@ -12,14 +12,13 @@ export const fetchGlobalSearch = async (searchQuery, categoryFilter) => {
         search:searchQuery||  'offer',
       },
     });
-    console.log('rrr',response.data);
     return response.data;
   };
 
 const OffersPage = () => {
 
 
-  const searchQuery = "in"; // you can take this from state or props
+  const searchQuery = "offer"; // you can take this from state or props
   const categoryFilter = "concert"; // same here if dynamic
   const {createSlug} = useMyContext();
   const {

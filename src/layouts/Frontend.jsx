@@ -25,7 +25,7 @@ const Frontend = (({ children }) => {
           {children}
         </HeaderProvider>
       </main>
-      <div className="d-block d-lg-none" style={{ marginTop: "5rem" }}>
+      <div className="d-block d-lg-none mt-mobile-custom">
   <MobileBottomMenu />
 </div>
 

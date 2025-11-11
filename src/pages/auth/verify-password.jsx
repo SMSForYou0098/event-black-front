@@ -137,5 +137,5 @@ const VerifyPassword = memo(() => {
 });
 
 VerifyPassword.displayName = "VerifyPassword";
-// VerifyPassword.layout = "Blank";
+VerifyPassword.layout = "Blank";
 export default VerifyPassword;

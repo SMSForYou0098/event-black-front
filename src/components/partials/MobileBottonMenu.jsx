@@ -230,9 +230,9 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
           style={{
             padding: '12px 16px',
             borderRadius: '0px',
-            background: 'rgba(255, 255, 255, 0.1)',
+            background: 'rgba(0, 0, 0, 0.3)',
             // background:"#000",
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            // border: '1px solid rgba(255, 255, 255, 0.1)',
             boxShadow: '0 4px 24px 0 rgba(0, 0, 0, 0.1)'
           }}
         >

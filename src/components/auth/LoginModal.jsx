@@ -575,7 +575,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                   type="button"
                   variant="secondary"
                   HandleClick={handleBack}
-                  icon={isLoading ? <LoaderCircle className="spin" /> : null}
+                  // icon={isLoading ? <LoaderCircle className="spin" /> : null}
+                  hide
                   buttonText="Back"
                   disabled={isLoading}
                 />
@@ -595,7 +596,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                     disabled={isLoading}
                     icon={isLoading ? <LoaderCircle className="spin" /> : null}
                     type="button"
-                    buttonText={isLoading ? "Sending..." : "Resend OTP"}
+                    buttonText={isLoading ? "Sending..." : "Resenssd OTP"}
                   />
                 )}
               </div>

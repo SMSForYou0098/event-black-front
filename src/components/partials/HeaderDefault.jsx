@@ -68,7 +68,7 @@ const HeaderDefault = memo(() => {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [eventsOpen, setEventsOpen] = useState(false);
-
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false); // Add this state
 
   const menu = [
     { id: 1, title: "Home", href: "/" },
@@ -76,6 +76,8 @@ const HeaderDefault = memo(() => {
     { id: 3, title: "Contact Us", href: "/contact-us" },
     { id: 4, title: "FAQ", href: "/faq" },
     { id: 5, title: "Blog", href: "/blogs" },
+    { id: 6, title: "Offers", href: "/events/offers" },
+    { id: 7, title: "Live Events", href: "/events/live" },
   ];
   // NEW: State for show more functionality
   const [showAllEvents, setShowAllEvents] = useState(false);
@@ -196,6 +198,11 @@ const HeaderDefault = memo(() => {
   const displayedCategories = getDisplayedCategories();
   const hasMoreCategories = (categoryList?.length ?? 0) > INITIAL_DISPLAY_COUNT;
 
+  const handleClose = () => {
+    setShow(false);
+    setUserDropdownOpen(false); // Add this line
+  };
+
   return (
     <Fragment>
       <GlobalSearch show={searchShow} handleShow={handleToggleClick} />
@@ -207,7 +214,7 @@ const HeaderDefault = memo(() => {
           <Container fluid className="navbar-inner">
             <div className="d-flex align-items-center justify-content-between w-100 landing-header">
                 {/* <Logo size={150} /> */}
-                <Logo height={40} width={70} />
+                <Logo handleClick={()=>router.push('/')} height={40} width={70} />
                 {/* <L */}
               <div className="d-flex gap-3 gap-xl-0 align-items-center">
                 
@@ -380,7 +387,12 @@ const HeaderDefault = memo(() => {
                   </Dropdown>
                 </div>
                 {isLoggedIn ? (
-                  <Dropdown as="li" className="">
+                  <Dropdown 
+                    as="li" 
+                    className=""
+                    show={userDropdownOpen}
+                    onToggle={(isOpen) => setUserDropdownOpen(isOpen)}
+                  >
                     <Dropdown.Toggle
                       as={CustomToggle}
                       href="#"
@@ -404,19 +416,19 @@ const HeaderDefault = memo(() => {
                           {UserData?.name}
                         </span>
                       </li>
-                      <li>
+                      <li onClick={handleClose}>
                         <Link href="/my-bookings" className="iq-sub-card d-flex align-items-center gap-3">
                           <CreditCardIcon size={20} />
                           <h6 className="mb-0 font-size-14 fw-normal">Bookings</h6>
                         </Link>
                       </li>
-                      <li>
+                      <li onClick={handleClose}>
                         <Link href="/profile" className="iq-sub-card d-flex align-items-center gap-3">
                           <UserIcon size={20} />
                           <h6 className="mb-0 font-size-14 fw-normal">My Profile</h6>
                         </Link>
                       </li>
-                      <li>
+                      <li onClick={handleClose}>
                         <Button
                           href="/auth/login"
                           className="border-0 iq-sub-card iq-logout-2 mt-1 d-flex justify-content-center gap-2"
