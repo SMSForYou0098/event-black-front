@@ -6,7 +6,7 @@ import { getFooterData } from "@/services/home";
 import DOMPurify from 'dompurify';
 import { MailCheck } from "lucide-react";
 import Logo from "./Logo";
-
+import Divider from '../../utils/Divider'
 const FooterMega = memo(() => {
   const [animationClass, setAnimationClass] = useState("animate__fadeIn");
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -106,6 +106,14 @@ const FooterMega = memo(() => {
     ],
   };
 
+  const socialPlatforms = [
+    { key: 'facebook', icon: 'fab fa-facebook' },
+    { key: 'twitter', icon: 'fab fa-twitter' },
+    { key: 'github', icon: 'fab fa-github' },
+    { key: 'instagram', icon: 'fab fa-instagram' },
+    { key: 'youtube', icon: 'fab fa-youtube' },
+    { key: 'linkedin', icon: 'fab fa-linkedin' },
+  ];
   return (
     <>
       {isSuccess && data && (
@@ -116,8 +124,7 @@ const FooterMega = memo(() => {
                 <Row>
                   {/* Logo and Contact Section */}
                   <Col xl={3} lg={6} className="mb-5 mb-lg-0 d-flex flex-column align-items-center text-center">
-                    <div className="footer-logo d-flex justify-content-center">
-                      {/* <Logo size={120} /> */}
+                    {/* <div className="footer-logo d-flex justify-content-center">
                       <Logo
                         desktopUrl="/assets/images/logo/footer-logo.webp"
                         mobileUrl="/assets/images/logo/footer-logo.webp"
@@ -129,16 +136,8 @@ const FooterMega = memo(() => {
                           window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
                         }}
                       />
-                    </div>
-                    <p className="mb-4 font-size-14 text-center">
-                      <MailCheck color="var(--bs-primary)" /> {" "}
-                      <a
-                        href={`mailto:${'contact@getyourticket.in'}`}
-                        className="text-white"
-                      >
-                        {'contact@getyourticket.in'}
-                      </a>
-                    </p>
+                    </div> */}
+
                   </Col>
 
                   {/* Dynamic Footer Link Groups - Limited to 2 groups for layout */}
@@ -163,163 +162,91 @@ const FooterMega = memo(() => {
 
 
                   {/* Newsletter and Social Media Section */}
-                  <Col xl={3} lg={6} className="text-center d-flex flex-column align-items-center">
-                    <h4 className="footer-link-title">Subscribe Newsletter</h4>
-                    <div className="mailchimp mailchimp-dark">
-                      <div className="input-group mb-3 mt-4">
-                        <input
-                          type="email"
-                          className="form-control mb-0 font-size-14"
-                          placeholder="Email*"
-                          aria-describedby="button-addon2"
-                        />
-                        <div className="iq-button">
-                          <button
-                            type="submit"
-                            className="btn btn-sm"
-                            id="button-addon2"
-                          >
-                            Subscribe
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Social Media Links */}
-                    <div className="d-flex align-items-center justify-content-center mt-5 gap-2">
-                      <span className="font-size-14">Follow Us:</span>
-                      <ul className="p-0 m-0 list-unstyled widget_social_media d-flex align-items-center justify-content-center gap-3">
-                        {data.socialLinks?.facebook && (
-                          <li>
-                            <Link
-                              href={data.socialLinks.facebook}
-                              className="position-relative"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className="fab fa-facebook"></i>
-                            </Link>
-                          </li>
-                        )}
-                        {data.socialLinks?.twitter && (
-                          <li>
-                            <Link
-                              href={data.socialLinks.twitter}
-                              className="position-relative"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className="fab fa-twitter"></i>
-                            </Link>
-                          </li>
-                        )}
-                        {data.socialLinks?.github && (
-                          <li>
-                            <Link
-                              href={data.socialLinks.github}
-                              className="position-relative"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className="fab fa-github"></i>
-                            </Link>
-                          </li>
-                        )}
-                        {data.socialLinks?.instagram && (
-                          <li>
-                            <Link
-                              href={data.socialLinks.instagram}
-                              className="position-relative"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className="fab fa-instagram"></i>
-                            </Link>
-                          </li>
-                        )}
-                        {data.socialLinks?.youtube && (
-                          <li>
-                            <Link
-                              href={data.socialLinks.youtube}
-                              className="position-relative"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className="fab fa-youtube"></i>
-                            </Link>
-                          </li>
-                        )}
-                        {data.socialLinks?.linkedin && (
-                          <li>
-                            <Link
-                              href={data.socialLinks.linkedin}
-                              className="position-relative"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className="fab fa-linkedin"></i>
-                            </Link>
-                          </li>
-                        )}
-                      </ul>
-                    </div>
-                  </Col>
                 </Row>
               </div>
 
               {/* Footer Bottom Section */}
-              <div className="footer-bottom border-top">
-                <Row className="align-items-center">
-                  <Col md={6}>
-                    {/* Dynamic footer menu links for bottom */}
-                    {/* <ul className="menu list-inline p-0 d-flex flex-wrap align-items-center">
-                      {data.groups.slice(0, 1).map((group) =>
-                        group.footer_menu.slice(0, 4).map((link) => (
-                          <li className="menu-item" key={link.id}>
-                            <Link href={`/page/${link.page_id}`}>
-                              {link.title}
-                            </Link>
-                          </li>
-                        ))
-                      )}
-                    </ul> */}
-
-                    {/* Copyright Text */}
-                  </Col>
-                  <Container className=" footer-border">
-                    <Row>
-                      <Col md={12} className="text-center" >
-                        <p className="mb-0 d-flex gap-2 justify-content-center">
-                          © {currentYear} {data?.config?.site_credit && (
-                            <span
-                              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data?.config?.site_credit) }}
-                            />
-                          )}
-                        </p>
-                      </Col>
-                    </Row>
-                  </Container>
-                  {/* <Col md={3}></Col>
-                  <Col md={3}>
-                    <h6 className="font-size-14 pb-1">Download Streamit Apps</h6>
-                    <div className="d-flex align-items-center">
-                      <Link className="app-image" href="#">
-                        <img 
-                          src="/assets/images/footer/google-play.webp" 
-                          loading="lazy" 
-                          alt="play-store" 
+              <div className="footer-bottom">
+                <Container className="footer-border">
+                  <Row>
+                    <Col xl={12} lg={12} className="text-center d-flex justify-content-center flex-column align-items-center">
+                      <h4 className="footer-link-title">Subscribe Newsletter</h4>
+                      <div className="mailchimp mailchimp-dark w-50">
+                        <div className="input-group mb-3">
+                          <input
+                            type="email"
+                            className="form-control mb-0 font-size-14"
+                            placeholder="Email*"
+                            aria-describedby="button-addon2"
+                          />
+                          <div className="iq-button">
+                            <button
+                              type="submit"
+                              className="btn btn-sm"
+                              id="button-addon2"
+                            >
+                              Subscribe
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col md={12} className="text-center" >
+                      <Divider>
+                        <Logo
+                          desktopUrl="/assets/images/logo/footer-logo.webp"
+                          mobileUrl="/assets/images/logo/footer-logo.webp"
+                          height={100}
+                          width={175}
+                          handleClick={() => {
+                            const phoneNumber = "918000408888";
+                            const message = encodeURIComponent("Chat");
+                            window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
+                          }}
                         />
-                      </Link>
-                      <Link className="ms-3 app-image" href="#">
-                        <img 
-                          src="/assets/images/footer/apple.webp" 
-                          loading="lazy" 
-                          alt="app-store" 
-                        />
-                      </Link>
-                    </div>
-                  </Col> */}
-                </Row>
+                      </Divider>
+                      <p className="mb-4 font-size-14 text-center">
+                        <MailCheck color="var(--bs-primary)" size={16} className="me-2" />
+                        <a
+                          href={`mailto:${'contact@getyourticket.in'}`}
+                          className="text-white"
+                        >
+                          {'contact@getyourticket.in'}
+                        </a>
+                      </p>
+                      {/* Social Media Links */}
+                      <div className="d-flex align-items-center justify-content-center my-2 gap-2">
+                        <ul className="p-0 m-0 list-unstyled widget_social_media d-flex align-items-center justify-content-center gap-3">
+                          {Object.entries(data.socialLinks || {})
+                            .filter(([_, url]) => url && typeof url === 'string')
+                            .map(([platform, url]) => (
+                              <li key={platform}>
+                                <Link
+                                  href={String(url)}
+                                  className="position-relative"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <i className={`fab fa-${platform}`}></i>
+                                </Link>
+                              </li>
+                            ))
+                          }
+                        </ul>
+                      </div>
+                      <p className="mb-0 my-4 d-flex gap-2 justify-content-center">
+                        © {currentYear} {data?.config?.site_credit && (
+                          <span
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data?.config?.site_credit) }}
+                          />
+                        )}
+                      </p>
+                      <small>
+                        All content and images on this website are protected by copyright and belong to their respective owners. The materials are used only to promote their work, and no endorsement by the artists is implied. Any unauthorized use, reproduction, or distribution of this content is strictly prohibited and may result in legal action.
+                      </small>
+                    </Col>
+                  </Row>
+                </Container>
               </div>
             </Container>
           </footer>

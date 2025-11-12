@@ -88,8 +88,7 @@
   }
   
   strong {
-    color: lighten($primary, 20%);
-    font-weight: 600;
+    @extend .custom-text-secondary
   }
 }
 

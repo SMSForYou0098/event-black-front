@@ -4,31 +4,13 @@ import { FileText, Shield, Users, CreditCard, AlertTriangle, Lock, Mail, Phone, 
 
 const TermsConditions = () => {
   return (
-    <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', color: '#fff' }}>
-      {/* Hero Section */}
-      {/* <section className="policy-hero text-white py-5">
-        <Container className="position-relative" style={{ zIndex: 10 }}>
-          <Row className="justify-content-center text-center">
-            <Col lg={10}>
-              <div className="mb-3" style={{ fontSize: '3rem' }}>📋</div>
-              
-              <p className="lead fs-5" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                Please read these terms and conditions carefully before using our platform
-              </p>
-              <div className="info-badge mt-4">
-                Last Updated: November 2024
-              </div>
-            </Col>
-          </Row>
-        </Container>
-      </section> */}
-
-<h1 className="display-3 fw-bold text-center gradient-text">
-                Terms & Conditions
-              </h1>
+    <div>
+      <h1 className="display-3 fw-bold text-center custom-text-secondary">
+        Terms & Conditions
+      </h1>
 
       {/* Main Content */}
-      <section className="py-5 pt-3">
+      <section className="">
         <Container>
           <Row>
             <Col lg={12}>
@@ -383,16 +365,13 @@ const TermsConditions = () => {
                   <Card className="contact-card border-0 shadow-lg">
                     <Card.Body className="p-4">
                       <div className="text-center mb-4">
-                        <div className="section-icon mx-auto mb-3" style={{ width: '60px', height: '60px' }}>
-                          <Mail size={28} />
-                        </div>
-                        <h3 className="mb-4 gradient-text">Contact Us</h3>
+                        <h3 className="mb-4">Contact Us</h3>
                       </div>
                       <Row className="g-4">
                         <Col md={4}>
                           <div className="text-center">
-                            <Mail size={24} className="mb-2" style={{ color: '#60a5fa' }} />
-                            <h6 className="mb-2" style={{ color: '#60a5fa' }}>Email</h6>
+                            <Mail size={24} className="custom-text-secondary"/>
+                            <h6 className="mb-2 custom-text-secondary">Email</h6>
                             <a href="mailto:contact@getyourticket.in" className="text-decoration-none" style={{ color: '#d1d5db' }}>
                               contact@getyourticket.in
                             </a>
@@ -400,8 +379,8 @@ const TermsConditions = () => {
                         </Col>
                         <Col md={4}>
                           <div className="text-center">
-                            <Mail size={24} className="mb-2" style={{ color: '#60a5fa' }} />
-                            <h6 className="mb-2" style={{ color: '#60a5fa' }}>Support</h6>
+                            <Mail size={24} className="mb-2 custom-text-secondary"  />
+                            <h6 className="mb-2 custom-text-secondary" >Support</h6>
                             <a href="mailto:support@getyourticket.in" className="text-decoration-none" style={{ color: '#d1d5db' }}>
                               support@getyourticket.in
                             </a>
@@ -409,10 +388,10 @@ const TermsConditions = () => {
                         </Col>
                         <Col md={4}>
                           <div className="text-center">
-                            <MapPin size={24} className="mb-2" style={{ color: '#60a5fa' }} />
-                            <h6 className="mb-2" style={{ color: '#60a5fa' }}>Address</h6>
+                            <MapPin size={24} className="mb-2 custom-text-secondary" />
+                            <h6 className="mb-2 custom-text-secondary">Address</h6>
                             <p className="mb-0" style={{ color: '#d1d5db' }}>
-                              402, 403 Blue Crystal Vidyanagar,<br/>
+                              402, 403 Blue Crystal Vidyanagar,<br />
                               388120, Gujarat, India
                             </p>
                           </div>
@@ -426,7 +405,7 @@ const TermsConditions = () => {
               {/* Last Updated */}
               <div className="last-updated mt-5">
                 <p className="mb-0">
-                  <strong>Last Updated:</strong> November 2024<br/>
+                  <strong>Last Updated:</strong> November 2024<br />
                   By using our platform, you acknowledge that you have read and understood these Terms & Conditions.
                 </p>
               </div>
