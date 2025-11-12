@@ -108,36 +108,28 @@ const FooterMega = memo(() => {
 
   const socialPlatforms = [
     { key: 'facebook', icon: 'fab fa-facebook' },
-    { key: 'twitter', icon: 'fab fa-twitter' },
+    { key: 'twitter', icon: 'fab fa-x-twitter' },
     { key: 'github', icon: 'fab fa-github' },
     { key: 'instagram', icon: 'fab fa-instagram' },
     { key: 'youtube', icon: 'fab fa-youtube' },
     { key: 'linkedin', icon: 'fab fa-linkedin' },
   ];
+
+  // Create a mapping object for easy lookup
+  const platformIconMap = socialPlatforms.reduce((acc, platform) => {
+    acc[platform.key] = platform.icon;
+    return acc;
+  }, {});
   return (
     <>
       {isSuccess && data && (
         <Fragment>
           <footer className="footer footer-default">
             <Container fluid>
-              <div className="footer-top">
+              <div className="footer-top pb-0">
                 <Row>
                   {/* Logo and Contact Section */}
                   <Col xl={3} lg={6} className="mb-5 mb-lg-0 d-flex flex-column align-items-center text-center">
-                    {/* <div className="footer-logo d-flex justify-content-center">
-                      <Logo
-                        desktopUrl="/assets/images/logo/footer-logo.webp"
-                        mobileUrl="/assets/images/logo/footer-logo.webp"
-                        height={150}
-                        width={275}
-                        handleClick={() => {
-                          const phoneNumber = "918000408888";
-                          const message = encodeURIComponent("Chat");
-                          window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
-                        }}
-                      />
-                    </div> */}
-
                   </Col>
 
                   {/* Dynamic Footer Link Groups - Limited to 2 groups for layout */}
@@ -166,7 +158,7 @@ const FooterMega = memo(() => {
               </div>
 
               {/* Footer Bottom Section */}
-              <div className="footer-bottom">
+              <div className="footer-bottom pt-0">
                 <Container className="footer-border">
                   <Row>
                     <Col xl={12} lg={12} className="text-center d-flex justify-content-center flex-column align-items-center">
@@ -218,19 +210,31 @@ const FooterMega = memo(() => {
                       <div className="d-flex align-items-center justify-content-center my-2 gap-2">
                         <ul className="p-0 m-0 list-unstyled widget_social_media d-flex align-items-center justify-content-center gap-3">
                           {Object.entries(data.socialLinks || {})
-                            .filter(([_, url]) => url && typeof url === 'string')
-                            .map(([platform, url]) => (
-                              <li key={platform}>
-                                <Link
-                                  href={String(url)}
-                                  className="position-relative"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <i className={`fab fa-${platform}`}></i>
-                                </Link>
-                              </li>
-                            ))
+                            .filter(([platform, url]) => {
+                              // More strict validation
+                              return url &&
+                                typeof url === 'string' &&
+                                url.trim() !== '' &&
+                                url !== 'null' &&
+                                url !== 'undefined' &&
+                                platformIconMap[platform]; // Only include if we have an icon for it
+                            })
+                            .map(([platform, url]) => {
+                              const iconClass = platformIconMap[platform];
+
+                              return (
+                                <li key={platform}>
+                                  <Link
+                                    href={String(url)}
+                                    className="position-relative"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    <i className={iconClass}></i>
+                                  </Link>
+                                </li>
+                              );
+                            })
                           }
                         </ul>
                       </div>

@@ -18,7 +18,7 @@ const Frontend = (({ children }) => {
   const isHomePage = router.pathname === '/' || router.pathname === '/home';
   return (
     <>
-      <main className={`main-content ${!isHomePage ? 'section-padding' : 'pt-5'}`}>
+      <main className={`main-content ${!isHomePage ? 'section-padding' : ''}`}>
         <BreadCrumbWidget />
         {/* <HeaderDecider /> */}
         <HeaderProvider>

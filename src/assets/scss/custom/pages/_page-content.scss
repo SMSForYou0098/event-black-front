@@ -2,8 +2,26 @@
                       Pages Content
 -----------------------------------------------------------------------*/
 .custom-header-relative {
+  
   .main-content {
-    padding-top: var(--header-height);
+    padding-top: calc(var(--header-height) * 0.8);
+    
+    // Mobile devices (up to 767px)
+    @media (max-width: 767px) {
+      padding-top: calc(var(--header-height) * 0.8); // 80% of original
+      // Or use a fixed value:
+      // padding-top: 60px;
+    }
+    
+    // Tablets - Portrait
+    @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+      padding-top: calc(var(--header-height) * 0.7);
+    }
+    
+    // Tablets - Landscape
+    @media (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
+      padding-top: calc(var(--header-height) * 0.7);
+    }
   }
 }
 
