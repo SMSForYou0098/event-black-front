@@ -1,38 +1,46 @@
 import React from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
+import { FileText, Shield, Users, CreditCard, AlertTriangle, Lock, Mail, Phone, MapPin } from 'lucide-react';
 
 const TermsConditions = () => {
   return (
     <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', color: '#fff' }}>
       {/* Hero Section */}
-      <section className="hero-section text-white p-1" style={{ paddingTop: '5rem', paddingBottom: '5rem' }}>
+      {/* <section className="policy-hero text-white py-5">
         <Container className="position-relative" style={{ zIndex: 10 }}>
           <Row className="justify-content-center text-center">
             <Col lg={10}>
               <div className="mb-3" style={{ fontSize: '3rem' }}>📋</div>
-              <h4 className="display-3 fw-bold mb-4" style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)' }}>
-                Terms & Conditions
-              </h4>
+              
               <p className="lead fs-5" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
                 Please read these terms and conditions carefully before using our platform
               </p>
-              {/* <div className="info-badge mt-4">
+              <div className="info-badge mt-4">
                 Last Updated: November 2024
-              </div> */}
+              </div>
             </Col>
           </Row>
         </Container>
-      </section>
+      </section> */}
+
+<h1 className="display-3 fw-bold text-center gradient-text">
+                Terms & Conditions
+              </h1>
 
       {/* Main Content */}
-      <section className="py-5" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
+      <section className="py-5 pt-3">
         <Container>
           <Row>
             <Col lg={12}>
               {/* Introduction */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Introduction</h4>
-                <div className="terms-content">
+              <div className=".card-glassmorphism">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <FileText size={20} />
+                  </div>
+                  Introduction
+                </h2>
+                <div className="policy-content">
                   <p>
                     The Terms of Use ("Terms") create a legally binding agreement for you to avail the services offered by Trava Get Your Ticket Pvt. Ltd. ("Get Your Ticket"). Get Your Ticket provides an internet-based ticketing portal operated for providing event discovery, promotion, and ticketing services on their platform ("Platform"). We provide information relating to the pricing, availability, and reservation of tickets for any events across cities and rural areas.
                   </p>
@@ -43,9 +51,14 @@ const TermsConditions = () => {
               </div>
 
               {/* User Rights */}
-              <div className="glass-card">
-                <h4 className="gradient-text">User Right</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <Users size={20} />
+                  </div>
+                  User Right
+                </h2>
+                <div className="policy-content">
                   <p>
                     Subject to compliance with these Terms, Get Your Ticket grants the User a non-exclusive, non-transferable, non-sublicensable, revocable right to browse the Platform and search for, view, register for or purchase tickets or registrations to an event published on the Platform.
                   </p>
@@ -53,9 +66,14 @@ const TermsConditions = () => {
               </div>
 
               {/* Organiser Rights */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Organiser Right</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <Shield size={20} />
+                  </div>
+                  Organiser Right
+                </h2>
+                <div className="policy-content">
                   <p>
                     Subject to compliance with these Terms Get Your Ticket grants the Organiser a non-exclusive, non-transferable, non-sublicensable, revocable right to a) create, publish, and promote any upcoming events on the Brand Page b) sell tickets, manage, track, and collect sale proceeds for the published events through the Event Page.
                   </p>
@@ -63,9 +81,14 @@ const TermsConditions = () => {
               </div>
 
               {/* Accounts */}
-              <div className="glass-card">
-                <h4 className="gradient-text">User Account</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <Users size={20} />
+                  </div>
+                  User Account
+                </h2>
+                <div className="policy-content">
                   <p>
                     The User may choose to register on the Platform in order to enjoy certain benefits and additional features that are available to the registered Users. The User can sign in and create their account by providing us their username and a password or can also sign in using any of their social media or third-party sign-on services ("Account").
                   </p>
@@ -73,9 +96,14 @@ const TermsConditions = () => {
               </div>
 
               {/* Organiser's Brand and Event Page */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Organiser's Brand and Event Page</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <FileText size={20} />
+                  </div>
+                  Organiser's Brand and Event Page
+                </h2>
+                <div className="policy-content">
                   <p>
                     The Organiser can create a page on the Platform, to publish information about their business, the list of events they have organized in the past, and the list of upcoming events ("Brand Page"). Organizers only after the creation of a Brand Page shall be allowed to post information about and sell tickets for the upcoming events they will be organizing on the "Events Page". Organizers can create a Brand Page by signing in with their business name and business URL. In addition to this Get Your Ticket may collect additional information from the Organiser for verification purposes. This information may be used to verify Organiser's identity, the validity and/or legality of the transactions, and/or whether the Organiser is qualified to use the Platform for publishing their events. Organiser agrees to (a) provide this information in a timely, accurate and complete manner and (b) maintain and promptly update this information in a timely manner to ensure it remains accurate and complete at all times.
                   </p>
@@ -89,15 +117,20 @@ const TermsConditions = () => {
               </div>
 
               {/* Sale of Tickets */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Sale of Tickets</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <CreditCard size={20} />
+                  </div>
+                  Sale of Tickets
+                </h2>
+                <div className="policy-content">
                   <p>
                     Users can buy tickets for any event from the Event Page of the Organiser. The User directly enters into an agreement with the Organiser. The Organiser shall ensure to publish only authentic events on the Brand Page. Get Your Ticket strictly prohibits any Organiser to republish or resell the tickets of any event that has been already published by another Organiser on their Brand Page ("Republished Event"). Users shall be responsible for verifying the authenticity and complying with the terms and conditions for attending the event listed on the Brand Page and Event Page.
                   </p>
-                  <p>
-                    Get Your Ticket is not responsible for (a) the accuracy, legality, safety, or quality of the events published on the Brand Page and Event Page; (b) change of event place; (c) cancellation or postponement of the events; and (d) the restriction of entry of the User to the event venue (e) any purchase of tickets by the User, by directly contacting the Organiser or through any other booking platform (f) sale of tickets for any Republished Events and (g) any physical or virtual promotion of events by the Organiser outside the Platform.
-                  </p>
+                  <div className="warning-box">
+                    <strong>Important Notice:</strong> Get Your Ticket is not responsible for (a) the accuracy, legality, safety, or quality of the events published on the Brand Page and Event Page; (b) change of event place; (c) cancellation or postponement of the events; and (d) the restriction of entry of the User to the event venue (e) any purchase of tickets by the User, by directly contacting the Organiser or through any other booking platform (f) sale of tickets for any Republished Events and (g) any physical or virtual promotion of events by the Organiser outside the Platform.
+                  </div>
                   <p>
                     Upon the purchase of the tickets by the Users, Get Your Ticket shall provide the Users with a confirmation message with a unique QR code. In the case where a physical ticket is required, they will be provided by the Organiser at the event venue prior to the event. The Organiser agrees to unconditionally accept, and honor all the ticketing commitments to all the tickets that have been confirmed by Get Your Ticket through their Platform. Organiser shall verify the QR code using the ticket verification app provided by Get Your Ticket at the venue of the event and may also check for the fulfillment of any event restrictions criteria prior to the event. Exchange, resell, or transfer of tickets can only be done at the discretion of the Organiser.
                   </p>
@@ -105,9 +138,14 @@ const TermsConditions = () => {
               </div>
 
               {/* Third-Party Websites */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Third-Party Websites</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <AlertTriangle size={20} />
+                  </div>
+                  Third-Party Websites
+                </h2>
+                <div className="policy-content">
                   <p>
                     Organiser and User acknowledge and agree that the Platform may contain links to other third-party websites and the use of the third-party websites shall be subject to the terms and conditions and privacy policy of such third-party websites. Get Your Ticket shall not be responsible for the contents of such third-party websites. Get Your Ticket shall also not be responsible for any error, omission or misrepresentation on the third-party websites. The mere provision of links to third-party websites, in no way, amounts to the endorsement of the third-party websites by Get Your Ticket. Such links are provided only for the convenience of the Users and Organisers.
                   </p>
@@ -115,9 +153,14 @@ const TermsConditions = () => {
               </div>
 
               {/* Payment and Refunds */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Payment and Refunds</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <CreditCard size={20} />
+                  </div>
+                  Payment and Refunds
+                </h2>
+                <div className="policy-content">
                   <p>
                     <strong>For events in India:</strong> The base price of the tickets for the events published on the Event Page shall be fixed by the Organiser ("Base Price"). Get Your Ticket shall collect directly from the Users the Base Price as well as a transaction fee as specified in the pricing schedule published on the Get Your Ticket website, for every ticket booked through the Platform ("Booking Fee"). The Base Price and the Booking Fee are collectively called the "Event Registration Fee". Organiser authorizes Get Your Ticket to process the Event Registration Fee through Allevent's partnered payment gateways. The Parties shall be subject to the terms and conditions of the third-party payment gateways.
                   </p>
@@ -127,16 +170,21 @@ const TermsConditions = () => {
                   <p>
                     Get Your Ticket shall have no liability and will make no refund towards any request from the Users post the Withholding Period, the Users must directly contact the Organiser with respect to any refund-related queries. The Organiser may include a refund policy on their Event Page with respect to every event they publish. In the event of refunds due to violation of these Terms or cancellation, postponement, overbooking, strike, force majure, or any other causes not directly attributable to Get Your Ticket, Get Your Ticket shall continue to be entitled to the Booking Fee and any other handling fee charged. The Organizer is obliged to raise objections, if any, against the payments from Get Your Ticket within 30 days after payment of the Base Price. If not any dispute against such payment shall be deemed to be waived by the Organiser.
                   </p>
-                  <p>
+                  <div className="highlight-box">
                     <strong>For events outside India:</strong> For the sale of tickets for an event happening outside India, Get Your Ticket shall not collect the Event Registration Fee from the Users. The Users shall directly pay the Organiser through a third-party payment gateway such as Paypal or Stripe. After receiving the payment, the third-party payment gateway shall transfer the Booking Fee to Get Your Ticket and the Base Price to Organiser as per their standard payment cycle. from the completion of a payment transaction. Get Your Ticket shall not be responsible for any refund request for any such event for which the Organiser directly collects the Event Registration Fee from the User. Users must contact the Organiser with respect to any refund-related queries in accordance with the refund policy published on the Event Page of the Organiser. The Booking Fee and any other handling fee collected by Get Your Ticket are non-refundable.
-                  </p>
+                  </div>
                 </div>
               </div>
 
               {/* Advanced Plans */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Advanced Plans</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <Shield size={20} />
+                  </div>
+                  Advanced Plans
+                </h2>
+                <div className="policy-content">
                   <p>
                     Organizers in addition to the starter plan, can subscribe to other advanced plans such as the professional or the business plan etc, for publishing and promoting their events on the Platform to use certain additional features available on the Platform. Get Your Ticket shall collect from the Organiser a professional fee for providing these advanced plans ("Platform Usage Fee") in accordance with the pricing schedule listed on the Get Your Ticket website. Organizers shall pay the Advance Plan Fee within the time limit and the manner specified on the Get Your Ticket website.
                   </p>
@@ -144,9 +192,14 @@ const TermsConditions = () => {
               </div>
 
               {/* Marketing Fee */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Marketing Fee</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <CreditCard size={20} />
+                  </div>
+                  Marketing Fee
+                </h2>
+                <div className="policy-content">
                   <p>
                     Organiser can subscribe to the marketing plan of the Get Your Ticket for using the Platform for promoting and marketing any event that is published on their Event Page. Get Your Ticket shall collect from the Organiser a marketing fee as specified in the event marketing plan published on the Get Your Ticket website ("Marketing Fee") for providing such marketing services. Organizers need to pay the Marketing Fee within the time limit and the manner specified in the event marketing plan.
                   </p>
@@ -154,9 +207,14 @@ const TermsConditions = () => {
               </div>
 
               {/* Intellectual Property */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Intellectual Property Rights</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <Shield size={20} />
+                  </div>
+                  Intellectual Property Rights
+                </h2>
+                <div className="policy-content">
                   <p>
                     "Intellectual Property Rights" means any and all patent rights, copyright rights, trademark rights, trade secret rights, know-how sui generis database rights, and all other intellectual and industrial property rights of any sort throughout the world (including any application therefor and any rights to apply therefor, as well as all rights to pursue remedies for infringement or violation thereof) Except for the limited rights granted to the User or the Organiser under these Terms, all rights, title and interest in including all Intellectual Property Rights related to the Platform shall belong to and remain exclusively with Get Your Ticket. Organiser shall own all rights, title, and interest in, including all Intellectual Property Rights to any material or content created by them on the Brand Page or the Event Page and the Organiser's name, logo, and marks on the Brand Page or the Event Page belong to and remain exclusively with the Organiser.
                   </p>
@@ -170,9 +228,14 @@ const TermsConditions = () => {
               </div>
 
               {/* Termination */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Termination</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <AlertTriangle size={20} />
+                  </div>
+                  Termination
+                </h2>
+                <div className="policy-content">
                   <p>
                     User or the Organiser may at any time terminate their Account or Brand Page by sending an email to Get Your Ticket at support@getyourticket.in, requesting for the deletion of their Account or Brand Page respectively. Organizer's rights to the contents on the Brand Page shall cease on the deletion of the Brand Page.
                   </p>
@@ -186,9 +249,14 @@ const TermsConditions = () => {
               </div>
 
               {/* Confidentiality; Security and Data Privacy */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Confidentiality; Security and Data Privacy</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <Lock size={20} />
+                  </div>
+                  Confidentiality; Security and Data Privacy
+                </h2>
+                <div className="policy-content">
                   <p>
                     If the User or Organiser chooses, or the User or the Organisers are provided with, a user identification code, login, password, or any other piece of information as part of Get Your Ticket security procedures, the User or the Organiser must treat such information as confidential. They must not disclose it to any third party. Get Your Ticket has the right to disable any user identification code or password, whether chosen by the User or the Organiser or allocated by Get Your Ticket, at any time, if in Get Your Ticket reasonable opinion, the User or Organiser has failed to comply with any of the provisions of these Terms. Get Your Ticket will not be responsible for any activities, including any attempted or actual access or loss of data occurring under User's Account or Organisers' Brand Page or Event Page as a result of non-compliance of their obligations under this clause.
                   </p>
@@ -208,9 +276,14 @@ const TermsConditions = () => {
               </div>
 
               {/* User Data Collected by the Organiser */}
-              <div className="glass-card">
-                <h4 className="gradient-text">User Data Collected by the Organiser</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <Lock size={20} />
+                  </div>
+                  User Data Collected by the Organiser
+                </h2>
+                <div className="policy-content">
                   <p>
                     Get Your Ticket shall not be responsible for the data collected by the Organiser from the User on the Event Page at the time of booking tickets for an event. Organiser shall ensure to maintain physical, and technical safeguards for the protection of the security, confidentiality, and integrity of all User data accessed or processed by an Organiser that is collected from their Event Page. Organiser will delete all data that the Organiser collected through interaction with Users through the Platform,: (i) upon request from the person or entity from whom the Organiser collected such data or from Get Your Ticket; or (ii) if such data is no longer required. Upon termination or expiration of these Terms, Organiser will permanently delete all data and any other information that the Organiser has stored pursuant to their use of Platform, except if doing so would cause the Organiser to violate any applicable law or obligation imposed by a governmental authority.
                   </p>
@@ -218,9 +291,14 @@ const TermsConditions = () => {
               </div>
 
               {/* Indemnification */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Indemnification</h4>
-                <div className="terms-content">
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <Shield size={20} />
+                  </div>
+                  Indemnification
+                </h2>
+                <div className="policy-content">
                   <p>
                     User or Organiser will indemnify and hold Get Your Ticket harmless against any claim brought by a third party against Get Your Ticket, and their respective employees, officers, directors, and agents arising from the Users' or Organisers' use or access of the Platform in violation of these Terms provided that (i) Get Your Ticket promptly notify the User or the Organiser of the threat or notice of such a claim, (ii) User or the Organiser has or will have the sole and exclusive control and authority to select defense attorneys, defend and/or settle any such claim; and (iii) Get Your Ticket shall fully cooperate with the User or the Organiser in connection therewith. User or the Organiser will have no obligation or liability with respect to any such claim arising out of the gross negligence or willful misconduct of Get Your Ticket.
                   </p>
@@ -228,53 +306,74 @@ const TermsConditions = () => {
               </div>
 
               {/* Disclaimer */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Disclaimer of Warranties</h4>
-                <div className="terms-content">
-                  <p>
-                    THE PLATFORM IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS. ALL EXPRESS OR IMPLIED REPRESENTATIONS AND WARRANTIES, INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED. USER AND ORGANISER ACKNOWLEDGE THAT GET YOUR TICKET DOES NOT WARRANT THAT THE ACCESS TO THE PLATFORM, WHICH IS PROVIDED OVER THE INTERNET AND VARIOUS TELECOMMUNICATIONS NETWORKS, ALL OF WHICH ARE BEYOND GET YOUR TICKET' CONTROL, WILL BE UNINTERRUPTED, TIMELY, SECURE, ERROR-FREE, OR FREE FROM VIRUSES OR OTHER MALICIOUS SOFTWARE.
-                  </p>
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <AlertTriangle size={20} />
+                  </div>
+                  Disclaimer of Warranties
+                </h2>
+                <div className="policy-content">
+                  <div className="warning-box">
+                    <p className="mb-0">
+                      THE PLATFORM IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS. ALL EXPRESS OR IMPLIED REPRESENTATIONS AND WARRANTIES, INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED. USER AND ORGANISER ACKNOWLEDGE THAT GET YOUR TICKET DOES NOT WARRANT THAT THE ACCESS TO THE PLATFORM, WHICH IS PROVIDED OVER THE INTERNET AND VARIOUS TELECOMMUNICATIONS NETWORKS, ALL OF WHICH ARE BEYOND GET YOUR TICKET' CONTROL, WILL BE UNINTERRUPTED, TIMELY, SECURE, ERROR-FREE, OR FREE FROM VIRUSES OR OTHER MALICIOUS SOFTWARE.
+                    </p>
+                  </div>
                 </div>
               </div>
 
               {/* Limitation of Liability */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Limitation of Liability</h4>
-                <div className="terms-content">
-                  <p>
-                    TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT WILL EITHER PARTY, ITS AFFILIATES, OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, SUPPLIERS OR LICENSORS BE LIABLE TO ANY PERSON FOR ANY INDIRECT, INCIDENTAL, SPECIAL, PUNITIVE, COVER OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOST PROFITS, LOST REVENUE, LOST SALES, LOST GOODWILL, LOSS OF USE OR LOST CONTENT, BUSINESS INTERRUPTION) HOWEVER CAUSED, UNDER ANY THEORY OF LIABILITY, INCLUDING, WITHOUT LIMITATION, CONTRACT, TORT, WARRANTY, BREACH OF STATUTORY DUTY, NEGLIGENCE OR OTHERWISE, EVEN IF EITHER PARTY HAS BEEN ADVISED AS TO THE POSSIBILITY OF SUCH DAMAGES OR COULD HAVE FORESEEN SUCH DAMAGES. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, EACH PARTY'S AGGREGATE LIABILITY AND THAT OF ITS AFFILIATES, OFFICERS, EMPLOYEES, AND AGENTS, RELATING TO THE PLATFORM, WILL BE LIMITED a) IN THE EVENT OF AN ORGANISER TO AN AMOUNT EQUAL TO THE PLATFORM USAGE FEE OR THE MARKETING FEE PAID BY THE ORGANISER IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM b) IN THE EVENT OF AN USER TO AN AMOUNT EQUAL TO THE BOOKING FEE PAID BY THE USER WHILE PURCHASING TICKETS IN THE 120 DAY PRECEDING THE CLAIM.IN JURISDICTIONS WHICH DO NOT PERMIT THE EXCLUSION OF IMPLIED WARRANTIES OR LIMITATION OF LIABILITY FOR INCIDENTAL OR CONSEQUENTIAL DAMAGES, OUR LIABILITY WILL BE LIMITED TO THE GREATEST EXTENT PERMITTED BY LAW.
-                  </p>
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <AlertTriangle size={20} />
+                  </div>
+                  Limitation of Liability
+                </h2>
+                <div className="policy-content">
+                  <div className="warning-box">
+                    <p className="mb-0">
+                      TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT WILL EITHER PARTY, ITS AFFILIATES, OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, SUPPLIERS OR LICENSORS BE LIABLE TO ANY PERSON FOR ANY INDIRECT, INCIDENTAL, SPECIAL, PUNITIVE, COVER OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOST PROFITS, LOST REVENUE, LOST SALES, LOST GOODWILL, LOSS OF USE OR LOST CONTENT, BUSINESS INTERRUPTION) HOWEVER CAUSED, UNDER ANY THEORY OF LIABILITY, INCLUDING, WITHOUT LIMITATION, CONTRACT, TORT, WARRANTY, BREACH OF STATUTORY DUTY, NEGLIGENCE OR OTHERWISE, EVEN IF EITHER PARTY HAS BEEN ADVISED AS TO THE POSSIBILITY OF SUCH DAMAGES OR COULD HAVE FORESEEN SUCH DAMAGES. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, EACH PARTY'S AGGREGATE LIABILITY AND THAT OF ITS AFFILIATES, OFFICERS, EMPLOYEES, AND AGENTS, RELATING TO THE PLATFORM, WILL BE LIMITED a) IN THE EVENT OF AN ORGANISER TO AN AMOUNT EQUAL TO THE PLATFORM USAGE FEE OR THE MARKETING FEE PAID BY THE ORGANISER IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM b) IN THE EVENT OF AN USER TO AN AMOUNT EQUAL TO THE BOOKING FEE PAID BY THE USER WHILE PURCHASING TICKETS IN THE 120 DAY PRECEDING THE CLAIM.IN JURISDICTIONS WHICH DO NOT PERMIT THE EXCLUSION OF IMPLIED WARRANTIES OR LIMITATION OF LIABILITY FOR INCIDENTAL OR CONSEQUENTIAL DAMAGES, OUR LIABILITY WILL BE LIMITED TO THE GREATEST EXTENT PERMITTED BY LAW.
+                    </p>
+                  </div>
                 </div>
               </div>
 
               {/* Miscellaneous */}
-              <div className="glass-card">
-                <h4 className="gradient-text">Miscellaneous</h4>
-                <div className="terms-content">
-                  <p>
-                    <strong>Relationship of the Parties:</strong> The Parties are independent contractors. These Terms do not create a partnership, franchise, joint venture, agency, fiduciary, or employment relationship among the Parties.
-                  </p>
-                  <p>
-                    <strong>Entire Agreement and Revisions:</strong> These Terms, including all schedules and online policies incorporated herein by reference, contain the entire agreement and understanding of the Parties and supersede all prior communications, discussions, negotiations, proposed agreements, and all other agreements between them, whether written or oral, concerning the subject matter herein. These Terms may be amended only by a written agreement of the parties and signed by the duly authorized agents of the parties.
-                  </p>
-                  <p>
-                    <strong>Force Majeure:</strong> Notwithstanding anything to the contrary contained elsewhere, Get Your Ticket shall not be liable for the unavailability of the Platform caused by circumstances beyond Get Your Ticket' reasonable control, such as but not limited to, acts of God, acts of government, acts of terror or civil unrest, technical failures beyond Get Your Ticket' reasonable control (including, without limitation, inability to access the internet, unauthorized loss, distribution or dissemination of data provided by the User or Organiser), or acts undertaken by third parties, including without limitation, distributed denial of service attacks.
-                  </p>
-                  <p>
-                    <strong>Governing Law and Dispute Resolution:</strong> These Terms shall be governed by the laws of India, without regard to any conflict of laws provisions. Any dispute related to these Terms shall be referred to final and binding arbitration by a sole arbitrator mutually appointed by the Parties, conducted in accordance with the Arbitration and Conciliation Act, 1996, as amended from time to time. The arbitration shall be in the English language. The seat of arbitration shall be at Anand, India. Subject to the foregoing, the courts in Anand, India shall have exclusive jurisdiction.
-                  </p>
-                  <p>
-                    <strong>Notices and Consent to Electronic Communications:</strong> All notices to be provided by Get Your Ticket to User or Organiser under these Terms may be delivered in writing (i) by a nationally recognized overnight delivery service ("Courier") or to the contact mailing address of the User or the Organiser provided by them on the User Account or the Brand Page respectively; or (ii) electronic mail to the e-mail address provided by them. Get Your Ticket' address for a notice : 402, 403 Blue Crystel Vidyanagar, 388120, Gujarat, India or (ii) by electronic mail is contact@getyourticket.in. All notices shall be deemed to have been given immediately upon delivery by electronic mail, or if otherwise delivered upon receipt or, if earlier, two (2) business days after being deposited in the mail or with a Courier as permitted above.
-                  </p>
-                  <p>
-                    <strong>Publicity Rights:</strong> Organiser hereby grants Get Your Ticket a royalty-free, worldwide, transferable license to use Organiser's trademark or logo to identify the Organiser using the Get Your Ticket Platform on its Websites and/or marketing collateral and to include the Organiser's use of the Platform in case studies.
-                  </p>
-                  <p>
-                    <strong>Severability: No Waiver:</strong> If any provision in these Terms is held by a court of competent jurisdiction to be unenforceable, such provision shall be modified by the court and interpreted so as to best accomplish the original provision to the fullest extent permitted by applicable law, and the remaining provisions of this Agreement shall remain in effect. Get Your Ticket' non-exercise of any right under or provision of this Agreement does not constitute a waiver of that right or provision.
-                  </p>
-                  <p>
-                    <strong>Survival:</strong> All clauses which, by their nature are intended to survive, including without limitation Clauses Intellectual Property Rights, Effect of Termination, Confidentiality; Security and Data Privacy; Disclaimer of Warranties, Limitation of Liability, Indemnification, and Miscellaneous shall survive any termination of these Terms with respect to use of the Platform by the Organiser or the User. Termination shall not limit Party's liability for obligations accrued as of or prior to such termination or for any breach of these Terms.
-                  </p>
+              <div className="policy-section">
+                <h2 className="section-title">
+                  <div className="section-icon">
+                    <FileText size={20} />
+                  </div>
+                  Miscellaneous
+                </h2>
+                <div className="policy-content">
+                  <ul className="list-styled">
+                    <li>
+                      <strong>Relationship of the Parties:</strong> The Parties are independent contractors. These Terms do not create a partnership, franchise, joint venture, agency, fiduciary, or employment relationship among the Parties.
+                    </li>
+                    <li>
+                      <strong>Entire Agreement and Revisions:</strong> These Terms, including all schedules and online policies incorporated herein by reference, contain the entire agreement and understanding of the Parties and supersede all prior communications, discussions, negotiations, proposed agreements, and all other agreements between them, whether written or oral, concerning the subject matter herein. These Terms may be amended only by a written agreement of the parties and signed by the duly authorized agents of the parties.
+                    </li>
+                    <li>
+                      <strong>Force Majeure:</strong> Notwithstanding anything to the contrary contained elsewhere, Get Your Ticket shall not be liable for the unavailability of the Platform caused by circumstances beyond Get Your Ticket' reasonable control, such as but not limited to, acts of God, acts of government, acts of terror or civil unrest, technical failures beyond Get Your Ticket' reasonable control (including, without limitation, inability to access the internet, unauthorized loss, distribution or dissemination of data provided by the User or Organiser), or acts undertaken by third parties, including without limitation, distributed denial of service attacks.
+                    </li>
+                    <li>
+                      <strong>Governing Law and Dispute Resolution:</strong> These Terms shall be governed by the laws of India, without regard to any conflict of laws provisions. Any dispute related to these Terms shall be referred to final and binding arbitration by a sole arbitrator mutually appointed by the Parties, conducted in accordance with the Arbitration and Conciliation Act, 1996, as amended from time to time. The arbitration shall be in the English language. The seat of arbitration shall be at Anand, India. Subject to the foregoing, the courts in Anand, India shall have exclusive jurisdiction.
+                    </li>
+                    <li>
+                      <strong>Notices and Consent to Electronic Communications:</strong> All notices to be provided by Get Your Ticket to User or Organiser under these Terms may be delivered in writing (i) by a nationally recognized overnight delivery service ("Courier") or to the contact mailing address of the User or the Organiser provided by them on the User Account or the Brand Page respectively; or (ii) electronic mail to the e-mail address provided by them. Get Your Ticket' address for a notice : 402, 403 Blue Crystel Vidyanagar, 388120, Gujarat, India or (ii) by electronic mail is contact@getyourticket.in. All notices shall be deemed to have been given immediately upon delivery by electronic mail, or if otherwise delivered upon receipt or, if earlier, two (2) business days after being deposited in the mail or with a Courier as permitted above.
+                    </li>
+                    <li>
+                      <strong>Publicity Rights:</strong> Organiser hereby grants Get Your Ticket a royalty-free, worldwide, transferable license to use Organiser's trademark or logo to identify the Organiser using the Get Your Ticket Platform on its Websites and/or marketing collateral and to include the Organiser's use of the Platform in case studies.
+                    </li>
+                    <li>
+                      <strong>Severability: No Waiver:</strong> If any provision in these Terms is held by a court of competent jurisdiction to be unenforceable, such provision shall be modified by the court and interpreted so as to best accomplish the original provision to the fullest extent permitted by applicable law, and the remaining provisions of this Agreement shall remain in effect. Get Your Ticket' non-exercise of any right under or provision of this Agreement does not constitute a waiver of that right or provision.
+                    </li>
+                    <li>
+                      <strong>Survival:</strong> All clauses which, by their nature are intended to survive, including without limitation Clauses Intellectual Property Rights, Effect of Termination, Confidentiality; Security and Data Privacy; Disclaimer of Warranties, Limitation of Liability, Indemnification, and Miscellaneous shall survive any termination of these Terms with respect to use of the Platform by the Organiser or the User. Termination shall not limit Party's liability for obligations accrued as of or prior to such termination or for any breach of these Terms.
+                    </li>
+                  </ul>
                 </div>
               </div>
 
@@ -283,36 +382,51 @@ const TermsConditions = () => {
                 <Col md={12}>
                   <Card className="contact-card border-0 shadow-lg">
                     <Card.Body className="p-4">
-                      <div className="mb-3" style={{ fontSize: '3rem' }}>📧</div>
-                      <h3 className="mb-4 gradient-text">Contact Us</h3>
-                      <div className="text-start" style={{ maxWidth: '500px', margin: '0 auto' }}>
-                        <p className="mb-3" style={{ color: '#d1d5db' }}>
-                          <strong style={{ color: '#60a5fa' }}>Email:</strong><br/>
-                          <a href="mailto:contact@getyourticket.in" className="text-decoration-none" style={{ color: '#93c5fd' }}>
-                            contact@getyourticket.in
-                          </a>
-                        </p>
-                        <p className="mb-3" style={{ color: '#d1d5db' }}>
-                          <strong style={{ color: '#60a5fa' }}>Support:</strong><br/>
-                          <a href="mailto:support@getyourticket.in" className="text-decoration-none" style={{ color: '#93c5fd' }}>
-                            support@getyourticket.in
-                          </a>
-                        </p>
-                        <p className="mb-0" style={{ color: '#d1d5db' }}>
-                          <strong style={{ color: '#60a5fa' }}>Address:</strong><br/>
-                          402, 403 Blue Crystal Vidyanagar,<br/>
-                          388120, Gujarat, India
-                        </p>
+                      <div className="text-center mb-4">
+                        <div className="section-icon mx-auto mb-3" style={{ width: '60px', height: '60px' }}>
+                          <Mail size={28} />
+                        </div>
+                        <h3 className="mb-4 gradient-text">Contact Us</h3>
                       </div>
+                      <Row className="g-4">
+                        <Col md={4}>
+                          <div className="text-center">
+                            <Mail size={24} className="mb-2" style={{ color: '#60a5fa' }} />
+                            <h6 className="mb-2" style={{ color: '#60a5fa' }}>Email</h6>
+                            <a href="mailto:contact@getyourticket.in" className="text-decoration-none" style={{ color: '#d1d5db' }}>
+                              contact@getyourticket.in
+                            </a>
+                          </div>
+                        </Col>
+                        <Col md={4}>
+                          <div className="text-center">
+                            <Mail size={24} className="mb-2" style={{ color: '#60a5fa' }} />
+                            <h6 className="mb-2" style={{ color: '#60a5fa' }}>Support</h6>
+                            <a href="mailto:support@getyourticket.in" className="text-decoration-none" style={{ color: '#d1d5db' }}>
+                              support@getyourticket.in
+                            </a>
+                          </div>
+                        </Col>
+                        <Col md={4}>
+                          <div className="text-center">
+                            <MapPin size={24} className="mb-2" style={{ color: '#60a5fa' }} />
+                            <h6 className="mb-2" style={{ color: '#60a5fa' }}>Address</h6>
+                            <p className="mb-0" style={{ color: '#d1d5db' }}>
+                              402, 403 Blue Crystal Vidyanagar,<br/>
+                              388120, Gujarat, India
+                            </p>
+                          </div>
+                        </Col>
+                      </Row>
                     </Card.Body>
                   </Card>
                 </Col>
               </Row>
 
               {/* Last Updated */}
-              <div className="last-updated">
+              <div className="last-updated mt-5">
                 <p className="mb-0">
-                  {/* <strong>Last Updated:</strong> November 2024<br/> */}
+                  <strong>Last Updated:</strong> November 2024<br/>
                   By using our platform, you acknowledge that you have read and understood these Terms & Conditions.
                 </p>
               </div>

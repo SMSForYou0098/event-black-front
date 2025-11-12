@@ -30,21 +30,23 @@ const PrivacyPolicy = () => {
             />
 
       {/* Hero Section */}
-      <section className="hero-section text-white py-5" style={{ paddingTop: '5rem', paddingBottom: '5rem' }}>
+      {/* <section className="policy-hero text-white py-5" style={{ paddingTop: '5rem', paddingBottom: '5rem' }}>
         <Container className="position-relative" style={{ zIndex: 10 }}>
           <Row className="justify-content-center text-center">
             <Col lg={10}>
               <div className="mb-3" style={{ fontSize: '3.5rem' }}>🔒</div>
-              <h4 className="display-3 fw-bold mb-4" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
-                Privacy Policy
-              </h4>
+              
               <p className="lead fs-5" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
                 Your privacy is important to us. Learn how we collect, use, and protect your personal information.
               </p>
             </Col>
           </Row>
         </Container>
-      </section>
+      </section> */}
+
+<h4 className="display-3 fw-bold text-center gradient-text">
+                Privacy Policy
+              </h4>
 
       {/* Main Content */}
       <section className="py-5" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
@@ -52,8 +54,8 @@ const PrivacyPolicy = () => {
           <Row>
             <Col lg={12}>
               {/* Introduction */}
-              <div className="privacy-section">
-                <div className="privacy-content">
+              <div className="policy-section">
+                <div className="policy-content">
                   <p>
                     This privacy policy ("Privacy Policy") explains how Trava Get Your Ticket Pvt. Ltd. ("Get Your Ticket") or any of its affiliates or subsidiaries. ("We", "Us", "Our") Process Personal Data collected from natural persons as specified in clause 2 below, as a Controller ("You").
                   </p>
@@ -70,12 +72,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Definitions */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">📖</span>
                   1. DEFINITIONS
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <div className="definition-item">
                     <div className="definition-term">1.1 "Controller"</div>
                     <p className="mb-0">means the natural or legal person, public authority, agency, or other body which alone or jointly with others, determines the purposes and means of the Processing of Personal Data.</p>
@@ -134,12 +136,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Age Requirement */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">👤</span>
                   Age Requirement
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>
                     A transaction on Get Your Ticket is to be conducted by persons above the age of 18 years only. If you are under 18 years of age, you are not allowed to make a transaction in Get Your Ticket. It is the duty of the legal guardians of all persons below 18 years of age to ensure that their wards do not make a transaction without their supervision on Get Your Ticket. It shall be automatically deemed that by allowing any person below the age of 18 years to transact on Get Your Ticket, their legal guardians have expressly consented to their use and we disclaim any liability arising from your failure to do so.
                   </p>
@@ -147,12 +149,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Data Collection */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">📊</span>
                   2. What Personal Data We Collect
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>We may collect your personal data when you:</p>
                   <ul className="list-styled">
                     <li>create an account with us or</li>
@@ -190,12 +192,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* How We Use Data */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">🎯</span>
                   3. How We Use Your Personal Data
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>
                     The personal data we collect from you will be used, or shared with third parties (including related companies and third party service providers), for some or all of the following purposes:
                   </p>
@@ -219,12 +221,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Data Sharing */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">🔄</span>
                   4. How We Share Your Personal Data
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>
                     In order to provide our products and services to you or to otherwise fulfil contractual arrangements that we have with you, we may need to appoint other organisations to carry out some of the data processing activities on our behalf. These may include, for example, payment processing organisations, delivery organisations, fraud prevention and screening and credit risk management companies, and mailing houses.
                   </p>
@@ -238,12 +240,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Third Party Links */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">🔗</span>
                   5. Third-Party Websites
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>
                     Get Your Ticket and its services may contain links to third-party websites, including identity verification and social networking websites. Your use of these features may result in the collection or sharing of information about you, depending on the feature. Please be aware that we are not responsible for the content or privacy practices of other websites or services to which we link. We do not endorse or make any representations about third-party websites or services. The personal data you choose to provide to or that is collected by these third parties is not covered by our Privacy Statement. We strongly encourage you to read such third parties' privacy statements.
                   </p>
@@ -251,12 +253,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Legal Disclosure */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">⚖️</span>
                   6. Legal Disclosure of Personal Data
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>We may share:</p>
                   <p>
                     (a) your personal data with any person or entity where we believe in good faith that such disclosure is necessary to:
@@ -291,12 +293,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Security */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">🛡️</span>
                   7. Security Measures
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>
                     We have implemented reasonable security arrangements including physical, administrative, technical, and electronic security measures to protect against the loss, misuse, and alteration of your personal data. We are PCI DSS certified which means that the data you submit to us is secure and protected against loss or theft in accordance with the globally accepted data security standards. Despite our best efforts, however, no security measures are perfect or impenetrable. In the event where you believe your privacy has been breached, please contact us immediately.
                   </p>
@@ -304,12 +306,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Password Security */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">🔑</span>
                   8. Password Security
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>
                     It is your responsibility to protect any passwords you require to access your account on Get Your Ticket. Please use unique numbers, letters and special characters, and do not share your password with anyone. If you do share your password with others, you will be responsible for all actions taken in the name of your account and the consequences. If you lose control of your password, you may lose substantial control over your personal data and other information submitted to us. You could also be subject to legally binding actions taken on your behalf. Therefore, if your password has been compromised for any reason or if you have grounds to believe that your password has been compromised, you should immediately contact us and change your password.
                   </p>
@@ -323,12 +325,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Cookie Policy */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">🍪</span>
                   9. COOKIE POLICY
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>
                     <strong>9.1</strong> Cookies are text files that are placed on Your computer to collect standard internet log information and visitor behaviour information by Us. When You visit the Website(s), We may collect Personal Data automatically from You through cookies or similar technology. We also set cookies to collect information that is used either in aggregate form to help Us understand how our Website(s) are being used or how effective Our marketing campaigns are, to help customise the Website(s) for You or to make advertising messages more relevant to You.
                   </p>
@@ -345,12 +347,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Privacy of Children */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">👶</span>
                   10. PRIVACY OF CHILDREN
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>
                     <strong>10.1</strong> We recognize the importance of children's safety and privacy. We do not request, or knowingly collect, any Personal Data from children under the age of 16 without the consent given or authorized by the parent or guardian of the child. Parents or guardians can revoke the consent previously made and review, edit, or delete the Personal Data of children for whom they provided consent. If a parent or guardian becomes aware that his or her child has provided Us with Personal Data without their consent, they should write to us at the email address provided in clause.
                   </p>
@@ -358,12 +360,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Notice to User */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">📢</span>
                   11. NOTICE TO USER AND OTHER EXCLUSIONS
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>
                     <strong>11.1</strong> Where the Personal Data of Users are collected by the Organiser on their event page, that Organiser is the Controller of such Personal Data. For the additional information collected by Organisers on their brand page, Users' data privacy questions and requests should be submitted to the Organiser in its capacity as the Users' Controller. We are not responsible for Organisers' privacy or security practices or the data retention period which may be different from this notice. Organisers of Our Platform are solely responsible for establishing policies for and ensuring compliance with all applicable laws and regulations, as well as any and all privacy policies, agreements, or other obligations, relating to the collection of Personal Data in connection with the use of their brand page by the Users.
                   </p>
@@ -380,12 +382,12 @@ const PrivacyPolicy = () => {
               </div>
 
               {/* Grievance Officer */}
-              <div className="privacy-section">
+              <div className="policy-section">
                 <h2 className="section-title">
                   <span className="section-icon">📧</span>
                   12. CONTACTING OUR GRIEVANCE OFFICER
                 </h2>
-                <div className="privacy-content">
+                <div className="policy-content">
                   <p>
                     This Policy does not apply to aggregated information which summarises statistical information about groups of members, and which does not include name, contact information, or any other information that would allow any particular individual to be identified.
                   </p>

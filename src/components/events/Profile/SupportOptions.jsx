@@ -48,7 +48,7 @@ const SupportOptions = () => {
       <Row className="g-3 justify-content-center">
         {options.map(({ id, icon: Icon, title, sub, buttonText, buttonVariant, iconColor, action }) => (
           <Col key={id} xs={12} sm={10} md={8} lg={6}>
-            <Card className="border-0 shadow-sm">
+            <Card className="border-dashed shadow-sm">
               <div className="d-flex align-items-center p-3 gap-3">
                 <div
                   className="d-flex align-items-center justify-content-center rounded-circle"
@@ -69,6 +69,7 @@ const SupportOptions = () => {
                     size="sm"
                     buttonText={buttonText}
                     HandleClick={action}
+                    icon={<Icon size={16}  />}
                   />
                 </div>
               </div>
