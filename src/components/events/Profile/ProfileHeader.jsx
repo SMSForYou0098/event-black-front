@@ -130,7 +130,7 @@ const ProfileHeader = ({ user = {}, onEditClick, onAvatarUpload, loading }) => {
                     <CustomBadge
                       variant="outline-success"
                       className="py-0 px-2 d-inline-flex align-items-center"
-                      style={{ lineHeight: 1.1 }}
+                      style={{ lineHeight: 2 }}
                     >
                       <CheckCircle size={14} className="me-1" />
                       <span className="small">Verified</span>

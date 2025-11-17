@@ -146,6 +146,8 @@ const CartPage = () => {
       "description",
       "user_booking_limit",
       "sale_date",
+      "booking_not_open",
+      "fast_filling"
     ];
 
     try {

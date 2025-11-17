@@ -56,9 +56,8 @@ const CustomCounter = memo((props) => {
     return (
         <Fragment>
             <div
-                className="btn-group iq-qty-btn custom-qty-btn rounded-3 custom-dark-content-bg"
-                data-qty="btn"
-                role="group"
+                className={`btn-group iq-qty-btn custom-qty-btn rounded-3 custom-dark-content-bg ${isDisable ? 'opacity-50' : ''
+                    }`}
                 style={{
                     pointerEvents: disabled ? 'none' : 'auto',
                     fontSize: '1rem',

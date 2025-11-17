@@ -1,7 +1,10 @@
 import React from "react";
 import { useMyContext } from "@/Context/MyContextProvider";
+import { Badge } from "react-bootstrap";
+import CustomBadge from "../../utils/ProfileUtils/getBadgeClass";
+import { CheckCircle } from "lucide-react";
 
-const CommonPricingComp = ({ currency, isSale, price, salePrice, soldOut }) => {
+const CommonPricingComp = ({ currency, isSale, price, salePrice, soldOut, booking_not_open =false, fast_filling=false }) => {
   const { getCurrencySymbol } = useMyContext();
 
   const symbol =
@@ -28,9 +31,40 @@ const CommonPricingComp = ({ currency, isSale, price, salePrice, soldOut }) => {
       ) : (
         `${symbol}${fmt(p)}`
       )}
-      {
-        soldOut && <p className="text-primary p-0 m-0">Sold Out</p>
-      }
+      {soldOut && (
+        <CustomBadge
+          variant="outline-primary"
+          className="py-0 ms-2 px-2 d-inline-flex align-items-center"
+          style={{ lineHeight: 2 }}
+        >
+          <CheckCircle size={14} className="me-1" />
+          <span className="small">Sold Out</span>
+        </CustomBadge>
+      )}
+
+      {booking_not_open && (
+
+        <CustomBadge
+          variant="outline-warning"
+          className="py-0 ms-2 px-2 d-inline-flex align-items-center"
+          style={{ lineHeight: 2 }}
+        >
+          <CheckCircle size={14} className="me-1" />
+          <span className="small">Booking Not Open</span>
+        </CustomBadge>
+      )}
+
+      {fast_filling && (
+        <CustomBadge
+          variant="outline-danger"
+          className="py-0 px-2 ms-2 d-inline-flex align-items-center"
+          style={{ lineHeight: 2 }}
+        >
+          <CheckCircle size={14} className="me-1" />
+          <span className="small">Fast Filling</span>
+        </CustomBadge>
+      )}
+
     </>
   );
 };

@@ -213,7 +213,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     <Fragment>
       <section className="banner-container section-padding-bottom pb-0">
         <div className="movie-banner">
-          <div id="banner-detail-slider" className="banner-container">
+          <div id="banner-detail-slider" style={{height:"100%"}} className="">
             <MobileOnly>
               {loading ? <BannerSkeleton themeSchemeDirection={themeSchemeDirection} /> : (
 
@@ -229,7 +229,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
 
             <DesktopOnly>
               {loading ? <BannerSkeleton themeSchemeDirection={themeSchemeDirection} /> : (
-              <Swiper key={`desktop-${String(themeSchemeDirection)}`} {...desktopSwiperConfig}>
+              <Swiper  style={{maxHeight:"450px"}} key={`desktop-${String(themeSchemeDirection)}`} {...desktopSwiperConfig}>
                 {bannersToRender.map((banner, index) => {
                   // Direct usage - no extraction needed
                   const imageUrl = banner.images || ''; // fallback to empty string if null
@@ -238,14 +238,14 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                   const hasMedia = Boolean(banner?.media_url);
 
                   return (
-                    <SwiperSlide key={banner.id || index}>
+                    <SwiperSlide  key={banner.id || index}>
                       <div
                         className=""
                         style={{
                           backgroundImage: backgroundStyle,
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
-                          height: '450px',
+                          height: '100%',
                           position: 'relative'
                         }}
                       >

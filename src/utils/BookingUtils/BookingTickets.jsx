@@ -139,7 +139,7 @@ const BookingTickets = ({
     <tr key={item.id} data-item="list">
       <td>
         <span className="fw-500 d-flex flex-column justify-content-start">
-          {item.name}
+          {item.name} 
           <span>
             Price:{" "}
             <CommonPricingComp
@@ -148,6 +148,8 @@ const BookingTickets = ({
               isSale={item?.sale}
               salePrice={item?.sale_price}
               soldOut={item?.sold_out === 1}
+              booking_not_open={item?.booking_not_open ===1}
+              fast_filling={item?.fast_filling ===1}
             />
           </span>
         </span>
@@ -162,7 +164,7 @@ const BookingTickets = ({
           limit={10}
           ticketID={item.id}
           selectedTickets={selectedTickets}
-          isDisable={item?.sold_out === 1}
+          isDisable={item?.sold_out === 1 || item?.booking_not_open ===1}
         />
       </td>
 
