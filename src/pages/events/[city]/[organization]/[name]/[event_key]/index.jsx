@@ -8,7 +8,6 @@ const queryKey = (event_key) => ['event', event_key];
 
 const EventById = ({ event_key }) => {
   const { data: event,isLoading } = useEventData(event_key); // instantly hydrated
-  console.log('loading',isLoading);
   if(isLoading){
     return <EventDetailPageSkeleton />
   }

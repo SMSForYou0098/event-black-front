@@ -49,22 +49,43 @@ const PriceData = (props) => {
 };
 
 const CardStyle = memo((props) => {
+  const rawImage = props?.image;
+
+  // Normalize src for next/image
+  const getImageSrc = (src) => {
+    if (!src) {
+      return "https://placehold.co/500x400";
+    }
+
+    // If already full URL (http/https) → use as is
+    if (src.startsWith("http://") || src.startsWith("https://")) {
+      return src;
+    }
+
+    // If you want to serve it from your backend server:
+    // e.g. src = "gallery/events/thumbnail/..."
+    const BASE_URL = "http://192.168.0.164:8000/"; // or from env: process.env.NEXT_PUBLIC_API_URL
+    return BASE_URL + src.replace(/^\/+/, ""); // remove any leading slashes just in case
+  };
+
+  const imageSrc = getImageSrc(rawImage);
+
+  console.log("raw props.image:", rawImage);
+  console.log("normalized imageSrc:", imageSrc);
+
   return (
     <Fragment>
       <div className="iq-top-ten-block">
         <div className="block-image position-relative">
           <div className="img-box">
-            <Link
-              href={props.link}
-              className="overly-images"
-            >
+            <Link href={props.link} className="overly-images">
               {props.on_sale && (
                 <span className="position-absolute top-0 end-0 m-2 z-index-3">
                   <SaleTag />
                 </span>
               )}
               <Image
-                src={props?.image || 'https://placehold.co/500x400'}
+                src={imageSrc}
                 alt="movie-card"
                 loading="lazy"
                 width={180}
@@ -74,12 +95,12 @@ const CardStyle = memo((props) => {
             </Link>
           </div>
           <div className="evnt-desc mt-3">
-              <div className="">
-                <h5 className="text-capitalize">
-                  <Link href={props.link}>{props.title}</Link>
-                </h5>
-                <PriceData {...props} />
-              </div>
+            <div>
+              <h5 className="text-capitalize">
+                <Link href={props.link}>{props.title}</Link>
+              </h5>
+              <PriceData {...props} />
+            </div>
           </div>
         </div>
       </div>

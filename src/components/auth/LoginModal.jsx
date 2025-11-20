@@ -530,7 +530,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
         </Modal.Title>
       </Modal.Header>
 
-      <Modal.Body className="pt-0">
+      <Modal.Body className="pt-0 pb-2">
         {serverError && (
           <Alert variant="primary" className="mt-2">
             {serverError}
@@ -803,7 +803,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
               </div>
             </Form>
 
-            <p className="text-center">
+            {/* <p className="text-center">
               Don't have an account?{" "}
               <Button
                 variant="link"
@@ -812,7 +812,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
               >
                 Sign up
               </Button>
-            </p>
+            </p> */}
           </>
         )}
       </Modal.Body>
