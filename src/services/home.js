@@ -30,7 +30,7 @@ export const getActiveMenu = async () => {
 export const getBanners = async () => {
   try {
     const response = await publicApi.get('/banners');
-    const rawBanners = response.data.banners;
+    const rawBanners = response?.data?.banners || [];
 
     const mobileBanners = [];
     const pcBanners = [];
@@ -73,7 +73,7 @@ export const getFeatureEvents = async () => {
   try {
     const response = await api.get('/feature-event');
     if (response.data.status) {
-      return response.data.events;
+      return response.data.events || [];
     }
     // If the API returns a status of false, throw an error
     throw new Error('API returned unsuccessful status for feature events.');
@@ -87,7 +87,7 @@ export const expiredEvents = async () => {
   try {
     const response = await api.get('/expired-events');
     if (response.data.status) {
-      return response.data.events;
+      return response.data.events || [];
     }
     // If the API returns a status of false, throw an error
     throw new Error('API returned unsuccessful status for expired events.');
@@ -108,7 +108,7 @@ export const getSuccessfulEvents = async () => {
     const response = await api.get('/successfulEvent');
     // Check if the response data and status are valid
     if (response.data && response.data.status) {
-      return response.data.eventData;
+      return response.data.eventData || [];
     }
 
     // If the API returns a status of false or the data is malformed, throw an error
@@ -134,7 +134,7 @@ export const getFooterData = async () => {
     const response = await api.get('/footer-group');
 
     // If the API response has a truthy status, return the structured data
-    if (response.data && response.data.status) {
+    if (response?.data?.status) {
       return {
         config: response.data.FooterData,
         groups: response.data.GroupData,
@@ -142,12 +142,20 @@ export const getFooterData = async () => {
       };
     }
 
-    // If the API returns a status of false, it's considered an error
-    throw new Error('API returned an unsuccessful status for footer data.');
+    // Return default empty data instead of throwing
+    return {
+      config: {},
+      groups: [],
+      socialLinks: {},
+    };
 
   } catch (error) {
     console.error("Failed to fetch footer data:", error);
-    // Re-throw the error so TanStack Query can handle the error state
-    throw error;
+    // Return default empty data so the UI can still render static parts
+    return {
+      config: {},
+      groups: [],
+      socialLinks: {},
+    };
   }
 };

@@ -14,7 +14,7 @@ export const usePromotionalEvents = (options = {}) => {
     queryKey: ['eventsByOrg'],
     queryFn: async () => {
       const response = await api.get('/promote-orgs');
-      return response.data.data;
+      return response?.data?.data || [];
     },
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 30,
@@ -26,7 +26,7 @@ export const usePromotionalEvents = (options = {}) => {
 const PromotionalEvents = () => {
   const { data = [], isLoading, isError, error } = usePromotionalEvents();
   const { createSlug } = useMyContext();
-  
+
   if (isLoading) return <div className="text-center py-5">Loading...</div>;
   if (isError) return <div className="text-center py-5 text-danger">Error: {error?.message}</div>;
 

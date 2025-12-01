@@ -19,69 +19,69 @@ const nextConfig = {
     return config;
   },
   images: {
-  remotePatterns: [
-    // {
-    //   protocol: 'http',
-    //   hostname: 'dark.getyourticket.in',
-    // },
-    {
-      protocol: 'https',
-      hostname: 'dark.getyourticket.in',
-    },
-    {
-      protocol: 'http',
-      hostname: '192.168.0.120',
-    },
-    {
-      protocol: 'http',
-      hostname: '192.168.0.164',
-    },
-    {
-      protocol: 'http',
-      hostname: '192.168.0.112',
-    },
-    {
-      protocol: 'https',
-      hostname: 'cricket.getyourticket.in',
-    },
-    {
-      protocol: 'https',
-      hostname: 'randomuser.me',
-    },
-    {
-      protocol: 'https',
-      hostname: 'tbz.getyourticket.in',
-    },
-    {
-      protocol: 'https',
-      hostname: 'images.unsplash.com',
-    },
-    {
-      protocol: 'https',
-      hostname: 'placehold.co',
-    },
-    {
-      protocol: 'https',
-      hostname: 'nav.ssgarba.com',
-    },
-    {
-      protocol: 'https',
-      hostname: 'via.placeholder.com',
-    },
-    {
-      protocol: 'http',
-      hostname: '192.168.0.164',
-      port: '8000',
-      pathname: '/uploads/**',
-    },
-    {
-      protocol: 'http',
-      hostname: '192.168.0.170',
-      port: '8000',
-      pathname: '/uploads/**',
-    },
-  ],
-},
+    remotePatterns: [
+      // {
+      //   protocol: 'http',
+      //   hostname: 'dark.getyourticket.in',
+      // },
+      {
+        protocol: 'https',
+        hostname: 'dark.getyourticket.in',
+      },
+      {
+        protocol: 'http',
+        hostname: '192.168.0.120',
+      },
+      {
+        protocol: 'http',
+        hostname: '192.168.0.164',
+      },
+      {
+        protocol: 'http',
+        hostname: '192.168.0.123',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cricket.getyourticket.in',
+      },
+      {
+        protocol: 'https',
+        hostname: 'randomuser.me',
+      },
+      {
+        protocol: 'https',
+        hostname: 'tbz.getyourticket.in',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'nav.ssgarba.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'http',
+        hostname: '192.168.0.164',
+        port: '8000',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '192.168.0.170',
+        port: '8000',
+        pathname: '/uploads/**',
+      },
+    ],
+  },
 
 }
 

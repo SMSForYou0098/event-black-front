@@ -18,7 +18,7 @@ import { MobileOnly, DesktopOnly } from "@/utils/ResponsiveRenderer";
 /* --------- Helpers ---------- */
 export const getBanners = async () => {
   const response = await api.get('/banner-list/main');
-  return response.data.data;
+  return response?.data?.data || [];
 };
 
 export const extractImageUrl = (images) => {
@@ -66,7 +66,7 @@ export const toAbsolute = (url) => {
 const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loading: propLoading = false }) => {
   const themeSchemeDirection = useSelector(theme_scheme_direction);
   const [toggler, setToggler] = useState(false);
-  const {  createSlug } = useMyContext();
+  const { createSlug } = useMyContext();
   const router = useRouter();
   const [currentMediaUrl, setCurrentMediaUrl] = useState(''); // NEW: Track current media URL
   // Only call API when type is 'main'
@@ -92,7 +92,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     button_link: '/events',
     images: '/assets/images/no-banner.jpg' // replace with your fallback image
   };
-  if(rawBanners?.length === 0) {
+  if (rawBanners?.length === 0) {
     return null
   }
   // use a banner array to render; if empty use the fallbackBanner
@@ -149,7 +149,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     }
 
     // conditiion for orgs
-    if(type=== 'organization'){
+    if (type === 'organization') {
       if (banner?.external_url) {
         window.open(banner.external_url, '_blank', 'noopener,noreferrer');
         return;
@@ -208,12 +208,12 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     centeredSlides: true,
     className: "swiper-banner-container"
   };
- 
+
   return (
     <Fragment>
       <section className="banner-container section-padding-bottom pb-0">
         <div className="movie-banner">
-          <div id="banner-detail-slider" style={{height:"100%"}} className="">
+          <div id="banner-detail-slider" style={{ height: "100%" }} className="">
             <MobileOnly>
               {loading ? <BannerSkeleton themeSchemeDirection={themeSchemeDirection} /> : (
 
@@ -229,45 +229,45 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
 
             <DesktopOnly>
               {loading ? <BannerSkeleton themeSchemeDirection={themeSchemeDirection} /> : (
-              <Swiper  style={{maxHeight:"450px"}} key={`desktop-${String(themeSchemeDirection)}`} {...desktopSwiperConfig}>
-                {bannersToRender.map((banner, index) => {
-                  // Direct usage - no extraction needed
-                  const imageUrl = banner.images || ''; // fallback to empty string if null
-                  const backgroundStyle = imageUrl ? `url("${imageUrl}")` : 'none';
-                  const isFallback = banner.id === 'fallback';
-                  const hasMedia = Boolean(banner?.media_url);
+                <Swiper style={{ maxHeight: "450px" }} key={`desktop-${String(themeSchemeDirection)}`} {...desktopSwiperConfig}>
+                  {bannersToRender.map((banner, index) => {
+                    // Direct usage - no extraction needed
+                    const imageUrl = banner.images || ''; // fallback to empty string if null
+                    const backgroundStyle = imageUrl ? `url("${imageUrl}")` : 'none';
+                    const isFallback = banner.id === 'fallback';
+                    const hasMedia = Boolean(banner?.media_url);
 
-                  return (
-                    <SwiperSlide  key={banner.id || index}>
-                      <div
-                        className=""
-                        style={{
-                          backgroundImage: backgroundStyle,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          height: '100%',
-                          position: 'relative'
-                        }}
-                      >
-                        <div className="shows-content h-100">
-                          <Row className="row align-items-center h-100">
-                            <Col lg="7" md="12">
-                              <h3 className="  letter-spacing-1 line-count-1 text-uppercase RightAnimate-two" data-animation-in="fadeInLeft" data-delay-in="0.6">
-                                {banner?.title}
-                              </h3>
-                              <div className="flex-wrap align-items-center fadeInLeft animated" data-animation-in="fadeInLeft" style={{ opacity: 1 }}>
-                                <p className="movie-banner-text line-count-3 mt-3" data-animation-in="fadeInUp" data-delay-in="1.2">
-                                  {banner?.description}
-                                </p>
-                              </div>
+                    return (
+                      <SwiperSlide key={banner.id || index}>
+                        <div
+                          className=""
+                          style={{
+                            backgroundImage: backgroundStyle,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            height: '100%',
+                            position: 'relative'
+                          }}
+                        >
+                          <div className="shows-content h-100">
+                            <Row className="row align-items-center h-100">
+                              <Col lg="7" md="12">
+                                <h3 className="  letter-spacing-1 line-count-1 text-uppercase RightAnimate-two" data-animation-in="fadeInLeft" data-delay-in="0.6">
+                                  {banner?.title}
+                                </h3>
+                                <div className="flex-wrap align-items-center fadeInLeft animated" data-animation-in="fadeInLeft" style={{ opacity: 1 }}>
+                                  <p className="movie-banner-text line-count-3 mt-3" data-animation-in="fadeInUp" data-delay-in="1.2">
+                                    {banner?.description}
+                                  </p>
+                                </div>
 
-                              <CustomBtn
-                                buttonText={banner?.button_text || (isFallback ? 'Browse Events' : 'Explore Now')}
-                                HandleClick={() => handleBannerNavigation(banner)}
-                                customClass="mt-4 btn-sm"
-                              />
-                            </Col>
-                            {/* {hasMedia && (
+                                <CustomBtn
+                                  buttonText={banner?.button_text || (isFallback ? 'Browse Events' : 'Explore Now')}
+                                  HandleClick={() => handleBannerNavigation(banner)}
+                                  customClass="mt-4 btn-sm"
+                                />
+                              </Col>
+                              {/* {hasMedia && (
             <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
               <div
                 onClick={() => handleMediaClick(banner)}   // ← use your function here
@@ -282,20 +282,20 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
               </div>
             </Col>
           )} */}
-                          </Row>
+                            </Row>
+                          </div>
                         </div>
-                      </div>
-                    </SwiperSlide>
-                  );
-                })}
+                      </SwiperSlide>
+                    );
+                  })}
 
-                <div className="swiper-banner-button-next">
-                  <i className="iconly-Arrow-Right-2 icli arrow-icon"></i>
-                </div>
-                <div className="swiper-banner-button-prev">
-                  <i className="iconly-Arrow-Left-2 icli arrow-icon"></i>
-                </div>
-              </Swiper>
+                  <div className="swiper-banner-button-next">
+                    <i className="iconly-Arrow-Right-2 icli arrow-icon"></i>
+                  </div>
+                  <div className="swiper-banner-button-prev">
+                    <i className="iconly-Arrow-Left-2 icli arrow-icon"></i>
+                  </div>
+                </Swiper>
               )}
             </DesktopOnly>
           </div>
@@ -303,12 +303,12 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
       </section>
 
       {
-        currentMediaUrl && 
-      <FsLightbox
-        toggler={toggler}
-        sources={currentMediaUrl ? [currentMediaUrl] : ["/assets/images/video/trailer.mp4"]}
-      />
-      }          
+        currentMediaUrl &&
+        <FsLightbox
+          toggler={toggler}
+          sources={currentMediaUrl ? [currentMediaUrl] : ["/assets/images/video/trailer.mp4"]}
+        />
+      }
     </Fragment>
   );
 });

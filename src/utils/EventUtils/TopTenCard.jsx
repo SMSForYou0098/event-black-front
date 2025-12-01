@@ -8,7 +8,7 @@ const TopTenCard = memo(({ link, image, countValue, houseFull }) => {
       <div className="product-block rounded-2">
         <div className="block-image position-relative">
           <div className="img-box position-relative">
-            
+
             {/* ✅ House Full Stamp - Top Right Corner */}
             {houseFull && (
               <>
@@ -34,7 +34,7 @@ const TopTenCard = memo(({ link, image, countValue, houseFull }) => {
 
             <Link className="overly-images" href={link}>
               <Image
-                src={image}
+                src={image || "/assets/images/no-banner.jpg"}
                 alt="movie-card"
                 loading="lazy"
                 width={180}

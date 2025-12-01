@@ -44,7 +44,7 @@ const ProductCard = memo((props) => {
           <Link href={props?.link || ""}>
             <div className="product-image">
               <Image
-                src={props.thumbnail}
+                src={props.thumbnail || "/assets/images/no-banner.jpg"}
                 alt={props?.product_name || "Product"}
                 width={400}
                 height={300}
@@ -56,7 +56,7 @@ const ProductCard = memo((props) => {
         </div>
 
         {
-          !props?.imageOnly && 
+          !props?.imageOnly &&
           <div className="product-caption">
             <p className="fs-6 my-0 fw-bold">
               <Link
@@ -70,7 +70,7 @@ const ProductCard = memo((props) => {
             <div className="">
               <span className="fs-6 price" >
                 {
-                  !props?.noPrice && 
+                  !props?.noPrice &&
                   <>
                     {props.lowest_ticket_price === 0 ? (
                       <span className="text-primary fw-bold">Free</span>

@@ -9,14 +9,14 @@ import EventsByCat from "../../../../components/events/CategoryPageComps/EventsB
 
 const fetchCategoryEvents = async (category_name) => {
   const response = await api.get(`/category-events/${category_name}`);
-  return response.data;
+  return response.data || {};
 };
 
-export const fetchBannersForCategory = async (id,type) => {
-  
+export const fetchBannersForCategory = async (id, type) => {
+
   // if backend expects a query param, pass it — otherwise remove the `?title=...` part
   // const url = id ? `/banner-list/${type}?id=${(id)}` : `/banner-list/category`;
-  const url = `/banner-list/${type}?id=${(id)}` ;
+  const url = `/banner-list/${type}?id=${(id)}`;
   const res = await api.get(url);
   const payload = res.data;
 
@@ -79,7 +79,7 @@ const EventsByCategory = () => {
     refetchOnWindowFocus: false,
     throwOnError: false, // prevent throwing errors, handle them manually
   });
-  
+
   // Ensure bannerData is always a plain array (UI expects array)
   const bannerData = Array.isArray(bannersRaw) ? bannersRaw : (bannersRaw ? [bannersRaw] : []);
 

@@ -22,7 +22,7 @@ const fetchOrgDetailsBySlug = async ({ queryKey }) => {
   });
 
   const { status, data } = resp?.data ?? {};
-  return typeof status !== "undefined" ? (status ? data : null) : resp?.data;
+  return typeof status !== "undefined" ? (status ? data : null) : (resp?.data || null);
 };
 
 const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
@@ -185,7 +185,7 @@ const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
           title={''}
         />
       </section>
-      
+
     </div>
   );
 };
