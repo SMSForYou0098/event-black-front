@@ -25,7 +25,7 @@ const PriceData = (props) => {
                   </del>
                   <div>
                     <span className="fw-bold">
-                      ₹{props.lowest_sale_price}
+                      ₹{props.lowest_sale_price || 0}
                     </span>
                     <small className="ms-1 text-warning">onwards</small>
                   </div>

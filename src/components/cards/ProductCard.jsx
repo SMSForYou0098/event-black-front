@@ -72,7 +72,7 @@ const ProductCard = memo((props) => {
                 {
                   !props?.noPrice &&
                   <>
-                    {props.lowest_ticket_price === 0 ? (
+                    {props.lowest_ticket_price == 0 ? (
                       <span className="text-primary fw-bold">Free</span>
                     ) : props.on_sale &&
                       Number(props.lowest_sale_price) < props.lowest_ticket_price ? (
@@ -88,7 +88,7 @@ const ProductCard = memo((props) => {
                     ) : (
                       <>
                         <span className="fw-bold">
-                          ₹{props.lowest_ticket_price}
+                          ₹{props.lowest_ticket_price || 0}
                         </span>
                         <span className="ms-2">onwards</span>
                       </>

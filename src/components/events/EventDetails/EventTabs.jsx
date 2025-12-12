@@ -225,12 +225,19 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                     <Ticket size={30} className="me-2" />
                     Ticket terms
                   </h4>
-                  <div
+                  {/* <div
                     className="text-white"
                     style={{ whiteSpace: "pre-line" }}
                   >
                     {eventData?.ticket_terms || "No ticket terms available."}
-                  </div>
+                  </div> */}
+                  <div
+                        className="description-content"
+                        dangerouslySetInnerHTML={{
+                            __html:  eventData?.ticket_terms || ""
+                                .truncatedHtml,
+                        }}
+                    />
                 </Card.Body>
               </Card>
             </Tab.Pane>

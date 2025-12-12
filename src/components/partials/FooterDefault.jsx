@@ -42,18 +42,7 @@ const FooterMega = memo(() => {
     };
   }, []);
 
-  // Fix for the TypeScript error - safely handle the site_credit string
-  const getCopyrightText = () => {
-    if (!data?.config?.site_credit) return `All Rights Reserved`;
-
-    // Safely replace {year} with currentYear
-    const creditText = data.config.site_credit;
-    if (typeof creditText === 'string') {
-      return creditText.replace(/{year}/g, currentYear.toString());
-    }
-
-    return `All Rights Reserved`;
-  };
+  // Fix for the TypeScript error - safely handle the site_credit strin
 
   if (isLoading) {
     return (
@@ -238,15 +227,11 @@ const FooterMega = memo(() => {
                           }
                         </ul>
                       </div>
-                      <p className="mb-0 my-4 d-flex gap-2 justify-content-center">
-                        © {currentYear} {data?.config?.site_credit && (
-                          <span
-                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data?.config?.site_credit) }}
-                          />
-                        )}
-                      </p>
+                      <small className="mb-0 my-4 d-flex gap-2 justify-content-center">
+                        © {currentYear} All Right Reserved | TRAVA GET YOUR TICKET PVT LTD.
+                      </small>
                       <small>
-                        All content and images on this website are protected by copyright and belong to their respective owners. The materials are used only to promote their work, and no endorsement by the artists is implied. Any unauthorized use, reproduction, or distribution of this content is strictly prohibited and may result in legal action.
+                        All content and images on this website are copyrighted and belong to their respective owners. They are used solely for promotional purposes, with no implied endorsement. Any unauthorized use, copying, or distribution is strictly prohibited and may lead to legal action.
                       </small>
                     </Col>
                   </Row>
