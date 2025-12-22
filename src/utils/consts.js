@@ -5,6 +5,9 @@ export const useIsMobile = () => {
 };
 
 export const CUSTOM_SECONDORY = '#ff4757';
+export const SECONDORY = '#ff4757';
+export const PRIMARY = '#b51515';
+
 export const setCookie = (name, value, maxAge = null) => {
   const ageParam = maxAge ? `; max-age=${maxAge}` : '';
   document.cookie = `${name}=${value}; path=/${ageParam}`;

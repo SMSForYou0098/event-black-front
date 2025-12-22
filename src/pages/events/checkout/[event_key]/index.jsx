@@ -52,7 +52,7 @@ const CartPage = () => {
     k ? selectCheckoutDataByKey(state, k) : null
   );
   const { data: event } = useEventData(event_key);
-  
+
   useHeaderSimple({
     title: event?.name || "Event Details",
   });
@@ -320,6 +320,7 @@ const CartPage = () => {
 
     try {
       const payload = createBookingPayload();
+      console.log(payload)
       const response = await initiateBooking(payload);
       await handleBookingResponse(response);
 
@@ -377,6 +378,8 @@ const CartPage = () => {
     formData.append('ticket_price', String(summaryData?.price ?? '0'));
     formData.append('quantity', String(quantity));
 
+    // add seats in formadata
+    formData.append('seats', JSON.stringify(summaryData?.seats));
     // Pricing
 
     // new payload
@@ -385,7 +388,11 @@ const CartPage = () => {
     Object.entries(summaryData)
       .filter(([key]) => !fieldsToDiscard.includes(key))
       .forEach(([key, value]) => {
-        formData.append(key, String(value));
+        if (typeof value === 'object' && value !== null) {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, String(value));
+        }
       });
 
     const round2 = (n) => +Number(n ?? 0).toFixed(2);
@@ -682,74 +689,74 @@ const CartPage = () => {
 
   return (
     <div className="cart-page position-relative">
-    {/* Loader Overlay */}
-    {isLoading && (
-      <div className="loader-overlay">
-        <Image
-          src={'/assets/stock/payment_processing.gif' || '/assets/stock/loader111.gif'}
-          alt="loader"
-          className="img-fluid bg-transparent shadow-none"
-          width={200}
-          height={200}
-        />
+      {/* Loader Overlay */}
+      {isLoading && (
+        <div className="loader-overlay">
+          <Image
+            src={'/assets/stock/payment_processing.gif' || '/assets/stock/loader111.gif'}
+            alt="loader"
+            className="img-fluid bg-transparent shadow-none"
+            width={200}
+            height={200}
+          />
+        </div>
+      )}
+
+      {/* Main Content (will be blurred when loader is active) */}
+      <div className={isLoading ? "content-blur" : ""}>
+        <Container>
+          <CartSteps
+            id={2}
+            showAttendee={checkoutData?.event?.category?.attendy_required === 1}
+          />
+          <Timer
+            timestamp={data?.timestamp}
+            navigateOnExpire={() => router.push(`/events/cart/${event_key}`)}
+            onExpire={() => setIsTimerExpired(true)}
+          />
+          <Row>
+            {summaryData?.discount > 0 && (
+              <SavingsHighlight totalSavings={summaryData?.discount} />
+            )}
+            <Col className="d-none d-sm-block" lg="8" md="5">
+              <CheckoutSummarySection
+                summaryData={summaryData}
+                couponCode={couponCode}
+                setCouponCode={setCouponCode}
+                handleApplyCoupon={handleApplyCoupon}
+                isExpanded={isExpanded}
+                setIsExpanded={setIsExpanded}
+                promoCodeLoading={applyCouponMutation.isPending}
+              />
+            </Col>
+            <Col lg="4" md="5">
+              <OrderReviewSection
+                isMobile={isMobile}
+                orderData={orderData}
+                discount={discountAmount}
+                summaryData={summaryData}
+                event={checkoutData?.event}
+                ticketdata={checkoutData?.ticket}
+                validatedData={checkoutData}
+                handleProcess={handleProcess}
+                BookingMobileFooter={BookingMobileFooter}
+                CustomBtn={CustomBtn}
+                Link={Link}
+                isLoading={isLoading}
+                couponCode={couponCode}
+                setCouponCode={setCouponCode}
+                handleApplyCoupon={handleApplyCoupon}
+                promoCodeLoading={applyCouponMutation.isPending}
+                isExpanded={isExpanded}
+                setIsExpanded={setIsExpanded}
+                step={2}
+              />
+            </Col>
+          </Row>
+        </Container>
       </div>
-    )}
-  
-    {/* Main Content (will be blurred when loader is active) */}
-    <div className={isLoading ? "content-blur" : ""}>
-      <Container>
-        <CartSteps
-          id={2}
-          showAttendee={checkoutData?.event?.category?.attendy_required === 1}
-        />
-        <Timer
-          timestamp={data?.timestamp}
-          navigateOnExpire={() => router.push(`/events/cart/${event_key}`)}
-          onExpire={() => setIsTimerExpired(true)}
-        />
-        <Row>
-          {summaryData?.discount > 0 && (
-            <SavingsHighlight totalSavings={summaryData?.discount} />
-          )}
-          <Col className="d-none d-sm-block" lg="8" md="5">
-            <CheckoutSummarySection
-              summaryData={summaryData}
-              couponCode={couponCode}
-              setCouponCode={setCouponCode}
-              handleApplyCoupon={handleApplyCoupon}
-              isExpanded={isExpanded}
-              setIsExpanded={setIsExpanded}
-              promoCodeLoading={applyCouponMutation.isPending}
-            />
-          </Col>
-          <Col lg="4" md="5">
-            <OrderReviewSection
-              isMobile={isMobile}
-              orderData={orderData}
-              discount={discountAmount}
-              summaryData={summaryData}
-              event={checkoutData?.event}
-              ticketdata={checkoutData?.ticket}
-              validatedData={checkoutData}
-              handleProcess={handleProcess}
-              BookingMobileFooter={BookingMobileFooter}
-              CustomBtn={CustomBtn}
-              Link={Link}
-              isLoading={isLoading}
-              couponCode={couponCode}
-              setCouponCode={setCouponCode}
-              handleApplyCoupon={handleApplyCoupon}
-              promoCodeLoading={applyCouponMutation.isPending}
-              isExpanded={isExpanded}
-              setIsExpanded={setIsExpanded}
-              step={2}
-            />
-          </Col>
-        </Row>
-      </Container>
     </div>
-  </div>
-  
+
   );
 };
 

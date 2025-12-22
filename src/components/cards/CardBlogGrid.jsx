@@ -1,11 +1,6 @@
 import React, { Fragment, memo } from 'react'
-
-//react-router-dom
 import Link from "next/link";
 
-
-
-  
 const CardBlogGrid = memo((props) => {
     return (
         <Fragment>

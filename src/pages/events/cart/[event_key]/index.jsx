@@ -15,7 +15,7 @@ import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 import { Calendar, Pin, Ticket, Users } from "lucide-react";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
-import CustomDrawer from "../../../../utils/CustomDrawer";
+import BookingLayout from "../../../../components/events/SeatingModule/Bookinglayout";
 const CartPage = () => {
   const { event_key } = useRouter().query;
 
@@ -32,7 +32,7 @@ const CartPage = () => {
   const [cartItems, setCartItems] = useState([]);
   const [categoryData, setCategoryData] = useState(null);
   const [selectedTickets, setSelectedTickets] = useState({});
-
+  const [seatingModule, setSeatingModule] = useState(false);
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [path, setPath] = useState("");
@@ -46,6 +46,9 @@ const CartPage = () => {
     title: event?.name || "Event Details",
   });
   useEffect(() => {
+    if (event) {
+      setSeatingModule(event?.event_controls?.ticket_system)
+    }
     const getCategoryData = async () => {
       let data = await fetchCategoryData(event?.category?.id);
       setCategoryData(data);
@@ -53,7 +56,7 @@ const CartPage = () => {
     if (event?.category?.id) {
       getCategoryData();
     }
-    return () => {};
+    return () => { };
   }, [event]);
 
   // console.log(event)
@@ -169,9 +172,9 @@ const CartPage = () => {
   }, [event_key]);
 
   // Quantity change handler
-  const handleQuantityChange = useCallback((itemId, newQuantity, subtotal) => {
-    setSelectedTickets({ itemId, newQuantity, subtotal });
-  }, []);
+  // const handleQuantityChange = useCallback((itemId, newQuantity, subtotal) => {
+  //   setSelectedTickets({ itemId, newQuantity, subtotal });
+  // }, []);
 
   const attendeeRequired = useMemo(() => {
     return categoryData?.categoryData?.attendy_required === 1;
@@ -275,14 +278,23 @@ const CartPage = () => {
         <Row>
           {/* Cart Items */}
           <Col lg="8">
-            <BookingTickets
-              cartItems={cartItems}
-              tax_data={event?.tax_data}
-              isMobile={isMobile}
-              selectedTickets={selectedTickets}
-              setSelectedTickets={setSelectedTickets}
-              event={event}
-            />
+            {seatingModule ?
+              <BookingLayout
+                eventId={event?.id}
+                setSelectedTkts={setSelectedTickets}
+                layoutId={event?.event_has_layout?.layout_id}
+                event={event}
+              />
+              :
+              <BookingTickets
+                cartItems={cartItems}
+                tax_data={event?.tax_data}
+                isMobile={isMobile}
+                selectedTickets={selectedTickets}
+                setSelectedTickets={setSelectedTickets}
+                event={event}
+              />
+            }
           </Col>
 
           {/* Cart Totals */}
@@ -353,6 +365,7 @@ const CartPage = () => {
             </CardContainer>
           </Col>
         </Row>
+
         <LoginModal
           redirectPath={path}
           show={showLoginModal}
