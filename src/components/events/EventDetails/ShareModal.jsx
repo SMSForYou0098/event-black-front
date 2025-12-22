@@ -4,7 +4,7 @@ import { FaFacebook, FaTwitter, FaLinkedin, FaCheck, FaWhatsapp, FaEnvelope, FaE
 import { CustomHeader } from '../../../utils/ModalUtils/CustomModalHeader';
 import { CustomTooltip } from '../../../utils/CustomTooltip';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {  faXTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { Calendar } from 'lucide-react';
@@ -93,9 +93,9 @@ const ShareModal = ({ show, onHide, url, title, eventData, event_date }) => {
             label: 'LinkedIn',
             bgColor: '#0a66c2'
         },
-         {
+        {
             id: 'x',
-            icon: <FontAwesomeIcon icon={faXTwitter}  />,
+            icon: <FontAwesomeIcon icon={faXTwitter} />,
             url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
             label: 'X',
             bgColor: '#000000'
@@ -118,7 +118,7 @@ const ShareModal = ({ show, onHide, url, title, eventData, event_date }) => {
                 {eventData && (
                     <div className="d-flex align-items-center mb-4 p-3 rounded-3 border">
                         <Image
-                            src={eventData.event_media?.thumbnail || 'https://via.placeholder.com/60x80'}
+                            src={eventData.eventMedia?.thumbnail || 'https://via.placeholder.com/60x80'}
                             alt={eventData.title}
                             className="rounded me-3"
                             width={40}
@@ -128,7 +128,7 @@ const ShareModal = ({ show, onHide, url, title, eventData, event_date }) => {
                         <div className="flex-grow-1">
                             <h6 className="mb-1 fw-bold">{eventData.title || title}</h6>
                             <div className="d-flex align-items-center text-muted">
-                                <Calendar size={16} className='me-2 custom-text-secondary'/>
+                                <Calendar size={16} className='me-2 custom-text-secondary' />
                                 <small>{event_date || 'Event Date'}</small>
                             </div>
                         </div>

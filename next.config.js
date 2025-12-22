@@ -20,25 +20,19 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
-      // {
-      //   protocol: 'http',
-      //   hostname: 'dark.getyourticket.in',
-      // },
+      {
+        protocol: 'http',
+        hostname: 'tbz.getyourticket.in',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'tbz.getyourticket.in',
+        pathname: '/uploads/**',
+      },
       {
         protocol: 'https',
         hostname: 'dark.getyourticket.in',
-      },
-      {
-        protocol: 'http',
-        hostname: '192.168.0.120',
-      },
-      {
-        protocol: 'http',
-        hostname: '192.168.0.164',
-      },
-      {
-        protocol: 'http',
-        hostname: '192.168.0.123',
       },
       {
         protocol: 'https',
@@ -50,19 +44,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'tbz.getyourticket.in',
-      },
-      {
-        protocol: 'https',
         hostname: 'images.unsplash.com',
       },
       {
         protocol: 'https',
         hostname: 'placehold.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'nav.ssgarba.com',
       },
       {
         protocol: 'https',
@@ -76,12 +62,19 @@ const nextConfig = {
       },
       {
         protocol: 'http',
+        hostname: '192.168.0.122',
+        port: '8000',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
         hostname: '192.168.0.170',
         port: '8000',
         pathname: '/uploads/**',
       },
     ],
   },
+
 
 }
 

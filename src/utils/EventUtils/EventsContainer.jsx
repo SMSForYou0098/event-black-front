@@ -9,7 +9,7 @@ import SectionSlider from "@/components/slider/SectionSlider";
 import TopTenCard from './TopTenCard';
 import SkeletonLoader from '../SkeletonUtils/SkeletonLoader'
 
-const EventsContainer = memo(({ 
+const EventsContainer = memo(({
   title = "Events",
   className = "recommended-block section-top-spacing streamit-block",
   loadingText = "Loading Events...",
@@ -20,7 +20,7 @@ const EventsContainer = memo(({
   staleTime = 5 * 60 * 1000, // 5 minutes
   retry = 2,
   apiEndpoint = "events",
-  isTopTenCard=false,
+  isTopTenCard = false,
   customFetchFunction = null
 }) => {
   const { api, authToken, createSlug } = useMyContext();
@@ -49,10 +49,10 @@ const EventsContainer = memo(({
   }, [api, apiEndpoint, authToken]);
 
   // React Query implementation
-  const { 
-    data: queryData = [], 
-    isLoading: queryLoading, 
-    isError: queryError 
+  const {
+    data: queryData = [],
+    isLoading: queryLoading,
+    isError: queryError
   } = useQuery({
     queryKey,
     queryFn: queryFn || (() => Promise.resolve([])),
@@ -79,48 +79,33 @@ const EventsContainer = memo(({
   // Enhanced loading state with both skeleton and spinner options
   if (isLoading) {
     return (
-      <div className={`${className}`} style={{ 
-        backgroundColor: '#000000', 
+      <div className={`${className}`} style={{
+        backgroundColor: '#000000',
         color: '#ffffff',
         minHeight: '400px'
       }}>
-        {/* You can switch between SkeletonLoader and SimpleLoader */}
         <SkeletonLoader />
-        {/* Uncomment below and comment above if you prefer simple spinner */}
-        {/* <SimpleLoader /> */}
       </div>
     );
   }
-
-  // if (isError) {
-  //   return (
-  //     <div className="section-top-spacing">
-  //       <Alert variant="danger" className="mx-3">
-  //         <Alert.Heading>Oops! Something went wrong</Alert.Heading>
-  //         <p className="mb-0">{errorText}</p>
-  //       </Alert>
-  //     </div>
-  //   );
-  // }
-
   // Show message when no events found
   if (!eventsList || eventsList.length === 0) {
     return null;
   }
   return (
-<Fragment>
-<SectionSlider title={title} list={eventsList} className={className}>
-   {(data, index) => {
+    <Fragment>
+      <SectionSlider title={title} list={eventsList} className={className}>
+        {(data, index) => {
           // Ensure index is a valid number, fallback to array index if needed
           const safeIndex = typeof index === 'number' && !isNaN(index)
-            ? index 
+            ? index
             : eventsList.findIndex(item => item === data);
-          
+
           const finalIndex = safeIndex >= 0 ? safeIndex : 0;
-          
+
           return isTopTenCard ? (
             <TopTenCard
-              image={data?.thumbnail || data?.event_media?.thumbnail}
+              image={data?.thumbnail || data?.eventMedia?.thumbnail}
               countValue={finalIndex + 1} // ascending order 1,2,3...
               link={`/events/${createSlug(data?.city)}/${createSlug(
                 data?.organisation
@@ -128,40 +113,26 @@ const EventsContainer = memo(({
               houseFull={data?.house_full === 1}
             />
           ) : (
-            // <CardStyle
-            //   image={data.event_media?.thumbnail}
-            //   title={data.name}
-            //   movieTime={data.date_range}
-            //   watchlistLink="/play-list"
-            //   link={`/events/${createSlug(data?.city)}/${createSlug(
-            //     data?.organisation
-            //   )}/${createSlug(data?.name)}/${data?.event_key}`}
-            //   lowest_ticket_price={data.lowest_ticket_price}
-            //   lowest_sale_price={data.lowest_sale_price}
-            //   on_sale={data.on_sale}
-            //   countValue={finalIndex + 1} 
-            // />
             <ProductCard
-                          thumbnail={data?.event_media?.thumbnail}
-                          product_name={data.name}
-                          lowest_ticket_price={data.lowest_ticket_price}
-                          lowest_sale_price={data.lowest_sale_price}
-                          rating="5"
-                          count1={finalIndex + 1}
-                          on_sale={data.on_sale}
-                          city={data?.city}
-                          // is_new={data.is_new}
-                          slug={data.slug}
-                          link={`/events/${createSlug(data?.city)}/${createSlug(
-                                data?.organisation
-                              )}/${createSlug(data?.name)}/${data?.event_key}`}
-                              houseFull={data?.house_full === 1}
-                        />
+              thumbnail={data?.thumbnail || data?.eventMedia?.thumbnail}
+              product_name={data.name}
+              lowest_ticket_price={data.lowest_ticket_price}
+              lowest_sale_price={data.lowest_sale_price}
+              rating="5"
+              count1={finalIndex + 1}
+              on_sale={data.on_sale}
+              city={data?.city}
+              slug={data.slug}
+              link={`/events/${createSlug(data?.city)}/${createSlug(
+                data?.organisation
+              )}/${createSlug(data?.name)}/${data?.event_key}`}
+              houseFull={data?.house_full === 1}
+            />
           );
         }}
-</SectionSlider>
+      </SectionSlider>
 
-</Fragment>
+    </Fragment>
 
   );
 });

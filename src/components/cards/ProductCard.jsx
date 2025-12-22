@@ -66,7 +66,6 @@ const ProductCard = memo((props) => {
                 {props?.product_name}
               </Link>
             </p>
-            <span>{props?.city}</span>
             <div className="">
               <span className="fs-6 price" >
                 {
@@ -97,6 +96,7 @@ const ProductCard = memo((props) => {
                 }
               </span>
             </div>
+            <span>{props?.city}</span>
             <div className="container-rating">
               <div className="star-rating text-primary">
                 {/* <RatingStar count={props.rating} count1={props.count1} starColor="text-warning" /> */}

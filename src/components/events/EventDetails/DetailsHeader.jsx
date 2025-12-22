@@ -29,16 +29,16 @@ const DetailsHeader = ({ eventData, event_key }) => {
             icon: "fa-regular fa-calendar", // Event Type icon
             value: eventData?.event_type,
             valueClass: "fw-semibold text-capitalize",
-            description : eventData?.event_type === 'daily' ?
-            'daily ticket QR code is valid only for the specific event and date' : 
-            'season ticket QR that allows access throughout the season, but only one entry per day',
+            description: eventData?.event_type === 'daily' ?
+                'daily ticket QR code is valid only for the specific event and date' :
+                'season ticket QR that allows access throughout the season, but only one entry per day',
         },
         {
             icon: "fa-solid fa-location-dot",
             value: (
-              <>
-                {eventData?.venue?.address}, {eventData?.venue?.city}, {eventData?.venue?.state}
-                ...{" "}
+                <>
+                    {eventData?.venue?.address}, {eventData?.venue?.city}, {eventData?.venue?.state}
+                    ...{" "}
                     <a
                         href={eventData?.venue?.map_url}
                         target="_blank"
@@ -48,13 +48,13 @@ const DetailsHeader = ({ eventData, event_key }) => {
                             fontWeight: 600,
                         }}
                     >
-                  click here
-                </a>
-              </>
+                        click here
+                    </a>
+                </>
             ),
             valueClass: "fw-semibold",
-          }
-,          
+        }
+        ,
         {
             icon: "fa-regular fa-clock", // Date & Time icon
             value: event_date,
@@ -104,34 +104,34 @@ const DetailsHeader = ({ eventData, event_key }) => {
             <Col lg="3" md="12" className="mb-4 mb-lg-0">
                 {/* --- Single Event Image --- */}
                 <div
-  className="product-image-container d-flex justify-content-center align-items-center position-relative"
->
-  <Image
-    src={eventData?.event_media?.thumbnail || "https://placehold.co/500x400"}
-    alt={eventData?.name}
-    className="img-fluid rounded-4"
-    width={210}
-    height={400}
-    priority
-    style={{ maxHeight: "400px", objectFit: "cover" }}
-  />
+                    className="product-image-container d-flex justify-content-center align-items-center position-relative"
+                >
+                    <Image
+                        src={eventData?.eventMedia?.thumbnail || "https://placehold.co/500x400"}
+                        alt={eventData?.name}
+                        className="img-fluid rounded-4"
+                        width={210}
+                        height={400}
+                        priority
+                        style={{ maxHeight: "400px", objectFit: "cover" }}
+                    />
 
-  {/* Share button at top-right */}
-  <div
-    style={{
-      position: "absolute",
-      top: "10px",
-      right: "100px",
-      zIndex: 10,
-    }}
-  >
-    <CustomBtn
-      icon={<Share2 />}
-      className="p-1 m-0"
-      HandleClick={handleShare}
-    />
-  </div>
-</div>
+                    {/* Share button at top-right */}
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: "10px",
+                            right: "100px",
+                            zIndex: 10,
+                        }}
+                    >
+                        <CustomBtn
+                            icon={<Share2 />}
+                            className="p-1 m-0"
+                            HandleClick={handleShare}
+                        />
+                    </div>
+                </div>
 
             </Col>
             <Col lg="9" md="12" className="ps-lg-4">

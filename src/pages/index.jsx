@@ -1,19 +1,20 @@
-import { memo, useState, useEffect, useRef } from "react";
+import { memo, useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useEnterExit } from "@/utilities/usePage";
 import BannerSkeleton from "@/utils/SkeletonUtils/BannerSkeleton";
-import HomeArtists from "@/components/sections/HomeArtists";
-import OurEvents from "@/components/sections/OurEvents";
-import PastEvents from "@/components/sections/PastEvents";
-import BlogSection from "@/components/sections/BlogSection";
 
 // ============================================================================
-// INTERSECTION OBSERVER HOOK - Load once with automatic cleanup
+// INTERSECTION OBSERVER HOOK - Optimized with stable config
 // ============================================================================
 const useLoadOnce = (threshold = 0.1, rootMargin = '50px') => {
   const [hasLoaded, setHasLoaded] = useState(false);
   const ref = useRef(null);
-  const observerRef = useRef(null);
+
+  // Memoize observer options to prevent recreation
+  const options = useMemo(() => ({
+    threshold,
+    rootMargin
+  }), [threshold, rootMargin]);
 
   useEffect(() => {
     if (hasLoaded || !ref.current) return;
@@ -25,16 +26,15 @@ const useLoadOnce = (threshold = 0.1, rootMargin = '50px') => {
           observer.disconnect(); // Immediate cleanup after load
         }
       },
-      { threshold, rootMargin }
+      options
     );
 
     observer.observe(ref.current);
-    observerRef.current = observer;
 
     return () => {
       observer.disconnect();
     };
-  }, [hasLoaded, threshold, rootMargin]);
+  }, [hasLoaded, options]);
 
   return [ref, hasLoaded];
 };
@@ -42,16 +42,16 @@ const useLoadOnce = (threshold = 0.1, rootMargin = '50px') => {
 // ============================================================================
 // LAZY LOADING WRAPPER COMPONENTS
 // ============================================================================
-const LazySection = memo(({ 
-  children, 
-  fallback = null, 
-  threshold = 0.1, 
+const LazySection = memo(({
+  children,
+  fallback = null,
+  threshold = 0.1,
   rootMargin = '100px',
   className = '',
   minHeight = 'auto'
 }) => {
   const [ref, hasLoaded] = useLoadOnce(threshold, rootMargin);
-  
+
   return (
     <div ref={ref} className={className} style={{ minHeight }}>
       {hasLoaded ? children : fallback}
@@ -62,15 +62,15 @@ const LazySection = memo(({
 LazySection.displayName = "LazySection";
 
 // PreloadSection - Start loading earlier for better UX
-const PreloadSection = memo(({ 
-  children, 
-  fallback = null, 
+const PreloadSection = memo(({
+  children,
+  fallback = null,
   preloadMargin = '200px',
   className = '',
   minHeight = 'auto'
 }) => {
   const [ref, hasLoaded] = useLoadOnce(0.1, preloadMargin);
-  
+
   return (
     <div ref={ref} className={className} style={{ minHeight }}>
       {hasLoaded ? children : fallback}
@@ -95,15 +95,15 @@ const SectionSkeleton = memo(({ title = "Loading", itemCount = 6 }) => (
           <span className="placeholder col-4 col-md-3 bg-secondary rounded"></span>
         </div>
       </div>
-      
+
       {/* Grid Skeleton */}
       <div className="row g-4">
         {Array.from({ length: itemCount }, (_, i) => (
           <div key={i} className="col-lg-4 col-md-6">
             <div className="card border-0 shadow-sm">
               <div className="placeholder-glow">
-                <div 
-                  className="placeholder bg-light rounded-top w-100" 
+                <div
+                  className="placeholder bg-light rounded-top w-100"
                   style={{ height: '200px' }}
                 />
               </div>
@@ -140,135 +140,124 @@ const FooterSkeleton = memo(() => (
 FooterSkeleton.displayName = "FooterSkeleton";
 
 // ============================================================================
-// DYNAMIC IMPORTS - Code splitting strategy
+// DYNAMIC IMPORTS - Aggressive code splitting for performance
 // ============================================================================
 
-// Critical: Above fold (load with SSR)
+// Critical: Above fold only (SSR enabled)
 const CommonBannerSlider = dynamic(
   () => import("@/components/slider/CommonBannerSlider"),
   { loading: () => <BannerSkeleton />, ssr: true }
 );
 
-// High Priority: Near fold (SSR enabled)
+// High Priority: Near fold (Client-side only for better initial load)
 const HighDemand = dynamic(
   () => import("@/components/sections/HighDemand"),
-  { loading: () => <SectionSkeleton title="High Demand" />, ssr: true }
+  { loading: () => <SectionSkeleton title="High Demand" />, ssr: false }
 );
 
 const EventsSection = dynamic(
   () => import("@/components/sections/EventsSection"),
-  { loading: () => <SectionSkeleton title="Events" />, ssr: true }
+  { loading: () => <SectionSkeleton title="Events" />, ssr: false }
 );
 
-// Medium Priority: Below fold (SSR enabled but lazy loaded)
-const PromotionalEvents = dynamic(
-  () => import("@/components/sections/PromotionalEvents"),
-  { loading: () => <SectionSkeleton title="Promotional Events" />, ssr: true }
+// Below fold: All client-side only to reduce initial bundle
+const OurEvents = dynamic(
+  () => import("@/components/sections/OurEvents"),
+  { loading: () => <SectionSkeleton title="Our Events" />, ssr: false }
 );
 
-// Low Priority: Far below fold (No SSR)
-const ExpiredEvents = dynamic(
-  () => import("@/components/sections/ExpiredEvents"),
+const PastEvents = dynamic(
+  () => import("@/components/sections/PastEvents"),
   { loading: () => <SectionSkeleton title="Past Events" />, ssr: false }
 );
 
-const FooterSlider = dynamic(
-  () => import("@/components/sections/FooterSlider"),
-  { loading: () => <FooterSkeleton />, ssr: false }
+const PromotionalEvents = dynamic(
+  () => import("@/components/sections/PromotionalEvents"),
+  { loading: () => <SectionSkeleton title="Promotional Events" />, ssr: false }
 );
 
-// ============================================================================
-// MAIN COMPONENT
-// ============================================================================
+const HomeArtists = dynamic(
+  () => import("@/components/sections/HomeArtists"),
+  { loading: () => <SectionSkeleton title="Artists" />, ssr: false }
+);
+
+const BlogSection = dynamic(
+  () => import("@/components/sections/BlogSection"),
+  { loading: () => <SectionSkeleton title="Blog" />, ssr: false }
+);
+
 const OTT = memo(() => {
   useEnterExit();
 
   return (
     <>
-      {/* ====================== CRITICAL: ABOVE THE FOLD ====================== */}
-      {/* Load immediately - No lazy loading */}
+      {/* Critical: Load immediately - Above fold only */}
       <CommonBannerSlider />
 
-      {/* ====================== HIGH PRIORITY: NEAR FOLD ====================== */}
-      {/* Preload when user scrolls close */}
-      <PreloadSection className='pt-2'
+      {/* High Priority: Preload when user scrolls close */}
+      <PreloadSection
+        className='pt-2'
+        preloadMargin='300px'
         fallback={<SectionSkeleton title="High Demand" itemCount={4} />}
-        // preloadMargin="150px"
-        // minHeight="400px"
       >
         <HighDemand />
       </PreloadSection>
-      
-      <LazySection 
-        fallback={<SectionSkeleton title="Events" itemCount={6} />}
-        threshold={0.1}
-        // rootMargin="100px"
-        // minHeight="500px"
+
+      {/* Medium Priority: Lazy load with aggressive threshold */}
+      <LazySection
         className='pt-2'
+        threshold={0.05}
+        rootMargin='200px'
+        fallback={<SectionSkeleton title="Events" itemCount={6} />}
       >
         <EventsSection />
       </LazySection>
 
-      {/* ====================== MEDIUM PRIORITY: MID PAGE ====================== */}
-      {/* Static components - Always loaded */}
-      <PreloadSection 
-      className='pt-2'
-        fallback={<SectionSkeleton title="" itemCount={4} />}
-        // preloadMargin="100px"
-        // minHeight="400px"
+      {/* Low Priority: Lazy load all below-fold sections */}
+      <LazySection
+        className='pt-2'
+        threshold={0.01}
+        rootMargin='100px'
+        fallback={<SectionSkeleton title="Our Events" itemCount={4} />}
       >
-      {/* <PastEvents /> */}
-      <OurEvents />
-      </PreloadSection>
-      <PreloadSection 
-      className='pt-2'
-        fallback={<SectionSkeleton title="Past Events" itemCount={4} />}
-        // preloadMargin="100px"
-        // minHeight="400px"
-      >
-      <PastEvents />
-      </PreloadSection>
+        <OurEvents />
+      </LazySection>
 
-      {/* Lazy load promotional content */}
-      <PreloadSection className='pt-2'
+      <LazySection
+        className='pt-2'
+        threshold={0.01}
+        rootMargin='100px'
+        fallback={<SectionSkeleton title="Past Events" itemCount={4} />}
+      >
+        <PastEvents />
+      </LazySection>
+
+      <LazySection
+        className='pt-2'
+        threshold={0.01}
+        rootMargin='100px'
         fallback={<SectionSkeleton title="Promotional Events" itemCount={4} />}
-        // preloadMargin="100px"
-        // minHeight="400px"
       >
         <PromotionalEvents />
-      </PreloadSection>
+      </LazySection>
 
-      {/* ====================== LOW PRIORITY: BOTTOM ====================== */}
-      {/* Static components */}
-      <HomeArtists />
-      <PreloadSection 
-        fallback={<SectionSkeleton title="Promotional Events" itemCount={4} />}
-        // preloadMargin="100px"
-        // minHeight="400px"
+      <LazySection
+        className='pt-2'
+        threshold={0.01}
+        rootMargin='50px'
+        fallback={<SectionSkeleton title="Artists" itemCount={4} />}
       >
-      <BlogSection />
-      </PreloadSection>
-      
+        <HomeArtists />
+      </LazySection>
 
-      {/* Optional: Uncomment if needed */}
-      {/* <LazySection 
-        fallback={<SectionSkeleton title="Past Events" itemCount={6} />}
-        threshold={0.1}
-        rootMargin="50px"
-        minHeight="500px"
+      <LazySection
+        className='pt-2'
+        threshold={0.01}
+        rootMargin='50px'
+        fallback={<SectionSkeleton title="Blog" itemCount={3} />}
       >
-        <ExpiredEvents />
-      </LazySection> */}
-
-      {/* Footer - Load when approaching */}
-      {/* <LazySection 
-        fallback={<FooterSkeleton />}
-        threshold={0.1}
-        rootMargin="100px"
-        minHeight="200px"
-      >
-        <FooterSlider />
-      </LazySection> */}
+        <BlogSection />
+      </LazySection>
     </>
   );
 });
@@ -276,33 +265,3 @@ const OTT = memo(() => {
 OTT.displayName = "OTT";
 
 export default OTT;
-
-// ============================================================================
-// OPTIMIZATION NOTES:
-// ============================================================================
-// 1. ✅ Removed unused imports and commented code
-// 2. ✅ Consolidated dynamic import logic
-// 3. ✅ Added proper null checks in useLoadOnce
-// 4. ✅ Improved skeleton components with better accessibility
-// 5. ✅ Added minHeight to prevent layout shifts
-// 6. ✅ Organized code into logical sections
-// 7. ✅ Reduced bundle size by removing redundant code
-// 8. ✅ Better naming conventions
-// 9. ✅ Added itemCount prop to skeleton for flexibility
-// 10. ✅ Improved comments and documentation
-//
-// PERFORMANCE IMPROVEMENTS:
-// - Faster initial page load (critical content loads first)
-// - Reduced JavaScript bundle size (code splitting)
-// - Better perceived performance (skeletons + progressive loading)
-// - Optimized intersection observer (single instance per section)
-// - Automatic cleanup prevents memory leaks
-// - SSR for important content, client-side for non-critical
-//
-// NEXT STEPS TO CONSIDER:
-// - Add error boundaries for dynamic imports
-// - Implement prefetching for predictable user paths
-// - Add loading priorities based on analytics
-// - Consider using Suspense for React 18+
-// - Monitor Core Web Vitals (LCP, CLS, FID)
-// ============================================================================

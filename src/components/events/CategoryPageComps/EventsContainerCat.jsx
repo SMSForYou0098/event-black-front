@@ -46,7 +46,7 @@ const EventsContainerCat = ({ events = [], loading = false, title }) => {
           <Col xs={6} md={2} key={index}>
             <CardStyle
               key={data.id}
-              image={data.thumbnail || data?.event_media?.thumbnail}
+              image={data.thumbnail || data?.eventMedia?.thumbnail}
               title={data.name}
               movieTime={data.date_range}
               watchlistLink="/play-list"

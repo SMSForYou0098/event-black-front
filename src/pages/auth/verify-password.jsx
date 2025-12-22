@@ -118,7 +118,7 @@ const VerifyPassword = memo(() => {
         <CustomBtn
           type="button"
           size="sm"
-          icon={<ChevronRight/>}
+          icon={<ChevronRight />}
           disabled={!password || loading}
           HandleClick={handleVerification}
           buttonText={loading ? "Verifying..." : "Sign In"}
@@ -126,7 +126,7 @@ const VerifyPassword = memo(() => {
       </div>
       <div className="mt-3 d-flex justify-content-between">
         <Link href="/auth/login" className="text-primary fw-bold d-flex align-items-center">
-          <ChevronLeft/> Back to Login
+          <ChevronLeft /> Back to Login
         </Link>
         <Link href="/auth/lost-password" passHref className="fw-bold">
           Forgot Password?

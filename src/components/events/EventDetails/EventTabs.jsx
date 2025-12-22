@@ -23,9 +23,9 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
           >
             <Row className="w-100 g-2">
               {tabItems.map((item) => (
-                <Col 
-                  xs={6} 
-                  md="auto" 
+                <Col
+                  xs={6}
+                  md="auto"
                   key={item.key}
                   className="flex-md-fill"
                 >
@@ -40,7 +40,7 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 </Col>
               ))}
             </Row>
-            
+
           </Nav>
 
           <Tab.Content className="tab-content">
@@ -123,10 +123,10 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 <Col md="12">
                   <Card className="border-0 shadow-sm">
                     <Card.Body className="p-0">
-                      {typeof eventData?.event_media?.layout_image === "string" ? (
+                      {typeof eventData?.eventMedia?.layout_image === "string" ? (
                         <div className="text-center">
                           <NextImage
-                            src={eventData.event_media.layout_image}
+                            src={eventData.eventMedia.layout_image}
                             alt="Event layout image"
                             width={400}
                             height={600}
@@ -232,12 +232,12 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                     {eventData?.ticket_terms || "No ticket terms available."}
                   </div> */}
                   <div
-                        className="description-content"
-                        dangerouslySetInnerHTML={{
-                            __html:  eventData?.ticket_terms || ""
-                                .truncatedHtml,
-                        }}
-                    />
+                    className="description-content"
+                    dangerouslySetInnerHTML={{
+                      __html: eventData?.ticket_terms || ""
+                        .truncatedHtml,
+                    }}
+                  />
                 </Card.Body>
               </Card>
             </Tab.Pane>

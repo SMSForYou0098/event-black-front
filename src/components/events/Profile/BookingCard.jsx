@@ -1,17 +1,17 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Image, Button, Dropdown, Alert } from 'react-bootstrap';
-import { 
-  Film, 
-  Music, 
-  Calendar, 
-  Trophy, 
-  CheckCircle, 
-  Clock, 
-  XCircle, 
-  Download, 
-  Share2, 
-  MapPin, 
-  ChevronDown, 
+import {
+  Film,
+  Music,
+  Calendar,
+  Trophy,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Download,
+  Share2,
+  MapPin,
+  ChevronDown,
   IndianRupee,
   Armchair,
   AlertCircle
@@ -77,7 +77,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
       amount: booking?.total_amount,
       type: normalizeBooking?.type,
       created_at: formatDate(booking?.created_at),
-      thumbnail: normalizeBooking?.ticket?.event?.event_media?.thumbnail
+      thumbnail: normalizeBooking?.ticket?.event?.eventMedia?.thumbnail
     };
   }, [booking]);
 
@@ -103,7 +103,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
   // Confirm download after reading drawer info
   const handleConfirmDownload = useCallback(() => {
     setShowDrawer(false);
-    
+
     if (pendingDownloadType === 'combine') {
       handleTicketPreview(booking, 'combine', booking?.id);
     } else if (pendingDownloadType === 'individual') {
@@ -134,7 +134,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
         <>
           <h6 className="alert-heading mb-2 mt-3">Individual QR Codes</h6>
           <p className="mb-0">
-            If you select individual QR, each attendee receives a personal QR code for entry, 
+            If you select individual QR, each attendee receives a personal QR code for entry,
             and group QRs won't work.
           </p>
         </>
@@ -144,7 +144,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
         <>
           <h6 className="alert-heading mb-2 mt-3">Group QR Code</h6>
           <p className="mb-0">
-            If you select group QR, all attendees must arrive together and show the group QR 
+            If you select group QR, all attendees must arrive together and show the group QR
             at the venue for entry. Individual QRs will not work.
           </p>
         </>
@@ -152,13 +152,13 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
 
       <div className="d-flex gap-2 mt-4">
         <CustomBtn
-        buttonText='Ok'
+          buttonText='Ok'
           variant="primary"
           size="sm"
           className="flex-grow-1"
           HandleClick={handleConfirmDownload}
         />
-          
+
 
       </div>
     </div>
@@ -184,83 +184,83 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
                 {bookingData?.name}
               </h6>
               {!compact && (
-                <CustomBadge 
-                  variant="outline-primary" 
+                <CustomBadge
+                  variant="outline-primary"
                   className="text-uppercase"
                 >
                   {bookingData.ticket?.event?.event_type}
                 </CustomBadge>
               )}
             </div>
-            
+
             {/* <small className="text-muted d-block">
               <MapPin size={14} className='custom-text-secondary' /> 
               {bookingData.ticket?.event?.address}
             </small> */}
-            
+
             <small className="text-muted d-block">
-              <Calendar size={14} className='text-warning' /> 
+              <Calendar size={14} className='text-warning' />
               {bookingData.ticket?.event?.date_range} • {bookingData.created_at}
             </small>
-            
+
             <small className="text-muted d-block">
-              <Armchair size={14} className='text-success' /> 
+              <Armchair size={14} className='text-success' />
               : {bookingData.ticket?.name} x{' '}
               <span className="text-success fw-bold">{bookingData.quantity}</span>
             </small>
-            
+
             <small className="text-muted d-block">
-              <IndianRupee size={14} className='text-warning' /> 
+              <IndianRupee size={14} className='text-warning' />
               : {bookingData.amount}
             </small>
           </div>
         </div>
-        
+
         <div className="btn-section d-flex">
-  <div className="d-flex flex-row-reverse flex-sm-row gap-2 justify-content-end mt-2">
-    {/* Dropdown for Download Options */}
-    <Dropdown>
-      <Dropdown.Toggle
-        as={Button}
-        variant="primary"
-        size="sm"
-        className="iq-button fw-bold rounded-3 d-inline-flex align-items-center gap-2 text-nowrap"
-        style={{
-          background: 'var(--bs-primary)',
-          border: 'none',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          whiteSpace: 'nowrap',
-          lineHeight: 1.2,
-        }}
-        disabled={ticketType && ticketType.id === booking.id}
-      >
-        Download
-      </Dropdown.Toggle>
+          <div className="d-flex flex-row-reverse flex-sm-row gap-2 justify-content-end mt-2">
+            {/* Dropdown for Download Options */}
+            <Dropdown>
+              <Dropdown.Toggle
+                as={Button}
+                variant="primary"
+                size="sm"
+                className="iq-button fw-bold rounded-3 d-inline-flex align-items-center gap-2 text-nowrap"
+                style={{
+                  background: 'var(--bs-primary)',
+                  border: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  whiteSpace: 'nowrap',
+                  lineHeight: 1.2,
+                }}
+                disabled={ticketType && ticketType.id === booking.id}
+              >
+                Download
+              </Dropdown.Toggle>
 
-      <Dropdown.Menu align="end" className="custom-dropdown-menu">
-        <Dropdown.Item
-          onClick={() => handleDownloadSelect('combine')}
-          disabled={ticketType && ticketType.id === booking.id}
-          className="custom-dropdown-item"
-        >
-          Group QR
-        </Dropdown.Item>
+              <Dropdown.Menu align="end" className="custom-dropdown-menu">
+                <Dropdown.Item
+                  onClick={() => handleDownloadSelect('combine')}
+                  disabled={ticketType && ticketType.id === booking.id}
+                  className="custom-dropdown-item"
+                >
+                  Group QR
+                </Dropdown.Item>
 
-        {hasIndividualOption && (
-          <Dropdown.Item
-            onClick={() => handleDownloadSelect('individual')}
-            disabled={ticketType && ticketType.id === booking.id}
-            className="custom-dropdown-item"
-          >
-            Individual QR
-          </Dropdown.Item>
-        )}
-      </Dropdown.Menu>
-    </Dropdown>
-  </div>
-</div>
+                {hasIndividualOption && (
+                  <Dropdown.Item
+                    onClick={() => handleDownloadSelect('individual')}
+                    disabled={ticketType && ticketType.id === booking.id}
+                    className="custom-dropdown-item"
+                  >
+                    Individual QR
+                  </Dropdown.Item>
+                )}
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+        </div>
 
       </div>
 
@@ -272,7 +272,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
       >
         {drawerContent}
       </CustomDrawer>
-      
+
       {/* Ticket Modal */}
       <TicketModal
         show={show}

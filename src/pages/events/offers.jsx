@@ -7,20 +7,20 @@ import SectionList from "../../components/slider/SectionList";
 
 // Make this accept params (even if you keep them static for now)
 export const fetchGlobalSearch = async (searchQuery, categoryFilter) => {
-    const response = await api.get("/global-search", {
-      params: {
-        search:searchQuery||  'offer',
-      },
-    });
-    return response.data;
-  };
+  const response = await api.get("/global-search", {
+    params: {
+      search: searchQuery || 'offer',
+    },
+  });
+  return response.data;
+};
 
 const OffersPage = () => {
 
 
   const searchQuery = "offer"; // you can take this from state or props
   const categoryFilter = "concert"; // same here if dynamic
-  const {createSlug} = useMyContext();
+  const { createSlug } = useMyContext();
   const {
     data,
     isLoading,
@@ -44,7 +44,7 @@ const OffersPage = () => {
         {(item, index) => (
           <ProductCard
             key={item?.event_key || item?.id || index}
-            thumbnail={item?.event_media?.thumbnail}
+            thumbnail={item?.eventMedia?.thumbnail}
             product_name={item?.name}
             noPrice={true}
             count1={index + 1}

@@ -42,7 +42,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
 
   const handleBookNow = () => {
     if (isHouseFull) return; // Prevent booking if house full
-    
+
     // Check if booking_notice exists and is not empty/blank
     if (eventData?.booking_notice && eventData?.booking_notice?.trim() !== '') {
       setShowOffcanvas(true);
@@ -142,7 +142,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                     else if (eventData?.lowest_ticket_price) {
                       displayPrice = Number(eventData.lowest_ticket_price);
                     }
-                    
+
                     // Show "Free" if price is 0 or null
                     if (!displayPrice || displayPrice === 0) return <span>Free</span>;
 
@@ -162,8 +162,8 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                 className="fw-bold px-5 py-2 d-flex align-items-center rounded-3"
                 onClick={handleBookNow}
                 disabled={isHouseFull}
-                style={{ 
-                  height: "3rem", 
+                style={{
+                  height: "3rem",
                   fontSize: "16px",
                   opacity: isHouseFull ? 0.6 : 1,
                   cursor: isHouseFull ? "not-allowed" : "pointer"
@@ -212,8 +212,8 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
               onClick={handleBookNow}
               disabled={isHouseFull}
               className="btn btn-primary btn-lg px-3"
-              style={{ 
-                fontSize: "16px", 
+              style={{
+                fontSize: "16px",
                 fontWeight: "600",
                 opacity: isHouseFull ? 0.6 : 1,
                 cursor: isHouseFull ? "not-allowed" : "pointer"
@@ -229,7 +229,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       {/* drawer */}
       <CustomDrawer title="Booking Info" showOffcanvas={showOffcanvas} setShowOffcanvas={setShowOffcanvas}>
         <div>
-          <p className="p-0 m-0">{eventData?.booking_notice}.</p>
+          <p className="p-0 m-0" dangerouslySetInnerHTML={{ __html: eventData?.booking_notice }} />
           <CustomBtn variant="primary" buttonText="Continue" HandleClick={handleContinue} className="position-relative float-end" />
         </div>
       </CustomDrawer>

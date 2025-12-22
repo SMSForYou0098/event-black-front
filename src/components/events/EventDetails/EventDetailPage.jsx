@@ -6,7 +6,7 @@ import EventTabs from "./EventTabs";
 import DetailsHeader from "./DetailsHeader";
 import EventCrew from "./EventCrew";
 import { useHeaderSimple } from "../../../Context/HeaderContext";
-import {EventSEO} from "../SEO/index";
+import { EventSEO } from "../SEO/index";
 import { getEventSSR, withCache } from "../../../utils/seo/ssr";
 import EventPhotoGallery from "./ImageGallery";
 const EventDetailPage = memo(({ eventData, event_key }) => {
@@ -27,21 +27,21 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
         eventKey={event_key}
         redirectPath={`/events/process/${event_key}`}
       />
-      
+
       <div className="section-padding-top product-detail py-0 py-sm-4">
         <Container>
           <DetailsHeader eventData={eventData} event_key={event_key} />
-          
-        
+
+
           {/* --- Tabs Section --- */}
           <EventTabs
             eventData={eventData}
             startDate={startDate}
             endDate={endDate}
           />
-            {/* Add EventCrew component here */}
+          {/* Add EventCrew component here */}
           <EventCrew crews={eventData?.artists_list} />
-          <EventPhotoGallery eventPhotos={eventData?.event_media?.images || []} />
+          <EventPhotoGallery eventPhotos={eventData?.eventMedia?.images || []} />
         </Container>
       </div>
     </Fragment>

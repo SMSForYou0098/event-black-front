@@ -5,6 +5,8 @@ export default function Document() {
     <Html lang="en" data-bs-theme="dark" style={{ '--header-height': '74px' }}>
       <Head>
         <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+
+        <meta name="theme-color" content="#b51515" />
         {/* <meta name="viewport" content="width=device-width, initial-scale=1.0" /> */}
         <link rel="stylesheet" href="/vendor/font-awesome/css/all.min.css" />
         <link rel="stylesheet" href="/vendor/iconly/css/style.css" />
@@ -12,9 +14,9 @@ export default function Document() {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,300&display=swap"
-          rel="stylesheet" 
+          rel="stylesheet"
         />
-        
+
         {/* Razorpay Script */}
         <script src="https://checkout.razorpay.com/v1/checkout.js" />
 
@@ -48,7 +50,7 @@ export default function Document() {
       <body>
         {/* Google Tag Manager (noscript) */}
         <noscript>
-          <iframe 
+          <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-NG6F4ZLR"
             height="0"
             width="0"
@@ -58,9 +60,9 @@ export default function Document() {
 
         {/* Meta Pixel (noscript) */}
         <noscript>
-          <img 
-            height="1" 
-            width="1" 
+          <img
+            height="1"
+            width="1"
             style={{ display: 'none' }}
             src="https://www.facebook.com/tr?id=1257605372628333&ev=PageView&noscript=1"
             alt=""
