@@ -12,6 +12,7 @@ import { TbSofa } from 'react-icons/tb';
 import { GiRoundTable } from 'react-icons/gi';
 import { SiTablecheck } from 'react-icons/si';
 import { Minus, Plus, RotateCcw } from 'lucide-react';
+import { FaClock } from 'react-icons/fa';
 
 const THEME = {
     primary: PRIMARY,
@@ -125,6 +126,7 @@ const SEAT_COLORS = {
     available: THEME.seatAvailable,
     selected: THEME.seatSelected,
     booked: THEME.seatBooked,
+    hold: '#B51515', // Orange for locked/hold seats
     disabled: THEME.seatDisabled,
     noTicket: THEME.seatNoTicket,
 };
@@ -132,6 +134,7 @@ const SEAT_COLORS = {
 const getSeatColor = (seat, isSelected) => {
     if (!seat.ticket) return SEAT_COLORS.noTicket;
     if (seat.status === 'booked') return SEAT_COLORS.booked;
+    if (seat.status === 'hold' || seat.status === 'locked') return SEAT_COLORS.hold;
     if (seat.status === 'disabled') return SEAT_COLORS.disabled;
     if (isSelected || seat.status === 'selected') return SEAT_COLORS.selected;
     return SEAT_COLORS.available;
@@ -148,11 +151,13 @@ const Seat = memo(({
     rowTitle
 }) => {
     const [iconImage, setIconImage] = useState(null);
+    const [clockIconImage, setClockIconImage] = useState(null);
 
     const hasTicket = !!seat.ticket;
     const isDisabled = seat.status === 'disabled' || !hasTicket;
     const isBooked = seat.status === 'booked';
-    const isClickable = !isDisabled && !isBooked;
+    const isHold = seat.status === 'hold' || seat.status === 'locked';
+    const isClickable = !isDisabled && !isBooked && !isHold;
     const seatColor = getSeatColor(seat, isSelected);
     const seatOpacity = isDisabled ? 0.3 : 1;
 
@@ -163,6 +168,31 @@ const Seat = memo(({
             });
         }
     }, [seat.icon, seat.radius]);
+
+    // Create clock icon for hold/locked status
+    useEffect(() => {
+        if (isHold) {
+            try {
+                const svgString = renderToStaticMarkup(
+                    <FaClock size={Math.floor(seat.radius * 1.2)} color="#ffffff" />
+                );
+                const img = new window.Image();
+                img.onload = () => {
+                    console.log('Clock icon loaded successfully');
+                    setClockIconImage(img);
+                };
+                img.onerror = (err) => {
+                    console.error('Failed to load clock icon:', err);
+                };
+                // Use exact encoding from reference
+                img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+            } catch (error) {
+                console.error('Error creating clock icon:', error);
+            }
+        } else {
+            setClockIconImage(null);
+        }
+    }, [isHold, seat.radius]);
 
     const handleInteraction = useCallback((e) => {
         if (isClickable) {
@@ -196,10 +226,10 @@ const Seat = memo(({
         );
     }
 
-    const isAvailable = hasTicket && seat.status !== 'booked' && seat.status !== 'disabled' && !isSelected;
+    const isAvailable = hasTicket && seat.status !== 'booked' && seat.status !== 'disabled' && seat.status !== 'hold' && seat.status !== 'locked' && !isSelected;
     const seatFill = isAvailable ? 'transparent' : seatColor;
-    const seatStroke = isAvailable || isSelected ? SEAT_COLORS.available : 'transparent';
-    const strokeWidth = isAvailable || isSelected ? 1 : 0;
+    const seatStroke = isAvailable || isSelected ? SEAT_COLORS.available : (isHold ? SEAT_COLORS.hold : 'transparent');
+    const strokeWidth = isAvailable || isSelected || isHold ? 1 : 0;
 
     return (
         <Group x={x} y={y} opacity={seatOpacity}>
@@ -225,7 +255,7 @@ const Seat = memo(({
                     const container = e.target.getStage().container();
                     if (isClickable) {
                         container.style.cursor = 'pointer';
-                    } else if (isDisabled || isBooked) {
+                    } else if (isDisabled || isBooked || isHold) {
                         container.style.cursor = 'not-allowed';
                     }
                     if (onHover) {
@@ -239,7 +269,7 @@ const Seat = memo(({
                 }}
             />
 
-            {!isBooked && (
+            {!isBooked && !isHold && (
                 iconImage ? (
                     <KonvaImage
                         image={iconImage}
@@ -283,6 +313,34 @@ const Seat = memo(({
                 />
             )}
 
+            {isHold && (
+                clockIconImage ? (
+                    <KonvaImage
+                        image={clockIconImage}
+                        x={-radius * 0.6}
+                        y={-radius * 0.6}
+                        width={radius * 1.2}
+                        height={radius * 1.2}
+                        listening={false}
+                        perfectDrawEnabled={false}
+                    />
+                ) : (
+                    <Text
+                        x={-radius}
+                        y={-radius}
+                        width={radius * 2}
+                        height={radius * 2}
+                        text="⏱"
+                        fontSize={radius * 1}
+                        fill="#ffffff"
+                        align="center"
+                        verticalAlign="middle"
+                        listening={false}
+                        perfectDrawEnabled={false}
+                    />
+                )
+            )}
+
             {isDisabled && !isBooked && (
                 <Line
                     points={[-radius * 0.5, -radius * 0.5, radius * 0.5, radius * 0.5]}
@@ -297,6 +355,7 @@ const Seat = memo(({
 }, (prevProps, nextProps) => {
     return prevProps.isSelected === nextProps.isSelected &&
         prevProps.seat.status === nextProps.seat.status &&
+        prevProps.seat.hold_by === nextProps.seat.hold_by &&
         prevProps.seat.x === nextProps.seat.x &&
         prevProps.seat.y === nextProps.seat.y;
 });
@@ -343,20 +402,30 @@ const Row = memo(({ row, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave,
         </Group>
     );
 }, (prevProps, nextProps) => {
+    // Check if row reference changed (new data from state update)
+    if (prevProps.row !== nextProps.row) return false;
+
+    // Check selected seat changes
     const prevHasSelected = prevProps.row.seats.some(s => prevProps.selectedSeatIds.has(s.id));
     const nextHasSelected = nextProps.row.seats.some(s => nextProps.selectedSeatIds.has(s.id));
 
     if (prevHasSelected !== nextHasSelected) return false;
-    if (!prevHasSelected && !nextHasSelected) return true;
+    if (prevProps.selectedSeatIds !== nextProps.selectedSeatIds) {
+        // Check if any seat in this row changed selection
+        for (const seat of prevProps.row.seats) {
+            if (prevProps.selectedSeatIds.has(seat.id) !== nextProps.selectedSeatIds.has(seat.id)) {
+                return false;
+            }
+        }
+    }
 
-    return prevProps.row.seats.every(s =>
-        prevProps.selectedSeatIds.has(s.id) === nextProps.selectedSeatIds.has(s.id)
-    );
+    return true;
 });
 
 Row.displayName = 'Row';
 
 const Section = memo(({ section, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave }) => {
+    console.log("Section", section);
     return (
         <Group x={section.x} y={section.y}>
             <Text
@@ -386,9 +455,13 @@ const Section = memo(({ section, selectedSeatIds, onSeatClick, onSeatHover, onSe
         </Group>
     );
 }, (prevProps, nextProps) => {
+    // Always re-render if section reference changed (new data from state update)
     if (prevProps.section !== nextProps.section) return false;
+
+    // Only skip re-render if both section and selectedSeatIds are same reference
     if (prevProps.selectedSeatIds === nextProps.selectedSeatIds) return true;
 
+    // Check if any seat in this section changed selection
     for (const row of prevProps.section.rows) {
         for (const seat of row.seats) {
             if (prevProps.selectedSeatIds.has(seat.id) !== nextProps.selectedSeatIds.has(seat.id)) {
@@ -1071,6 +1144,7 @@ const BookingSeatCanvas = ({
                         {[
                             { color: SEAT_COLORS.available, label: 'Available' },
                             { color: SEAT_COLORS.selected, label: 'Selected' },
+                            { color: SEAT_COLORS.hold, label: 'Locked' },
                             { color: SEAT_COLORS.booked, label: 'Booked' },
                         ].map((item) => (
                             <div key={item.label} className="booking-legend-item">

@@ -6,8 +6,12 @@ import { api } from "@/lib/axiosInterceptor";
 import useBooking from './components/Usebooking';
 import { Clock, Loader } from 'lucide-react';
 import BookingSeatCanvas from './components/BookingSeatCanvasWrapper';
+import EventSeatsListener from './EventSeatsListener';
+import { useMyContext } from '@/Context/MyContextProvider';
+
 const BookingLayout = (props) => {
     const { layoutId, eventId, setSelectedTkts, event } = props;
+    const { UserData } = useMyContext();
     const stageRef = useRef(null);
 
     // Custom booking hook
@@ -67,6 +71,7 @@ const BookingLayout = (props) => {
                 if (!isMounted) return;
 
                 const data = response?.data?.data;
+                console.log("data", data)
                 // Process the layout data
                 if (data.stage) {
                     setStage({
@@ -275,6 +280,16 @@ const BookingLayout = (props) => {
 
     return (
         <div className="booking-layout">
+            {/* WebSocket listener for real-time seat updates */}
+            <EventSeatsListener
+                eventId={eventId}
+                sections={sections}
+                setSections={setSections}
+                selectedSeats={selectedSeats}
+                setSelectedSeats={setSelectedSeats}
+                currentUserId={UserData?.id}
+            />
+
             <Card className="border-0 custom-dark-bg">
                 <Card.Body className="p-0">
 

@@ -11,11 +11,11 @@ const AttendySugettion = (props) => {
 
   // Helper function to get a stable ID from attendee object
   const getId = (a) => a?.id ?? a?._id ?? a?.iud ?? a?.uuid ?? null;
-  
+
   // Check if an attendee is selected
   const isAttendeeSelected = (attendee) => {
     const attId = getId(attendee);
-    return attId 
+    return attId
       ? selectedAttendees.some(s => getId(s) === attId)
       : selectedAttendees.includes(attendee);
   };
@@ -23,44 +23,44 @@ const AttendySugettion = (props) => {
   const handleSelectAttendee = (attendee, index) => {
     const attId = getId(attendee);
     const isSelected = isAttendeeSelected(attendee);
-    
+
     // If already selected, deselect it
     if (isSelected) {
-      setSelectedAttendees(prev => 
-        attId 
+      setSelectedAttendees(prev =>
+        attId
           ? prev.filter(item => getId(item) !== attId)
           : prev.filter(item => item !== attendee)
       );
-      
-      setAttendeesList(prevList => 
-        attId 
+
+      setAttendeesList(prevList =>
+        attId
           ? prevList.filter(item => getId(item) !== attId)
           : prevList.filter(item => item !== attendee)
       );
       return;
     }
-    
+
     // If not selected, check if we can add more
     if (selectedAttendees.length >= quantity) {
       ErrorAlert("Maximum number of attendees reached");
       return;
     }
-    
+
     // Add to selected attendees
     const missingFields = requiredFields
       .filter((field) => attendee[field] == null)
       .map((field) => field);
 
     setSelectedAttendees(prev => [...prev, attendee]);
-    
+
     // Add to attendees list if not already there
     setAttendeesList(prevList => {
       const existsInList = attId
         ? prevList.some(p => getId(p) === attId)
         : prevList.includes(attendee);
-      
+
       if (existsInList) return prevList;
-      
+
       return [...prevList, { ...attendee, missingFields, index }];
     });
   };
@@ -68,15 +68,15 @@ const AttendySugettion = (props) => {
   const handleConfirmAttendees = () => {
     setShowAddAttendeeModal(false);
   };
-  
+
   const HandleClose = () => {
     if (quantity !== totalAttendee) {
       openAddModal(true)
     }
     setShowAddAttendeeModal(false);
   }
-  
-    // Auto-close modal when required quantity is reached
+
+  // Auto-close modal when required quantity is reached
   useEffect(() => {
     if (selectedAttendees?.length === quantity && showAddAttendeeModal) {
       setShowAddAttendeeModal(false);
@@ -88,7 +88,7 @@ const AttendySugettion = (props) => {
     if (!searchTerm.trim()) return data;
     const searchLower = searchTerm.toLowerCase();
     return data.filter(attendee =>
-      ["Name", "Mo", "Email"].some(key =>
+      ["name", "number", "email"].some(key =>
         String(attendee[key] || "")
           ?.toLowerCase()
           ?.includes(searchLower)
@@ -125,23 +125,23 @@ const AttendySugettion = (props) => {
           {filteredAttendees?.map((attendee, index) => {
             const isSelected = isAttendeeSelected(attendee);
             const isDisabled = selectedAttendees.length >= quantity && !isSelected;
-            
+
             return (
               <Col md={4} key={index}>
-                <Card 
+                <Card
                   className={`p-0 card-glassmorphism cursor-pointer shadow-none ${isSelected ? 'border-primary' : ''} ${isDisabled ? 'opacity-50' : ''}`}
                   onClick={() => !isDisabled && handleSelectAttendee(attendee, index)}
                   style={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}
                 >
                   <Card.Body>
                     <div className="d-flex align-items-center gap-2">
-                      <Form.Check 
+                      <Form.Check
                         type="checkbox"
                         checked={isSelected}
                         disabled={isDisabled}
-                        onChange={() => {}} // Empty handler to prevent React warning
+                        onChange={() => { }} // Empty handler to prevent React warning
                         // className="me-2"
-                        style={{ cursor: isDisabled ? 'not-allowed' : 'pointer' , width: '1.5rem', height: '1.5rem' , transform: 'scale(1.3)'}}
+                        style={{ cursor: isDisabled ? 'not-allowed' : 'pointer', width: '1.5rem', height: '1.5rem', transform: 'scale(1.3)' }}
                       />
                       <div className="d-flex align-items-center gap-2 w-100">
                         <div className="d-flex">
@@ -156,14 +156,14 @@ const AttendySugettion = (props) => {
                         </div>
                         <div className="d-flex flex-column">
                           <p className='m-0 p-0'>
-                            <strong>Name:</strong> {attendee?.Name}
+                            <strong>Name:</strong> {attendee?.name}
                           </p>
                           <p className='m-0 p-0'>
-                            <strong>Number:</strong> {attendee?.Mo}
+                            <strong>Number:</strong> {attendee?.number}
                           </p>
-                          {attendee?.Email &&
+                          {attendee?.email &&
                             <p className='m-0 p-0'>
-                              <strong>Email:</strong> {attendee?.Email}
+                              <strong>Email:</strong> {attendee?.email}
                             </p>
                           }
                         </div>

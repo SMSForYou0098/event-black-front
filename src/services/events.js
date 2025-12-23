@@ -1,5 +1,5 @@
 import { api, publicApi } from "@/lib/axiosInterceptor";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 export const useEventData = (event_key) => {
     return useQuery({
@@ -57,3 +57,29 @@ export const getUserBookingsPaginated = async ({
     const response = await api.get(`/user-bookings/${userId}?${params.toString()}`);
     return response.data;
 }
+
+/**
+ * Lock seats for booking
+ * @param {Object} options - React Query mutation options
+ * @returns {UseMutationResult} Mutation result with mutate, isLoading, etc.
+ */
+export const useLockSeats = (options = {}) =>
+    useMutation({
+        mutationFn: async ({ event_id, seats, user_id }) => {
+            if (!event_id) throw new Error('event_id is required');
+            if (!seats || seats.length === 0) throw new Error('seats array is required');
+
+            const res = await api.post('seats/lock', { event_id, seats, user_id });
+            if (!res?.status) {
+                const err = new Error(res?.message || 'Failed to lock seats');
+                err.server = res;
+                throw err;
+            }
+            return res.data;
+        },
+        retry: (count, err) => {
+            const status = err?.response?.status;
+            return status >= 500 && count < 2;
+        },
+        ...options,
+    });

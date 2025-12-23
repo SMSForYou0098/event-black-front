@@ -14,7 +14,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const [showOffcanvas, setShowOffcanvas] = useState(false);
   const router = useRouter();
 
-  const isHouseFull = eventData?.event_controls?.house_full === 1;
+  const isHouseFull = eventData?.eventControls?.house_full === 1;
 
   const handleContinue = () => {
     // Continue logic here (e.g., navigate to checkout)

@@ -9,13 +9,14 @@ import { useRouter } from "next/router";
 import BookingTickets from "../../../../utils/BookingUtils/BookingTickets";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
 import LoginModal from "../../../../components/auth/LoginModal";
-import { useEventData } from "../../../../services/events";
+import { useEventData, useLockSeats } from "../../../../services/events";
 import CustomBtn from "../../../../utils/CustomBtn";
 import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 import { Calendar, Pin, Ticket, Users } from "lucide-react";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
 import BookingLayout from "../../../../components/events/SeatingModule/Bookinglayout";
+import toast from "react-hot-toast";
 const CartPage = () => {
   const { event_key } = useRouter().query;
 
@@ -39,6 +40,18 @@ const CartPage = () => {
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(false);
 
+  // Lock seats mutation
+  const lockSeatsMutation = useLockSeats({
+    onSuccess: (data) => {
+      console.log('Seats locked successfully:', data);
+      toast.success(data?.message)
+    },
+    onError: (error) => {
+      console.error('Failed to lock seats:', error);
+      ErrorAlert(error?.message || 'Failed to lock seats. Please try again.');
+    },
+  });
+
   //TAX STATES
 
   const { data: event, isLoading, isError, error } = useEventData(event_key);
@@ -47,13 +60,13 @@ const CartPage = () => {
   });
   useEffect(() => {
     if (event) {
-      setSeatingModule(event?.event_controls?.ticket_system)
+      setSeatingModule(event?.eventControls?.ticket_system)
     }
     const getCategoryData = async () => {
-      let data = await fetchCategoryData(event?.category?.id);
+      let data = await fetchCategoryData(event?.Category?.id);
       setCategoryData(data);
     };
-    if (event?.category?.id) {
+    if (event?.Category?.id) {
       getCategoryData();
     }
     return () => { };
@@ -90,8 +103,27 @@ const CartPage = () => {
       // if logged in, check ticket status first
       const allowed = await checkTicketStatus();
       if (allowed) {
-        // if API allows booking → proceed
-        router.push(path);
+        // Lock seats before proceeding
+        if (seatingModule && selectedTickets?.seats && selectedTickets.seats.length > 0) {
+          try {
+            // Extract seat IDs from selectedTickets.seats array
+            const seatIds = selectedTickets.seats.map(seat => seat.seat_id);
+
+            await lockSeatsMutation.mutateAsync({
+              event_id: event?.id,
+              seats: seatIds,
+              user_id: UserData?.id,
+            });
+            // if seat lock successful → proceed
+            router.push(path);
+          } catch (error) {
+            // Error is already handled in onError callback
+            return;
+          }
+        } else {
+          // No seating module or no seats selected → proceed directly
+          router.push(path);
+        }
       } else {
         // blocked by API → do nothing (alert is already shown inside checkTicketStatus)
         return;
@@ -122,8 +154,8 @@ const CartPage = () => {
 
     // Alternative: Manual navigation
 
-    if (categoryData?.categoryData?.attendy_required === 1) {
-      return `/events/attendee/${event_key}/?k=${dataKey}&categoryId=${event?.category?.id}`;
+    if (categoryData?.categoryData?.attendy_required === true) {
+      return `/events/attendee/${event_key}/?k=${dataKey}&categoryId=${event?.Category?.id}`;
     } else {
       // Alternative: Manual navigation
       return `/events/checkout/${event_key}/?k=${dataKey}`;
@@ -177,7 +209,7 @@ const CartPage = () => {
   // }, []);
 
   const attendeeRequired = useMemo(() => {
-    return categoryData?.categoryData?.attendy_required === 1;
+    return categoryData?.categoryData?.attendy_required === true;
   }, [categoryData]);
   // Early return if no items
 
@@ -235,7 +267,7 @@ const CartPage = () => {
     // {
     //   icon: Tags,
     //   label: "Category",
-    //   value: event?.category?.title || 'Music & Arts'
+    //   value: event?.Category?.title || 'Music & Arts'
     // },
     {
       icon: Calendar,
@@ -273,7 +305,7 @@ const CartPage = () => {
         {/* Cart Steps */}
         <CartSteps
           id={1}
-          showAttendee={categoryData?.categoryData?.attendy_required === 1}
+          showAttendee={categoryData?.categoryData?.attendy_required === true}
         />
         <Row>
           {/* Cart Items */}
@@ -282,7 +314,7 @@ const CartPage = () => {
               <BookingLayout
                 eventId={event?.id}
                 setSelectedTkts={setSelectedTickets}
-                layoutId={event?.event_has_layout?.layout_id}
+                layoutId={event?.EventHasLayout?.layout_id}
                 event={event}
               />
               :
@@ -357,7 +389,7 @@ const CartPage = () => {
                     buttonText={<span>{buttonText}</span>}
                     className="cart-proceed-btn mt-2"
                     style={{ width: "100%" }}
-                    loading={isChecking}
+                    loading={isChecking || lockSeatsMutation.isPending}
                   />
                   {/* <CustomDrawer /> */}
                 </div>

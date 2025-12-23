@@ -129,7 +129,7 @@ const AttendeePage = () => {
     <div className="">
       <Container>
         <CartSteps id={2} showAttendee={true} />
-        <Timer timestamp={data?.timestamp} />
+        <Timer timestamp={data?.timestamp} navigateOnExpire={() => router.push(`/events/cart/${event_key}`)} />
         <Row className="m-0 p-0">
           <Col lg="8" className="px-0 px-sm-2">
             <DynamicAttendeeForm
@@ -183,14 +183,14 @@ const AttendeePage = () => {
             ) : (
               <div className="d-flex align-items-center justify-content-between gap-3 mb-sm-5 mt-3 mb-0">
                 <CustomBtn
-                size='sm'
+                  size='sm'
                   className="custom-dark-content-bg border-secondary"
                   HandleClick={() => window.history.back()}
                   buttonText={"Back"}
                   icon={<i className="fa-solid fa-arrow-left"></i>}
                 />
                 <CustomBtn
-                size='sm'
+                  size='sm'
                   disabled={hasMissingFields || (attendeeList?.length !== quantity)}
                   HandleClick={handleSaveAttendees}
                   buttonText={"Save & Continue"}
