@@ -313,6 +313,7 @@ const BookingLayout = (props) => {
                                     onSeatClick={handleSeatClick}
                                     handleWheel={handleWheel}
                                     setStagePosition={setStagePosition}
+                                    currentUserId={UserData?.id}
                                 />
                             </div>
                         </Col>

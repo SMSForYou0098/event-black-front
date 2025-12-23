@@ -77,7 +77,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
       amount: booking?.total_amount,
       type: normalizeBooking?.type,
       created_at: formatDate(booking?.created_at),
-      thumbnail: normalizeBooking?.ticket?.event?.eventMedia?.thumbnail
+      thumbnail: normalizeBooking?.ticket?.event?.event_media?.thumbnail
     };
   }, [booking]);
 
@@ -166,102 +166,91 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
 
   return (
     <>
-      <div className={`d-flex align-items-center justify-content-between flex-column flex-sm-row ${compact ? 'mb-3 p-3' : 'mb-4 p-4'} rounded custom-dark-content-bg rounded-4`}>
-        <div className="d-flex">
+      <div className={`d-flex align-items-stretch justify-content-between flex-column flex-md-row gap-3 ${compact ? 'p-3' : 'p-3 p-sm-4'} rounded custom-dark-content-bg rounded-4 h-100`}>
+        {/* Content Section */}
+        <div className="d-flex flex-grow-1 gap-2 gap-sm-3">
           <Image
-            src={bookingData.thumbnail}
+            src={bookingData?.thumbnail}
             alt={bookingData.ticket?.name}
             width={imageDimensions.width}
             height={imageDimensions.height}
-            className="rounded-3 me-3"
+            className="rounded-3 flex-shrink-0"
             style={{ objectFit: 'cover' }}
             loading="lazy"
           />
-          <div className="flex-grow-1">
-            <div className="d-flex align-items-center mb-1">
+          <div className="flex-grow-1 min-width-0">
+            <div className="d-flex align-items-center flex-wrap gap-1 gap-sm-2 mb-1">
               <TypeIcon type={bookingData.type} />
-              <h6 className={`mb-0 ms-2 ${!compact && 'me-3'}`}>
+              <h6 className="mb-0 text-truncate" style={{ maxWidth: '100%' }}>
                 {bookingData?.name}
               </h6>
               {!compact && (
                 <CustomBadge
                   variant="outline-primary"
-                  className="text-uppercase"
+                  className="text-uppercase flex-shrink-0"
                 >
                   {bookingData.ticket?.event?.event_type}
                 </CustomBadge>
               )}
             </div>
 
-            {/* <small className="text-muted d-block">
-              <MapPin size={14} className='custom-text-secondary' /> 
-              {bookingData.ticket?.event?.address}
-            </small> */}
-
-            <small className="text-muted d-block">
-              <Calendar size={14} className='text-warning' />
-              {bookingData.ticket?.event?.date_range} • {bookingData.created_at}
+            <small className="text-muted d-block mt-1">
+              <Calendar size={14} className='text-warning me-1' />
+              <span className="text-break">{bookingData.ticket?.event?.date_range} • {bookingData.created_at}</span>
             </small>
 
-            <small className="text-muted d-block">
-              <Armchair size={14} className='text-success' />
-              : {bookingData.ticket?.name} x{' '}
+            <small className="text-muted d-block mt-1">
+              <Armchair size={14} className='text-success me-1' />
+              {bookingData.ticket?.name} x{' '}
               <span className="text-success fw-bold">{bookingData.quantity}</span>
             </small>
 
-            <small className="text-muted d-block">
-              <IndianRupee size={14} className='text-warning' />
-              : {bookingData.amount}
+            <small className="text-muted d-block mt-1">
+              <IndianRupee size={14} className='text-warning me-1' />
+              {bookingData.amount}
             </small>
           </div>
         </div>
 
-        <div className="btn-section d-flex">
-          <div className="d-flex flex-row-reverse flex-sm-row gap-2 justify-content-end mt-2">
-            {/* Dropdown for Download Options */}
-            <Dropdown>
-              <Dropdown.Toggle
-                as={Button}
-                variant="primary"
-                size="sm"
-                className="iq-button fw-bold rounded-3 d-inline-flex align-items-center gap-2 text-nowrap"
-                style={{
-                  background: 'var(--bs-primary)',
-                  border: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  whiteSpace: 'nowrap',
-                  lineHeight: 1.2,
-                }}
-                disabled={ticketType && ticketType.id === booking.id}
-              >
-                Download
-              </Dropdown.Toggle>
+        {/* Button Section */}
+        <div className="d-flex align-items-center justify-content-end justify-content-md-center flex-shrink-0 mt-2 mt-md-0">
+          <Dropdown>
+            <Dropdown.Toggle
+              as={Button}
+              variant="primary"
+              size="sm"
+              className="iq-button fw-bold rounded-3 d-inline-flex align-items-center gap-2 text-nowrap"
+              style={{
+                background: 'var(--bs-primary)',
+                border: 'none',
+                lineHeight: 1.2,
+              }}
+              disabled={ticketType && ticketType.id === booking.id}
+            >
+              Download
+            </Dropdown.Toggle>
 
-              <Dropdown.Menu align="end" className="custom-dropdown-menu">
+            <Dropdown.Menu align="end" className="custom-dropdown-menu">
+              <Dropdown.Item
+                onClick={() => handleDownloadSelect('combine')}
+                disabled={ticketType && ticketType.id === booking.id}
+                className="custom-dropdown-item"
+              >
+                Group QR
+              </Dropdown.Item>
+
+              {hasIndividualOption && (
                 <Dropdown.Item
-                  onClick={() => handleDownloadSelect('combine')}
+                  onClick={() => handleDownloadSelect('individual')}
                   disabled={ticketType && ticketType.id === booking.id}
                   className="custom-dropdown-item"
                 >
-                  Group QR
+                  Individual QR
                 </Dropdown.Item>
-
-                {hasIndividualOption && (
-                  <Dropdown.Item
-                    onClick={() => handleDownloadSelect('individual')}
-                    disabled={ticketType && ticketType.id === booking.id}
-                    className="custom-dropdown-item"
-                  >
-                    Individual QR
-                  </Dropdown.Item>
-                )}
-              </Dropdown.Menu>
-            </Dropdown>
-          </div>
+              )}
+            </Dropdown.Menu>
+          </Dropdown>
         </div>
-
       </div>
 
       {/* Custom Drawer for Download Information */}

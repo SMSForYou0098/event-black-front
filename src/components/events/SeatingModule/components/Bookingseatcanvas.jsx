@@ -148,7 +148,8 @@ const Seat = memo(({
     onLeave,
     sectionId,
     rowId,
-    rowTitle
+    rowTitle,
+    currentUserId
 }) => {
     const [iconImage, setIconImage] = useState(null);
     const [clockIconImage, setClockIconImage] = useState(null);
@@ -157,7 +158,9 @@ const Seat = memo(({
     const isDisabled = seat.status === 'disabled' || !hasTicket;
     const isBooked = seat.status === 'booked';
     const isHold = seat.status === 'hold' || seat.status === 'locked';
-    const isClickable = !isDisabled && !isBooked && !isHold;
+    // Allow clicking if seat is held by current user
+    const isOwnHold = isHold && currentUserId && String(seat.hold_by) === String(currentUserId);
+    const isClickable = !isDisabled && !isBooked && (!isHold || isOwnHold);
     const seatColor = getSeatColor(seat, isSelected);
     const seatOpacity = isDisabled ? 0.3 : 1;
 
@@ -169,9 +172,9 @@ const Seat = memo(({
         }
     }, [seat.icon, seat.radius]);
 
-    // Create clock icon for hold/locked status
+    // Create clock icon for hold/locked status (only for other users' holds)
     useEffect(() => {
-        if (isHold) {
+        if (isHold && !isOwnHold) {
             try {
                 const svgString = renderToStaticMarkup(
                     <FaClock size={Math.floor(seat.radius * 1.2)} color="#ffffff" />
@@ -192,7 +195,7 @@ const Seat = memo(({
         } else {
             setClockIconImage(null);
         }
-    }, [isHold, seat.radius]);
+    }, [isHold, isOwnHold, seat.radius]);
 
     const handleInteraction = useCallback((e) => {
         if (isClickable) {
@@ -226,10 +229,10 @@ const Seat = memo(({
         );
     }
 
-    const isAvailable = hasTicket && seat.status !== 'booked' && seat.status !== 'disabled' && seat.status !== 'hold' && seat.status !== 'locked' && !isSelected;
+    const isAvailable = hasTicket && seat.status !== 'booked' && seat.status !== 'disabled' && (!isHold || isOwnHold) && !isSelected;
     const seatFill = isAvailable ? 'transparent' : seatColor;
-    const seatStroke = isAvailable || isSelected ? SEAT_COLORS.available : (isHold ? SEAT_COLORS.hold : 'transparent');
-    const strokeWidth = isAvailable || isSelected || isHold ? 1 : 0;
+    const seatStroke = isAvailable || isSelected ? SEAT_COLORS.available : ((isHold && !isOwnHold) ? SEAT_COLORS.hold : 'transparent');
+    const strokeWidth = isAvailable || isSelected || (isHold && !isOwnHold) ? 1 : 0;
 
     return (
         <Group x={x} y={y} opacity={seatOpacity}>
@@ -269,7 +272,7 @@ const Seat = memo(({
                 }}
             />
 
-            {!isBooked && !isHold && (
+            {!isBooked && (!isHold || isOwnHold) && (
                 iconImage ? (
                     <KonvaImage
                         image={iconImage}
@@ -313,7 +316,7 @@ const Seat = memo(({
                 />
             )}
 
-            {isHold && (
+            {isHold && !isOwnHold && (
                 clockIconImage ? (
                     <KonvaImage
                         image={clockIconImage}
@@ -357,12 +360,13 @@ const Seat = memo(({
         prevProps.seat.status === nextProps.seat.status &&
         prevProps.seat.hold_by === nextProps.seat.hold_by &&
         prevProps.seat.x === nextProps.seat.x &&
-        prevProps.seat.y === nextProps.seat.y;
+        prevProps.seat.y === nextProps.seat.y &&
+        prevProps.currentUserId === nextProps.currentUserId;
 });
 
 Seat.displayName = 'Seat';
 
-const Row = memo(({ row, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave, sectionId }) => {
+const Row = memo(({ row, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave, sectionId, currentUserId }) => {
     if (!row.seats || row.seats.length === 0) return null;
 
     const firstSeatY = row.seats[0]?.y ?? 50;
@@ -396,6 +400,7 @@ const Row = memo(({ row, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave,
                         sectionId={sectionId}
                         rowId={row.id}
                         rowTitle={row.title}
+                        currentUserId={currentUserId}
                     />
                 );
             })}
@@ -424,7 +429,7 @@ const Row = memo(({ row, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave,
 
 Row.displayName = 'Row';
 
-const Section = memo(({ section, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave }) => {
+const Section = memo(({ section, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave, currentUserId }) => {
     console.log("Section", section);
     return (
         <Group x={section.x} y={section.y}>
@@ -450,6 +455,7 @@ const Section = memo(({ section, selectedSeatIds, onSeatClick, onSeatHover, onSe
                     onSeatHover={onSeatHover}
                     onSeatLeave={onSeatLeave}
                     sectionId={section.id}
+                    currentUserId={currentUserId}
                 />
             ))}
         </Group>
@@ -620,7 +626,8 @@ const BookingSeatCanvas = ({
     onSeatClick,
     handleWheel: externalHandleWheel,
     setStagePosition: externalSetStagePosition,
-    primaryColor = PRIMARY
+    primaryColor = PRIMARY,
+    currentUserId
 }) => {
     const internalStageRef = useRef(null);
     const stageRef = externalStageRef || internalStageRef;
@@ -1131,6 +1138,7 @@ const BookingSeatCanvas = ({
                                     onSeatClick={handleSeatClick}
                                     onSeatHover={handleSeatHover}
                                     onSeatLeave={handleSeatLeave}
+                                    currentUserId={currentUserId}
                                 />
                             ))}
                         </Layer>

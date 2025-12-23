@@ -51,11 +51,11 @@ const GlobalSearch = ({ show, handleShow }) => {
   const handleItemClick = useCallback((item) => {
     // Close the modal first
     handleShow();
-    
+
     // Determine the route based on item type or category
     const itemType = item?.type || item.category?.name?.toLowerCase() || 'event';
-    
-    switch(itemType) {
+
+    switch (itemType) {
       case 'movie':
       case 'movies':
         router.push(`/movies/${createSlug(item.title || item.name)}/${item.id}`);
@@ -75,7 +75,7 @@ const GlobalSearch = ({ show, handleShow }) => {
         router.push(`/artists/${createSlug(item.title || item.name)}/${item.id}`);
         break;
       default: // Default to event route
-        router.push(`/events/${createSlug(item?.venue_event?.city || '')}/${createSlug(
+        router.push(`/events/${createSlug(item?.venue?.city || '')}/${createSlug(
           item?.organizer?.organisation || ''
         )}/${createSlug(item?.name || item?.title)}/${item?.event_key || item?.id}`);
         break;
@@ -88,18 +88,18 @@ const GlobalSearch = ({ show, handleShow }) => {
       setSearchResults([]);
       return;
     }
-    
+
     setIsLoading(true);
     try {
       const categoryFilter = categories.includes('All') ? '' : categories.join(',');
-      
+
       const response = await api.get('/global-search', {
         params: {
           search: searchQuery,
           event_category: categoryFilter
         }
       });
-      
+
       setSearchResults(response.data?.data || []);
     } catch (error) {
       console.error('Search error:', error);
@@ -110,23 +110,23 @@ const GlobalSearch = ({ show, handleShow }) => {
   }, []);
 
   // Optimized category toggle function
-  const toggleCategory = useCallback((category) => {
-    setSelectedCategories(prev => {
-      if (category === 'All') {
-        return ['All'];
-      } else {
-        const withoutAll = prev.filter(cat => cat !== 'All');
-        const isSelected = prev.includes(category);
-        
-        if (isSelected) {
-          const newSelected = withoutAll.filter(cat => cat !== category);
-          return newSelected.length > 0 ? newSelected : ['All'];
-        } else {
-          return [...withoutAll, category];
-        }
-      }
-    });
-  }, []);
+  // const toggleCategory = useCallback((category) => {
+  //   setSelectedCategories(prev => {
+  //     if (category === 'All') {
+  //       return ['All'];
+  //     } else {
+  //       const withoutAll = prev.filter(cat => cat !== 'All');
+  //       const isSelected = prev.includes(category);
+
+  //       if (isSelected) {
+  //         const newSelected = withoutAll.filter(cat => cat !== category);
+  //         return newSelected.length > 0 ? newSelected : ['All'];
+  //       } else {
+  //         return [...withoutAll, category];
+  //       }
+  //     }
+  //   });
+  // }, []);
 
   // Debounced search effect
   useEffect(() => {
@@ -156,20 +156,20 @@ const GlobalSearch = ({ show, handleShow }) => {
       );
     }
 
-     // No input yet — show friendly empty state
-  if (!searchTerm.trim()) {
-    return (
-      <div className="text-center py-5">
-        <h6 className="mb-2">Search your events</h6>
-        <p className="text-muted mb-0" style={{ fontSize: '14px' }}>
-          Try keywords like <em>“music”</em>, <em>“navratri”</em>, <em>“cricket”</em>, or <em>“movies”</em>.
-        </p>
-      </div>
-    );
-  }
+    // No input yet — show friendly empty state
+    if (!searchTerm.trim()) {
+      return (
+        <div className="text-center py-5">
+          <h6 className="mb-2">Search your events</h6>
+          <p className="text-muted mb-0" style={{ fontSize: '14px' }}>
+            Try keywords like <em>“music”</em>, <em>“navratri”</em>, <em>“cricket”</em>, or <em>“movies”</em>.
+          </p>
+        </div>
+      );
+    }
 
     const itemsToShow = searchTerm && searchResults.length > 0 ? searchResults : [];
-    
+
     if (searchTerm && searchResults.length === 0) {
       return (
         <div className="text-center py-4">
@@ -182,16 +182,16 @@ const GlobalSearch = ({ show, handleShow }) => {
       <Row>
         {itemsToShow.map((item) => (
           <Col md={6} key={item.id} className="mb-3">
-            <ListGroup.Item 
+            <ListGroup.Item
               className="border-0 bg-transparent p-2 rounded hover-item"
               style={{ cursor: 'pointer' }}
               action
               onClick={() => handleItemClick(item)}
             >
               <div className="d-flex align-items-center">
-                {(item?.thumbnail || item?.image) && (
+                {(item?.event_media?.thumbnail || item?.image) && (
                   <Image
-                    src={item?.thumbnail || item?.image}
+                    src={item?.event_media?.thumbnail || item?.image}
                     alt={item?.name || item?.title}
                     width={50}
                     height={50}
@@ -220,10 +220,10 @@ const GlobalSearch = ({ show, handleShow }) => {
   }, [isLoading, searchTerm, searchResults, handleItemClick]);
 
   return (
-    <Modal 
-      show={show} 
-      onHide={handleShow} 
-      size="lg" 
+    <Modal
+      show={show}
+      onHide={handleShow}
+      size="lg"
       centered
       className="trending-modal"
     >
@@ -240,7 +240,7 @@ const GlobalSearch = ({ show, handleShow }) => {
           />
         </Modal.Title>
       </Modal.Header>
-      
+
       <Modal.Body className="px-4 py-3">
         {/* Category Filter Badges */}
         {/* <div className="mb-4">
@@ -284,7 +284,7 @@ const GlobalSearch = ({ show, handleShow }) => {
         </div> */}
 
         {/* Search Results */}
-        
+
         <ListGroup variant="flush">
           {searchResultsDisplay}
         </ListGroup>

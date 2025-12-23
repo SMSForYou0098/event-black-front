@@ -1,117 +1,101 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { fabric } from 'fabric-pure-browser';
-import { QRCodeCanvas } from 'qrcode.react';
 import { Button, Col, Row, Spinner } from 'react-bootstrap';
 import axios from 'axios';
-import { useMyContext } from "@/Context/MyContextProvider"; //done
+import { useMyContext } from "@/Context/MyContextProvider";
 import { ArrowBigDownDash, Printer } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
+import QRCode from 'qrcode';
+
 const TicketCanvas = (props) => {
-  const { showDetails, ticketName, userName, number, address, ticketBG, date, time, photo, OrderId, showPrintButton, ticketNumber } = props
-  const { api } = useMyContext()
+  const {
+    showDetails,
+    ticketName,
+    userName,
+    number,
+    address,
+    ticketBG,
+    date,
+    time,
+    photo,
+    OrderId,
+    showPrintButton,
+    ticketNumber,
+    preloadedImage
+  } = props;
+
+  const { api } = useMyContext();
   const canvasRef = useRef(null);
-  const qrContainerRef = useRef(null);
   const fabricCanvasRef = useRef(null);
+
+  // State
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [loadingImage, setLoadingImage] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState(null);
-  const textColor = '#000'
-  const fetchImage = async () => {
-    try {
-      const response = await axios.post(
-        `${api}get-image/retrive`,
-        { path: ticketBG },
-        { responseType: 'blob' }
-      );
-      const imageUrl = URL.createObjectURL(response.data);
-      setImageUrl(imageUrl);
-    } catch (error) {
-      console.error('Image fetch error:', error);
-    }
-  };
+  const [isCanvasReady, setIsCanvasReady] = useState(false);
 
-  useEffect(() => {
-    if (ticketBG) {
-      fetchImage();
-    }
-  }, [ticketBG]);
+  const textColor = '#000';
 
-  // Generate QR code data URL when OrderId is available
+  // 1. Handle Image URL
   useEffect(() => {
-    if (!OrderId) {
-      return;
-    }
-    
-    let extracted = false;
-    
-    const extractQRCode = () => {
-      if (extracted) return;
-      
-      // Find the canvas element inside the hidden div
-      const qrCanvas = qrContainerRef.current?.querySelector('canvas');
-      
-      if (qrCanvas) {
-        try {
-          const dataUrl = qrCanvas.toDataURL('image/png');
-          setQrDataUrl(dataUrl);
-          extracted = true;
-          return true;
-        } catch (error) {
-          console.error('Error extracting QR code:', error);
-          return false;
+    let active = true;
+    let localUrl = null;
+
+    const fetchImage = async () => {
+      // If ticketBG is already a blob URL (preloaded), use it directly
+      if (preloadedImage && ticketBG && ticketBG.startsWith('blob:')) {
+        if (active) setImageUrl(ticketBG);
+        return;
+      }
+
+      // Otherwise fetch from API
+      try {
+        const response = await axios.post(
+          `${api}get-image/retrive`,
+          { path: ticketBG },
+          { responseType: 'blob' }
+        );
+        if (active) {
+          localUrl = URL.createObjectURL(response.data);
+          setImageUrl(localUrl);
         }
-      } else {
-        return false;
+      } catch (error) {
+        console.error('Image fetch error:', error);
       }
     };
 
-    // Try multiple times with increasing delays
-    const delays = [100, 300, 500, 800, 1000];
-    const timeouts = [];
-    
-    delays.forEach((delay) => {
-      const timeout = setTimeout(() => {
-        if (!extracted) {
-          extractQRCode();
-        }
-      }, delay);
-      timeouts.push(timeout);
-    });
+    if (ticketBG) {
+      fetchImage();
+    }
 
     return () => {
-      timeouts.forEach(timeout => clearTimeout(timeout));
+      active = false;
+      // Only revoke if we created it locally (not preloaded)
+      if (localUrl && !preloadedImage) {
+        URL.revokeObjectURL(localUrl);
+      }
     };
+  }, [ticketBG, preloadedImage, api]);
+
+  // 2. Generate QR Code directly (No DOM needed)
+  useEffect(() => {
+    if (!OrderId) return;
+
+    QRCode.toDataURL(OrderId, {
+      width: 150,
+      margin: 1,
+      errorCorrectionLevel: 'H'
+    })
+      .then(url => {
+        setQrDataUrl(url);
+      })
+      .catch(err => {
+        console.error('QR Generation Error', err);
+      });
   }, [OrderId]);
 
-  const getTextWidth = (text, fontSize = 16, fontFamily = 'Arial') => {
-    const tempText = new fabric.Text(text, {
-      fontSize,
-      fontFamily,
-    });
-    return tempText.width;
-  };
-  const centerText = (text, fontSize, fontFamily, canvas, top) => {
-    const textWidth = getTextWidth(text, fontSize, fontFamily); // Get the width of the text
-    const canvasWidth = canvas.getWidth(); // Get the canvas width
-    const centerX = (canvasWidth - textWidth) / 2; // Calculate the center position
-
-    const textObject = new fabric.Text(text, {
-      fontSize,
-      fontFamily,
-      left: centerX,
-      top: top,
-      fill: textColor, // Use your text color
-      selectable: false,
-      evented: false,
-    });
-
-    canvas.add(textObject);
-    canvas.renderAll();
-
-    return textObject; // Return the fabric.Text object if needed
-  };
-  const loadFabricImage = (url, options = {}) => {
+  // Helper Functions (Memoized)
+  const loadFabricImage = useCallback((url, options = {}) => {
     return new Promise((resolve, reject) => {
       fabric.Image.fromURL(
         url,
@@ -119,70 +103,79 @@ const TicketCanvas = (props) => {
           if (img && img.getElement()) {
             resolve(img);
           } else {
+            console.error('Failed to load image:', url);
             reject(new Error('Failed to load image'));
           }
         },
         { crossOrigin: 'anonymous', ...options }
       );
     });
-  };
+  }, []);
 
+  const centerText = useCallback((text, fontSize, fontFamily, canvas, top) => {
+    const textObj = new fabric.Text(text || '', {
+      fontSize,
+      fontFamily,
+      top: top,
+      fill: textColor,
+      selectable: false,
+      evented: false,
+      originX: 'center',
+      left: canvas.width / 2
+    });
+    canvas.add(textObj);
+    return textObj;
+  }, [textColor]);
+
+  // 3. Draw Canvas
   useEffect(() => {
-    const canvas = new fabric.Canvas(canvasRef.current);
+    // Only draw if we have the canvas ref
+    if (!canvasRef.current) return;
+
+    // We need either the background image OR the QR code to proceed
+    // If neither is ready yet, return early
+    if (!imageUrl && !qrDataUrl) return;
+
+    // Initialize fabric canvas only once if possible, but for simplicity in this effect 
+    // we'll dispose and recreate to avoid ghosting artifacts when switching tickets
+    if (fabricCanvasRef.current) {
+      fabricCanvasRef.current.dispose();
+    }
+
+    const canvas = new fabric.Canvas(canvasRef.current, {
+      enableRetinaScaling: true // Better quality
+    });
     fabricCanvasRef.current = canvas;
 
-    const showLoadingIndicator = () => {
-      const loaderText = new fabric.Text('Generating Ticket...', {
-        left: canvas.width / 2,
-        top: canvas.height / 2,
-        fontSize: 20,
-        fill: '#555',
-        fontFamily: 'Comic Sans MS',
-        fontWeight: 'bold',
-        fontStyle: 'italic',
-        underline: true,
-        shadow: new fabric.Shadow({
-          color: 'rgba(0,0,0,0.3)',
-          blur: 5,
-          offsetX: 2,
-          offsetY: 2,
-        }),
-        originX: 'center',
-        originY: 'center',
-        selectable: false,
-        evented: false,
-      });
-
-      canvas.add(loaderText);
-      canvas.renderAll();
-      return loaderText;
-    };
-
-    const drawCanvas = async () => {
-      const loader = showLoadingIndicator();
+    const draw = async () => {
       try {
-        if (!imageUrl) {
-          return;
+        let imgWidth = 400; // Default canvas width
+        let imgHeight = 600; // Default canvas height
+
+        // If background image exists, load it and use its dimensions
+        if (imageUrl) {
+          const img = await loadFabricImage(imageUrl);
+          imgWidth = img.width;
+          imgHeight = img.height;
+
+          canvas.setDimensions({ width: imgWidth, height: imgHeight });
+
+          // Use setBackgroundImage with scale for proper cover
+          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+            scaleX: canvas.width / img.width,
+            scaleY: canvas.height / img.height
+          });
+        } else {
+          // No background image - set default dimensions with white background
+          canvas.setDimensions({ width: imgWidth, height: imgHeight });
+          canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
         }
 
-        // Load background image
-        const img = await loadFabricImage(imageUrl);
-        const imgWidth = img.width;
-        const imgHeight = img.height;
-
-        canvas.setDimensions({ width: imgWidth, height: imgHeight });
-        img.scaleToWidth(imgWidth);
-        img.scaleToHeight(imgHeight);
-        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-
-        canvas.remove(loader);
-
-        // Load and add QR code if available
+        // Add QR code if available
         if (qrDataUrl) {
           const qrImg = await loadFabricImage(qrDataUrl);
-          
-          const qrCodeWidth = 100;
-          const qrCodeHeight = 100;
+
+          const qrCodeSize = 100;
           const padding = 5;
           const qrPositionX = 100;
           const qrPositionY = 100;
@@ -191,11 +184,13 @@ const TicketCanvas = (props) => {
           const qrBackground = new fabric.Rect({
             left: qrPositionX - padding,
             top: qrPositionY - padding,
-            width: qrCodeWidth + padding * 2,
-            height: qrCodeHeight + padding * 2,
+            width: qrCodeSize + padding * 2,
+            height: qrCodeSize + padding * 2,
             fill: 'white',
             selectable: false,
             evented: false,
+            rx: 5, // rounded corners
+            ry: 5
           });
 
           // Scale and position QR code
@@ -204,33 +199,38 @@ const TicketCanvas = (props) => {
             top: qrPositionY,
             selectable: false,
             evented: false,
-            scaleX: qrCodeWidth / qrImg.width,
-            scaleY: qrCodeHeight / qrImg.height,
+            scaleX: qrCodeSize / qrImg.width,
+            scaleY: qrCodeSize / qrImg.height,
           });
 
-          // Add ticket number below QR code
-          const ticketNumberText = new fabric.Text(`${ticketNumber || '1'}`, {
-            left: qrPositionX + 50,
-            top: qrPositionY + qrCodeHeight + 21,
-            fontSize: 16,
-            fontFamily: 'Arial',
-            originX: 'center',
-            textAlign: 'center',
-            fill: "#000",
-            selectable: false,
-            evented: false,
-          });
-          const radius = Math.max(ticketNumberText.width, ticketNumberText.height) / 2 + padding;
+          // Ticket number badge
+          const ticketNumStr = `${ticketNumber || '1'}`;
+          const badgeRadius = 15;
+          const badgeY = qrPositionY + qrCodeSize + 25;
+          const badgeX = qrPositionX + (qrCodeSize / 2); // Center below QR
 
           const ticketNumberBadge = new fabric.Circle({
-            left: ticketNumberText.left,
-            top: ticketNumberText.top + 9,
-            radius,
+            left: badgeX,
+            top: badgeY,
+            radius: badgeRadius,
             fill: '#fff',
             stroke: '#ddd',
             strokeWidth: 1,
             originX: 'center',
             originY: 'center',
+            selectable: false,
+            evented: false,
+          });
+
+          const ticketNumberText = new fabric.Text(ticketNumStr, {
+            left: badgeX,
+            top: badgeY,
+            fontSize: 16,
+            fontFamily: 'Arial',
+            originX: 'center',
+            originY: 'center',
+            textAlign: 'center',
+            fill: "#000",
             selectable: false,
             evented: false,
           });
@@ -241,7 +241,7 @@ const TicketCanvas = (props) => {
           canvas.add(ticketNumberText);
         }
 
-        // Conditionally show other ticket details
+        // Add details
         if (showDetails) {
           centerText(`${ticketName}` || 'Ticket Name', 16, 'Arial', canvas, 50);
           centerText(`${userName}` || 'User Name', 16, 'Arial', canvas, 190);
@@ -274,45 +274,41 @@ const TicketCanvas = (props) => {
           canvas.add(eventDateText, eventVenueText);
         }
 
-        // Final render
         canvas.renderAll();
+        setIsCanvasReady(true);
+
       } catch (error) {
         console.error('Error drawing canvas:', error);
-        canvas.remove(loader);
       }
     };
 
-    drawCanvas();
+    draw();
 
     return () => {
+      // Don't dispose immediately on dep change to prevent flickering if swift re-render
+      // But we must dispose eventually.
       if (fabricCanvasRef.current) {
         fabricCanvasRef.current.dispose();
-      }
-      if (imageUrl) {
-        URL.revokeObjectURL(imageUrl);
+        fabricCanvasRef.current = null;
       }
     };
-  }, [imageUrl, qrDataUrl, OrderId, ticketName, userName, address, time, date, photo, number, showDetails, ticketNumber]);
-
+  }, [imageUrl, qrDataUrl, showDetails, ticketName, userName, number, address, date, time, ticketNumber, centerText, loadFabricImage, textColor]);
 
   // Download functionality
   const downloadCanvas = () => {
     setLoading(true);
     try {
-      const canvas = canvasRef.current;
-      if (!canvas) throw new Error('Canvas not found');
+      const canvas = fabricCanvasRef.current; // Use fabric canvas ref
+      if (!canvas) throw new Error('Canvas not ready');
 
-      // Create a temporary canvas for safe export
-      const tempCanvas = document.createElement('canvas');
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
+      // Convert directly from fabric canvas
+      // multiplier can be used for higher quality
+      const dataURL = canvas.toDataURL({
+        format: 'jpeg',
+        quality: 0.9,
+        multiplier: 2
+      });
 
-      // Draw the fabric.js canvas content onto the temporary canvas
-      tempCtx.drawImage(canvas, 0, 0);
-
-      // Create the download link from the temporary canvas with JPG format
-      const dataURL = tempCanvas.toDataURL('image/jpeg', 0.9); // 0.9 is quality level (0-1)
       const link = document.createElement('a');
       link.href = dataURL;
       link.download = `ticket_${OrderId || 'event'}.jpg`;
@@ -325,35 +321,32 @@ const TicketCanvas = (props) => {
       setLoading(false);
     }
   };
+
   const printCanvas = () => {
     setLoading(true);
     try {
-      const canvas = canvasRef.current;
-      if (!canvas) throw new Error('Canvas not found');
+      const canvas = fabricCanvasRef.current;
+      if (!canvas) throw new Error('Canvas not ready');
 
-      // Create a temporary canvas for safe export
-      const tempCanvas = document.createElement('canvas');
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
+      const dataURL = canvas.toDataURL({
+        format: 'png',
+        multiplier: 1.5
+      });
 
-      // Draw the fabric.js canvas content onto the temporary canvas
-      tempCtx.drawImage(canvas, 0, 0);
-
-      // Create a new window for printing
       const printWindow = window.open('', '', 'width=800,height=600');
-
-      // Create an image element and set the canvas data URL as the source
       const printImage = new Image();
-      printImage.src = tempCanvas.toDataURL('image/png');
+      printImage.src = dataURL;
 
-      // Once the image is loaded, inject it into the print window and trigger the print
       printImage.onload = () => {
-        printWindow.document.body.innerHTML = '<h1>Ticket</h1>';
+        printWindow.document.write('<html><head><title>Print Ticket</title></head><body style="text-align:center;">');
         printWindow.document.body.appendChild(printImage);
-        printWindow.document.body.style.textAlign = 'center'; // Center the image
-        printWindow.print(); // Trigger the print dialog
-        printWindow.close(); // Close the print window after printing
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+          printWindow.print();
+          printWindow.close();
+        }, 250);
       };
 
     } catch (error) {
@@ -367,52 +360,34 @@ const TicketCanvas = (props) => {
   return (
     <>
       <div className="cnvs my-2">
-        {
-          loadingImage ?
-            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-              <Spinner animation="border" role="status">
-                <span className="sr-only">Loading...</span>
-              </Spinner>
-            </div>
-            :
-            <div style={{ display: 'flex', justifyContent: 'center', width: '100%'}}>
-              <canvas ref={canvasRef} />
-            </div>
-        }
+        <div style={{ display: 'flex', justifyContent: 'center', width: '100%', minHeight: '300px' }}>
+          <canvas ref={canvasRef} />
+        </div>
       </div>
-      {!loadingImage &&
-        <Row className="d-flex justify-content-center">
-          <Col xs={12} sm={6} className="d-flex justify-content-center mb-2">
-            <CustomBtn
-              buttonText={loading ? "Please Wait..." : "Download"}
-              icon={<ArrowBigDownDash size={14} />}
-              loading={loading}
-              className="flex-grow-1 btn-sm w-100"
-              HandleClick={downloadCanvas}
-              disabled={loading}
-            />
-            {showPrintButton &&
-              <Button
-                variant="secondary"
-                className="flex-grow-1 d-flex align-items-center justify-content-center gap-2"
-                onClick={printCanvas}
-              >
-                <span>Print</span>
-                <Printer size={18} />
-              </Button>
-            }
-          </Col>
-        </Row>
-      }
-      {/* Hidden QR Code Generator */}
-      <div ref={qrContainerRef} style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-        <QRCodeCanvas 
-          value={OrderId || ''} 
-          size={150} 
-          level="H" 
-          includeMargin={true}
-        />
-      </div>
+
+      <Row className="d-flex justify-content-center">
+        <Col xs={12} sm={6} className="d-flex justify-content-center mb-2">
+          <CustomBtn
+            buttonText={loading ? "Generating..." : "Download"}
+            icon={<ArrowBigDownDash size={14} />}
+            loading={loading || !isCanvasReady} // Disable if canvas not ready
+            className="flex-grow-1 btn-sm w-100"
+            HandleClick={downloadCanvas}
+            disabled={loading || !isCanvasReady}
+          />
+          {showPrintButton &&
+            <Button
+              variant="secondary"
+              className="flex-grow-1 d-flex align-items-center justify-content-center gap-2"
+              onClick={printCanvas}
+              disabled={loading || !isCanvasReady}
+            >
+              <span>Print</span>
+              <Printer size={18} />
+            </Button>
+          }
+        </Col>
+      </Row>
     </>
   );
 };
