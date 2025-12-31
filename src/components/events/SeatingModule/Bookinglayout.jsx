@@ -71,7 +71,6 @@ const BookingLayout = (props) => {
                 if (!isMounted) return;
 
                 const data = response?.data?.data;
-                console.log("data", data)
                 // Process the layout data
                 if (data.stage) {
                     setStage({

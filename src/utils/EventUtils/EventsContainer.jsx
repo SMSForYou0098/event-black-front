@@ -1,7 +1,7 @@
-import { useState, Fragment, memo, useEffect, useMemo } from "react";
+import { Fragment, memo, useMemo } from "react";
 import { Spinner, Alert, Placeholder } from "react-bootstrap";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { api } from "@/lib/axiosInterceptor";
 import { useMyContext } from "@/Context/MyContextProvider";
 import CardStyle from "@/components/cards/CardStyle";
 import ProductCard from "@/components/cards/ProductCard";
@@ -14,69 +14,41 @@ const EventsContainer = memo(({
   className = "recommended-block section-top-spacing streamit-block",
   loadingText = "Loading Events...",
   errorText = "Failed to load events. Please try again later.",
-  useReactQuery = false,
   queryKey = ['events'],
   queryFn = null,
   staleTime = 5 * 60 * 1000, // 5 minutes
   retry = 2,
   apiEndpoint = "events",
   isTopTenCard = false,
-  customFetchFunction = null
 }) => {
-  const { api, authToken, createSlug } = useMyContext();
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const { createSlug } = useMyContext();
 
-  // Memoized default fetch function
+  // Memoized default fetch function using axios interceptor
   const defaultFetchEvents = useMemo(() => async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const response = await axios.get(`${api}${apiEndpoint}`, {
-        headers: { Authorization: "Bearer " + authToken },
-      });
-
-      if (response.data.status) {
-        setEvents(response.data?.events || []);
+    const response = await api.get(apiEndpoint, {
+      params: {
+        fields: "id,name,thumbnail,eventMedia,city,organisation,event_key,house_full"
       }
-    } catch (error) {
-      console.error("Error fetching events:", error);
-      setError(true);
-    } finally {
-      setLoading(false);
+    });
+    if (response.data.status) {
+      return response.data?.events || [];
     }
-  }, [api, apiEndpoint, authToken]);
+    return [];
+  }, [apiEndpoint]);
 
   // React Query implementation
   const {
-    data: queryData = [],
-    isLoading: queryLoading,
-    isError: queryError
+    data: eventsList = [],
+    isLoading,
+    isError
   } = useQuery({
     queryKey,
-    queryFn: queryFn || (() => Promise.resolve([])),
+    queryFn: queryFn || defaultFetchEvents,
     staleTime,
     retry,
-    enabled: useReactQuery && !!queryFn
   });
-  // Effect for non-React Query approach
-  useEffect(() => {
-    if (!useReactQuery) {
-      if (customFetchFunction) {
-        customFetchFunction(setEvents, setLoading, setError);
-      } else {
-        defaultFetchEvents();
-      }
-    }
-  }, [useReactQuery, customFetchFunction, defaultFetchEvents]);
 
-  // Determine which data and states to use
-  const isLoading = useReactQuery ? queryLoading : loading;
-  const isError = useReactQuery ? queryError : error;
-  const eventsList = useReactQuery ? queryData : events;
-
-  // Enhanced loading state with both skeleton and spinner options
+  // Enhanced loading state with skeleton loader
   if (isLoading) {
     return (
       <div className={`${className}`} style={{
@@ -88,10 +60,12 @@ const EventsContainer = memo(({
       </div>
     );
   }
+
   // Show message when no events found
   if (!eventsList || eventsList.length === 0) {
     return null;
   }
+
   return (
     <Fragment>
       <SectionSlider title={title} list={eventsList} className={className}>

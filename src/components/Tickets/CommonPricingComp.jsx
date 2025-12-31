@@ -2,9 +2,9 @@ import React from "react";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { Badge } from "react-bootstrap";
 import CustomBadge from "../../utils/ProfileUtils/getBadgeClass";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, RiseOutlined } from "lucide-react";
 
-const CommonPricingComp = ({ currency, isSale, price, salePrice, soldOut, booking_not_open =false, fast_filling=false }) => {
+const CommonPricingComp = ({ currency, isSale, price, salePrice, soldOut, booking_not_open = false, fast_filling = false }) => {
   const { getCurrencySymbol } = useMyContext();
 
   const symbol =
@@ -60,7 +60,7 @@ const CommonPricingComp = ({ currency, isSale, price, salePrice, soldOut, bookin
           className="py-0 px-2 ms-2 d-inline-flex align-items-center"
           style={{ lineHeight: 2 }}
         >
-          <CheckCircle size={14} className="me-1" />
+          <RiseOutlined size={14} className="me-1" />
           <span className="small">Fast Filling</span>
         </CustomBadge>
       )}

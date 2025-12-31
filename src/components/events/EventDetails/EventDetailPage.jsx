@@ -13,7 +13,6 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
   // --- Data Processing ---
   const [startDate, endDate] = eventData?.date_range?.split(",") || [];
   const [showLoginModal, setShowLoginModal] = useState(false);
-
   useHeaderSimple({
     title: eventData?.name || "Event Details",
   });

@@ -28,18 +28,18 @@ export const useReverb = (channelName, eventName, callback) => {
 
         // Connection status listeners
         const handleConnected = () => {
-            console.log(`✅ Connected to Reverb`);
+            // console.log(`✅ Connected to Reverb`);
             setIsConnected(true);
             setError(null);
         };
 
         const handleDisconnected = () => {
-            console.log(`❌ Disconnected from Reverb`);
+            // console.log(`❌ Disconnected from Reverb`);
             setIsConnected(false);
         };
 
         const handleError = (err) => {
-            console.error(`❌ Reverb Error:`, err);
+            // console.error(`❌ Reverb Error:`, err);
             setError(err);
         };
 
@@ -48,16 +48,16 @@ export const useReverb = (channelName, eventName, callback) => {
         echo.connector.pusher.connection.bind('error', handleError);
 
         // Listen to the channel and event
-        console.log(`📡 Listening to channel: ${channelName}, event: ${eventName}`);
+        // console.log(`📡 Listening to channel: ${channelName}, event: ${eventName}`);
         const channel = echo.channel(channelName);
         channel.listen(eventName, (event) => {
-            console.log(`📨 Received event on ${channelName}:`, event);
+            // console.log(`📨 Received event on ${channelName}:`, event);
             callback(event);
         });
 
         // Cleanup on unmount
         return () => {
-            console.log(`🔌 Leaving channel: ${channelName}`);
+            // console.log(`🔌 Leaving channel: ${channelName}`);
             channel.stopListening(eventName);
             echo.leaveChannel(channelName);
             echo.connector.pusher.connection.unbind('connected', handleConnected);
@@ -154,13 +154,13 @@ export const useEventSeats = (eventId, callbacks = {}) => {
         const channelName = `event-seats.${eventId}`;
 
         const handleConnected = () => {
-            console.log(`✅ Connected to Reverb - Event Seats: ${channelName}`);
+            // console.log(`✅ Connected to Reverb - Event Seats: ${channelName}`);
             setIsConnected(true);
             setError(null);
         };
 
         const handleDisconnected = () => {
-            console.log(`❌ Disconnected from Reverb - Event Seats: ${channelName}`);
+            // console.log(`❌ Disconnected from Reverb - Event Seats: ${channelName}`);
             setIsConnected(false);
         };
 
@@ -179,7 +179,7 @@ export const useEventSeats = (eventId, callbacks = {}) => {
         // Listen to seat.updated event
         if (callbacks.onSeatUpdated) {
             channel.listen('.seat.updated', (event) => {
-                console.log(`🎫 Seat updated for event ${eventId}:`, event);
+                // console.log(`🎫 Seat updated for event ${eventId}:`, event);
                 callbacks.onSeatUpdated(event);
             });
         }
@@ -187,7 +187,7 @@ export const useEventSeats = (eventId, callbacks = {}) => {
         // Listen to seat.locked event
         if (callbacks.onSeatLocked) {
             channel.listen('.seat.locked', (event) => {
-                console.log(`🔒 Seat locked for event ${eventId}:`, event);
+                // console.log(`🔒 Seat locked for event ${eventId}:`, event);
                 callbacks.onSeatLocked(event);
             });
         }
@@ -195,7 +195,7 @@ export const useEventSeats = (eventId, callbacks = {}) => {
         // Listen to seat.unlocked event
         if (callbacks.onSeatUnlocked) {
             channel.listen('.seat.unlocked', (event) => {
-                console.log(`🔓 Seat unlocked for event ${eventId}:`, event);
+                // console.log(`🔓 Seat unlocked for event ${eventId}:`, event);
                 callbacks.onSeatUnlocked(event);
             });
         }
@@ -203,7 +203,7 @@ export const useEventSeats = (eventId, callbacks = {}) => {
         // Listen to seat.booked event
         if (callbacks.onSeatBooked) {
             channel.listen('.seat.booked', (event) => {
-                console.log(`✅ Seat booked for event ${eventId}:`, event);
+                // console.log(`✅ Seat booked for event ${eventId}:`, event);
                 callbacks.onSeatBooked(event);
             });
         }

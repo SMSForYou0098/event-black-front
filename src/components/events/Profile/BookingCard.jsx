@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Image, Button, Dropdown, Alert } from 'react-bootstrap';
+import { Image, Button, Dropdown, Alert, Row, Col, Container } from 'react-bootstrap';
 import {
   Film,
   Music,
@@ -21,6 +21,7 @@ import TicketModal from '../../../components/Tickets/TicketModal';
 import CustomBadge from '../../../utils/ProfileUtils/getBadgeClass';
 import CustomBtn from '../../../utils/CustomBtn';
 import CustomDrawer from '../../../utils/CustomDrawer';
+import { MobileOnly, TabletAndDesktop, DesktopOnly } from "@/utils/ResponsiveRenderer";
 
 // Constants moved outside component to prevent recreation
 const TYPE_CONFIG = {
@@ -150,35 +151,84 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
         </>
       )}
 
-      <div className="d-flex gap-2 mt-4">
+      <MobileOnly customClass="mt-4">
         <CustomBtn
           buttonText='Ok'
           variant="primary"
           size="sm"
-          className="flex-grow-1"
+          className="w-100"
           HandleClick={handleConfirmDownload}
         />
-
-
-      </div>
+      </MobileOnly>
+      <TabletAndDesktop customClass="mt-4">
+        <CustomBtn
+          buttonText='Ok'
+          variant="primary"
+          size="sm"
+          className=""
+          HandleClick={handleConfirmDownload}
+        />
+      </TabletAndDesktop>
     </div>
   ), [pendingDownloadType, handleConfirmDownload, handleCancelDownload]);
 
   return (
     <>
-      <div className={`d-flex align-items-stretch justify-content-between flex-column flex-md-row gap-3 ${compact ? 'p-3' : 'p-3 p-sm-4'} rounded custom-dark-content-bg rounded-4 h-100`}>
-        {/* Content Section */}
-        <div className="d-flex flex-grow-1 gap-2 gap-sm-3">
-          <Image
-            src={bookingData?.thumbnail}
-            alt={bookingData.ticket?.name}
-            width={imageDimensions.width}
-            height={imageDimensions.height}
-            className="rounded-3 flex-shrink-0"
-            style={{ objectFit: 'cover' }}
-            loading="lazy"
-          />
-          <div className="flex-grow-1 min-width-0">
+      <div className={`${compact ? 'p-3' : 'p-3 p-sm-4'} rounded custom-dark-content-bg rounded-4 h-100`}>
+        <Row className="g-3">
+          {/* Image and Button Column */}
+          <Col xs="auto" className="d-flex flex-column gap-2">
+            <Image
+              src={bookingData?.thumbnail}
+              alt={bookingData.ticket?.name}
+              width={imageDimensions.width}
+              height={imageDimensions.height}
+              className="rounded-3 flex-shrink-0"
+              style={{ objectFit: 'cover' }}
+              loading="lazy"
+            />
+
+            {/* Download Button Below Image */}
+            <Dropdown className="w-100">
+              <Dropdown.Toggle
+                as={Button}
+                variant="primary"
+                size="sm"
+                className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap w-100"
+                style={{
+                  background: 'var(--bs-primary)',
+                  border: 'none',
+                  lineHeight: 1.2,
+                }}
+                disabled={ticketType && ticketType.id === booking.id}
+              >
+                Download
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu align="end" className="custom-dropdown-menu">
+                <Dropdown.Item
+                  onClick={() => handleDownloadSelect('combine')}
+                  disabled={ticketType && ticketType.id === booking.id}
+                  className="custom-dropdown-item"
+                >
+                  Group QR
+                </Dropdown.Item>
+
+                {hasIndividualOption && (
+                  <Dropdown.Item
+                    onClick={() => handleDownloadSelect('individual')}
+                    disabled={ticketType && ticketType.id === booking.id}
+                    className="custom-dropdown-item"
+                  >
+                    Individual QR
+                  </Dropdown.Item>
+                )}
+              </Dropdown.Menu>
+            </Dropdown>
+          </Col>
+
+          {/* Content Column */}
+          <Col className="d-flex flex-column justify-content-start">
             <div className="d-flex align-items-center flex-wrap gap-1 gap-sm-2 mb-1">
               <TypeIcon type={bookingData.type} />
               <h6 className="mb-0 text-truncate" style={{ maxWidth: '100%' }}>
@@ -209,48 +259,8 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
               <IndianRupee size={14} className='text-warning me-1' />
               {bookingData.amount}
             </small>
-          </div>
-        </div>
-
-        {/* Button Section */}
-        <div className="d-flex align-items-center justify-content-end justify-content-md-center flex-shrink-0 mt-2 mt-md-0">
-          <Dropdown>
-            <Dropdown.Toggle
-              as={Button}
-              variant="primary"
-              size="sm"
-              className="iq-button fw-bold rounded-3 d-inline-flex align-items-center gap-2 text-nowrap"
-              style={{
-                background: 'var(--bs-primary)',
-                border: 'none',
-                lineHeight: 1.2,
-              }}
-              disabled={ticketType && ticketType.id === booking.id}
-            >
-              Download
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu align="end" className="custom-dropdown-menu">
-              <Dropdown.Item
-                onClick={() => handleDownloadSelect('combine')}
-                disabled={ticketType && ticketType.id === booking.id}
-                className="custom-dropdown-item"
-              >
-                Group QR
-              </Dropdown.Item>
-
-              {hasIndividualOption && (
-                <Dropdown.Item
-                  onClick={() => handleDownloadSelect('individual')}
-                  disabled={ticketType && ticketType.id === booking.id}
-                  className="custom-dropdown-item"
-                >
-                  Individual QR
-                </Dropdown.Item>
-              )}
-            </Dropdown.Menu>
-          </Dropdown>
-        </div>
+          </Col>
+        </Row>
       </div>
 
       {/* Custom Drawer for Download Information */}
@@ -269,7 +279,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
         ticketType={ticketType}
         ticketData={ticketData}
         isAccreditation={ticketData?.type === 'AccreditationBooking'}
-        showTicketDetails={ticketData?.type === 'AccreditationBooking'}
+        showTicketDetails={true}
         formatDateRange={formatDateRange}
       />
     </>

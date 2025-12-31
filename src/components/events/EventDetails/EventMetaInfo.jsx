@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Badge, Button, Col, Row } from "react-bootstrap";
+import { Badge, Button, Col, Row, Alert } from "react-bootstrap";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useRouter } from "next/router";
 import Image from "next/image";
@@ -9,12 +9,53 @@ import CustomDrawer from "../../../utils/CustomDrawer";
 import { CustomTooltip } from "../../../utils/CustomTooltip";
 import CustomBadge from "../../../utils/ProfileUtils/getBadgeClass";
 const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
-  const { setShowHeaderBookBtn, isMobile } = useMyContext();
+  const { setShowHeaderBookBtn, isMobile, formatDateDDMMYYYY } = useMyContext();
   const bookBtnRef = useRef(null);
   const [showOffcanvas, setShowOffcanvas] = useState(false);
   const router = useRouter();
+  console.log(eventData)
+  const isHouseFull = eventData?.eventControls?.house_full;
+  const isSoldOut = eventData?.eventControls?.is_sold_out;
+  const isPostponed = eventData?.eventControls?.is_postponed;
+  const isCancelled = eventData?.eventControls?.is_cancelled;
+  const expectedDate = eventData?.eventControls?.expected_date;
 
-  const isHouseFull = eventData?.eventControls?.house_full === 1;
+  // Determine the event status and button text
+  // Only house full has a stamp image, others just show text
+  const getEventStatus = () => {
+    if (isCancelled) return {
+      disabled: true,
+      text: 'Cancelled',
+      showStamp: false,
+      stampImage: null,
+      message: 'This event has been cancelled'
+      //  Refunds will be processed if applicable.'
+    };
+    if (isPostponed) return {
+      disabled: true,
+      text: 'Postponed',
+      showStamp: false,
+      stampImage: null,
+      message: 'This event has been postponed.'
+    };
+    if (isSoldOut) return {
+      disabled: true,
+      text: 'Sold Out',
+      showStamp: false,
+      stampImage: null,
+      message: 'All tickets for this event have been sold out.'
+    };
+    if (isHouseFull) return {
+      disabled: true,
+      text: 'Sold Out',
+      showStamp: true,
+      stampImage: '/assets/images/hfull.webp',
+      message: 'All tickets for this event have been sold out.'
+    };
+    return { disabled: false, text: 'Book', showStamp: false, stampImage: null, message: null };
+  };
+
+  const eventStatus = getEventStatus();
 
   const handleContinue = () => {
     // Continue logic here (e.g., navigate to checkout)
@@ -41,7 +82,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   }, [setShowHeaderBookBtn, isMobile]);
 
   const handleBookNow = () => {
-    if (isHouseFull) return; // Prevent booking if house full
+    if (eventStatus.disabled) return; // Prevent booking if event is not available
 
     // Check if booking_notice exists and is not empty/blank
     if (eventData?.booking_notice && eventData?.booking_notice?.trim() !== '') {
@@ -105,88 +146,117 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         {/* Desktop Button - only show on non-mobile */}
         <div className="d-none d-sm-block">
           <Row className="mt-4 mb-3">
-            <Col
-              sm="12"
-              className="d-flex justify-content-between align-items-center border-dashed rounded-3 position-relative"
-            >
-              {/* House Full Stamp for Desktop */}
-              {isHouseFull && (
-                <Image
-                  src="/assets/images/hfull.webp"
-                  alt="Fully booked"
-                  width={100}
-                  height={100}
-                  className="position-absolute top-50 end-0 translate-middle-y z-3"
-                  style={{
-                    transform: "translateY(-50%) rotate(-15deg)",
-                    marginRight: "120px",
-                    pointerEvents: "none",
-                    objectFit: "contain"
-                  }}
-                />
-              )}
-
-              <h4 className="price mt-3 mb-3 d-flex gap-2 align-items-center">
-                <div className="text-primary fs-5">Pricing :</div>
-                <span className="fw-bold d-flex align-items-center gap-2 fs-5">
-                  {(() => {
-                    let displayPrice = 0;
-                    let showSaleBadge = false;
-                    // If event is on sale and has a sale price
-                    if (eventData?.on_sale && eventData?.lowest_sale_price) {
-                      displayPrice = Number(eventData.lowest_sale_price);
-                      showSaleBadge = true;
-                    }
-                    // Otherwise use regular lowest ticket price
-
-                    else if (eventData?.lowest_ticket_price) {
-                      displayPrice = Number(eventData.lowest_ticket_price);
-                    }
-
-                    // Show "Free" if price is 0 or null
-                    if (!displayPrice || displayPrice === 0) return <span>Free</span>;
-
-                    return (
-                      <>
-                        ₹{displayPrice} <span className="fw-normal">Onwards</span>
-                        {showSaleBadge && <CustomBadge variant="outline-primary" className="ms-2">On Sale</CustomBadge>}
-                      </>
-                    );
-                  })()}
-                </span>
-              </h4>
-
-              <Button
-                ref={bookBtnRef}
-                size="sm"
-                className="fw-bold px-5 py-2 d-flex align-items-center rounded-3"
-                onClick={handleBookNow}
-                disabled={isHouseFull}
-                style={{
-                  height: "3rem",
-                  fontSize: "16px",
-                  opacity: isHouseFull ? 0.6 : 1,
-                  cursor: isHouseFull ? "not-allowed" : "pointer"
-                }}
+            {!eventStatus.disabled &&
+              <Col
+                sm="12"
+                className="d-flex justify-content-between align-items-center border-dashed rounded-3 position-relative"
               >
-                <span className="me-2">{isHouseFull ? "Sold Out" : "Book"}</span>
-                {!isHouseFull && <i className="fa-solid fa-arrow-right"></i>}
-              </Button>
-            </Col>
+                {/* Event Status Stamp for Desktop */}
+                {eventStatus.showStamp && (
+                  <Image
+                    src={eventStatus.stampImage}
+                    alt={eventStatus.text}
+                    width={100}
+                    height={100}
+                    className="position-absolute top-50 end-0 translate-middle-y z-3"
+                    style={{
+                      transform: "translateY(-50%) rotate(-15deg)",
+                      marginRight: "120px",
+                      pointerEvents: "none",
+                      objectFit: "contain"
+                    }}
+                  />
+                )}
+
+
+                <h4 className="price mt-3 mb-3 d-flex gap-2 align-items-center flex-wrap">
+
+                  <div className="text-primary fs-5">Pricing :</div>
+                  <span className="fw-bold d-flex align-items-center gap-2 fs-5">
+                    {(() => {
+                      let displayPrice = 0;
+                      let showSaleBadge = false;
+                      // If event is on sale and has a sale price
+                      if (eventData?.on_sale && eventData?.lowest_sale_price) {
+                        displayPrice = Number(eventData.lowest_sale_price);
+                        showSaleBadge = true;
+                      }
+                      // Otherwise use regular lowest ticket price
+
+                      else if (eventData?.lowest_ticket_price) {
+                        displayPrice = Number(eventData.lowest_ticket_price);
+                      }
+
+                      // Show "Free" if price is 0 or null
+                      if (!displayPrice || displayPrice === 0) return <span>Free</span>;
+
+                      return (
+                        <>
+                          ₹{displayPrice} <span className="fw-normal">Onwards</span>
+                          {showSaleBadge && <CustomBadge variant="outline-primary" className="ms-2">On Sale</CustomBadge>}
+                        </>
+                      );
+                    })()}
+                  </span>
+                </h4>
+
+                {/* Status Message Alert */}
+
+
+                <Button
+                  ref={bookBtnRef}
+                  size="sm"
+                  className="fw-bold px-5 py-2 d-flex align-items-center rounded-3"
+                  onClick={handleBookNow}
+                  disabled={eventStatus.disabled}
+                  style={{
+                    height: "3rem",
+                    fontSize: "16px",
+                    opacity: eventStatus.disabled ? 0.6 : 1,
+                    cursor: eventStatus.disabled ? "not-allowed" : "pointer"
+                  }}
+                >
+                  <span className="me-2">{eventStatus.text}</span>
+                  {!eventStatus.disabled && <i className="fa-solid fa-arrow-right"></i>}
+                </Button>
+              </Col>
+            }
           </Row>
         </div>
       </div>
-
+      {eventStatus.message && (
+        <Alert variant={isCancelled ? 'danger' : isPostponed ? 'warning' : 'info'} className="p-0 m-0">
+          <i className={`fa-solid ${isCancelled ? 'fa-circle-xmark' : isPostponed ? 'fa-clock' : 'fa-circle-info'} me-2`}></i>
+          {eventStatus.message}
+        </Alert>
+      )}
+      {isPostponed && expectedDate && (
+        <div className="text-warning mt-2 fw-medium">
+          {/* <i className="fa-solid fa-clock me-2"></i> */}
+          {/* The event is expected to be held on {new Date(expectedDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} */}
+          The event is expected to be held on {formatDateDDMMYYYY(expectedDate)}
+        </div>
+      )}
       {/* Mobile Sticky Button */}
       <div className="d-block d-sm-none">
+        {/* Status Message Alert for Mobile */}
+        {eventStatus.message && (
+          <div className="px-3 pb-3">
+            <Alert variant={isCancelled ? 'danger' : isPostponed ? 'warning' : 'info'} className="mb-0">
+              <i className={`fa-solid ${isCancelled ? 'fa-circle-xmark' : isPostponed ? 'fa-clock' : 'fa-circle-info'} me-2`}></i>
+              {eventStatus.message}
+            </Alert>
+          </div>
+        )}
+
         <BookingFooterLayout
           left={
             <span className="p-0 m-0 position-relative">
-              {/* House Full Stamp for Mobile */}
-              {isHouseFull && (
+              {/* Event Status Stamp for Mobile */}
+              {eventStatus.showStamp && (
                 <Image
-                  src="/assets/images/hfull.webp"
-                  alt="Fully booked"
+                  src={eventStatus.stampImage}
+                  alt={eventStatus.text}
                   width={60}
                   height={60}
                   className="position-absolute"
@@ -210,17 +280,17 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
           right={
             <Button
               onClick={handleBookNow}
-              disabled={isHouseFull}
+              disabled={eventStatus.disabled}
               className="btn btn-primary btn-lg px-3"
               style={{
                 fontSize: "16px",
                 fontWeight: "600",
-                opacity: isHouseFull ? 0.6 : 1,
-                cursor: isHouseFull ? "not-allowed" : "pointer"
+                opacity: eventStatus.disabled ? 0.6 : 1,
+                cursor: eventStatus.disabled ? "not-allowed" : "pointer"
               }}
             >
-              <span className="me-2">{isHouseFull ? "Sold Out" : "Book"}</span>
-              {!isHouseFull && <i className="fa-solid fa-arrow-right"></i>}
+              <span className="me-2">{eventStatus.text}</span>
+              {!eventStatus.disabled && <i className="fa-solid fa-arrow-right"></i>}
             </Button>
           }
         />

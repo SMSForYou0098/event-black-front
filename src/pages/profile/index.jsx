@@ -15,11 +15,11 @@ const UserProfile = () => {
   const { UserData } = useMyContext();
   const dispatch = useDispatch();
 
-  const requiredFields = ["id", "name", "number", "photo", "email"];
+  const requiredFields = ["photo",];
 
   // fetch user data
   const fetchUserData = async (id) => {
-    const res = await api.get(`/edit-user/${id}`, {
+    const res = await api.get(`/user/profile`, {
       params: { fields: requiredFields.join(",") },
     });
     return res.data;

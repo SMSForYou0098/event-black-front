@@ -22,7 +22,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
     const metaInfo = [
         {
             icon: "fa-regular fa-bookmark", // Category icon
-            value: eventData?.category?.title,
+            value: eventData?.Category?.title,
             valueClass: "fw-semibold",
         },
         {

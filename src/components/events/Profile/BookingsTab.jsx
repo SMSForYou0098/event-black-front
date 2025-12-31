@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Form, Button, Spinner, InputGroup, Modal, Row, Col } from 'react-bootstrap';
+import { Card, Form, Button, Spinner, InputGroup, Row, Col } from 'react-bootstrap';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-import { SearchIcon } from 'lucide-react';
+import { SearchIcon, X } from 'lucide-react';
 import { getUserBookingsPaginated } from '@/services/events';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useMyContext } from '@/Context/MyContextProvider';
@@ -30,7 +30,6 @@ const BookingsTab = () => {
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState([]);
-  const [showSearchModal, setShowSearchModal] = useState(false);
 
   // Debounce search term
   const debouncedSearch = useDebounce(searchTerm, DEBOUNCE_DELAY);
@@ -132,8 +131,6 @@ const BookingsTab = () => {
   const handleClearSearch = useCallback(() => setSearchTerm(''), []);
   const handleDateRangeChange = useCallback((dates) => setDateRange(dates || []), []);
   const handleClearDateRange = useCallback(() => setDateRange([]), []);
-  const openSearchModal = useCallback(() => setShowSearchModal(true), []);
-  const closeSearchModal = useCallback(() => setShowSearchModal(false), []);
 
   // Generate stable key for booking
   const makeBookingKey = useCallback((booking, idx) => {
@@ -148,30 +145,49 @@ const BookingsTab = () => {
   // Search controls
   const searchControls = useMemo(
     () => (
-      <div className="d-flex align-items-center justify-content-between gap-2 w-100">
-        <h6 className="mb-0">My Bookings</h6>
+      <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 w-100">
+        <h6 className="mb-0 text-nowrap">My Bookings</h6>
 
-        {/* Date Range Picker */}
-        <div style={{ minWidth: '200px', flexGrow: 1 }}>
-          <Flatpickr
-            value={dateRange}
-            options={FLATPICKR_OPTIONS}
-            placeholder="Select date range"
-            onChange={handleDateRangeChange}
-            className="form-control form-control-sm"
-          />
+        <div className="d-flex flex-column flex-sm-row gap-2 w-100 justify-content-end">
+          {/* Search Input */}
+          <div style={{ flexGrow: 1, maxWidth: '400px' }}>
+            <InputGroup size='sm'>
+              <InputGroup.Text className="border-end-0 bg-dark">
+                <SearchIcon size={16} className="text-light" />
+              </InputGroup.Text>
+              <Form.Control
+                type="text"
+                placeholder="Search bookings..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="border-0 shadow-none ps-0"
+              />
+              {searchTerm && (
+                <Button
+                  variant="outline-secondary"
+                  className="border-0 bg-dark"
+                  onClick={handleClearSearch}
+                >
+                  <X size={16} />
+                </Button>
+              )}
+            </InputGroup>
+          </div>
+
+          {/* Date Range Picker */}
+          <div style={{ minWidth: '220px' }}>
+            <Flatpickr
+              value={dateRange}
+              options={FLATPICKR_OPTIONS}
+              placeholder="Select date range"
+              onChange={handleDateRangeChange}
+              className="form-control form-control-sm"
+            />
+          </div>
         </div>
-
-        {/* Search Icon */}
-        <SearchIcon
-          size={20}
-          onClick={openSearchModal}
-          style={{ cursor: 'pointer' }}
-          aria-label="Open search"
-        />
       </div>
     ),
-    [dateRange, handleDateRangeChange, openSearchModal]
+    [dateRange, searchTerm, handleDateRangeChange, handleSearchChange, handleClearSearch]
   );
 
   // Loading state
@@ -208,40 +224,12 @@ const BookingsTab = () => {
 
   return (
     <GlassCard>
-      <Card.Header className="d-flex justify-content-between align-items-center flex-column flex-sm-row gap-2">
+      <Card.Header>
         {searchControls}
       </Card.Header>
 
       <Card.Body className="px-2 px-sm-4">
-        {/* Active Filters Display */}
-        {hasFilters && (
-          <div className="mb-3 d-flex flex-wrap gap-2">
-            {debouncedSearch && (
-              <span className="badge bg-primary d-inline-flex align-items-center gap-1">
-                Search: {debouncedSearch}
-                <button
-                  type="button"
-                  className="btn-close btn-close-white"
-                  style={{ fontSize: '0.6rem' }}
-                  onClick={handleClearSearch}
-                  aria-label="Clear search"
-                />
-              </span>
-            )}
-            {dateRange.length === 2 && (
-              <span className="badge bg-info d-inline-flex align-items-center gap-1">
-                Date: {formattedDateRange.startDate} to {formattedDateRange.endDate}
-                <button
-                  type="button"
-                  className="btn-close btn-close-white"
-                  style={{ fontSize: '0.6rem' }}
-                  onClick={handleClearDateRange}
-                  aria-label="Clear date range"
-                />
-              </span>
-            )}
-          </div>
-        )}
+
 
         {/* Empty State */}
         {isEmpty && (
@@ -292,41 +280,6 @@ const BookingsTab = () => {
           </>
         )}
       </Card.Body>
-
-      {/* Search Modal */}
-      <Modal show={showSearchModal} onHide={closeSearchModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Search Bookings</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <InputGroup>
-            <Form.Control
-              autoFocus
-              size="sm"
-              type="text"
-              placeholder="Search by event name, user name, or phone..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              aria-label="Search bookings"
-            />
-            {searchTerm && (
-              <Button
-                size="sm"
-                variant="outline-secondary"
-                onClick={handleClearSearch}
-                aria-label="Clear search"
-              >
-                ×
-              </Button>
-            )}
-          </InputGroup>
-          <div className="mt-2">
-            <small className="text-muted">
-              Search is debounced with {DEBOUNCE_DELAY}ms delay
-            </small>
-          </div>
-        </Modal.Body>
-      </Modal>
     </GlassCard>
   );
 };

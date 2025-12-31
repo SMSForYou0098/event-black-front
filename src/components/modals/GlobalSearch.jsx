@@ -1,58 +1,57 @@
 import { useMyContext } from '@/Context/MyContextProvider';
 import { api } from '@/lib/axiosInterceptor';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Modal, Form, ListGroup, Row, Col, Image, Badge } from 'react-bootstrap';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { Modal, Form, Badge, Image, ListGroup, InputGroup, Button, Card, Row, Col } from 'react-bootstrap';
+import { Search, X, Clock, TrendingUp, Calendar, MapPin, Tag } from 'lucide-react';
 
 const GlobalSearch = ({ show, handleShow }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState(['All']);
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [recentSearches, setRecentSearches] = useState([]);
   const router = useRouter();
+  const searchInputRef = useRef(null);
+  const resultsContainerRef = useRef(null);
+
   const tabs = ['All', 'Events', 'Sports', 'Movies', 'Activity'];
   const { createSlug } = useMyContext();
 
-  // Memoized trending items from API response
-  // const trendingItems = useMemo(() => {
-  //   return [
-  //     {
-  //       id: 33,
-  //       title: "Indroda Nature And Amusement Park",
-  //       category: "Amusement",
-  //       type: "event", // Added type to determine route
-  //       thumbnail: "http://192.168.0.112:8000/uploads/thumbnail/67ea728760f14_67d7fd2dcc91f_12222333.jpg"
-  //     },
-  //     {
-  //       id: 65,
-  //       title: "Music Fest 2025",
-  //       category: "Live Concert",
-  //       type: "event",
-  //       thumbnail: "https://cricket.getyourticket.in/uploads/thumbnail/683ac8f0670bd_avp.jpg"
-  //     },
-  //     {
-  //       id: 70,
-  //       title: "Navratri",
-  //       category: "Garba Night",
-  //       type: "event",
-  //       thumbnail: "https://cricket.getyourticket.in/uploads/thumbnail/688b2dfbc72ab_ff.jpg"
-  //     },
-  //     {
-  //       id: 73,
-  //       title: "Conference",
-  //       category: "Business Seminars",
-  //       type: "event",
-  //       thumbnail: "http://192.168.0.120:8000/uploads/thumbnail/6883682f3e737_Management (600 x 725 px).jpg"
-  //     }
-  //   ];
-  // }, []);
+  // Load recent searches from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('recentSearches');
+    if (saved) {
+      try {
+        setRecentSearches(JSON.parse(saved));
+      } catch (e) {
+        setRecentSearches([]);
+      }
+    }
+  }, []);
 
-  // Function to handle navigation based on item type
+  // Save to recent searches
+  const saveToRecentSearches = useCallback((item) => {
+    setRecentSearches(prev => {
+      const filtered = prev.filter(i => i.id !== item.id);
+      const updated = [item, ...filtered].slice(0, 5);
+      localStorage.setItem('recentSearches', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  // Clear recent searches
+  const clearRecentSearches = useCallback(() => {
+    setRecentSearches([]);
+    localStorage.removeItem('recentSearches');
+  }, []);
+
+  // Handle navigation
   const handleItemClick = useCallback((item) => {
-    // Close the modal first
+    saveToRecentSearches(item);
     handleShow();
 
-    // Determine the route based on item type or category
     const itemType = item?.type || item.category?.name?.toLowerCase() || 'event';
 
     switch (itemType) {
@@ -67,22 +66,15 @@ const GlobalSearch = ({ show, handleShow }) => {
       case 'activity':
         router.push(`/activities/${createSlug(item.title || item.name)}/${item.id}`);
         break;
-      case 'restaurant':
-      case 'dining':
-        router.push(`/dining/${createSlug(item.title || item.name)}/${item.id}`);
-        break;
-      case 'artist':
-        router.push(`/artists/${createSlug(item.title || item.name)}/${item.id}`);
-        break;
-      default: // Default to event route
+      default:
         router.push(`/events/${createSlug(item?.venue?.city || '')}/${createSlug(
           item?.organizer?.organisation || ''
         )}/${createSlug(item?.name || item?.title)}/${item?.event_key || item?.id}`);
         break;
     }
-  }, [router, createSlug, handleShow]);
+  }, [router, createSlug, handleShow, saveToRecentSearches]);
 
-  // Optimized search function with useCallback
+  // Search function
   const performSearch = useCallback(async (searchQuery, categories) => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
@@ -101,6 +93,7 @@ const GlobalSearch = ({ show, handleShow }) => {
       });
 
       setSearchResults(response.data?.data || []);
+      setSelectedIndex(0);
     } catch (error) {
       console.error('Search error:', error);
       setSearchResults([]);
@@ -109,185 +102,259 @@ const GlobalSearch = ({ show, handleShow }) => {
     }
   }, []);
 
-  // Optimized category toggle function
-  // const toggleCategory = useCallback((category) => {
-  //   setSelectedCategories(prev => {
-  //     if (category === 'All') {
-  //       return ['All'];
-  //     } else {
-  //       const withoutAll = prev.filter(cat => cat !== 'All');
-  //       const isSelected = prev.includes(category);
-
-  //       if (isSelected) {
-  //         const newSelected = withoutAll.filter(cat => cat !== category);
-  //         return newSelected.length > 0 ? newSelected : ['All'];
-  //       } else {
-  //         return [...withoutAll, category];
-  //       }
-  //     }
-  //   });
-  // }, []);
-
-  // Debounced search effect
+  // Debounced search
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       performSearch(searchTerm, selectedCategories);
-    }, 500);
+    }, 300);
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, selectedCategories, performSearch]);
 
-  // Reset search when modal is closed
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!show) return;
+
+      const resultsCount = searchResults.length;
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          setSelectedIndex(prev => (prev + 1) % resultsCount);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          setSelectedIndex(prev => (prev - 1 + resultsCount) % resultsCount);
+          break;
+        case 'Enter':
+          e.preventDefault();
+          if (searchResults[selectedIndex]) {
+            handleItemClick(searchResults[selectedIndex]);
+          }
+          break;
+        case 'Escape':
+          e.preventDefault();
+          handleShow();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [show, searchResults, selectedIndex, handleItemClick, handleShow]);
+
+  // Scroll selected item into view
+  useEffect(() => {
+    if (resultsContainerRef.current && searchResults.length > 0) {
+      const selectedElement = resultsContainerRef.current.children[selectedIndex];
+      if (selectedElement) {
+        selectedElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+  }, [selectedIndex, searchResults]);
+
+  // Reset on modal close
   useEffect(() => {
     if (!show) {
       setSearchTerm('');
       setSelectedCategories(['All']);
       setSearchResults([]);
+      setSelectedIndex(0);
+    } else {
+      setTimeout(() => searchInputRef.current?.focus(), 100);
     }
   }, [show]);
 
-  // Memoized search results display
-  const searchResultsDisplay = useMemo(() => {
-    if (isLoading) {
-      return (
-        <div className="text-center py-4">
-          <p>Searching...</p>
-        </div>
-      );
-    }
+  // Result Card Component
+  const ResultCard = useCallback(({ item, index, isSelected }) => (
+    <ListGroup.Item
+      action
+      active={isSelected}
+      onClick={() => handleItemClick(item)}
+      onMouseEnter={() => setSelectedIndex(index)}
+      className="border-0 bg-transparent"
+    >
+      <Row className="g-3 align-items-center">
+        <Col xs="auto">
+          {(item?.event_media?.thumbnail || item?.image) ? (
+            <Image
+              src={item?.event_media?.thumbnail || item?.image}
+              alt={item?.name || item?.title}
+              width={60}
+              height={60}
+              className="rounded"
+              style={{ objectFit: 'cover' }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          ) : (
+            <div className="bg-secondary bg-opacity-10 rounded d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px' }}>
+              <Tag size={24} className="text-secondary" />
+            </div>
+          )}
+        </Col>
 
-    // No input yet — show friendly empty state
-    if (!searchTerm.trim()) {
-      return (
-        <div className="text-center py-5">
-          <h6 className="mb-2">Search your events</h6>
-          <p className="text-muted mb-0" style={{ fontSize: '14px' }}>
-            Try keywords like <em>“music”</em>, <em>“navratri”</em>, <em>“cricket”</em>, or <em>“movies”</em>.
-          </p>
-        </div>
-      );
-    }
+        <Col>
+          <h6 className="mb-1 fw-semibold text-truncate">{item?.name || item?.title}</h6>
 
-    const itemsToShow = searchTerm && searchResults.length > 0 ? searchResults : [];
-
-    if (searchTerm && searchResults.length === 0) {
-      return (
-        <div className="text-center py-4">
-          <p className="text-muted">No items found matching your criteria.</p>
-        </div>
-      );
-    }
-
-    return (
-      <Row>
-        {itemsToShow.map((item) => (
-          <Col md={6} key={item.id} className="mb-3">
-            <ListGroup.Item
-              className="border-0 bg-transparent p-2 rounded hover-item"
-              style={{ cursor: 'pointer' }}
-              action
-              onClick={() => handleItemClick(item)}
-            >
-              <div className="d-flex align-items-center">
-                {(item?.event_media?.thumbnail || item?.image) && (
-                  <Image
-                    src={item?.event_media?.thumbnail || item?.image}
-                    alt={item?.name || item?.title}
-                    width={50}
-                    height={50}
-                    className="rounded me-3 flex-shrink-0"
-                    style={{ objectFit: 'cover' }}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                )}
-                <div className="flex-grow-1 min-width-0">
-                  <h6 className="mb-1 fw-bold text-truncate" style={{ fontSize: '15px' }}>
-                    {item?.name || item?.title}
-                  </h6>
-                  <small className="text-muted" style={{ fontSize: '13px' }}>
-                    {item?.category_datanew?.title || item?.category}
-                    {item?.type && ` • ${item.type}`}
-                  </small>
-                </div>
-              </div>
-            </ListGroup.Item>
-          </Col>
-        ))}
+          <div className="d-flex align-items-center gap-2 flex-wrap">
+            {item?.category_datanew?.title && (
+              <Badge bg="primary" className="text-uppercase" style={{ fontSize: '10px' }}>
+                {item.category_datanew.title}
+              </Badge>
+            )}
+            {item?.date_range && (
+              <small className="text-muted d-flex align-items-center gap-1">
+                <Calendar size={12} />
+                {item.date_range}
+              </small>
+            )}
+            {item?.venue?.city && (
+              <small className="text-muted d-flex align-items-center gap-1">
+                <MapPin size={12} />
+                {item.venue.city}
+              </small>
+            )}
+          </div>
+        </Col>
       </Row>
-    );
-  }, [isLoading, searchTerm, searchResults, handleItemClick]);
+    </ListGroup.Item>
+  ), [handleItemClick]);
+
+  // Loading Skeleton
+  const LoadingSkeleton = () => (
+    <div className="p-3">
+      {[1, 2, 3].map(i => (
+        <Card key={i} className="mb-2 bg-secondary bg-opacity-10 border-0">
+          <Card.Body>
+            <Row className="g-3">
+              <Col xs="auto">
+                <div className="bg-secondary bg-opacity-25 rounded" style={{ width: '60px', height: '60px' }}></div>
+              </Col>
+              <Col>
+                <div className="bg-secondary bg-opacity-25 rounded mb-2" style={{ height: '16px', width: '70%' }}></div>
+                <div className="bg-secondary bg-opacity-25 rounded" style={{ height: '12px', width: '50%' }}></div>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+      ))}
+    </div>
+  );
 
   return (
     <Modal
       show={show}
       onHide={handleShow}
-      size="lg"
       centered
-      className="trending-modal"
+      size="lg"
+      backdrop="static"
+      keyboard={false}
+      className="modern-search-modal"
     >
-      <Modal.Header className="border-0 pb-2">
-        <Modal.Title className="w-100">
-          <Form.Control
-            type="text"
-            placeholder="Search for your favorite events, movies, shows, and more..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="rounded-pill card-glassmorphism__input"
-            style={{ fontSize: '16px' }}
-            autoFocus
-          />
-        </Modal.Title>
+      <Modal.Header className="border-bottom border-secondary border-opacity-25 pb-3">
+        <div className="w-100">
+          <InputGroup className="bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25">
+            <InputGroup.Text className="bg-transparent border-0 text-muted">
+              <Search size={20} />
+            </InputGroup.Text>
+            <Form.Control
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search events, movies, shows..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="bg-transparent border-0 text-white shadow-none"
+              autoFocus
+            />
+            {searchTerm && (
+              <Button
+                variant="link"
+                className="text-muted text-decoration-none"
+                onClick={() => setSearchTerm('')}
+              >
+                <X size={18} />
+              </Button>
+            )}
+            <Button
+              variant="link"
+              className="text-muted text-decoration-none"
+              onClick={handleShow}
+            >
+              <Badge bg="secondary" className="text-white">Esc</Badge>
+            </Button>
+          </InputGroup>
+        </div>
       </Modal.Header>
 
-      <Modal.Body className="px-4 py-3">
-        {/* Category Filter Badges */}
-        {/* <div className="mb-4">
-          <h6 className="fw-bold mb-2">Filter by Category:</h6>
-          <div className="d-flex flex-wrap gap-2">
-            {tabs.map((category) => {
-              const isSelected = selectedCategories.includes(category);
-              return (
-                <Badge
-                  key={category}
-                  bg={isSelected ? 'primary' : 'light'}
-                  text={isSelected ? 'white' : 'dark'}
-                  className="px-3 py-2 rounded-pill cursor-pointer user-select-none"
-                  onClick={() => toggleCategory(category)}
-                  style={{
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    transform: isSelected ? 'scale(1.02)' : 'scale(1)'
-                  }}
-                >
-                  {category}
-                  {isSelected && category !== 'All' && (
-                    <span className="ms-1">×</span>
-                  )}
-                </Badge>
-              );
-            })}
+      <Modal.Body className="p-0" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : searchTerm && searchResults.length > 0 ? (
+          <>
+            <div className="px-3 py-2 border-bottom border-secondary border-opacity-25">
+              <small className="text-muted">
+                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
+              </small>
+            </div>
+            <ListGroup variant="flush" ref={resultsContainerRef}>
+              {searchResults.map((item, index) => (
+                <ResultCard
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  isSelected={index === selectedIndex}
+                />
+              ))}
+            </ListGroup>
+          </>
+        ) : searchTerm && !isLoading ? (
+          <div className="text-center py-5">
+            <Search size={48} className="text-muted mb-3" />
+            <h6 className="mb-2">No results found</h6>
+            <p className="text-muted small mb-0">Try different keywords or check your spelling</p>
           </div>
-        </div> */}
-
-        {/* Results Header */}
-        {/* <div className="mb-3">
-          <h5 className="fw-bold mb-3">
-            {searchTerm && searchResults.length > 0 
-              ? `Search Results for "${searchTerm}"` 
-              : 'Trending Now'
-            }
-          </h5>
-        </div> */}
-
-        {/* Search Results */}
-
-        <ListGroup variant="flush">
-          {searchResultsDisplay}
-        </ListGroup>
+        ) : recentSearches.length > 0 ? (
+          <div className="p-3">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <div className="d-flex align-items-center gap-2">
+                <Clock size={16} className="text-muted" />
+                <small className="fw-semibold text-muted">Recent Searches</small>
+              </div>
+              <Button
+                variant="link"
+                size="sm"
+                className="text-primary text-decoration-none p-0"
+                onClick={clearRecentSearches}
+              >
+                Clear all
+              </Button>
+            </div>
+            <ListGroup variant="flush">
+              {recentSearches.map((item, index) => (
+                <ResultCard
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  isSelected={false}
+                />
+              ))}
+            </ListGroup>
+          </div>
+        ) : (
+          <div className="text-center py-5">
+            <TrendingUp size={48} className="text-muted mb-3" />
+            <h6 className="mb-2">Start searching</h6>
+            <p className="text-muted small mb-3">Try searching for events, movies, or shows</p>
+            <div className="d-flex gap-2 justify-content-center">
+              <Badge bg="secondary">music</Badge>
+              <Badge bg="secondary">cricket</Badge>
+              <Badge bg="secondary">navratri</Badge>
+            </div>
+          </div>
+        )}
       </Modal.Body>
     </Modal>
   );

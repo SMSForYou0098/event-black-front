@@ -181,7 +181,7 @@ const Seat = memo(({
                 );
                 const img = new window.Image();
                 img.onload = () => {
-                    console.log('Clock icon loaded successfully');
+                    // console.log('Clock icon loaded successfully');
                     setClockIconImage(img);
                 };
                 img.onerror = (err) => {
@@ -430,7 +430,6 @@ const Row = memo(({ row, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave,
 Row.displayName = 'Row';
 
 const Section = memo(({ section, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave, currentUserId }) => {
-    console.log("Section", section);
     return (
         <Group x={section.x} y={section.y}>
             <Text

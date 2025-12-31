@@ -111,11 +111,27 @@ const HeaderDefault = memo(() => {
       setIsMega(location.asPath === "/");
     };
 
+    // Global keyboard shortcut for search (Ctrl+K or Cmd+K or /)
+    const handleKeyDown = (e) => {
+      // Ctrl+K or Cmd+K
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchShow(true);
+      }
+      // Forward slash (/) - only if not typing in an input
+      if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+        e.preventDefault();
+        setSearchShow(true);
+      }
+    };
+
     window.addEventListener("scroll", handleScroll);
+    window.addEventListener("keydown", handleKeyDown);
     updateIsMega();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [location]);
 
@@ -213,11 +229,11 @@ const HeaderDefault = memo(() => {
         >
           <Container fluid className="navbar-inner">
             <div className="d-flex align-items-center justify-content-between w-100 landing-header">
-                {/* <Logo size={150} /> */}
-                <Logo handleClick={()=>router.push('/')} height={40} width={70} />
-                {/* <L */}
+              {/* <Logo size={150} /> */}
+              <Logo handleClick={() => router.push('/')} height={40} width={70} />
+              {/* <L */}
               <div className="d-flex gap-3 gap-xl-0 align-items-center">
-                
+
                 {/* <Link href={"/"}>
                   <Image height={65} src={systemSetting?.auth_logo || ""} />
                 </Link> */}
@@ -303,21 +319,21 @@ const HeaderDefault = memo(() => {
                                 transition: "max-height 0.3s ease",
                               }}
                             >
-                              <Nav.Item as="li" key={displayedCategories.length+1}>
-                                  <Link
-                                    href={`/events`}
-                                    className={`nav-link ${location.pathname === `/events}` ? "active" : ""}`}
-                                    // onClick={() => handleNavigation(`/events/category/${category.value || category.id}`)}
-                                  >
-                                    All Events
-                                  </Link>
-                                </Nav.Item>
+                              <Nav.Item as="li" key={displayedCategories.length + 1}>
+                                <Link
+                                  href={`/events`}
+                                  className={`nav-link ${location.pathname === `/events}` ? "active" : ""}`}
+                                // onClick={() => handleNavigation(`/events/category/${category.value || category.id}`)}
+                                >
+                                  All Events
+                                </Link>
+                              </Nav.Item>
                               {displayedCategories.map((category) => (
                                 <Nav.Item as="li" key={category.value || category.id}>
                                   <Link
                                     href={`/events/category/${createSlug(category.label).toLowerCase()}?key=${category.value || category.id}`}
                                     className={`nav-link ${location.pathname === `/events/category/${category.value || category.id}` ? "active" : ""}`}
-                                    // onClick={() => handleNavigation(`/events/category/${category.value || category.id}`)}
+                                  // onClick={() => handleNavigation(`/events/category/${category.value || category.id}`)}
                                   >
                                     {category.label || category.name}
                                   </Link>
@@ -387,8 +403,8 @@ const HeaderDefault = memo(() => {
                   </Dropdown>
                 </div>
                 {isLoggedIn ? (
-                  <Dropdown 
-                    as="li" 
+                  <Dropdown
+                    as="li"
                     className=""
                     show={userDropdownOpen}
                     onToggle={(isOpen) => setUserDropdownOpen(isOpen)}
@@ -443,7 +459,7 @@ const HeaderDefault = memo(() => {
                 ) : (
                   <CustomBtn
                     // labelStyle={{ fontSize:"0.8rem !important"}}
-                    buttonText={!isMobile && <span style={{fontSize:"0.8rem"}}>Login</span>}
+                    buttonText={!isMobile && <span style={{ fontSize: "0.8rem" }}>Login</span>}
                     className={"btn-sm p-1 text-xs"}
                     icon={<Fingerprint size={16} />}
                     HandleClick={() => location.push("/auth/login")}
@@ -504,7 +520,7 @@ const HeaderDefault = memo(() => {
                   </span> */}
                   <MenuIcon size={20} />
                 </Button>
-              </div>   
+              </div>
             </div>
           </Container>
         </Navbar>

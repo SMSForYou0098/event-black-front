@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { Container, Row, Col, Table, Button } from "react-bootstrap";
+import { Container, Row, Col, Table, Button, Alert } from "react-bootstrap";
 
 // Components
 import { useMyContext } from "@/Context/MyContextProvider";
@@ -43,7 +43,7 @@ const CartPage = () => {
   // Lock seats mutation
   const lockSeatsMutation = useLockSeats({
     onSuccess: (data) => {
-      console.log('Seats locked successfully:', data);
+      // console.log('Seats locked successfully:', data);
       toast.success(data?.message)
     },
     onError: (error) => {
@@ -58,6 +58,45 @@ const CartPage = () => {
   useHeaderSimple({
     title: event?.name || "Event Details",
   });
+
+  // Event status checks
+  const isHouseFull = event?.eventControls?.house_full;
+  const isSoldOut = event?.eventControls?.is_sold_out;
+  const isPostponed = event?.eventControls?.is_postponed;
+  const isCancelled = event?.eventControls?.is_cancelled;
+  const expectedDate = event?.eventControls?.expected_date;
+
+  // Determine the event status and message
+  const getEventStatus = () => {
+    if (isCancelled) return {
+      disabled: true,
+      message: 'This event has been cancelled. Refunds will be processed if applicable.',
+      variant: 'danger',
+      icon: 'fa-circle-xmark'
+    };
+    if (isPostponed) return {
+      disabled: true,
+      message: 'This event has been postponed. Please check the expected date below.',
+      variant: 'warning',
+      icon: 'fa-clock'
+    };
+    if (isSoldOut) return {
+      disabled: true,
+      message: 'All tickets for this event have been sold out.',
+      variant: 'info',
+      icon: 'fa-circle-info'
+    };
+    if (isHouseFull) return {
+      disabled: true,
+      message: 'All tickets for this event have been sold out.',
+      variant: 'info',
+      icon: 'fa-circle-info'
+    };
+    return { disabled: false, message: null, variant: null, icon: null };
+  };
+
+  const eventStatus = getEventStatus();
+
   useEffect(() => {
     if (event) {
       setSeatingModule(event?.eventControls?.ticket_system)
@@ -94,6 +133,11 @@ const CartPage = () => {
     }
   };
   const handleProcess = async () => {
+    // Prevent proceeding if event is unavailable
+    if (eventStatus.disabled) {
+      return;
+    }
+
     const path = prepareRedirect();
     setPath(path);
     if (!isLoggedIn) {
@@ -310,23 +354,48 @@ const CartPage = () => {
         <Row>
           {/* Cart Items */}
           <Col lg="8">
-            {seatingModule ?
-              <BookingLayout
-                eventId={event?.id}
-                setSelectedTkts={setSelectedTickets}
-                layoutId={event?.EventHasLayout?.layout_id}
-                event={event}
-              />
-              :
-              <BookingTickets
-                cartItems={cartItems}
-                tax_data={event?.tax_data}
-                isMobile={isMobile}
-                selectedTickets={selectedTickets}
-                setSelectedTickets={setSelectedTickets}
-                event={event}
-              />
-            }
+            {/* Show loading skeleton while data is loading */}
+            {isLoading ? (
+              <BookingSummarySkeleton type={"tickets"} />
+            ) : eventStatus.disabled ? (
+              // Show message when event is unavailable
+              <div className="custom-dark-bg p-4 rounded-3 text-center">
+                <div className="py-5">
+                  <i className={`fa-solid ${eventStatus.icon} fa-3x mb-3 text-${eventStatus.variant === 'danger' ? 'danger' : eventStatus.variant === 'warning' ? 'warning' : 'info'}`}></i>
+                  <h5 className="mb-2">Event {eventStatus.text}</h5>
+                  <p className="text-muted mb-0">
+                    {eventStatus.message}
+                  </p>
+                  {isPostponed && expectedDate && (
+                    <div className="mt-3">
+                      <i className="fa-regular fa-calendar me-1"></i>
+                      <strong>Expected Date:</strong> {new Date(expectedDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              // Show tickets/seating layout when event is available
+              <>
+                {seatingModule ?
+                  <BookingLayout
+                    eventId={event?.id}
+                    setSelectedTkts={setSelectedTickets}
+                    layoutId={event?.EventHasLayout?.layout_id}
+                    event={event}
+                  />
+                  :
+                  <BookingTickets
+                    cartItems={cartItems}
+                    tax_data={event?.tax_data}
+                    isMobile={isMobile}
+                    selectedTickets={selectedTickets}
+                    setSelectedTickets={setSelectedTickets}
+                    event={event}
+                  />
+                }
+              </>
+            )}
           </Col>
 
           {/* Cart Totals */}
@@ -381,6 +450,7 @@ const CartPage = () => {
                 <div className="d-none d-sm-block">
                   <CustomBtn
                     disabled={
+                      eventStatus.disabled ||
                       !selectedTickets?.quantity ||
                       parseInt(selectedTickets.quantity) === 0
                     }

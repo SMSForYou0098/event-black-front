@@ -23,8 +23,10 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useMyContext } from "@/Context/MyContextProvider";
-import TicketCanvas from "@/components/events/Tickets/Ticket_canvas";
+import TicketCanvasView from "@/components/events/Tickets/TicketCanvasView";
 import { publicApi } from "@/lib/axiosInterceptor";
+import { ArrowBigDownDash } from "lucide-react";
+import CustomBtn from "@/utils/CustomBtn";
 
 // API fetch functions
 const fetchToken = async (orderId) => {
@@ -77,6 +79,12 @@ const UserCard = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [cardImageUrl, setCardImageUrl] = useState(null);
 
+  // Canvas refs for download functionality
+  const singleCanvasRef = useRef(null);
+  const swiperCanvasRefs = useRef({});
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [isCanvasReady, setIsCanvasReady] = useState(false);
+
   // Query 1: Fetch token from orderId
   const {
     data: tokenData,
@@ -93,7 +101,6 @@ const UserCard = () => {
 
   const authToken = tokenData?.token;
   const disableCombineButton = tokenData?.group; // "group" field from API determines if combined is allowed
-
   // Query 2: Fetch gan card data using token
   const {
     data: ticketData,
@@ -474,15 +481,15 @@ const UserCard = () => {
                 <div className="d-flex align-items-center justify-content-center mt-0 mb-0 pt-0 py-4">
                   <div>
                     {drawerType === 'combine' ? (
-                      <p className="text-danger mb-0" style={{ fontSize: '1.2rem', lineHeight: '1.6', }}>
+                      <p className="text-white mb-0">
                         If everyone is coming together, choose Combined Ticket. Only one QR code will be scanned for the whole group — it saves time at the entry gate!
                       </p>
                     ) : drawerType === 'single' ? (
-                      <p className="text-danger mb-0" style={{ fontSize: '1.2rem', lineHeight: '1.6', padding: '0 1rem' }}>
+                      <p className="text-white mb-0">
                         Your ticket is ready to download. Use the QR code at the entry gate for quick access.
                       </p>
                     ) : (
-                      <p className="text-danger mb-0" style={{ fontSize: '1.2rem', lineHeight: '1.6', padding: '0 1rem' }}>
+                      <p className="text-white mb-0">
                         If people are arriving separately, choose Individual Ticket, so each person gets their own QR code.
                       </p>
                     )}
@@ -502,77 +509,108 @@ const UserCard = () => {
                 </div>
               ) : (
                 // Ticket Display in Drawer
-                <div className="flex-grow-1 d-flex align-items-center justify-content-center p-2 bg-black rounded" style={{ overflow: 'auto' }}>
-                  {drawerType === 'combine' || drawerType === 'single' ? (
-                    <div className="text-center w-100">
-                      {imageLoaded ? (
-                        <div className="d-flex flex-column align-items-center">
-                          <TicketCanvas
-                            showDetails={false}
-                            group={drawerType === 'single' ? false : true}
-                            ticketName={ticketData?.ticket?.name || "Event Ticket"}
-                            userName={ticketData?.users?.name || "Guest"}
-                            number={ticketData?.users?.number || "N/A"}
-                            address={ticketData?.event?.address || "Venue not specified"}
-                            ticketBG={cardImageUrl}
-                            preloadedImage={true}
-                            date={formattedDate}
-                            time={timeString}
-                            photo={null}
-                            OrderId={drawerType === 'single' && ticketData?.data?.[0]?.token ? ticketData.data[0].token : orderId}
-                            showPrintButton={false}
-                            ticketNumber={drawerType === 'single' ? 1 : undefined}
-                          />
-                        </div>
-                      ) : (
-                        <div className="text-center py-5">
-                          <Image src={imgLoader} alt="Loading..." width={100} height={100} unoptimized />
-                          <p className="text-white mt-2">Loading image...</p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    ticketData?.data?.length > 0 && (
-                      <Swiper
-                        modules={[Navigation, Pagination]}
-                        spaceBetween={20}
-                        slidesPerView={1}
-                        navigation
-                        pagination={{ clickable: true }}
-                        style={{ paddingBottom: "40px" }}
-                      >
-                        {ticketData?.data?.map((item, index) => (
-                          <SwiperSlide key={item.token}>
-                            <div className="text-center w-100 d-flex justify-content-center" id={`ticket-${item.token}`}>
-                              {imageLoaded ? (
-                                <TicketCanvas
-                                  showDetails={false}
-                                  ticketName={ticketData?.ticket?.name || "Event Ticket"}
-                                  userName={ticketData?.users?.name || "Guest"}
-                                  number={ticketData?.users?.number || "N/A"}
-                                  address={ticketData?.event?.address || "Venue not specified"}
-                                  ticketBG={cardImageUrl}
-                                  preloadedImage={true}
-                                  date={formattedDate}
-                                  time={timeString}
-                                  photo={null}
-                                  OrderId={item.token}
-                                  showPrintButton={false}
-                                  group={false}
-                                  ticketNumber={index + 1}
-                                />
-                              ) : (
-                                <div className="text-center py-5">
-                                  <Image src={imgLoader} alt="Loading..." width={100} height={100} unoptimized />
-                                  <p className="text-white mt-2">Loading image...</p>
-                                </div>
-                              )}
-                            </div>
-                          </SwiperSlide>
-                        ))}
-                      </Swiper>
-                    )
-                  )}
+                <div className="d-flex flex-column h-100">
+                  <div className="flex-grow-1 d-flex align-items-center justify-content-center p-2 bg-black rounded" style={{ overflow: 'auto', marginBottom: '80px' }}>
+                    {drawerType === 'combine' || drawerType === 'single' ? (
+                      <div className="text-center w-100">
+                        {imageLoaded ? (
+                          <div className="d-flex flex-column align-items-center">
+                            <TicketCanvasView
+                              ref={singleCanvasRef}
+                              showDetails={false}
+                              ticketName={ticketData?.ticket?.name || "Event Ticket"}
+                              userName={ticketData?.users?.name || "Guest"}
+                              number={ticketData?.users?.number || "N/A"}
+                              address={ticketData?.event?.address || "Venue not specified"}
+                              ticketBG={cardImageUrl}
+                              preloadedImage={true}
+                              date={formattedDate}
+                              time={timeString}
+                              photo={null}
+                              OrderId={drawerType === 'single' && ticketData?.data?.[0]?.token ? ticketData.data[0].token : orderId}
+                              ticketNumber={drawerType === 'single' ? 1 : undefined}
+                              onReady={() => setIsCanvasReady(true)}
+                            />
+                          </div>
+                        ) : (
+                          <div className="text-center py-5">
+                            <Image src={imgLoader} alt="Loading..." width={100} height={100} unoptimized />
+                            <p className="text-white mt-2">Loading image...</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      ticketData?.data?.length > 0 && (
+                        <Swiper
+                          modules={[Navigation, Pagination]}
+                          spaceBetween={20}
+                          slidesPerView={1}
+                          navigation
+                          pagination={{ clickable: true }}
+                          style={{ paddingBottom: "40px" }}
+                          onSlideChange={(swiper) => setActiveSlideIndex(swiper.activeIndex)}
+                        >
+                          {ticketData?.data?.map((item, index) => (
+                            <SwiperSlide key={item.token}>
+                              <div className="text-center w-100 d-flex justify-content-center" id={`ticket-${item.token}`}>
+                                {imageLoaded ? (
+                                  <TicketCanvasView
+                                    ref={(el) => { swiperCanvasRefs.current[index] = el; }}
+                                    showDetails={false}
+                                    ticketName={ticketData?.ticket?.name || "Event Ticket"}
+                                    userName={ticketData?.users?.name || "Guest"}
+                                    number={ticketData?.users?.number || "N/A"}
+                                    address={ticketData?.event?.address || "Venue not specified"}
+                                    ticketBG={cardImageUrl}
+                                    preloadedImage={true}
+                                    date={formattedDate}
+                                    time={timeString}
+                                    photo={null}
+                                    OrderId={item.token}
+                                    ticketNumber={index + 1}
+                                    onReady={() => setIsCanvasReady(true)}
+                                  />
+                                ) : (
+                                  <div className="text-center py-5">
+                                    <Image src={imgLoader} alt="Loading..." width={100} height={100} unoptimized />
+                                    <p className="text-white mt-2">Loading image...</p>
+                                  </div>
+                                )}
+                              </div>
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
+                      )
+                    )}
+                  </div>
+
+                  {/* Fixed Download Button at Bottom */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      padding: '1rem',
+                      background: 'linear-gradient(transparent, rgba(0,0,0,0.9))',
+                      borderTop: '1px solid rgba(255,255,255,0.1)'
+                    }}
+                  >
+                    <CustomBtn
+                      buttonText={"Download"}
+                      icon={<ArrowBigDownDash size={18} />}
+                      loading={!isCanvasReady}
+                      className="w-100"
+                      HandleClick={() => {
+                        if (drawerType === 'combine' || drawerType === 'single') {
+                          singleCanvasRef.current?.download();
+                        } else {
+                          swiperCanvasRefs.current[activeSlideIndex]?.download();
+                        }
+                      }}
+                      disabled={!isCanvasReady}
+                    />
+                  </div>
                 </div>
               )}
             </div>

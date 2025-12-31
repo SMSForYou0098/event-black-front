@@ -4,14 +4,14 @@ import { saveAs } from "file-saver";
 import { Button, Row, Col, Spinner, Alert } from "react-bootstrap";
 import TicketCanvasZip from "./TicketCanvasZip";
 import { BsFileZip } from "react-icons/bs";
-import axios from "axios";
+import { api } from '@/lib/axiosInterceptor';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
 import { Loader } from "lucide-react";
 // import LoaderComp from "../../CustomUtils/LoaderComp";
 
 const TicketCanvasBatch = (props) => {
   const { ticketData } = props;
-  const { api, formatDateRange, convertTo12HourFormat, isMobile } =
+  const { formatDateRange, convertTo12HourFormat, isMobile } =
     useMyContext();
 
   // Create refs for each canvas
@@ -106,8 +106,8 @@ const TicketCanvasBatch = (props) => {
     try {
       setIsLoading(true);
       setLoadError(null);
-      const response = await axios.post(
-        `${api}get-image/retrive`,
+      const response = await api.post(
+        'get-image/retrive',
         { path: ticketBG },
         { responseType: "blob" }
       );
@@ -213,9 +213,9 @@ const TicketCanvasBatch = (props) => {
                     date={
                       formatDateRange(
                         ticketData?.booking_date ||
-                          booking?.booking_date ||
-                          ticketData?.ticket?.event?.date_range ||
-                          booking?.ticket?.event?.date_range
+                        booking?.booking_date ||
+                        ticketData?.ticket?.event?.date_range ||
+                        booking?.ticket?.event?.date_range
                       ) || "Date Not Available"
                     }
                     city={booking?.ticket?.event?.city || "City"}

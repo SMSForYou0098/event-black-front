@@ -31,11 +31,11 @@ if (typeof window !== 'undefined') {
 
     // Log connection status
     echo.connector.pusher.connection.bind('connected', () => {
-        console.log('✅ Reverb WebSocket Connected');
+        // console.log('✅ Reverb WebSocket Connected');
     });
 
     echo.connector.pusher.connection.bind('disconnected', () => {
-        console.log('❌ Reverb WebSocket Disconnected');
+        // console.log('❌ Reverb WebSocket Disconnected');
     });
 
     echo.connector.pusher.connection.bind('error', (error) => {

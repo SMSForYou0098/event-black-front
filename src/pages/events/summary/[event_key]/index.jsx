@@ -186,7 +186,7 @@ const BookingSummary = () => {
                 ticketType={ticketType}
                 ticketData={booking}
                 isAccreditation={booking?.type === 'AccreditationBooking'}
-                showTicketDetails={booking?.type === 'AccreditationBooking'}
+                showTicketDetails={true}
                 formatDateRange={formatDateRange}
             />
             <Container className="">

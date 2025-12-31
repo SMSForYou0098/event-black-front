@@ -41,11 +41,11 @@ const EventSeatsListener = ({ eventId, sections, setSections, selectedSeats, set
 
         // Listen to seat status updates
         channel.listen('.seat.status.updated', (data) => {
-            console.log('📡 Seat update received:', data);
-            console.log('🔍 Triggering user ID:', data.triggeringUserId, 'My ID:', currentUserId);
+            // console.log('📡 Seat update received:', data);
+            // console.log('🔍 Triggering user ID:', data.triggeringUserId, 'My ID:', currentUserId);
 
             if (Number(data.triggeringUserId) === Number(currentUserId)) {
-                console.log("Ignoring update triggered by me");
+                // console.log("Ignoring update triggered by me");
                 return;
             }
 
@@ -60,7 +60,7 @@ const EventSeatsListener = ({ eventId, sections, setSections, selectedSeats, set
                 return idStr.startsWith('seat_') ? idStr : `seat_${idStr}`;
             });
 
-            console.log('🔍 Seat IDs from socket:', seatIds, 'Status:', data.status);
+            // console.log('🔍 Seat IDs from socket:', seatIds, 'Status:', data.status);
 
             // Check if any of the locked seats are in current user's selection
             if ((data.status === 'locked' || data.status === 'hold' || data.status === 'booked') && selectedSeats?.seats && setSelectedSeats) {
@@ -175,7 +175,7 @@ const EventSeatsListener = ({ eventId, sections, setSections, selectedSeats, set
                 );
             }
 
-            console.log(`✅ Updated ${seatIds.length} seat(s) to status: ${data.status}`);
+            // console.log(`✅ Updated ${seatIds.length} seat(s) to status: ${data.status}`);
         });
 
         channelRef.current = channel;
@@ -183,7 +183,7 @@ const EventSeatsListener = ({ eventId, sections, setSections, selectedSeats, set
         // Cleanup
         return () => {
             if (channelRef.current) {
-                console.log(`🔌 Leaving event-seats channel: ${channelName}`);
+                // console.log(`🔌 Leaving event-seats channel: ${channelName}`);
                 channelRef.current.stopListening('.seat.status.updated');
                 echo.leaveChannel(channelName);
                 channelRef.current = null;

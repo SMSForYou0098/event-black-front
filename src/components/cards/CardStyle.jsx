@@ -70,9 +70,6 @@ const CardStyle = memo((props) => {
 
   const imageSrc = getImageSrc(rawImage);
 
-  console.log("raw props.image:", rawImage);
-  console.log("normalized imageSrc:", imageSrc);
-
   return (
     <Fragment>
       <div className="iq-top-ten-block">

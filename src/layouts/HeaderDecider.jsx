@@ -19,7 +19,7 @@ const HeaderDecider = () => {
 
     // Check if current route should show menu
     const shouldShowDefaultMenu = defaultHeaderRoutes.includes(router.pathname);
-    console.log(shouldShowDefaultMenu , router.pathname);
+    // console.log(shouldShowDefaultMenu , router.pathname);
     if (shouldShowDefaultMenu) {
         return (
             <div>

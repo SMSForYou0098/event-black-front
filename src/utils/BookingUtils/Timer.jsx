@@ -4,7 +4,7 @@ import { Modal, Button } from 'react-bootstrap';
 import { CustomHeader } from '../ModalUtils/CustomModalHeader';
 import CustomBtn from '../CustomBtn';
 import { useRouter } from 'next/router';
-const Timer = ({ timestamp, onExpire , navigateOnExpire }) => {
+const Timer = ({ timestamp, onExpire, navigateOnExpire }) => {
     const [timeLeft, setTimeLeft] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [hasExpired, setHasExpired] = useState(false);
@@ -32,7 +32,7 @@ const Timer = ({ timestamp, onExpire , navigateOnExpire }) => {
             if (timeDiff > tenMinutesInMs) {
                 setShowModal(true);
                 if (!hasExpired && onExpire) {
-                    console.log('⏰ Timer expired - calling onExpire callback');
+                    // console.log('⏰ Timer expired - calling onExpire callback');
                     setHasExpired(true);
                     onExpire();
                 }
@@ -139,7 +139,7 @@ const Timer = ({ timestamp, onExpire , navigateOnExpire }) => {
                     <CustomBtn
                         HandleClick={handleCloseModal}
                         className="px-4"
-                        icon={<Ticket size={16}/>}
+                        icon={<Ticket size={16} />}
                         buttonText="Go Cart"
                     />
                 </Modal.Footer>
