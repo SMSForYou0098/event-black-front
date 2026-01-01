@@ -225,10 +225,23 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         </div>
       </div>
       {eventStatus.message && (
-        <Alert variant={isCancelled ? 'danger' : isPostponed ? 'warning' : 'info'} className="p-0 m-0">
-          <i className={`fa-solid ${isCancelled ? 'fa-circle-xmark' : isPostponed ? 'fa-clock' : 'fa-circle-info'} me-2`}></i>
-          {eventStatus.message}
-        </Alert>
+        <Row>
+          <Col>
+            <Alert variant={isCancelled ? 'danger' : isPostponed ? 'warning' : 'info'} className="p-0 m-0">
+              <i className={`fa-solid ${isCancelled ? 'fa-circle-xmark' : isPostponed ? 'fa-clock' : 'fa-circle-info'} me-2`}></i>
+              {eventStatus.message}
+            </Alert>
+          </Col>
+          <Col>
+            <Button
+              size="sm"
+              className="fw-bold px-5 py-2 d-flex align-items-center rounded-3"
+              onClick={() => router.push('/events')}
+            >
+              View More Events
+            </Button>
+          </Col>
+        </Row>
       )}
       {isPostponed && expectedDate && (
         <div className="text-warning mt-2 fw-medium">

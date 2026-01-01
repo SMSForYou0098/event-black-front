@@ -128,7 +128,7 @@ const VerifyPassword = memo(() => {
         <Link href="/auth/login" className="text-primary fw-bold d-flex align-items-center">
           <ChevronLeft /> Back to Login
         </Link>
-        <Link href="/auth/lost-password" passHref className="fw-bold">
+        <Link href={`/auth/lost-password?email=${data}`} passHref className="fw-bold">
           Forgot Password?
         </Link>
       </div>

@@ -160,14 +160,14 @@ const Login = () => {
         }
       }
     } catch (err) {
-      if (err.response?.data?.status === false) {
+      if (err?.response?.data?.meta === 404) {
         router.push({
           pathname: "/auth/sign-up",
           query: { data: formData.email },
         });
       } else {
         setError(
-          err.response?.data?.message || "An unexpected error occurred."
+          err.response?.data?.message || err.response?.data?.error || "An unexpected error occurred."
         );
         // Set validated to true only when there's an actual error
         setValidated(true);
@@ -208,7 +208,7 @@ const Login = () => {
                 shake={shake}
                 onShakeComplete={() => setShake(false)}
                 type="submit"
-                icon={<ChevronRight/>}
+                icon={<ChevronRight />}
                 disabled={isSubmitting || loading}
                 buttonText={isSubmitting || loading ? "Processing..." : "Sign In"}
                 className="w-100 btn-sm"
