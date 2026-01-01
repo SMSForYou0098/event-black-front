@@ -26,7 +26,7 @@ const ProfileHeader = ({ user = {}, onEditClick, onAvatarUpload, loading }) => {
     )}`;
 
   return (
-    <div
+    <Container
       className="profile-header-bar position-relative"
       style={{
         background: '#151415',
@@ -140,7 +140,7 @@ const ProfileHeader = ({ user = {}, onEditClick, onAvatarUpload, loading }) => {
 
                 <div className="text-muted small mt-1">{user?.email || '-'}</div>
                 <div className="text-muted small">{user?.username || user?.number || ''}</div>
-                <Link  href='/my-bookings'>View My Bookings</Link>
+                <Link href='/my-bookings'>View My Bookings</Link>
               </div>
             </div>
           </Col>
@@ -165,7 +165,7 @@ const ProfileHeader = ({ user = {}, onEditClick, onAvatarUpload, loading }) => {
           </Col>
         </Row>
       </Container>
-    </div>
+    </Container>
   );
 };
 

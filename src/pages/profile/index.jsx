@@ -56,7 +56,12 @@ const UserProfile = () => {
 
   const updateMutation = useMutation({
     mutationFn: updateUserData,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Only update specific profile fields in Redux store
+      if (data?.user) {
+        const { name, email, number, photo } = data.user;
+        dispatch(updateUser({ name, email, number, photo }));
+      }
       refetch();
       toast.success("Profile updated");
       handleCloseEdit();
@@ -126,13 +131,14 @@ const UserProfile = () => {
       <UserProfileModal
         isEditing={isEditing}
         formValues={formValues}
+        originalValues={{ name: profile?.name || "", email: profile?.email || "" }}
         handleChange={handleChange}
         handleCloseEdit={handleCloseEdit}
         handleEditSubmit={handleEditSubmit}
         updateMutation={updateMutation}
       />
 
-      <Container className="pb-5">
+      <Container className="p-0 pb-5">
         <SupportOptions />
       </Container>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { HomeIcon, LayoutDashboard, MenuIcon, Telescope, TicketIcon, UserIcon } from "lucide-react";
 import { Button, Col, Container, Nav, Offcanvas, Row } from "react-bootstrap";
@@ -76,8 +76,29 @@ export const AnimatedButton = ({ onClick, Icon, text, animation, isActive }) => 
 const MobileBottomMenu = ({ hideMenu = false }) => {
   const { UserData } = useMyContext();
   const [show, setShow] = useState(false);
-  const [activeButton, setActiveButton] = useState("home");
   const router = useRouter();
+
+  // Normalize path helper
+  const normalizePath = (p = "") => {
+    const clean = p.split("?")[0].split("#")[0];
+    return clean.endsWith("/") && clean.length > 1 ? clean.slice(0, -1) : clean;
+  };
+
+  const rawPath =
+    typeof window !== "undefined" ? router.asPath : router.pathname;
+  const currentPath = normalizePath(rawPath);
+
+  // Derive active button from current path
+  const activeButton = useMemo(() => {
+    const pathToButton = {
+      "/": "home",
+      "/events": "events",
+      "/events/offers": "offers",
+      "/events/live": "live",
+      "/profile": "profile",
+    };
+    return pathToButton[currentPath] || "home";
+  }, [currentPath]);
 
   // Define routes where menu should be visible
   const visibleRoutes = new Set([
@@ -91,18 +112,7 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     "/blogs",
     "/faq",
   ]);
-  
-  // Normalize current path
-  const normalizePath = (p = "") => {
-    const clean = p.split("?")[0].split("#")[0];
-    return clean.endsWith("/") && clean.length > 1 ? clean.slice(0, -1) : clean;
-  };
-  
-  const rawPath =
-    typeof window !== "undefined" ? router.asPath : router.pathname;
-  
-  const currentPath = normalizePath(rawPath);
-  
+
   // Show only if the exact path matches one in visibleRoutes
   const shouldShowMenu = visibleRoutes.has(currentPath);
 
@@ -116,40 +126,28 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
   const buttons = [
     {
       key: "home",
-      onClick: () => {
-        router.push("/");
-        setActiveButton("home");
-      },
+      onClick: () => router.push("/"),
       Icon: HomeIcon,
       text: "Home",
       animation: { scale: [1, 1.2, 1] },
     },
     {
       key: "events",
-      onClick: () => {
-        router.push("/events");
-        setActiveButton("events");
-      },
+      onClick: () => router.push("/events"),
       Icon: TicketIcon,
       text: "Events",
       animation: { rotate: [0, -20, 0] },
     },
     {
       key: "offers",
-      onClick: () => {
-        router.push("/events/offers");
-        setActiveButton("offers");
-      },
+      onClick: () => router.push("/events/offers"),
       Icon: LayoutDashboard,
       text: "Offers",
       animation: { rotate: [0, -20, 0] },
     },
     {
       key: "live",
-      onClick: () => {
-        router.push("/events/live");
-        setActiveButton("live");
-      },
+      onClick: () => router.push("/events/live"),
       Icon: Telescope,
       text: "Live",
       animation: { rotate: [0, -20, 0] },
@@ -166,10 +164,7 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     // },
     {
       key: "profile",
-      onClick: () => {
-        router.push("/profile");
-        setActiveButton("profile");
-      },
+      onClick: () => router.push("/profile"),
       Icon: UserIcon,
       text: "Profile",
       animation: { scale: [1, 1.2, 1] },

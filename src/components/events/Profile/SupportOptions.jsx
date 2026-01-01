@@ -42,7 +42,7 @@ const SupportOptions = () => {
   ];
 
   return (
-    <Container className="my-4">
+    <div className="my-4">
       <h5 className="text-center mb-3">Need Help?</h5>
 
       <Row className="g-3 justify-content-center">
@@ -69,7 +69,7 @@ const SupportOptions = () => {
                     size="sm"
                     buttonText={buttonText}
                     HandleClick={action}
-                    icon={<Icon size={16}  />}
+                    icon={<Icon size={16} />}
                   />
                 </div>
               </div>
@@ -88,7 +88,7 @@ const SupportOptions = () => {
           </Col>
         ))}
       </Row>
-    </Container>
+    </div>
   );
 };
 

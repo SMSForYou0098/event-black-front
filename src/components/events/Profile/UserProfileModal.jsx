@@ -15,11 +15,16 @@ const MODAL_VIEWS = {
 const UserProfileModal = ({
   isEditing,
   formValues,
+  originalValues,
   handleChange,
   handleCloseEdit,
   handleEditSubmit,
   updateMutation,
 }) => {
+  // Check if form values have changed from original
+  const hasChanges =
+    formValues.name?.trim() !== originalValues?.name?.trim() ||
+    formValues.email?.trim() !== originalValues?.email?.trim();
   const [currentView, setCurrentView] = useState(MODAL_VIEWS.EDIT_FORM);
   const [otp, setOtp] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
@@ -101,7 +106,7 @@ const UserProfileModal = ({
 
       // Dummy API call simulation
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      
+
       // Simulate success response
       const response = { data: { status: true, message: "OTP sent successfully" } };
 
@@ -134,14 +139,14 @@ const UserProfileModal = ({
 
       // Dummy API call simulation
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      
+
       // Simulate success response (for testing, accept any 6-digit OTP)
       const response = { data: { status: true, message: "OTP verified successfully" } };
 
       if (response.data.status) {
         toast.success("OTP verified successfully");
         // Now proceed with the actual profile update
-        handleEditSubmit({ preventDefault: () => {} });
+        handleEditSubmit({ preventDefault: () => { } });
       } else {
         setErrors((prev) => ({ ...prev, otp: response.data.message || "Invalid OTP" }));
       }
@@ -252,7 +257,7 @@ const UserProfileModal = ({
               type="submit"
               variant="primary"
               className="btn-sm"
-              disabled={otpLoading}
+              disabled={otpLoading || !hasChanges}
               icon={
                 otpLoading ? (
                   <LoaderCircle className="spin" size={20} />
@@ -269,7 +274,7 @@ const UserProfileModal = ({
           <CustomHeader title="Verify OTP" closable onClose={onClose} />
           <Modal.Body className="p-3">
             <p className="text-center text-muted mb-4">
-              We've sent a 6-digit OTP to your email <strong>{formValues.email}</strong>. 
+              We've sent a 6-digit OTP to your email <strong>{formValues.email}</strong>.
               Please enter it below to verify your identity.
             </p>
 
@@ -344,8 +349,8 @@ const UserProfileModal = ({
                 verifyLoading
                   ? "Verifying..."
                   : updateMutation?.isPending
-                  ? "Saving..."
-                  : "Verify & Save"
+                    ? "Saving..."
+                    : "Verify & Save"
               }
             />
           </Modal.Footer>

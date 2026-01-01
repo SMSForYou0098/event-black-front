@@ -7,7 +7,6 @@ export default function Document() {
         <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
 
         <meta name="theme-color" content="#b51515" />
-        {/* <meta name="viewport" content="width=device-width, initial-scale=1.0" /> */}
         <link rel="stylesheet" href="/vendor/font-awesome/css/all.min.css" />
         <link rel="stylesheet" href="/vendor/iconly/css/style.css" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

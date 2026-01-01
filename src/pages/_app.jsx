@@ -1,6 +1,6 @@
 // pages/_app.tsx
 import { useState } from 'react';
-import Head from 'next/head'; // ✅ Import Head
+import Head from 'next/head';
 import { SessionProvider } from 'next-auth/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -43,11 +43,9 @@ export default function App({
 
   return (
     <>
-      {/* ✅ Add viewport meta here */}
       <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Head>
-
       <QueryClientProvider client={queryClient}>
         <HydrationBoundary state={dehydratedState}>
           <SessionProvider session={session}>

@@ -286,7 +286,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
               Starts From{" "}
               <h5 className="fw-bold">
                 ₹
-                {eventData?.lowest_sale_price || eventData?.lowest_ticket_price}
+                {eventData?.on_sale ? eventData?.lowest_sale_price : eventData?.lowest_ticket_price}
               </h5>
             </span>
           }
