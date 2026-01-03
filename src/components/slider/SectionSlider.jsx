@@ -27,8 +27,8 @@ const SectionSlider = ({
   link,
   containerFluid = true,
   onViewAll,
-  hideViewAll=false,
-  
+  hideViewAll = false,
+
 }) => {
   const themeSchemeDirection = useSelector(theme_scheme_direction);
 
@@ -60,19 +60,19 @@ const SectionSlider = ({
 
   return (
     <div className={className}>
-      <Container fluid>
+      <Container fluid={containerFluid}>
         <div className="overflow-hidden card-style-slider" ref={slider}>
           <div className="d-flex align-items-center justify-content-between px-3 my-2">
             <h5 className="main-title text-capitalize mb-0">{title}</h5>
             {
-              hideViewAll !==false && 
-            <Link
-              href={onViewAll ? onViewAll : "/view-all"}
-              className="text-primary iq-view-all text-decoration-none"
+              hideViewAll !== false &&
+              <Link
+                href={onViewAll ? onViewAll : "/view-all"}
+                className="text-primary iq-view-all text-decoration-none"
               // onClick={onViewAll}
-            >
-              View All
-            </Link>
+              >
+                View All
+              </Link>
             }
           </div>
           <Swiper

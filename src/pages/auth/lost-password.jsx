@@ -171,9 +171,9 @@ const LostPassword = () => {
                     <Row>
                       <Col lg={6}>
                         <CustomBtn
-                          buttonText="Back to Login"
+                          buttonText="Back to Home"
                           className="text-uppercase position-relative w-100"
-                          HandleClick={() => router.push('/auth/login')}
+                          HandleClick={() => router.push('/')}
                           icon={<i className="fa-solid fa-angle-left"></i>}
                           variant=""
                           iconPosition="left"
@@ -190,7 +190,7 @@ const LostPassword = () => {
                           HandleClick={handleSubmit}
                           buttonText={isLoading
                             ? (isResetMode ? 'Resetting...' : 'Sending...')
-                            : (isResetMode ? 'Reset Password' : 'Get new password')}
+                            : (isResetMode ? 'Reset Password' : 'Submit')}
                         />
                       </Col>
                     </Row>

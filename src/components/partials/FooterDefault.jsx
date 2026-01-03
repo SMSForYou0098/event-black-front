@@ -119,6 +119,7 @@ const FooterMega = memo(() => {
                 <Row>
                   {/* Logo and Contact Section */}
                   <Col xl={3} lg={6} className="mb-5 mb-lg-0 d-flex flex-column align-items-center text-center">
+                    <Logo height={150} width={250} size={200} />
                   </Col>
 
                   {/* Dynamic Footer Link Groups - Limited to 2 groups for layout */}

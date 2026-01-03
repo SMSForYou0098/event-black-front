@@ -54,7 +54,7 @@ const CartPage = () => {
 
   //TAX STATES
 
-  const { data: event, isLoading, isError, error } = useEventData(event_key);
+  const { data: event, isLoading, isError, error } = useEventData(event_key, UserData?.id ? UserData?.id : null);
   useHeaderSimple({
     title: event?.name || "Event Details",
   });

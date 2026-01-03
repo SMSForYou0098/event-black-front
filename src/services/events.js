@@ -1,11 +1,15 @@
-import { api, publicApi } from "@/lib/axiosInterceptor";
+import { api } from "@/lib/axiosInterceptor";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
-export const useEventData = (event_key) => {
+export const useEventData = (event_key, userId) => {
     return useQuery({
         queryKey: ['event', event_key],
         queryFn: async () => {
-            const response = await publicApi.get(`/event-detail/${event_key}`);
+            const response = await api.get(`/event-detail/${event_key}`, {
+                params: {
+                    user_id: userId
+                }
+            });
             return response.data.event;
         },
         enabled: !!event_key,

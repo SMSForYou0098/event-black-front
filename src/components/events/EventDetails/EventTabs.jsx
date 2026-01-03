@@ -10,7 +10,7 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
     { key: "layout", label: "Layout" },
     // { key: "additional-info", label: "Event Info" },
     // { key: "organizer", label: "Organizer" },
-    { key: "terms", label: "Terms" },
+    // { key: "terms", label: "Terms" },
   ];
   return (
     <div className="mt-3">
@@ -19,12 +19,12 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
           <Nav
             variant="pills"
             // className="nav nav-pills mb-3 mb-md-5"
-            className="iq-custom-tab tab-bg-gredient-center d-flex nav nav-pills align-items-center text-center mb-5 justify-content-center list-inline"
+            className="iq-custom-tab tab-bg-gredient-center d-flex nav nav-pills align-items-center text-center mb-0 justify-content-center list-inline"
           >
             <Row className="w-100 g-2">
               {tabItems.map((item) => (
                 <Col
-                  xs={6}
+                  xs={4}
                   md="auto"
                   key={item.key}
                   className="flex-md-fill"
@@ -61,7 +61,7 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 </Col>
               </Row>
               <Row className="g-3">
-                <Col md="6">
+                <Col md="4">
                   <Card className="border-0 shadow-sm">
                     <Card.Body>
                       <h6 className="text-primary mb-2">
@@ -73,23 +73,30 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                     </Card.Body>
                   </Card>
                 </Col>
-                <Col md="6">
+                <Col md="4">
                   <Card className="border-0 shadow-sm">
                     <Card.Body>
                       <h6 className="text-primary mb-2">
                         <i className="fa fa-clock me-2"></i>Timings
                       </h6>
-                      <p className="mb-0">
-                        Entry: {eventData?.entry_time}
-                        <br />
-                        Start: {eventData?.start_time}
-                        <br />
-                        End: {eventData?.end_time}
-                      </p>
+                      <Row className="mb-0">
+                        <Col xs={4}>
+                          <strong>Entry:</strong> {eventData?.entry_time} <br />
+
+                        </Col>
+                        <Col xs={4}>
+                          <strong>Start:</strong> {eventData?.start_time} <br />
+
+                        </Col>
+                        <Col xs={4}>
+                          <strong>End:</strong> {eventData?.end_time}
+                        </Col>
+                      </Row>
+
                     </Card.Body>
                   </Card>
                 </Col>
-                <Col md="12">
+                <Col md="4">
                   <Card className="border-0 shadow-sm">
                     <Card.Body>
                       <h6 className="text-primary mb-2">
@@ -171,7 +178,7 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
               
             </Tab.Pane> */}
 
-            <Tab.Pane eventKey="organizer" className="p-4  rounded">
+            {/* <Tab.Pane eventKey="organizer" className="p-4  rounded">
               <Card className="border-0 shadow-sm">
                 <Card.Body>
                   <h4 className="text-primary mb-4">
@@ -216,21 +223,21 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                   </Row>
                 </Card.Body>
               </Card>
-            </Tab.Pane>
+            </Tab.Pane> */}
 
-            <Tab.Pane eventKey="terms" className="p-4  rounded">
+            {/* <Tab.Pane eventKey="terms" className="p-4  rounded">
               <Card className="border-0 shadow-sm">
                 <Card.Body>
                   <h4 className="text-primary mb-4">
                     <Ticket size={30} className="me-2" />
                     Ticket terms
                   </h4>
-                  {/* <div
+                  <div
                     className="text-white"
                     style={{ whiteSpace: "pre-line" }}
                   >
                     {eventData?.ticket_terms || "No ticket terms available."}
-                  </div> */}
+                  </div>
                   <div
                     className="description-content"
                     dangerouslySetInnerHTML={{
@@ -240,7 +247,7 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                   />
                 </Card.Body>
               </Card>
-            </Tab.Pane>
+            </Tab.Pane> */}
           </Tab.Content>
         </Tab.Container>
       </div>

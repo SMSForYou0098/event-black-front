@@ -52,7 +52,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       stampImage: '/assets/images/hfull.webp',
       message: 'All tickets for this event have been sold out.'
     };
-    return { disabled: false, text: 'Book', showStamp: false, stampImage: null, message: null };
+    return { disabled: false, text: 'Book Now', showStamp: false, stampImage: null, message: null };
   };
 
   const eventStatus = getEventStatus();

@@ -188,9 +188,9 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
   // Real-time validation for Sign In
   useEffect(() => {
     if (!touched.credential) return;
-    
+
     const errors = { ...validationErrors };
-    
+
     if (!credential.trim()) {
       errors.credential = "Email or mobile number is required";
     } else if (!validateCredential(credential)) {
@@ -198,16 +198,16 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     } else {
       delete errors.credential;
     }
-    
+
     setValidationErrors(errors);
   }, [credential, touched.credential]);
 
   // Real-time validation for OTP
   useEffect(() => {
     if (!touched.otp) return;
-    
+
     const errors = { ...validationErrors };
-    
+
     if (!otp.trim()) {
       errors.otp = "OTP is required";
     } else if (otp.length !== 6) {
@@ -215,45 +215,45 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     } else {
       delete errors.otp;
     }
-    
+
     setValidationErrors(errors);
   }, [otp, touched.otp]);
 
   // Real-time validation for Password
   useEffect(() => {
     if (!touched.password) return;
-    
+
     const errors = { ...validationErrors };
-    
+
     if (!password.trim()) {
       errors.password = "Password is required";
     } else {
       delete errors.password;
     }
-    
+
     setValidationErrors(errors);
   }, [password, touched.password]);
 
   // Real-time validation for Sign Up
   useEffect(() => {
     if (!touched.name) return;
-    
+
     const errors = { ...validationErrors };
-    
+
     if (!name.trim()) {
       errors.name = "Full name is required";
     } else {
       delete errors.name;
     }
-    
+
     setValidationErrors(errors);
   }, [name, touched.name]);
 
   useEffect(() => {
     if (!touched.number) return;
-    
+
     const errors = { ...validationErrors };
-    
+
     if (!number.trim()) {
       errors.number = "Phone number is required";
     } else if (!validatePhone(number)) {
@@ -261,15 +261,15 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     } else {
       delete errors.number;
     }
-    
+
     setValidationErrors(errors);
   }, [number, touched.number]);
 
   useEffect(() => {
     if (!touched.email) return;
-    
+
     const errors = { ...validationErrors };
-    
+
     if (!email.trim()) {
       errors.email = "Email is required";
     } else if (!validateEmail(email)) {
@@ -277,21 +277,21 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     } else {
       delete errors.email;
     }
-    
+
     setValidationErrors(errors);
   }, [email, touched.email]);
 
   useEffect(() => {
     if (!touched.terms) return;
-    
+
     const errors = { ...validationErrors };
-    
+
     if (!termsAccepted) {
       errors.terms = "You must agree to the terms of use";
     } else {
       delete errors.terms;
     }
-    
+
     setValidationErrors(errors);
   }, [termsAccepted, touched.terms]);
 
@@ -506,11 +506,13 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     setServerError("");
   };
 
-  const isLoading = 
-    verifyUserMutation.isPending || 
-    createUserMutation.isPending || 
-    verifyOtpMutation.isPending || 
-    verifyPasswordMutation.isPending;
+  const isLoading =
+    verifyUserMutation.isPending ||
+    createUserMutation.isPending ||
+    verifyOtpMutation.isPending ||
+    verifyPasswordMutation.isPending
+  // forgotPasswordMutation.isPending ||
+  // resetPasswordMutation.isPending;
 
   return (
     <Modal
@@ -734,28 +736,49 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                 </Form.Control.Feedback>
               </Form.Group>
 
-              <div className="text-end pb-3">
+              <div className="d-flex align-items-center justify-content-between pb-3">
+                {/* Left: Back to Login */}
+                <CustomBtn
+                  variant="link"
+                  HandleClick={handleBack}
+                  type="button"
+                  className="p-0"
+                  disabled={isLoading}
+                  buttonText={isLoading ? "Processing..." : "Back to Login"}
+                  icon={<ChevronLeft size={16} className="me-1" />}
+                  iconPosition="left"
+                  size="sm"
+                />
+
+                {/* Center: Forgot Password */}
+                <CustomBtn
+                  variant="link"
+                  HandleClick={() => {
+                    handleModalClose();
+                    const emailParam = credential
+                      ? `?email=${encodeURIComponent(credential)}`
+                      : "";
+                    router.push(`/auth/lost-password${emailParam}`);
+                  }}
+                  type="button"
+                  className="p-0 text-muted"
+                  disabled={isLoading}
+                  size="sm"
+                  buttonText="Forgot Password?"
+                  hideIcon
+                />
+
+                {/* Right: Login */}
                 <CustomBtn
                   type="submit"
                   variant="primary"
                   disabled={isLoading}
                   icon={isLoading ? <LoaderCircle className="spin" /> : null}
                   buttonText={isLoading ? "Verifying..." : "Login"}
+                  size="sm"
                 />
               </div>
 
-              <div className="text-center">
-                <Button
-                  variant="link"
-                  onClick={handleBack}
-                  type="button"
-                  className="p-0"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Processing..." : "Back to Login"}
-                  <ChevronLeft size={16} className="me-1" />
-                </Button>
-              </div>
             </div>
           </Form>
         ) : (
@@ -798,6 +821,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                     disabled={isLoading}
                     icon={isLoading ? <LoaderCircle className="spin" /> : null}
                     buttonText={isLoading ? "Processing..." : "Next"}
+                    size="sm"
                   />
                 </div>
               </div>

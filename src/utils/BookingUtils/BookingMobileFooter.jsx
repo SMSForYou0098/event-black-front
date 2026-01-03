@@ -4,7 +4,7 @@ import BookingFooterLayout from "../BookingFooterLayout";
 import CustomDrawer from "../../utils/CustomDrawer"; // Adjust path as needed
 import CustomBtn from "../CustomBtn";
 
-const BookingMobileFooter = ({ handleClick, selectedTickets, step=0,isLoading=false }) => {
+const BookingMobileFooter = ({ handleClick, selectedTickets, step = 0, isLoading = false }) => {
   const [showDrawer, setShowDrawer] = useState(false);
 
   const handleProceedClick = useCallback(() => {
@@ -18,16 +18,16 @@ const BookingMobileFooter = ({ handleClick, selectedTickets, step=0,isLoading=fa
   return (
     <>
       <BookingFooterLayout
-left={
-  <h5 className="p-0 m-0 fw-bold">
-    Total: ₹
-    {step == 2
-      ? selectedTickets?.discount > 0
-        ? (selectedTickets?.totalFinalAmount - selectedTickets?.discount)?.toLocaleString()
-        : selectedTickets?.totalFinalAmount?.toLocaleString()
-      : selectedTickets?.totalBaseAmount?.toLocaleString() || 0}
-  </h5>
-}
+        left={
+          <h5 className="p-0 m-0 fw-bold">
+            Total: ₹
+            {step == 2
+              ? selectedTickets?.discount > 0
+                ? (selectedTickets?.totalFinalAmount - selectedTickets?.discount)?.toLocaleString()
+                : selectedTickets?.totalFinalAmount?.toLocaleString()
+              : selectedTickets?.totalBaseAmount?.toLocaleString() || 0}
+          </h5>
+        }
         middle={<h5 className="p-0 m-0 fw-bold">Ticket: {selectedTickets?.quantity || 0}</h5>}
         right={
           // <Button
@@ -37,7 +37,7 @@ left={
           //   Proceed
           //   <i className="fa-solid fa-play"></i>
           // </Button>
-          <CustomBtn HandleClick={handleProceedClick} buttonText='Proceed' loading={isLoading} />
+          <CustomBtn HandleClick={handleProceedClick} size='sm' buttonText='Proceed' loading={isLoading} />
         }
       />
 
@@ -61,14 +61,13 @@ left={
             You need to select at least one ticket before proceeding to checkout.
           </p>
 
-          <Button 
-            variant="primary" 
+          <CustomBtn
+            HandleClick={() => setShowDrawer(false)}
             size="sm"
             className="w-100"
-            onClick={() => setShowDrawer(false)}
-          >
-            Got it
-          </Button>
+            buttonText='Got it'
+            hideIcon={true}
+          />
         </div>
       </CustomDrawer>
     </>

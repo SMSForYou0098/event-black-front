@@ -43,6 +43,7 @@ import CustomBtn from "@/utils/CustomBtn";
 import AvatarImage from "../../utils/ProfileUtils/AvatarImage";
 import GlobalSearch from "../modals/GlobalSearch";
 import Logo from "./Logo";
+import LoginModal from "../auth/LoginModal";
 
 
 
@@ -69,6 +70,7 @@ const HeaderDefault = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
   const [eventsOpen, setEventsOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false); // Add this state
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const menu = [
     { id: 1, title: "Home", href: "/" },
@@ -174,7 +176,9 @@ const HeaderDefault = memo(() => {
 
   const handleLogout = () => {
     dispatch(logout());
-    location.push("/auth/login");
+    // Redirect to home page after logout
+    // router.push('/');
+    window.location.reload();
   };
 
   const { event_key } = router.query;
@@ -221,6 +225,7 @@ const HeaderDefault = memo(() => {
 
   return (
     <Fragment>
+      <LoginModal show={showLoginModal} onHide={() => setShowLoginModal(false)} redirectPath={window.location.pathname} />
       <GlobalSearch show={searchShow} handleShow={handleToggleClick} />
       <header className="header-center-home header-default header-sticky sticky">
         <Navbar
@@ -446,7 +451,6 @@ const HeaderDefault = memo(() => {
                       </li>
                       <li onClick={handleClose}>
                         <Button
-                          href="/auth/login"
                           className="border-0 iq-sub-card iq-logout-2 mt-1 d-flex justify-content-center gap-2"
                           onClick={handleLogout}
                         >
@@ -462,7 +466,7 @@ const HeaderDefault = memo(() => {
                     buttonText={!isMobile && <span style={{ fontSize: "0.8rem" }}>Login</span>}
                     className={"btn-sm p-1 text-xs"}
                     icon={<Fingerprint size={16} />}
-                    HandleClick={() => location.push("/auth/login")}
+                    HandleClick={() => setShowLoginModal(true)}
                   />
                   // <Button onClick={() => location.push("/auth/login")} size='sm' className="p-1 text-xs">
                   //   {!isMobile && "Login"} <Fingerprint size={16}/>

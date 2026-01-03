@@ -56,11 +56,8 @@ function isPrivateRoute(pathname) {
 
 function isAuthRoute(pathname) {
   const authRoutes = [
-    '/auth/login',
-    '/auth/sign-up',
+    '/auth/auth-success',
     '/auth/lost-password',
-    '/auth/verify-password',
-    '/auth/two-factor'
   ];
   return authRoutes.some(route => pathname === route);
 }
@@ -75,7 +72,7 @@ function isQueryProtectedRoute(pathname) {
 
 export const config = {
   matcher: [
-        // Auth routes
+    // Auth routes
     '/auth/:path*',
     // Include all routes that need any kind of middleware
     '/events/checkout/:path*',
