@@ -44,11 +44,11 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
           </Nav>
 
           <Tab.Content className="tab-content">
-            <Tab.Pane eventKey="description" className="p-4  rounded">
+            <Tab.Pane eventKey="description" className="  rounded">
               <Row>
                 <Col md="12">
                   <Card className="border-0 shadow-sm">
-                    <Card.Body className="p-0">
+                    <Card.Body className="">
                       <div
                         dangerouslySetInnerHTML={{
                           __html:

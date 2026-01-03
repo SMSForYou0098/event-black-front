@@ -49,8 +49,8 @@
 }
 
 .was-validated .valid-feedback,
-.is-valid ~ .valid-feedback,
+.is-valid~.valid-feedback,
 .was-validated .invalid-feedback,
-.is-invalid ~ .invalid-feedback {
+.is-invalid~.invalid-feedback {
     display: block;
 }

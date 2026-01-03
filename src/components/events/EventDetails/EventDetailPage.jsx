@@ -1,7 +1,8 @@
 import { Fragment, memo, useState } from "react";
 // react-bootstrap
 import { Container } from "react-bootstrap";
-import LoginModal from "../../auth/LoginModal";
+// import LoginModal from "../../auth/LoginModal";
+import LoginModal from "../../auth/LoginOffCanvas";
 import EventTabs from "./EventTabs";
 import DetailsHeader from "./DetailsHeader";
 import EventCrew from "./EventCrew";

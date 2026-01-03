@@ -27,7 +27,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'tbz.getyourticket.in',
+        hostname: 'tb.getyourticket.in',
         pathname: '/uploads/**',
       },
       {

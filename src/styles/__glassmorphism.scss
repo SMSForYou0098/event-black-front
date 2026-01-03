@@ -40,6 +40,36 @@
     border-color: var(--bs-danger) !important;
     background: rgba(20, 20, 20, 0.85);
   }
+
+  // Handle Input Group usage (when class is applied to container)
+  &.input-group {
+    padding: 0; // Reset padding if necessary or rely on natural input height
+    overflow: hidden; // Ensure children don't bleed
+
+    .input-group-text,
+    .form-control {
+      background: transparent !important;
+      border: none !important;
+      color: inherit !important;
+      box-shadow: none !important;
+
+      &:focus {
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+    }
+
+    &:focus-within {
+      background: rgba(20, 20, 20, 0.85);
+      border-color: var(--bs-primary);
+      color: #fff !important;
+    }
+
+    &.is-invalid {
+      // Ensure red border propagates
+      border-color: var(--bs-danger) !important;
+    }
+  }
 }
 
 .card-glassmorphism__input:-webkit-autofill,
