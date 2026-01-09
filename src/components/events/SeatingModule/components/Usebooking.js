@@ -213,8 +213,8 @@ const useBooking = (options = {}) => {
         const basePrice = parseFloat(seat.ticket?.price || 0);
         const baseAmount = round(basePrice);
 
-        // Get tax data from event
-        const taxData = event?.tax_data;
+        // Get tax data from event (support both property names)
+        const taxData = event?.tax_data || event?.taxData;
 
         // Convenience Fee calculation
         const feeRaw = Number(taxData?.convenience_fee) || 0;

@@ -40,14 +40,14 @@ export const getBreakdownData = (summaryData) => [
     labelClass: "small"
   },
   {
-    label: "Central GST (CGST) @ 9%",
+    label: "(CGST) @ 9%",
     value: summaryData?.totalCentralGST,
     className: "small",
     labelClass: "ms-2 ps-3 small text-muted",
     lableStyle: { fontSize: '0.65rem' }
   },
   {
-    label: "State GST (SGST) @ 9%",
+    label: "(SGST) @ 9%",
     value: summaryData?.totalStateGST,
     className: "small",
     labelClass: "ms-2 ps-3 small text-muted",
@@ -97,29 +97,29 @@ export const TotalAmountHeader = ({
       </small>
     </div>
     <div className="d-flex align-items-center gap-2">
-    <h4 className="mb-0 fw-bold">
-  {summaryData?.discount > 0 ? (
-    <>
-      {/* Original Price (strikethrough) */}
-      <span
-        className="text-muted me-2"
-        style={{ textDecoration: "line-through", fontWeight: "500" }}
-      >
-        ₹{summaryData?.totalFinalAmount?.toLocaleString()}
-      </span>
+      <h4 className="mb-0 fw-bold">
+        {summaryData?.discount > 0 ? (
+          <>
+            {/* Original Price (strikethrough) */}
+            <span
+              className="text-muted me-2"
+              style={{ textDecoration: "line-through", fontWeight: "500" }}
+            >
+              ₹{summaryData?.totalFinalAmount?.toLocaleString()}
+            </span>
 
-      {/* Discounted Price */}
-      <span className="text-success fw-bold">
-        ₹{(summaryData?.totalFinalAmount - summaryData?.discount)?.toLocaleString()}
-      </span>
-    </>
-  ) : (
-    // No discount — show the normal total
-    <span className="custom-text-secondary fw-bold">
-      ₹{summaryData?.totalFinalAmount?.toLocaleString()}
-    </span>
-  )}
-</h4>
+            {/* Discounted Price */}
+            <span className="text-success fw-bold">
+              ₹{(summaryData?.totalFinalAmount - summaryData?.discount)?.toLocaleString()}
+            </span>
+          </>
+        ) : (
+          // No discount — show the normal total
+          <span className="custom-text-secondary fw-bold">
+            ₹{summaryData?.totalFinalAmount?.toLocaleString()}
+          </span>
+        )}
+      </h4>
 
 
       <motion.div
@@ -160,31 +160,31 @@ export const ETicketAlert = () => (
       <div className="mb-2" style={{ fontWeight: 500 }}>
       </div>
       <ol className="mt-2 mb-0">
- 
+
         <li>
-        View tickets in 'My Profile' on mobile web.
+          View tickets in 'My Profile' on mobile web.
         </li>
         <li>E-ticket required. Download and present.</li>
         <li>
-        Download ticket, skip the line! Watch video for easy entry <span className="fw-semibold">
-                        <a
-                            href="https://www.youtube.com/watch?v=QIVkT5Iie3c"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary text-decoration-underline ms-1 me-2"
-                        >
-                            <FaYoutube className="me-0" />
-                        </a>
-                        &
-                        <a
-                            href="https://www.instagram.com/getyourticket.in/p/DQZXxmHCNYU/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary text-decoration-underline ms-2"
-                        >
-                            <FaInstagram className="me-1" />
-                        </a>
-                    </span>.
+          Download ticket, skip the line! Watch video for easy entry <span className="fw-semibold">
+            <a
+              href="https://www.youtube.com/watch?v=QIVkT5Iie3c"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary text-decoration-underline ms-1 me-2"
+            >
+              <FaYoutube className="me-0" />
+            </a>
+            &
+            <a
+              href="https://www.instagram.com/getyourticket.in/p/DQZXxmHCNYU/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary text-decoration-underline ms-2"
+            >
+              <FaInstagram className="me-1" />
+            </a>
+          </span>.
         </li>
       </ol>
     </Alert>
@@ -286,7 +286,8 @@ export const parseUrlData = (data, ticket, edata) => {
 };
 
 export const TicketDataSummary = (props) => {
-  const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, netAmount, sale_price, currency,handleOpen,attendees,showAttBtn } = props;
+  const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, currency, } = props;
+  // const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, netAmount, sale_price, currency, handleOpen, attendees, showAttBtn } = props;
 
   const { getCurrencySymbol } = useMyContext()
 
@@ -308,7 +309,7 @@ export const TicketDataSummary = (props) => {
             <small>per ticket</small>
           </div>
         </div>
-{/* 
+        {/* 
         <div className="custom-dark-content-bg d-flex justify-content-between align-items-center my-3 p-3 rounded-3">
           <div className="d-flex align-items-center">
             <Ticket size={18} style={{ marginRight: '10px' }} />
@@ -329,10 +330,10 @@ export const TicketDataSummary = (props) => {
             </div>
             {/* <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' /> */}
 
-            {/* <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex justify-content-between align-items-center">
               <span className="text-white fw-bold fs-5">Total Amount</span>
               <span className='custom-text-secondary h5 fw-bold'>{currency ? getCurrencySymbol(currency) : '₹'}{total}</span>
-            </div> */}
+            </div>
           </>
         }
         {/* {(netAmount || sale_price) &&
@@ -341,7 +342,7 @@ export const TicketDataSummary = (props) => {
             <span className='custom-text-secondary h5 fw-bold'>{currency ? getCurrencySymbol(currency) : '₹'}{sale_price && sale_price !== 'null' ? sale_price : netAmount}</span>
           </div>
         } */}
-        
+
       </Card.Body>
 
     </Card>
@@ -390,7 +391,7 @@ export const AttendeesOffcanvas = ({
             {attendees.map((a) => (
               <ListGroup.Item
                 key={a?.id ?? Math.random()}
-                style={{background: 'rgba(0,0,0,0.3)'}}
+                style={{ background: 'rgba(0,0,0,0.3)' }}
                 className="d-flex align-items-start gap-3 rounded-4"
               >
                 <div >

@@ -27,14 +27,14 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
     const updateMutation = useUpdateReview();
     const deleteMutation = useDeleteReview();
 
-    // Flatten reviews from infinite query pages
-    const reviews = reviewsData?.pages?.flatMap(page => page?.data?.data || []) || [];
+    // Flatten reviews from infinite query pages - data is directly in page.data array
+    const reviews = reviewsData?.pages?.flatMap(page => page?.data || []) || [];
 
-    // Get total count from first page
-    const totalReviews = reviewsData?.pages?.[0]?.data?.total || reviews.length || 0;
+    // Get total count from first page pagination
+    const totalReviews = reviewsData?.pages?.[0]?.pagination?.total || reviews.length || 0;
 
     // Calculate stats (or use from API if available later)
-    const averageRating = totalReviews > 0
+    const averageRating = reviews.length > 0
         ? reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0) / reviews.length
         : 0;
 

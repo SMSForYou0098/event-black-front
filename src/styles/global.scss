@@ -9,11 +9,12 @@
 @import './_gallery';
 @import './pages.scss';
 
-.modal-body-padding{
+.modal-body-padding {
   padding: 1.2rem 0.7rem !important;
 }
 
-.blog-content p, li {
+.blog-content p,
+li {
   color: var(--bs-white) !important;
 }
 
@@ -26,7 +27,8 @@
 }
 
 .custom-dropdown-menu {
-  background: #000; /* keep normal white bg */
+  background: #000;
+  /* keep normal white bg */
   border-radius: 8px;
   overflow: hidden;
 
@@ -34,12 +36,15 @@
     transition: background-color 0.2s ease, color 0.2s ease;
 
     &:hover {
-      background-color: rgba(223, 193, 193, 0.3) !important; /* black with 30% opacity */
-      color: #fff !important; /* ensure text stays visible */
+      background-color: rgba(223, 193, 193, 0.3) !important;
+      /* black with 30% opacity */
+      color: #fff !important;
+      /* ensure text stays visible */
     }
 
     &:active {
-      background-color: rgba(0, 0, 0, 0.4) !important; /* slightly darker on click */
+      background-color: rgba(0, 0, 0, 0.4) !important;
+      /* slightly darker on click */
       color: #fff !important;
     }
   }
@@ -518,19 +523,21 @@ canvas {
   aspect-ratio: 4/5;
   overflow: hidden;
   border-radius: 1rem;
-  transition: transform 0.4s ease; /* Smooth animation */
+  transition: transform 0.4s ease;
+  /* Smooth animation */
 }
 
 /* Hover effect */
 .iq-top-ten-block .block-image .overly-images:hover img {
-  transform: scale(1.05); /* Slight zoom (5% larger) */
+  transform: scale(1.05);
+  /* Slight zoom (5% larger) */
 }
 
 .offcanvas {
   &.show {
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(15px) saturate(180%);
-    
+
     // Common indicator styles
     &::before {
       content: '';
@@ -546,27 +553,27 @@ canvas {
     &.offcanvas-bottom {
       border-top: 1px solid grey;
       border-radius: 2rem 2rem 0 0;
-      
+
       &::before {
         top: 8px;
         transform: translateX(-50%);
       }
     }
-    
+
     &.offcanvas-top {
       border-bottom: 1px solid grey;
       border-radius: 0 0 2rem 2rem;
-      
+
       &::before {
         bottom: 8px;
         transform: translateX(-50%);
       }
     }
-    
+
     &.offcanvas-start {
       border-right: 1px solid grey;
       border-radius: 0 2rem 2rem 0;
-      
+
       &::before {
         top: 50%;
         left: auto;
@@ -574,11 +581,11 @@ canvas {
         transform: translateY(-50%) rotate(90deg);
       }
     }
-    
+
     &.offcanvas-end {
       border-left: 1px solid grey;
       border-radius: 2rem 0 0 2rem;
-      
+
       &::before {
         top: 50%;
         left: 8px;
@@ -595,15 +602,17 @@ canvas {
 
 input[type="number"] {
   -moz-appearance: textfield;
+
   &::-webkit-inner-spin-button,
   &::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
-  
+
   // Disable mouse wheel scrolling
   &:hover,
   &:focus {
+
     // Prevent scroll behavior
     &::-webkit-inner-spin-button,
     &::-webkit-outer-spin-button {
@@ -627,7 +636,8 @@ input[type="number"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1050; /* Above all other elements */
+  z-index: 1050;
+  /* Above all other elements */
 }
 
 .content-blur {
@@ -639,18 +649,26 @@ input[type="number"] {
 
 // mobile footer margin scss
 .mt-mobile-custom {
-  margin-top: 5.25rem !important; /* More margin on mobile */
+  margin-top: 5.25rem !important;
+  /* More margin on mobile */
 }
 
 @media (min-width: 768px) {
   .mt-mobile-custom {
-    margin-top: 2.5rem !important; /* Slightly less margin on tablets */
+    margin-top: 2.5rem !important;
+    /* Slightly less margin on tablets */
   }
 }
 
 @media (min-width: 992px) {
   .mt-mobile-custom {
-    margin-top: 0 !important; /* Reset on desktop since element is hidden anyway */
+    margin-top: 0 !important;
+    /* Reset on desktop since element is hidden anyway */
   }
 }
 
+// button transparent color
+.btn-tertiary,
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.1) !important
+}

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Offcanvas } from 'react-bootstrap';
+import { Button, Offcanvas } from 'react-bootstrap';
 import { useMediaQuery } from 'react-responsive';
 
-const CustomDrawer = ({ 
+const CustomDrawer = ({
   title,
   children,
-  showOffcanvas, 
+  showOffcanvas,
   setShowOffcanvas,
   placement // optional: can override default behavior
 }) => {
@@ -18,7 +18,7 @@ const CustomDrawer = ({
       onHide={() => setShowOffcanvas(false)}
       placement={placement || (isMobile ? "bottom" : "top")}
     >
-      <Offcanvas.Header>
+      <Offcanvas.Header className='d-flex justify-content-center align-items-center pt-3 text-center'>
         <Offcanvas.Title>{title}</Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body>

@@ -10,7 +10,7 @@ import StarRating from "@/components/reviews/StarRating";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useHeaderSimple } from "@/Context/HeaderContext";
 import toast from "react-hot-toast";
-import LoginModal from "@/components/auth/LoginModal";
+import LoginModal from "@/components/auth/LoginOffCanvas";
 
 const EventReviewsPage = () => {
     const router = useRouter();

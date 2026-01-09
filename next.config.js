@@ -28,8 +28,13 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'tb.getyourticket.in',
-        pathname: '/uploads/**',
+        // pathname: '/uploads/**',
       },
+      // {
+      //   protocol: 'https',
+      //   hostname: 'tb.getyourticket.in',
+      //   pathname: '/gallery/**', // ✅ ADD THIS
+      // },
       {
         protocol: 'https',
         hostname: 'dark.getyourticket.in',

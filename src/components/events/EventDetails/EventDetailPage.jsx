@@ -51,9 +51,9 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
             />
           </div>
           {/* Terms Accordion */}
-          {eventData?.ticket_terms && (
+          {/* {eventData?.ticket_terms && (
             <TermsAccordion terms={eventData.ticket_terms} />
-          )}
+          )} */}
 
           {/* --- Tabs Section --- */}
           <EventTabs

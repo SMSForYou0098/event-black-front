@@ -1,15 +1,16 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Form, Button, Spinner, InputGroup, Row, Col } from 'react-bootstrap';
+import { Card, Form, Button, Spinner, InputGroup, Row, Col, Modal, Badge } from 'react-bootstrap';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-import { SearchIcon, X } from 'lucide-react';
+import { SearchIcon, X, Filter } from 'lucide-react';
 import { getUserBookingsPaginated } from '@/services/events';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useMyContext } from '@/Context/MyContextProvider';
 import BookingCard from './BookingCard';
 import GlassCard from './../../../utils/ProfileUtils/GlassCard';
+import CustomBtn from '../../../utils/CustomBtn';
 
 // Constants
 const DEBOUNCE_DELAY = 300;
@@ -30,6 +31,11 @@ const BookingsTab = () => {
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState([]);
+
+  // Modal & Temp States
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [tempSearchTerm, setTempSearchTerm] = useState('');
+  const [tempDateRange, setTempDateRange] = useState([]);
 
   // Debounce search term
   const debouncedSearch = useDebounce(searchTerm, DEBOUNCE_DELAY);
@@ -127,10 +133,30 @@ const BookingsTab = () => {
   }, [allBookings]);
 
   // Handlers
-  const handleSearchChange = useCallback((e) => setSearchTerm(e.target.value), []);
-  const handleClearSearch = useCallback(() => setSearchTerm(''), []);
-  const handleDateRangeChange = useCallback((dates) => setDateRange(dates || []), []);
-  const handleClearDateRange = useCallback(() => setDateRange([]), []);
+  // Handlers for Modal
+  const handleOpenFilters = useCallback(() => {
+    setTempSearchTerm(searchTerm);
+    setTempDateRange(dateRange);
+    setShowFilterModal(true);
+  }, [searchTerm, dateRange]);
+
+  const handleApplyFilters = useCallback(() => {
+    setSearchTerm(tempSearchTerm);
+    setDateRange(tempDateRange);
+    setShowFilterModal(false);
+  }, [tempSearchTerm, tempDateRange]);
+
+  const handleClearAll = useCallback(() => {
+    setSearchTerm('');
+    setDateRange([]);
+    setShowFilterModal(false);
+  }, []);
+
+  // Handlers for removing individual tags
+  const clearSearchTerm = useCallback(() => setSearchTerm(''), []);
+  const clearDateRange = useCallback(() => setDateRange([]), []);
+
+  const handleTempDateRangeChange = useCallback((dates) => setTempDateRange(dates || []), []);
 
   // Generate stable key for booking
   const makeBookingKey = useCallback((booking, idx) => {
@@ -138,56 +164,63 @@ const BookingsTab = () => {
     return `booking-${id}-${idx}`;
   }, []);
 
+  // Helper to format date for display
+  const formatDateDisplay = (date) => {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString();
+  };
+
   // Render states
   const isEmpty = !isLoading && uniqueBookings.length === 0;
   const hasFilters = debouncedSearch || dateRange.length > 0;
 
   // Search controls
+  // Header Controls (Filter Button + Active Tags)
   const searchControls = useMemo(
     () => (
-      <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 w-100">
-        <h6 className="mb-0 text-nowrap">My Bookings</h6>
-
-        <div className="d-flex flex-column flex-sm-row gap-2 w-100 justify-content-end">
-          {/* Search Input */}
-          <div style={{ flexGrow: 1, maxWidth: '400px' }}>
-            <InputGroup size='sm'>
-              <InputGroup.Text className="border-end-0 bg-dark">
-                <SearchIcon size={16} className="text-light" />
-              </InputGroup.Text>
-              <Form.Control
-                type="text"
-                placeholder="Search bookings..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="border-0 shadow-none ps-0"
-              />
-              {searchTerm && (
-                <Button
-                  variant="outline-secondary"
-                  className="border-0 bg-dark"
-                  onClick={handleClearSearch}
-                >
-                  <X size={16} />
-                </Button>
-              )}
-            </InputGroup>
-          </div>
-
-          {/* Date Range Picker */}
-          <div style={{ minWidth: '220px' }}>
-            <Flatpickr
-              value={dateRange}
-              options={FLATPICKR_OPTIONS}
-              placeholder="Select date range"
-              onChange={handleDateRangeChange}
-              className="form-control form-control-sm"
-            />
-          </div>
+      <div>
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <h6 className="mb-0">My Bookings</h6>
+          <CustomBtn
+            variant="primary"
+            size="sm"
+            HandleClick={handleOpenFilters}
+            className="d-flex align-items-center gap-2"
+            icon={<Filter size={16} />}
+            btnText=""
+          />
         </div>
+
+        {/* Active Filters Display */}
+        {(searchTerm || dateRange.length > 0) && (
+          <div className="d-flex flex-wrap gap-2 mt-2">
+            {searchTerm && (
+              <Badge bg="light" text="dark" className="d-flex align-items-center gap-2 border fw-normal">
+                Search: {searchTerm}
+                <X
+                  size={14}
+                  className="cursor-pointer text-muted hover-text-dark"
+                  onClick={clearSearchTerm}
+                  style={{ cursor: 'pointer' }}
+                />
+              </Badge>
+            )}
+            {dateRange.length === 2 && (
+              <Badge bg="light" text="dark" className="d-flex align-items-center gap-2 border fw-normal">
+                Date: {formatDateDisplay(dateRange[0])} - {formatDateDisplay(dateRange[1])}
+                <X
+                  size={14}
+                  className="cursor-pointer text-muted hover-text-dark"
+                  onClick={clearDateRange}
+                  style={{ cursor: 'pointer' }}
+                />
+              </Badge>
+            )}
+          </div>
+        )}
       </div>
     ),
-    [dateRange, searchTerm, handleDateRangeChange, handleSearchChange, handleClearSearch]
+    [searchTerm, dateRange, handleOpenFilters, clearSearchTerm, clearDateRange]
   );
 
   // Loading state
@@ -280,6 +313,56 @@ const BookingsTab = () => {
           </>
         )}
       </Card.Body>
+      {/* Filter Modal */}
+      <Modal show={showFilterModal} onHide={() => setShowFilterModal(false)} centered>
+        <Modal.Header className='p-3'>
+          <Modal.Title className='fe-5'>Filter Bookings</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className='p-3'>
+          <Form>
+            <Form.Group className="mb-3">
+              <InputGroup>
+                {/* <InputGroup.Text className="bg-dark">
+                  <SearchIcon size={18} />
+                </InputGroup.Text> */}
+                <Form.Control
+                  type="text"
+                  placeholder="Event name, ID, etc."
+                  value={tempSearchTerm}
+                  onChange={(e) => setTempSearchTerm(e.target.value)}
+                />
+              </InputGroup>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              {/* <Form.Label>Date Range</Form.Label> */}
+              <Flatpickr
+                value={tempDateRange}
+                options={{ ...FLATPICKR_OPTIONS, static: true }}
+                placeholder="Select date range"
+                onChange={handleTempDateRangeChange}
+                className="form-control w-100"
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer className="justify-content-between">
+          <CustomBtn
+            variant="secondary"
+            HandleClick={handleClearAll}
+            buttonText="Clear All"
+            hideIcon={true}
+            size='sm'
+          />
+          <CustomBtn
+            variant="primary"
+            HandleClick={handleApplyFilters}
+            buttonText="Show Results"
+            hideIcon={true}
+            size='sm'
+          />
+        </Modal.Footer>
+      </Modal>
     </GlassCard>
   );
 };

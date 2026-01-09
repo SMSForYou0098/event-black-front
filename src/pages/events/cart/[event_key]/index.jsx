@@ -325,7 +325,7 @@ const CartPage = () => {
     {
       icon: Pin,
       label: "Location",
-      value: event?.address || "Central Park, New York",
+      value: event?.venue?.address || "Central Park, New York",
     },
   ];
 
@@ -382,13 +382,14 @@ const CartPage = () => {
                   <BookingLayout
                     eventId={event?.id}
                     setSelectedTkts={setSelectedTickets}
+                    tax_data={event?.taxData}
                     layoutId={event?.EventHasLayout?.layout_id}
                     event={event}
                   />
                   :
                   <BookingTickets
                     cartItems={cartItems}
-                    tax_data={event?.tax_data}
+                    tax_data={event?.taxData}
                     isMobile={isMobile}
                     selectedTickets={selectedTickets}
                     setSelectedTickets={setSelectedTickets}

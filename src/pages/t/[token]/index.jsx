@@ -27,6 +27,7 @@ import TicketCanvasView from "@/components/events/Tickets/TicketCanvasView";
 import { publicApi } from "@/lib/axiosInterceptor";
 import { ArrowBigDownDash } from "lucide-react";
 import CustomBtn from "@/utils/CustomBtn";
+import MobileTwoButtonFooter from "@/utils/MobileTwoButtonFooter";
 
 // API fetch functions
 const fetchToken = async (orderId) => {
@@ -38,7 +39,7 @@ const fetchToken = async (orderId) => {
 };
 
 const fetchGanCard = async (token) => {
-  const { data } = await publicApi.get(`gan-card/${token}`);
+  const { data } = await publicApi.get(`gen-card/${token}`);
   if (!data.status) {
     throw new Error("Unable to retrieve ticket details");
   }
@@ -108,7 +109,7 @@ const UserCard = () => {
     isError: isTicketError,
     error: ticketError,
   } = useQuery({
-    queryKey: ["gan-card", authToken],
+    queryKey: ["gen-card", authToken],
     queryFn: () => fetchGanCard(authToken),
     enabled: !!authToken,
     staleTime: 1000 * 60 * 10,
@@ -312,7 +313,7 @@ const UserCard = () => {
                 </Row>
 
                 {/* User Information */}
-                {ticketData?.users && (
+                {ticketData?.user && (
                   <div className=" pt-4 border-top">
                     <div className="text-center">
                       <h6 className="mb-4 fw-semibold d-flex justify-content-center align-items-center">
@@ -323,16 +324,16 @@ const UserCard = () => {
                       <div className="d-flex flex-wrap gap-3">
                         <div className="d-flex align-items-center">
                           <User size={16} />
-                          <span className="ms-2 fw-medium">{ticketData.users?.name || "N/A"}</span>
+                          <span className="ms-2 fw-medium">{ticketData.user?.name || "N/A"}</span>
                         </div>
                         <div className="d-flex align-items-center">
                           <Phone size={16} />
-                          <span className="ms-2 fw-medium">{ticketData.users?.number || "N/A"}</span>
+                          <span className="ms-2 fw-medium">{ticketData.user?.number || "N/A"}</span>
                         </div>
                       </div>
                       <div className="d-flex align-items-center mt-2 mt-lg-0">
                         <Mail size={16} />
-                        <span className="ms-2 fw-medium">{ticketData.users?.email || "N/A"}</span>
+                        <span className="ms-2 fw-medium">{ticketData.user?.email || "N/A"}</span>
                       </div>
                     </div>
                   </div>
@@ -402,58 +403,50 @@ const UserCard = () => {
 
         {/* Fixed Footer Combine and Download Buttons - Visible only on mobile (< md) */}
         {ticketData && (
-          <div
-            className="d-md-none bg-white"
-            style={{
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: '1rem',
-              boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
-              zIndex: 1000,
-              borderTop: '1px solid #e0e0e0'
-            }}
-          >
-            <div className="d-flex gap-2">
-              {ticketCount > 1 ? (
-                <>
-                  {disableCombineButton && (
-                    <Button
-                      variant="success"
-                      onClick={() => handleDownloadClick('combine')}
-                      className="flex-fill"
-                      size="lg"
-                      disabled={!imageLoaded && cardImageUrl}
-                    >
-                      <Ticket size={20} className="me-2" />
-                      Combined
-                    </Button>
-                  )}
+          <div className="d-md-none">
+
+            <MobileTwoButtonFooter
+
+              leftButton={
+                ticketCount > 1 && disableCombineButton ? (
+                  <Button
+                    variant="success"
+                    onClick={() => handleDownloadClick('combine')}
+                    className="w-100"
+                    size="lg"
+                    disabled={!imageLoaded && cardImageUrl}
+                  >
+                    <Ticket size={20} className="me-2" />
+                    Combined
+                  </Button>
+                ) : ticketCount === 1 ? (
+                  <Button
+                    variant="primary"
+                    onClick={() => handleDownloadClick('single')}
+                    className="w-100"
+                    size="lg"
+                    disabled={!imageLoaded && cardImageUrl}
+                  >
+                    <Download size={20} className="me-2" />
+                    Download Ticket
+                  </Button>
+                ) : null
+              }
+              rightButton={
+                ticketCount > 1 ? (
                   <Button
                     variant="primary"
                     onClick={() => handleDownloadClick('download')}
-                    className="flex-fill"
+                    className="w-100"
                     size="lg"
                     disabled={!imageLoaded && cardImageUrl}
                   >
                     <Download size={20} className="me-2" />
                     Individual
                   </Button>
-                </>
-              ) : (
-                <Button
-                  variant="primary"
-                  onClick={() => handleDownloadClick('single')}
-                  className="w-100"
-                  size="lg"
-                  disabled={!imageLoaded && cardImageUrl}
-                >
-                  <Download size={20} className="me-2" />
-                  Download Ticket
-                </Button>
-              )}
-            </div>
+                ) : null
+              }
+            />
           </div>
         )}
 
@@ -517,19 +510,32 @@ const UserCard = () => {
                           <div className="d-flex flex-column align-items-center">
                             <TicketCanvasView
                               ref={singleCanvasRef}
-                              showDetails={false}
-                              ticketName={ticketData?.ticket?.name || "Event Ticket"}
-                              userName={ticketData?.users?.name || "Guest"}
-                              number={ticketData?.users?.number || "N/A"}
-                              address={ticketData?.event?.address || "Venue not specified"}
-                              ticketBG={cardImageUrl}
+                              showDetails={true}
                               preloadedImage={true}
-                              date={formattedDate}
-                              time={timeString}
-                              photo={null}
-                              OrderId={drawerType === 'single' && ticketData?.data?.[0]?.token ? ticketData.data[0].token : orderId}
                               ticketNumber={drawerType === 'single' ? 1 : undefined}
                               onReady={() => setIsCanvasReady(true)}
+                              ticketData={{
+                                ticket: {
+                                  name: ticketData?.ticket?.name || "Event Ticket",
+                                  price: ticketData?.ticket?.price,
+                                  currency: ticketData?.ticket?.currency,
+                                  background_image: cardImageUrl,
+                                  event: {
+                                    name: ticketData?.event?.name,
+                                    date_range: ticketData?.event?.date_range,
+                                    start_time: ticketData?.event?.start_time,
+                                    entry_time: ticketData?.event?.entry_time,
+                                    address: ticketData?.event?.address || "Venue not specified",
+                                  }
+                                },
+                                user: {
+                                  name: ticketData?.user?.name || "Guest",
+                                  number: ticketData?.user?.number || "N/A",
+                                },
+                                order_id: drawerType === 'single' && ticketData?.data?.[0]?.token ? ticketData.data[0].token : orderId,
+                                booking_type: ticketData?.booking_type,
+                                booking_date: ticketData?.data?.[0]?.booking_date,
+                              }}
                             />
                           </div>
                         ) : (
@@ -556,19 +562,33 @@ const UserCard = () => {
                                 {imageLoaded ? (
                                   <TicketCanvasView
                                     ref={(el) => { swiperCanvasRefs.current[index] = el; }}
-                                    showDetails={false}
-                                    ticketName={ticketData?.ticket?.name || "Event Ticket"}
-                                    userName={ticketData?.users?.name || "Guest"}
-                                    number={ticketData?.users?.number || "N/A"}
-                                    address={ticketData?.event?.address || "Venue not specified"}
-                                    ticketBG={cardImageUrl}
+                                    showDetails={true}
                                     preloadedImage={true}
-                                    date={formattedDate}
-                                    time={timeString}
-                                    photo={null}
-                                    OrderId={item.token}
                                     ticketNumber={index + 1}
                                     onReady={() => setIsCanvasReady(true)}
+                                    ticketData={{
+                                      ticket: {
+                                        name: ticketData?.ticket?.name || "Event Ticket",
+                                        price: ticketData?.ticket?.price,
+                                        currency: ticketData?.ticket?.currency,
+                                        background_image: cardImageUrl,
+                                        event: {
+                                          name: ticketData?.event?.name,
+                                          date_range: ticketData?.event?.date_range,
+                                          start_time: ticketData?.event?.start_time,
+                                          entry_time: ticketData?.event?.entry_time,
+                                          address: ticketData?.event?.address || "Venue not specified",
+                                        }
+                                      },
+                                      user: {
+                                        name: ticketData?.user?.name || "Guest",
+                                        number: ticketData?.user?.number || "N/A",
+                                      },
+                                      attendee: item?.attendee || null,
+                                      order_id: item.token,
+                                      booking_type: ticketData?.booking_type || "individual",
+                                      booking_date: item?.booking_date,
+                                    }}
                                   />
                                 ) : (
                                   <div className="text-center py-5">
@@ -618,7 +638,7 @@ const UserCard = () => {
             {/* Fixed Footer Button - Mobile Only */}
             {!showTicketInDrawer && (
               <div
-                className="d-md-none bg-white"
+                className="d-md-none bg-dark"
                 style={{
                   position: 'absolute',
                   bottom: 0,

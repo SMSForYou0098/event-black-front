@@ -20,7 +20,6 @@ const TicketCanvasView = forwardRef((props, ref) => {
     } = props;
 
 
-    console.log(ticketData);
     const { convertTo12HourFormat, formatDateRange } = useMyContext();
     const canvasRef = useRef(null);
     const fabricCanvasRef = useRef(null);
@@ -38,16 +37,16 @@ const TicketCanvasView = forwardRef((props, ref) => {
     const userName = user?.name || user?.Name || 'User Name';
     // Aggregate seat names for group tickets
     const seatNames = ticketData?.bookings?.length > 1
-        ? ticketData.bookings.map(b => b.seat_name).filter(Boolean).join(', ')
+        ? ticketData.bookings.map(b => b.seat_name || b.event_seat_status?.seat_name).filter(Boolean).join(', ')
         : null;
-    const number = seatNames || ticketData?.seat_name || user?.number || user?.Mo || 'N/A';
+    const number = seatNames || ticketData?.seat_name || ticketData?.event_seat_status?.seat_name || 'N/A';
     const address = venue?.address || event?.address || 'Address Not Specified';
     const ticketBG = ticket?.background_image || '';
     const date = formatDateRange?.(ticketData?.booking_date || event?.date_range) || 'Date Not Available';
     const time = convertTo12HourFormat?.(event?.start_time) || 'Time Not Set';
     const OrderId = ticketData?.order_id || ticketData?.token || 'N/A';
     const title = event?.name || 'Event Name';
-    const bookingType = ticketData?.booking_type || 'N/A';
+    const bookingType = ticketData?.booking_type || 'Online';
 
     // State
     const [imageUrl, setImageUrl] = useState(null);
@@ -242,7 +241,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
 
                     // Label (I) or (G)
                     if (props.ticketLabel) {
-                        centerText(props.ticketLabel + props.tit, 16, 'Arial', canvas, currentY, { fontWeight: 'bold', fill: '#666' });
+                        centerText(props.ticketLabel + (ticketNumber ? ' ' + ticketNumber : ''), 16, 'Arial', canvas, currentY, { fontWeight: 'bold', fill: '#666' });
                         currentY += 25;
                     } else {
                         currentY += 10;

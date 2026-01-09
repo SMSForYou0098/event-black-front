@@ -26,16 +26,16 @@ export const withSSR = (fetchFunction) => {
       return result;
     } catch (error) {
       console.error('SSR Error:', error.message);
-      
+
       // Handle different error types
       if (error.response?.status === 404) {
         return { notFound: true };
       }
-      
+
       if (error.response?.status >= 500) {
         console.error('Server Error:', error.response.data);
       }
-      
+
       // Default fallback
       return { notFound: true };
     }
@@ -46,13 +46,13 @@ export const withSSR = (fetchFunction) => {
 export const getEventSSR = withSSR(async (context) => {
   const { event_key } = context.params;
   const fetcher = createSSRFetcher();
-  
+
   const { data: eventData } = await fetcher.get(`/api/events/${event_key}`);
-  
+
   if (!eventData) {
     return { notFound: true };
   }
-  
+
   return {
     props: {
       eventData,
@@ -65,15 +65,15 @@ export const getEventSSR = withSSR(async (context) => {
 export const getEventsSSR = withSSR(async (context) => {
   const { page = 1, limit = 10, category } = context.query;
   const fetcher = createSSRFetcher();
-  
+
   const params = { page, limit };
   if (category) params.category = category;
-  
+
   const [eventsRes, categoriesRes] = await Promise.all([
     fetcher.get('/api/events', { params }),
     fetcher.get('/api/categories')
   ]);
-  
+
   return {
     props: {
       events: eventsRes.data || [],
@@ -91,16 +91,16 @@ export const getEventsSSR = withSSR(async (context) => {
 export const getBlogPostSSR = withSSR(async (context) => {
   const { slug } = context.params;
   const fetcher = createSSRFetcher();
-  
+
   const { data: post } = await fetcher.get(`/api/blog/${slug}`);
-  
+
   if (!post) {
     return { notFound: true };
   }
-  
+
   // Fetch related posts
   const { data: relatedPosts } = await fetcher.get(`/api/blog/related/${slug}?limit=3`);
-  
+
   return {
     props: {
       post,
@@ -113,13 +113,13 @@ export const getBlogPostSSR = withSSR(async (context) => {
 // Homepage data SSR
 export const getHomePageSSR = withSSR(async () => {
   const fetcher = createSSRFetcher();
-  
+
   const [bannerRes, featuredEventsRes, categoriesRes] = await Promise.all([
     fetcher.get('/api/banners'),
     fetcher.get('/api/events/featured?limit=8'),
     fetcher.get('/api/categories')
   ]);
-  
+
   return {
     props: {
       banners: bannerRes.data || [],
@@ -133,7 +133,7 @@ export const getHomePageSSR = withSSR(async () => {
 export const getUserProfileSSR = withSSR(async (context) => {
   const { req } = context;
   const fetcher = createSSRFetcher();
-  
+
   // Check authentication
   const token = req.cookies.auth_token;
   if (!token) {
@@ -144,13 +144,13 @@ export const getUserProfileSSR = withSSR(async (context) => {
       },
     };
   }
-  
+
   // Set authorization header
   fetcher.defaults.headers.Authorization = `Bearer ${token}`;
-  
+
   const { data: user } = await fetcher.get('/api/user/profile');
   const { data: bookings } = await fetcher.get('/api/user/bookings');
-  
+
   return {
     props: {
       user,
@@ -164,13 +164,13 @@ export const createSingleItemSSR = (endpoint, paramKey = 'id') => {
   return withSSR(async (context) => {
     const paramValue = context.params[paramKey];
     const fetcher = createSSRFetcher();
-    
+
     const { data } = await fetcher.get(`${endpoint}/${paramValue}`);
-    
+
     if (!data) {
       return { notFound: true };
     }
-    
+
     return {
       props: {
         data,
@@ -185,10 +185,10 @@ export const createListSSR = (endpoint, defaultLimit = 10) => {
   return withSSR(async (context) => {
     const { page = 1, limit = defaultLimit, ...filters } = context.query;
     const fetcher = createSSRFetcher();
-    
+
     const params = { page, limit, ...filters };
     const { data } = await fetcher.get(endpoint, { params });
-    
+
     return {
       props: {
         items: data?.items || [],
@@ -207,7 +207,7 @@ export const createListSSR = (endpoint, defaultLimit = 10) => {
 // Search results SSR
 export const getSearchSSR = withSSR(async (context) => {
   const { q, category, location, page = 1 } = context.query;
-  
+
   if (!q) {
     return {
       props: {
@@ -218,12 +218,12 @@ export const getSearchSSR = withSSR(async (context) => {
       },
     };
   }
-  
+
   const fetcher = createSSRFetcher();
   const params = { q, category, location, page, limit: 20 };
-  
+
   const { data } = await fetcher.get('/api/search', { params });
-  
+
   return {
     props: {
       results: data?.results || [],
@@ -242,7 +242,7 @@ export const getSearchSSR = withSSR(async (context) => {
 export const withCache = (ssrFunction, cacheTime = 300) => {
   return async (context) => {
     const result = await ssrFunction(context);
-    
+
     if (result.props) {
       // Add cache headers
       context.res.setHeader(
@@ -250,7 +250,7 @@ export const withCache = (ssrFunction, cacheTime = 300) => {
         `public, s-maxage=${cacheTime}, stale-while-revalidate=86400`
       );
     }
-    
+
     return result;
   };
 };
@@ -259,11 +259,11 @@ export const withCache = (ssrFunction, cacheTime = 300) => {
 export const withISR = (ssrFunction, revalidate = 60) => {
   return async (context) => {
     const result = await ssrFunction(context);
-    
+
     if (result.props) {
       result.revalidate = revalidate;
     }
-    
+
     return result;
   };
 };
@@ -272,20 +272,15 @@ export const withISR = (ssrFunction, revalidate = 60) => {
 export const withDevLogging = (ssrFunction) => {
   return async (context) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('SSR Context:', {
-        params: context.params,
-        query: context.query,
-        url: context.resolvedUrl
-      });
-      
+
       const startTime = Date.now();
       const result = await ssrFunction(context);
       const endTime = Date.now();
-      
+
       console.log(`SSR completed in ${endTime - startTime}ms`);
       return result;
     }
-    
+
     return ssrFunction(context);
   };
 };

@@ -250,7 +250,6 @@ const GlobalSearch = ({ show, handleShow }) => {
       onHide={handleShow}
       centered
       size="lg"
-      backdrop="static"
       keyboard={false}
       className="modern-search-modal"
     >
@@ -278,13 +277,13 @@ const GlobalSearch = ({ show, handleShow }) => {
                 <X size={18} />
               </Button>
             )}
-            <Button
+            {/* <Button
               variant="link"
               className="text-muted text-decoration-none"
               onClick={handleShow}
             >
               <Badge bg="secondary" className="text-white">Esc</Badge>
-            </Button>
+            </Button> */}
           </InputGroup>
         </div>
       </Modal.Header>

@@ -50,32 +50,9 @@ export const useCreateReview = () => {
             return res.data;
         },
         onSuccess: (newReview, variables) => {
-            queryClient.setQueryData(["reviews", "event", variables.eventId], (oldData) => {
-                if (!oldData) return oldData;
-
-                const reviewToAdd = newReview.data || newReview;
-
-                // Handle infinite query structure (pages array)
-                // Add new review to the beginning of the first page
-                const newPages = oldData.pages.map((page, index) => {
-                    if (index === 0) {
-                        return {
-                            ...page,
-                            data: {
-                                ...page.data,
-                                data: [reviewToAdd, ...(page.data?.data || [])],
-                                total: (page.data?.total || 0) + 1
-                            },
-                        };
-                    }
-                    // Update total count on other pages if needed/available, but main list is page 0
-                    return page;
-                });
-
-                return {
-                    ...oldData,
-                    pages: newPages,
-                };
+            // Invalidate and refetch to get the complete data with user info
+            queryClient.invalidateQueries({
+                queryKey: ["reviews", "event", variables.eventId]
             });
         },
     });
@@ -101,14 +78,12 @@ export const useUpdateReview = () => {
 
                 const reviewToUpdate = updatedReview.data || updatedReview;
 
+                // Update the review in page.data array (data is an array directly)
                 const newPages = oldData.pages.map((page) => ({
                     ...page,
-                    data: {
-                        ...page.data,
-                        data: (page.data?.data || []).map((r) =>
-                            r.id === variables.reviewId ? { ...r, ...reviewToUpdate } : r
-                        ),
-                    },
+                    data: (page.data || []).map((r) =>
+                        r.id === variables.reviewId ? { ...r, ...reviewToUpdate } : r
+                    ),
                 }));
 
                 return {
@@ -135,13 +110,14 @@ export const useDeleteReview = () => {
             queryClient.setQueryData(["reviews", "event", variables.eventId], (oldData) => {
                 if (!oldData) return oldData;
 
+                // Filter out the deleted review from page.data array and update pagination.total
                 const newPages = oldData.pages.map((page) => ({
                     ...page,
-                    data: {
-                        ...page.data,
-                        data: (page.data?.data || []).filter((r) => r.id !== variables.reviewId),
-                        total: Math.max(0, (page.data?.total || 0) - 1)
-                    },
+                    data: (page.data || []).filter((r) => r.id !== variables.reviewId),
+                    pagination: page.pagination ? {
+                        ...page.pagination,
+                        total: Math.max(0, (page.pagination.total || 0) - 1)
+                    } : page.pagination
                 }));
 
                 return {

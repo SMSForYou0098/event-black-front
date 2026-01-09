@@ -8,7 +8,9 @@ import { signIn, logout } from "@/store/auth/authSlice";
 import { PasswordField } from "../../components/CustomComponents/CustomFormFields";
 import { ChevronLeft, LoaderCircle, Mail } from "lucide-react";
 import CustomBtn from "../../utils/CustomBtn";
+import Link from "next/link";
 import { useMyContext } from "@/Context/MyContextProvider";
+import Logo from "../partials/Logo";
 
 const MODAL_VIEWS = {
     SIGN_IN: "SIGN_IN",
@@ -43,7 +45,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
     const [validationErrors, setValidationErrors] = useState({});
     const [serverError, setServerError] = useState("");
 
-    const MAX_RESEND_ATTEMPTS = 3;
+    const MAX_RESEND_ATTEMPTS = 10;
     const RESEND_COOLDOWN = 60;
 
     // Determine input type (email or phone)
@@ -88,7 +90,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                     });
                 } else {
                     setTimerVisible(true);
-                    setCountdown(30);
+                    setCountdown(60);
                     setCurrentView(MODAL_VIEWS.OTP);
                     setOtpSent(true);
                     setOTP("");
@@ -108,13 +110,20 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                 setNumber(credential);
                 setEmail("");
             }
-            setCurrentView(MODAL_VIEWS.SIGN_UP);
+            setServerError(
+                error.response?.data?.error ||
+                error.response?.data?.message ||
+                "Something went wrong"
+            );
+            if (error?.response?.data?.meta === 404) {
+                setCurrentView(MODAL_VIEWS.SIGN_UP);
+            }
         },
     });
 
     const createUserMutation = useMutation({
         mutationFn: async (userData) => {
-            const response = await publicApi.post("/create-user", userData);
+            const response = await publicApi.post("/create-user", { ...userData, password: number });
             return response.data;
         },
         onSuccess: (data) => {
@@ -551,7 +560,17 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                             </Form.Control.Feedback>
                         </Form.Group>
 
-                        <div className="d-grid gap-2 my-3">
+                        <div className="d-flex justify-content-between align-items-center mt-2">
+                            <CustomBtn
+                                type="button"
+                                variant="default"
+                                className="btn-tertiary"
+                                HandleClick={handleBack}
+                                buttonText="Back"
+                                disabled={isLoading}
+                                hideIcon={true}
+                            // className="w-100"
+                            />
                             <CustomBtn
                                 type="submit"
                                 variant="primary"
@@ -560,15 +579,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                                 buttonText={isLoading ? "Verifying..." : "Verify OTP"}
                                 className="w-100"
                             />
-                            <CustomBtn
-                                type="button"
-                                variant="secondary"
-                                HandleClick={handleBack}
-                                buttonText="Back"
-                                disabled={isLoading}
-                                className="w-100"
-                            />
                         </div>
+
 
                         <div className="text-center pb-3">
                             <p className="my-3">OTP sent to your mobile number and email</p>
@@ -680,8 +692,19 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                                 {validationErrors.terms}
                             </Form.Control.Feedback>
                         </div>
+                        <div className="d-flex justify-content-between align-items-center mt-2">
+                            <CustomBtn
+                                variant="link"
+                                HandleClick={handleBack}
+                                type="button"
+                                className="p-0 text-decoration-none"
+                                disabled={isLoading}
+                                buttonText={isLoading ? "Processing..." : "Back to Login"}
+                                icon={<ChevronLeft size={16} className="me-1" />}
+                                iconPosition="left"
+                                size="sm"
+                            />
 
-                        <div className="pb-3">
                             <CustomBtn
                                 type="submit"
                                 variant="primary"
@@ -812,7 +835,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                                 )}
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter email or mobile number"
+                                    placeholder="Enter mobile number or email address"
                                     value={credential}
                                     onChange={(e) => {
                                         setCredential(e.target.value);
@@ -832,18 +855,18 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                         </Form.Group>
 
                         <div className="d-flex flex-column gap-3 mb-3">
-                            <Form.Check
-                                type="checkbox"
-                                id="remember-me"
-                                label="Remember Me"
-                                className="mb-0"
-                            />
+                            <span style={{ fontSize: '12px' }} className="text-secondary mt-2 d-block">
+                                By continuing, you agree to accept our <Link href="/terms-and-conditions" className="text-decoration-underline text-primary">Terms & Conditions</Link> and <Link href="/privacy-policy" className="text-decoration-underline text-primary">Privacy Policy</Link>.
+                            </span>
+
+
+
                             <CustomBtn
                                 type="submit"
                                 variant="primary"
                                 disabled={isLoading}
                                 icon={isLoading ? <LoaderCircle className="spin" /> : null}
-                                buttonText={isLoading ? "Processing..." : "Next"}
+                                buttonText={isLoading ? "Processing..." : "Continue"}
                                 size="sm"
                                 className="w-100"
                             />
@@ -872,9 +895,11 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                 borderTopRightRadius: '20px',
             }}
         >
-            <Offcanvas.Header closeButton className="border-0 pb-0">
+            <Offcanvas.Header className="border-0 pb-0">
                 <Offcanvas.Title className="w-100 text-center">
-                    <h4 className="mb-0 text-light">{getTitle()}</h4>
+                    <Logo height={107} width={240}
+                        mobileUrl={"/assets/images/logo/logo.webp"} />
+                    {/* <h4 className="mb-0 text-light">{getTitle()}</h4> */}
                 </Offcanvas.Title>
             </Offcanvas.Header>
 
@@ -892,6 +917,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
         >
             <Modal.Header closeButton className="border-0 pb-0">
                 <Modal.Title className="w-100 text-center">
+                    <Logo height={107} width={240} />
                     <h4 className="mb-0 text-light">{getTitle()}</h4>
                 </Modal.Title>
             </Modal.Header>

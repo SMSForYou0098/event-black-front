@@ -5,7 +5,7 @@ const Logo = ({
   height = 50,
   width = 50,
   size = 50,
-  desktopUrl = "/assets/images/logo/logo.png",
+  desktopUrl = "/assets/images/logo/logo.webp",
   mobileUrl = "/assets/images/logo/logo-sm.webp",
   handleClick,
 }) => {

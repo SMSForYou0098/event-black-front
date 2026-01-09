@@ -122,7 +122,7 @@ export const MyContextProvider = ({ children }) => {
         const fName = EfileName;
         DownloadExcelFile(data, fName);
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   const handleMakeReport = async (number, message_id) => {
@@ -132,7 +132,7 @@ export const MyContextProvider = ({ children }) => {
         waId: number,
         display_phone_number: UserData?.whatsapp_number,
       });
-    } catch {}
+    } catch { }
   };
 
   const formatDateTime = (dateTime) => {
@@ -365,7 +365,8 @@ export const MyContextProvider = ({ children }) => {
       return title
         .replace(/&/g, "and")
         .replace(/[\s]+/g, "-")
-        .replace(/[^\w-]+/g, "");
+        .replace(/[^\w-]+/g, "")
+        .toLowerCase();
     }
     return "";
   };

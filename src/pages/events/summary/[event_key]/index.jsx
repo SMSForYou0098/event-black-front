@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
-import { Calendar, Clock, MapPin, User, } from 'lucide-react';
+import { Calendar, Clock, Mail, MapPin, User, } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
 import { CUSTOM_SECONDORY } from '../../../../utils/consts';
 import { useRouter } from "next/router";
@@ -12,7 +12,7 @@ import { api } from "@/lib/axiosInterceptor"
 import { useMyContext } from "@/Context/MyContextProvider";
 import BookingSummarySkeleton from '../../../../utils/SkeletonUtils/BookingSummarySkeleton';
 import { FaWhatsapp, FaSms } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
+import { MdEmail, } from "react-icons/md";
 import Swal from 'sweetalert2';
 import CustomBtn from '../../../../utils/CustomBtn';
 import TicketModal from '../../../../components/Tickets/TicketModal';
@@ -124,10 +124,22 @@ const BookingSummary = () => {
 
     // Derived data from mutation (before conditional returns)
     const isMaster = mutation.data?.isMaster || false;
-    const booking = mutation.data?.bookings || {};
-    const ticket = mutation?.data?.ticket || {};
-    const event = mutation?.data?.event || {};
-    const user = mutation?.data?.user || {};
+    const booking = isMaster ? mutation.data?.bookings?.bookings[0] || {} : mutation.data?.bookings || {};
+
+    const quantity = isMaster ? mutation.data?.bookings?.bookings.length : 1;
+    // For master bookings, get the first booking from the bookings array to extract ticket/event data
+    const firstBooking = isMaster && booking?.bookings?.length > 0 ? booking.bookings[0] : null;
+
+    const ticket = firstBooking?.ticket || booking?.ticket || mutation?.data?.ticket || {};
+    const event = ticket?.event || mutation?.data?.event || {};
+    const venue = event?.venue || {};
+
+    // User data can be in booking directly, in the first booking's user, or in a separate user object
+    const user = {
+        name: booking?.user?.name || booking?.name || mutation?.data?.user?.name,
+        number: booking?.user?.number || booking?.number || mutation?.data?.user?.number,
+        email: booking?.user?.email || booking?.email || mutation?.data?.user?.email,
+    };
     const attendees = mutation?.data?.attendee || [];
 
     // NOW conditional returns AFTER all hooks
@@ -156,8 +168,13 @@ const BookingSummary = () => {
     };
 
     const getEventTimes = () => {
-        if (!event.start_time || !event.end_time) return 'N/A';
-        return `${event.start_time} - ${event.end_time}`;
+        if (!event.start_time && !event.entry_time) return 'N/A';
+        const entryTime = event.entry_time || '';
+        const startTime = event.start_time || '';
+        if (entryTime && startTime) {
+            return `${entryTime} - ${startTime}`;
+        }
+        return entryTime || startTime;
     };
 
     const HandleDownload = () => {
@@ -199,16 +216,16 @@ const BookingSummary = () => {
                             eventName={event?.name}
                             ticketName={ticket?.name}
                             price={ticket?.price}
-                            quantity={booking?.bookings?.length || 1}
+                            quantity={quantity}
                             hidePrices={false}
                             handleOpen={handleOpen}
                             attendees={attendees}
                             sale_price={ticket?.sale_price}
                             currency={ticket?.currency}
                             showAttBtn={true}
-                            subTotal={mutation?.data?.taxes?.base_amount}
+                            subTotal={mutation?.data?.taxes?.total_base_amount}
                             processingFee={mutation?.data?.taxes?.total_tax}
-                            total={mutation?.data?.taxes?.final_amount || booking?.amount}
+                            total={mutation?.data?.taxes?.total_final_amount}
                         />
                         <AttendeesOffcanvas
                             show={showAttendees}
@@ -233,20 +250,47 @@ const BookingSummary = () => {
                                         </div>
                                     </Col>
                                     <Col xs={6}>
-                                        <div className="d-flex align-items-center">
-                                            <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Time</div>
-                                                <div className="text-white fw-bold">{getEventTimes()}</div>
-                                            </div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6}>
                                         <div className="d-flex align-items-start">
                                             <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
                                             <div>
                                                 <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Booking Date</div>
                                                 <div className="text-white fw-bold">{formatDate(booking?.created_at) || 'N/A'}</div>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col xs={6}>
+                                        <div className="d-flex align-items-center">
+                                            <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                                            <div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Entry Time</div>
+                                                <div className="text-white fw-bold">{event?.entry_time}</div>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col xs={6}>
+                                        <div className="d-flex align-items-center">
+                                            <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                                            <div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Start Time</div>
+                                                <div className="text-white fw-bold">{event?.start_time}</div>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col xs={6}>
+                                        <div className="d-flex align-items-start">
+                                            <MapPin size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+                                            <div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Venue</div>
+                                                <div className="text-white fw-bold">{venue?.address || event?.address || 'Venue Address'}</div>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col xs={6}>
+                                        <div className="d-flex align-items-start">
+                                            <User size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+                                            <div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Name</div>
+                                                <div className="text-white fw-bold">{user?.name || 'N/A'}</div>
                                             </div>
                                         </div>
                                     </Col>
@@ -259,15 +303,18 @@ const BookingSummary = () => {
                                             </div>
                                         </div>
                                     </Col>
+                                    <Col xs={6}>
+                                        <div className="d-flex align-items-start">
+                                            <Mail size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+                                            <div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Email</div>
+                                                <div className="text-white fw-bold">{user?.email || 'N/A'}</div>
+                                            </div>
+                                        </div>
+                                    </Col>
+
                                 </Row>
 
-                                <div className="d-flex align-items-start">
-                                    <MapPin size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
-                                    <div>
-                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Venue</div>
-                                        <div className="text-white fw-bold">{event.address || 'Venue Address'}</div>
-                                    </div>
-                                </div>
                             </Card.Body>
                         </Card>
                         <div className='d-block d-sm-none'>

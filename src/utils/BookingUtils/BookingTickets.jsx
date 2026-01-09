@@ -43,20 +43,19 @@ const BookingTickets = ({
           // default/fallback: no convenience fee
           convenienceFee = 0;
         }
-        // --- GST (kept as-is) ---
-        const centralGST = round(convenienceFee * 0.09);
-        const stateGST = round(convenienceFee * 0.09);
-        const totalTax = round(centralGST + stateGST + convenienceFee);
-        const finalAmount = round(baseAmount + totalTax);
-        // Totals
-        const totalBaseAmount = round(baseAmount * quantity);
-        const totalCentralGST = round(centralGST * quantity);
-        const totalStateGST = round(stateGST * quantity);
-        const totalConvenienceFee = round(convenienceFee * quantity);
-        const totalTaxTotal = round(
-          totalCentralGST + totalStateGST + totalConvenienceFee
-        );
-        const totalFinalAmount = round(totalBaseAmount + totalTaxTotal);
+        // --- GST (calculated without intermediate rounding for precision) ---
+        const centralGST = convenienceFee * 0.09;
+        const stateGST = convenienceFee * 0.09;
+        const totalTax = centralGST + stateGST + convenienceFee;
+        const finalAmount = baseAmount + totalTax;
+
+        // Totals (calculated without intermediate rounding)
+        const totalBaseAmount = baseAmount * quantity;
+        const totalCentralGST = centralGST * quantity;
+        const totalStateGST = stateGST * quantity;
+        const totalConvenienceFee = convenienceFee * quantity;
+        const totalTaxTotal = totalCentralGST + totalStateGST + totalConvenienceFee;
+        const totalFinalAmount = totalBaseAmount + totalTaxTotal;
 
         return {
           id,
@@ -64,25 +63,25 @@ const BookingTickets = ({
           quantity,
           price: round(price),
 
-          // per-unit
-          baseAmount,
-          centralGST,
-          stateGST,
-          convenienceFee,
-          totalTax,
-          finalAmount,
+          // per-unit (rounded for display)
+          baseAmount: round(baseAmount),
+          centralGST: round(centralGST),
+          stateGST: round(stateGST),
+          convenienceFee: round(convenienceFee),
+          totalTax: round(totalTax),
+          finalAmount: round(finalAmount),
 
-          // totals
-          totalBaseAmount,
-          totalCentralGST,
-          totalStateGST,
-          totalConvenienceFee,
-          totalTaxTotal,
-          totalFinalAmount,
+          // totals (rounded for display)
+          totalBaseAmount: round(totalBaseAmount),
+          totalCentralGST: round(totalCentralGST),
+          totalStateGST: round(totalStateGST),
+          totalConvenienceFee: round(totalConvenienceFee),
+          totalTaxTotal: round(totalTaxTotal),
+          totalFinalAmount: round(totalFinalAmount),
 
           // convenience
           subTotal: round(price * quantity),
-          grandTotal: totalFinalAmount,
+          grandTotal: round(totalFinalAmount),
         };
       });
     },
@@ -189,13 +188,14 @@ const BookingTickets = ({
                   {/* Inline Description */}
                   {item.description && expandedTicket === item.id && (
                     <span
-                      className="mt-2 text-muted small"
+                      className="mt-2 fw-100 text-light small"
                       style={{
                         animation: 'fadeIn 0.3s ease-in-out',
-                        display: 'block'
+                        display: 'block',
+                        fontWeight: '300'
                       }}
                     >
-                      <strong className="d-block mb-1">Description:</strong>
+                      {/* <strong className="d-block mb-1">Description:</strong> */}
                       {item.description}
                     </span>
                   )}

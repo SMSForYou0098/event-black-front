@@ -163,10 +163,10 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     //   animation: { scale: [1, 1.2, 1] },
     // },
     {
-      key: "profile",
-      onClick: () => router.push("/profile"),
+      key: "Bookings",
+      onClick: () => router.push("/my-bookings"),
       Icon: UserIcon,
-      text: "Profile",
+      text: "Bookings",
       animation: { scale: [1, 1.2, 1] },
     },
   ];

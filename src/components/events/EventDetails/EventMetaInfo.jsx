@@ -8,12 +8,13 @@ import CustomBtn from "../../../utils/CustomBtn";
 import CustomDrawer from "../../../utils/CustomDrawer";
 import { CustomTooltip } from "../../../utils/CustomTooltip";
 import CustomBadge from "../../../utils/ProfileUtils/getBadgeClass";
+import { MobileOnly, TabletAndDesktop } from "@/utils/ResponsiveRenderer";
+
 const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const { setShowHeaderBookBtn, isMobile, formatDateDDMMYYYY } = useMyContext();
   const bookBtnRef = useRef(null);
   const [showOffcanvas, setShowOffcanvas] = useState(false);
   const router = useRouter();
-  console.log(eventData)
   const isHouseFull = eventData?.eventControls?.house_full;
   const isSoldOut = eventData?.eventControls?.is_sold_out;
   const isPostponed = eventData?.eventControls?.is_postponed;
@@ -310,11 +311,38 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       </div>
 
       {/* drawer */}
-      <CustomDrawer title="Booking Info" showOffcanvas={showOffcanvas} setShowOffcanvas={setShowOffcanvas}>
-        <div>
+      <CustomDrawer title="" showOffcanvas={showOffcanvas} setShowOffcanvas={setShowOffcanvas}>
+        <div style={{ paddingBottom: '80px' }}>
           <p className="p-0 m-0" dangerouslySetInnerHTML={{ __html: eventData?.booking_notice }} />
-          <CustomBtn variant="primary" buttonText="Continue" HandleClick={handleContinue} className="position-relative float-end" />
+          <TabletAndDesktop>
+            <div className="mt-0 d-flex justify-content-end">
+              <CustomBtn size="sm" variant="primary" buttonText="Continue" HandleClick={handleContinue} className="position-relative float-end" />
+            </div>
+          </TabletAndDesktop>
         </div>
+
+        {/* Sticky Button for Mobile */}
+        <MobileOnly>
+          <div
+            className="position-fixed bottom-0 start-0 w-100 p-3"
+            style={{
+              zIndex: 1050,
+              backdropFilter: "blur(18px) saturate(180%)",
+              WebkitBackdropFilter: "blur(18px) saturate(180%)",
+              backgroundColor: "rgba(var(--bs-body-bg-rgb), 0.8)",
+              borderTop: "1px solid var(--bs-border-color)"
+            }}
+          >
+            <CustomBtn
+              wrapperClassName="w-100"
+              size="sm"
+              variant="primary"
+              buttonText="Continue"
+              HandleClick={handleContinue}
+              className="w-100"
+            />
+          </div>
+        </MobileOnly>
       </CustomDrawer>
     </>
   );

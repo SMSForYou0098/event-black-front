@@ -34,7 +34,7 @@ const EventSeatsListener = ({ eventId, sections, setSections, selectedSeats, set
         }
 
         const channelName = `event-seats.${eventId}`;
-        console.log(`🎫 Listening to event-seats channel: ${channelName}`);
+        // console.log(`🎫 Listening to event-seats channel: ${channelName}`);
 
         // Get the channel
         const channel = echo.channel(channelName);

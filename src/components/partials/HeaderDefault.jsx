@@ -43,7 +43,8 @@ import CustomBtn from "@/utils/CustomBtn";
 import AvatarImage from "../../utils/ProfileUtils/AvatarImage";
 import GlobalSearch from "../modals/GlobalSearch";
 import Logo from "./Logo";
-import LoginModal from "../auth/LoginModal";
+// import LoginModal from "../auth/LoginOffCanvas";
+import LoginModal from "../auth/LoginOffCanvas";
 
 
 
@@ -390,6 +391,31 @@ const HeaderDefault = memo(() => {
                   </ul>
                 </Container>
               </Navbar>
+              <div
+                className={`fw-bold navbar-collapse ${show === true ? "collapse show" : "collapse"}`}
+                id="navbarSupportedContent"
+              >
+                <ul className="navbar-nav align-items-center ms-auto mb-2 mb-xl-0">
+                  {showHeaderBookBtn && (
+                    <CustomBtn
+                      variant="outline-primary"
+                      icon={<i className="fa-solid fa-arrow-right ms-2"></i>}
+                      className="fw-bold  d-flex align-items-center rounded-3"
+                      HandleClick={handleBookClick}
+                      size="sm"
+                      style={{
+                        height: "3rem",
+                        marginRight: '1rem',
+                        fontSize: "16px",
+                      }} Ï
+                      buttonText="Book Now"
+                    />
+                  )}
+                  {/* <Dropdown as="li" className="nav-item dropdown iq-responsive-menu">
+                      
+                    </Dropdown> */}
+                </ul>
+              </div>
               <div className="right-panel d-flex gap-1">
                 <div className={`search-box d-flex align-items-center ${isOpen ? "show" : ""} `}>
                   <Dropdown show={isOpen} onToggle={handleToggle}>
@@ -406,6 +432,7 @@ const HeaderDefault = memo(() => {
                       </div>
                     </Dropdown.Toggle>
                   </Dropdown>
+
                 </div>
                 {isLoggedIn ? (
                   <Dropdown
@@ -451,7 +478,7 @@ const HeaderDefault = memo(() => {
                       </li>
                       <li onClick={handleClose}>
                         <Button
-                          className="border-0 iq-sub-card iq-logout-2 mt-1 d-flex justify-content-center gap-2"
+                          className="border-0 iq-sub-card iq-logout-2 mt-1 d-flex justify-content-center gap-2 w-100"
                           onClick={handleLogout}
                         >
                           <LogOutIcon size={20} />
@@ -472,31 +499,7 @@ const HeaderDefault = memo(() => {
                   //   {!isMobile && "Login"} <Fingerprint size={16}/>
                   // </Button>
                 )}
-                <div
-                  className={`fw-bold navbar-collapse ${show === true ? "collapse show" : "collapse"}`}
-                  id="navbarSupportedContent"
-                >
-                  <ul className="navbar-nav align-items-center ms-auto mb-2 mb-xl-0">
-                    {showHeaderBookBtn && (
-                      <CustomBtn
-                        variant="outline-primary"
-                        icon={<i className="fa-solid fa-arrow-right ms-2"></i>}
-                        className="fw-bold  d-flex align-items-center rounded-3"
-                        HandleClick={handleBookClick}
-                        size="sm"
-                        style={{
-                          height: "3rem",
-                          marginRight: '1rem',
-                          fontSize: "16px",
-                        }} Ï
-                        buttonText="Book Now"
-                      />
-                    )}
-                    {/* <Dropdown as="li" className="nav-item dropdown iq-responsive-menu">
-                      
-                    </Dropdown> */}
-                  </ul>
-                </div>
+
                 {/* <div>
                   <button
                     type="button"

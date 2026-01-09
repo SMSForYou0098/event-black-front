@@ -20,6 +20,7 @@ import { useEventData } from "../../../../services/events";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import { SavingsHighlight } from "../../../../components/events/CheckoutComps/checkout_utils";
 import Image from "next/image";
+import TermsAccordion from "../../../../components/events/EventDetails/TermsAccordion";
 const CartPage = () => {
   const router = useRouter();
   const { isMobile, ErrorAlert, successAlert, UserData, systemSetting } = useMyContext();
@@ -32,13 +33,13 @@ const CartPage = () => {
   // State management
   const [couponCode, setCouponCode] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
-  const [charges, setCharges] = useState({
-    taxData: null,
-    commissionData: null,
-    centralGST: 0,
-    stateGST: 0,
-    convenienceFees: 0,
-  });
+  // const [charges, setCharges] = useState({
+  //   taxData: null,
+  //   commissionData: null,
+  //   centralGST: 0,
+  //   stateGST: 0,
+  //   convenienceFees: 0,
+  // });
   const [promo, setPromo] = useState({
     discount: 0,
     discountType: "",
@@ -46,11 +47,13 @@ const CartPage = () => {
   });
   const [isProcessing, setIsProcessing] = useState(false);
   const [isTimerExpired, setIsTimerExpired] = useState(false);
+  const [showTermsDrawer, setShowTermsDrawer] = useState(false);
 
 
   const data = useSelector((state) =>
     k ? selectCheckoutDataByKey(state, k) : null
   );
+
   const { data: event } = useEventData(event_key, UserData?.id ? UserData?.id : null);
 
   useHeaderSimple({
@@ -128,22 +131,22 @@ const CartPage = () => {
     });
   };
 
-  const { data: taxData } = useQuery({
-    queryKey: ["taxes", 1],
-    queryFn: async () => {
-      const res = await api.get(`/taxes/1`);
-      return res.data?.taxes || null;
-    },
-  });
+  // const { data: taxData } = useQuery({
+  //   queryKey: ["taxes", 1],
+  //   queryFn: async () => {
+  //     const res = await api.get(`/taxes/1`);
+  //     return res.data?.taxes || null;
+  //   },
+  // });
 
   // Fetch commission data
-  const { data: commissionData } = useQuery({
-    queryKey: ["commissions", 1],
-    queryFn: async () => {
-      const res = await api.get(`/commissions/1`);
-      return res.data?.commission || null;
-    },
-  });
+  // const { data: commissionData } = useQuery({
+  //   queryKey: ["commissions", 1],
+  //   queryFn: async () => {
+  //     const res = await api.get(`/commissions/1`);
+  //     return res.data?.commission || null;
+  //   },
+  // });
 
   // const orderDataBase = createOrderData(checkoutData?.data, charges);
 
@@ -174,48 +177,48 @@ const CartPage = () => {
     discount: discountAmount,
   };
 
-  useEffect(() => {
-    if (!taxData || !commissionData || !checkoutData?.data) return;
+  // useEffect(() => {
+  //   if ( !checkoutData?.data) return;
 
-    const ticketTotal = Number(checkoutData?.data?.subtotal) || 0;
-    const quantity = Number(checkoutData?.data?.newQuantity) || 0;
-    // console.log(checkoutData?.data);
-    if (ticketTotal <= 0) {
-      setCharges({
-        taxData,
-        commissionData,
-        centralGST: 0,
-        stateGST: 0,
-        convenienceFees: 0,
-      });
-      return;
-    }
+  //   const ticketTotal = Number(checkoutData?.data?.subtotal) || 0;
+  //   const quantity = Number(checkoutData?.data?.newQuantity) || 0;
+  //   // console.log(checkoutData?.data);
+  //   if (ticketTotal <= 0) {
+  //     setCharges({
+  //       // taxData,
+  //       // commissionData,
+  //       centralGST: 0,
+  //       stateGST: 0,
+  //       convenienceFees: 0,
+  //     });
+  //     return;
+  //   }
 
-    // GST Calculation
-    let gstValue = Number(taxData.rate) || 0;
-    if (taxData.rate_type === "Percentage") {
-      gstValue = (ticketTotal * gstValue) / 100;
-    } else if (taxData.rate_type === "Fixed") {
-      gstValue = gstValue * quantity;
-    }
-    // Commission Calculation
-    let commissionValue = Number(commissionData.commission_rate) || 0;
-    if (commissionData.commission_type === "Percentage") {
-      commissionValue = (ticketTotal * commissionValue) / 100;
-    } else if (commissionData.commission_type === "Fixed") {
-      commissionValue = commissionValue * quantity;
-    }
+  //   // GST Calculation
+  //   let gstValue = Number(taxData.rate) || 0;
+  //   if (taxData.rate_type === "Percentage") {
+  //     gstValue = (ticketTotal * gstValue) / 100;
+  //   } else if (taxData.rate_type === "Fixed") {
+  //     gstValue = gstValue * quantity;
+  //   }
+  //   // Commission Calculation
+  //   let commissionValue = Number(commissionData.commission_rate) || 0;
+  //   if (commissionData.commission_type === "Percentage") {
+  //     commissionValue = (ticketTotal * commissionValue) / 100;
+  //   } else if (commissionData.commission_type === "Fixed") {
+  //     commissionValue = commissionValue * quantity;
+  //   }
 
-    const cgst = (commissionValue * 9) / 100;
-    const sgst = (commissionValue * 9) / 100;
-    setCharges({
-      taxData,
-      commissionData,
-      centralGST: cgst,
-      stateGST: sgst,
-      convenienceFees: commissionValue,
-    });
-  }, [taxData, commissionData, checkoutData]);
+  //   const cgst = (commissionValue * 9) / 100;
+  //   const sgst = (commissionValue * 9) / 100;
+  //   setCharges({
+  //     taxData,
+  //     commissionData,
+  //     centralGST: cgst,
+  //     stateGST: sgst,
+  //     convenienceFees: commissionValue,
+  //   });
+  // }, [taxData, commissionData, checkoutData]);
 
   const validatePricingIntegrity = () => {
     const baseAmount = Number(checkoutData?.data?.totalBaseAmount) || 0;
@@ -320,7 +323,6 @@ const CartPage = () => {
 
     try {
       const payload = createBookingPayload();
-      console.log(payload)
       const response = await initiateBooking(payload);
       await handleBookingResponse(response);
 
@@ -684,6 +686,18 @@ const CartPage = () => {
 
   // Event handler for the process button
   const handleProcess = () => {
+    // If terms exist, show terms drawer first
+    if (event?.ticket_terms) {
+      setShowTermsDrawer(true);
+      return;
+    }
+    // Otherwise proceed directly
+    ProcessBooking();
+  };
+
+  // Called after user agrees to terms
+  const proceedAfterTerms = () => {
+    setShowTermsDrawer(false);
     ProcessBooking();
   };
 
@@ -753,6 +767,16 @@ const CartPage = () => {
               />
             </Col>
           </Row>
+
+          {/* Terms and Conditions Drawer */}
+          <TermsAccordion
+            terms={event?.ticket_terms}
+            show={showTermsDrawer}
+            onClose={() => setShowTermsDrawer(false)}
+            onAgree={proceedAfterTerms}
+            showTrigger={false}
+            loading={isLoading}
+          />
         </Container>
       </div>
     </div>

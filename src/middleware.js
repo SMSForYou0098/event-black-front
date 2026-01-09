@@ -8,7 +8,7 @@ import { roleBasedMiddleware } from './middleware/roleBasedMiddleware';
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  console.log('Middleware executed for path:', pathname);
+  // console.log('Middleware executed for path:', pathname);
   // 1. Query Parameter Protection (your current requirement)
   if (isAuthRoute(pathname)) {
     const token = request.cookies.get('authToken')?.value;
