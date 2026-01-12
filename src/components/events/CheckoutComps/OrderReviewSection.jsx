@@ -47,20 +47,20 @@ export const OrderReviewSection = (props) => {
           total={total}
         />
 
-<div className="d-block d-sm-none">
+        <div className="d-block d-sm-none">
 
-<CheckoutSummarySection
-              summaryData={summaryData}
-              // calculatedTotal={calculatedTotal}
-              couponCode={couponCode}
-              setCouponCode={setCouponCode}
-              handleApplyCoupon={handleApplyCoupon}
-              isExpanded={isExpanded}
-              setIsExpanded={setIsExpanded}
-              promoCodeLoading={promoCodeLoading}
-            />
-</div>
-        <PromoCodeSection {...props}/>
+          <CheckoutSummarySection
+            summaryData={summaryData}
+            // calculatedTotal={calculatedTotal}
+            couponCode={couponCode}
+            setCouponCode={setCouponCode}
+            handleApplyCoupon={handleApplyCoupon}
+            isExpanded={isExpanded}
+            setIsExpanded={setIsExpanded}
+            promoCodeLoading={promoCodeLoading}
+          />
+        </div>
+        <PromoCodeSection {...props} />
         <div className=" d-flex flex-column align-items-center ">
           {/* <Form.Check className="d-flex align-items-center gap-2 m-0">
             <Form.Check.Input type="checkbox" defaultChecked />
@@ -79,7 +79,7 @@ export const OrderReviewSection = (props) => {
               isLoading={isLoading}
             />
           </div>
-          
+
           <div className="d-none d-sm-block">
             <div className="d-flex align-items-center justify-content-between w-100 mt-2 gap-3">
               <CustomBtn

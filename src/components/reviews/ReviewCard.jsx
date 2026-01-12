@@ -41,7 +41,7 @@ const ReviewCard = ({ review, onEdit, onDelete }) => {
 
     return (
         <>
-            <Card className="mb-3 bg-dark border-secondary">
+            <Card className="mb-3 bg-dark border-muted rounded-3">
                 <Card.Body className="p-3">
                     <div className="d-flex justify-content-between align-items-start">
                         {/* User Info */}

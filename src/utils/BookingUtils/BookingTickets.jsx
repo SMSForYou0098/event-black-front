@@ -6,6 +6,7 @@ import { useMyContext } from "@/Context/MyContextProvider";
 
 const BookingTickets = ({
   cartItems,
+
   isMobile,
   setSelectedTickets,
   selectedTickets,
@@ -112,7 +113,7 @@ const BookingTickets = ({
             scope="col"
             className={`font-size-16 fw-500 ${isMobile ? "text-end" : "text-center"}`}
           >
-            Quantity
+            Qty
           </th>
           {!isMobile && (
             <th scope="col" className="font-size-16 fw-500">

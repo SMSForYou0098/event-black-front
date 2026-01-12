@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { Container, Row, Col, Table, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Table, Button, Alert, Form, Modal } from "react-bootstrap";
+import Flatpickr from "react-flatpickr";
+import 'flatpickr/dist/flatpickr.min.css';
 
 // Components
 import { useMyContext } from "@/Context/MyContextProvider";
@@ -12,12 +14,15 @@ import CartSteps from "../../../../utils/BookingUtils/CartSteps";
 import LoginModal from "../../../../components/auth/LoginOffCanvas";
 import { useEventData, useLockSeats } from "../../../../services/events";
 import CustomBtn from "../../../../utils/CustomBtn";
+import CustomDrawer from "../../../../utils/CustomDrawer";
 import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 import { Calendar, Pin, Ticket, Users } from "lucide-react";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
 import BookingLayout from "../../../../components/events/SeatingModule/Bookinglayout";
 import toast from "react-hot-toast";
+import RegistrationBooking from "../../../../components/events/RegistrationBooking/RegistrationBooking";
+import CustomHeader from "../../../../utils/ModalUtils/CustomModalHeader";
 const CartPage = () => {
   const { event_key } = useRouter().query;
 
@@ -35,11 +40,20 @@ const CartPage = () => {
   const [categoryData, setCategoryData] = useState(null);
   const [selectedTickets, setSelectedTickets] = useState({});
   const [seatingModule, setSeatingModule] = useState(false);
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+  const [registrationId, setRegistrationId] = useState(null); // Store registration_id separately
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [path, setPath] = useState("");
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(""); // For daily event date selection
+  const [showDatePicker, setShowDatePicker] = useState(false); // Date selection modal/drawer state
+
+  // Check if event is daily type
+
+  // Parse event date range to get min and max dates
+
 
   // Lock seats mutation
   const lockSeatsMutation = useLockSeats({
@@ -60,6 +74,50 @@ const CartPage = () => {
     title: event?.name || "Event Details",
   });
 
+  const isDailyEvent = event?.event_type === 'daily';
+  const parseDateRange = useMemo(() => {
+    if (!event?.date_range) return { minDate: null, maxDate: null, minDateStr: null, maxDateStr: null };
+
+    const dateRange = event.date_range.trim();
+    let parts;
+
+    // Handle different date range formats - be careful not to split on hyphens within dates
+    if (dateRange.includes(',')) {
+      // Format: "2026-01-12,2026-01-22"
+      parts = dateRange.split(',');
+    } else if (dateRange.includes(' to ')) {
+      // Format: "2026-01-12 to 2026-01-22"
+      parts = dateRange.split(' to ');
+    } else if (dateRange.includes(' - ')) {
+      // Format: "2026-01-12 - 2026-01-22" (with spaces around hyphen)
+      parts = dateRange.split(' - ');
+    } else if (dateRange.includes(' – ')) {
+      // Format: "2026-01-12 – 2026-01-22" (en-dash with spaces)
+      parts = dateRange.split(' – ');
+    } else {
+      // Single date
+      parts = [dateRange];
+    }
+
+    if (parts.length >= 2) {
+      const minDateStr = parts[0]?.trim();
+      const maxDateStr = parts[1]?.trim();
+      return {
+        minDate: minDateStr ? new Date(minDateStr + 'T00:00:00') : null,
+        maxDate: maxDateStr ? new Date(maxDateStr + 'T00:00:00') : null,
+        minDateStr,
+        maxDateStr
+      };
+    }
+    // Single date
+    const dateStr = parts[0]?.trim();
+    return {
+      minDate: dateStr ? new Date(dateStr + 'T00:00:00') : null,
+      maxDate: dateStr ? new Date(dateStr + 'T00:00:00') : null,
+      minDateStr: dateStr,
+      maxDateStr: dateStr
+    };
+  }, [event?.date_range]);
   // Event status checks
   const isHouseFull = event?.eventControls?.house_full;
   const isSoldOut = event?.eventControls?.is_sold_out;
@@ -104,13 +162,38 @@ const CartPage = () => {
     }
     const getCategoryData = async () => {
       let data = await fetchCategoryData(event?.Category?.id);
-      setCategoryData(data);
+      setCategoryData(data?.categoryData);
     };
     if (event?.Category?.id) {
       getCategoryData();
     }
     return () => { };
   }, [event]);
+
+  // Auto-open Registration modal when category is Registration
+  useEffect(() => {
+    if (categoryData?.title === 'Registration') {
+      setShowRegistrationModal(true);
+    }
+  }, [categoryData]);
+
+  // Auto-open date picker for daily events (but NOT for Registration category to avoid conflict)
+  // Also ensure parseDateRange has valid values before opening
+  useEffect(() => {
+    if (
+      isDailyEvent &&
+      categoryData &&
+      categoryData.title !== 'Registration' &&
+      !selectedDate &&
+      !showDatePicker &&
+      parseDateRange.minDateStr &&
+      parseDateRange.maxDateStr
+    ) {
+      setShowDatePicker(true);
+    }
+  }, [isDailyEvent, categoryData, selectedDate, parseDateRange]);
+
+  console.log(categoryData)
 
   // console.log(event)
 
@@ -133,13 +216,21 @@ const CartPage = () => {
       setIsChecking(false);
     }
   };
-  const handleProcess = async () => {
+  const handleProcess = async (dateOverride = null) => {
     // Prevent proceeding if event is unavailable
     if (eventStatus.disabled) {
       return;
     }
 
-    const path = prepareRedirect();
+    const dateToUse = dateOverride || selectedDate;
+
+    // Validate date selection for daily events - Open date picker if no date
+    if (isDailyEvent && !dateToUse) {
+      setShowDatePicker(true);
+      return;
+    }
+
+    const path = prepareRedirect(dateToUse);
     setPath(path);
     if (!isLoggedIn) {
       // if user not logged in → show login modal
@@ -176,13 +267,13 @@ const CartPage = () => {
     }
   };
 
-  const prepareRedirect = () => {
+  const prepareRedirect = (dateOverride = null) => {
     const eventSummary = {
       name: event?.name,
       id: event?.id,
       city: event?.city,
       user_id: event?.user_id,
-      category: categoryData?.categoryData,
+      category: categoryData,
       tax_data: event?.tax_data,
     };
 
@@ -190,16 +281,21 @@ const CartPage = () => {
       (ticket) => ticket.id === selectedTickets?.itemId
     );
 
-    // Store data and get key
+    // Store data and get key - include registration_id and selectedDate if available
+    const dateToUse = dateOverride || selectedDate;
     const dataKey = storeCheckoutData({
-      data: selectedTickets,
+      data: {
+        ...selectedTickets,
+        ...(registrationId && { registration_id: registrationId }),
+        ...(dateToUse && { selectedDate: dateToUse })
+      },
       ticket: selectedTicket,
       edata: eventSummary,
     });
 
     // Alternative: Manual navigation
 
-    if (categoryData?.categoryData?.attendy_required === true) {
+    if (categoryData?.attendy_required === true) {
       return `/events/attendee/${event_key}/?k=${dataKey}&categoryId=${event?.Category?.id}`;
     } else {
       // Alternative: Manual navigation
@@ -254,7 +350,7 @@ const CartPage = () => {
   // }, []);
 
   const attendeeRequired = useMemo(() => {
-    return categoryData?.categoryData?.attendy_required === true;
+    return categoryData?.attendy_required === true;
   }, [categoryData]);
   // Early return if no items
 
@@ -350,7 +446,7 @@ const CartPage = () => {
         {/* Cart Steps */}
         <CartSteps
           id={1}
-          showAttendee={categoryData?.categoryData?.attendy_required === true}
+          showAttendee={categoryData?.attendy_required === true}
         />
         <Row>
           {/* Cart Items */}
@@ -414,6 +510,9 @@ const CartPage = () => {
                 />
               ))}
             </CardContainer>
+
+            {/* Removed inline date selection for daily events, handled by drawer */}
+
             <CardContainer className="cart_totals">
               <CardHeader
                 icon={Ticket}
@@ -445,7 +544,7 @@ const CartPage = () => {
                 {/* Checkout Button */}
                 <div className="d-block d-sm-none">
                   <BookingMobileFooter
-                    handleClick={handleProcess}
+                    handleClick={() => handleProcess()}
                     selectedTickets={selectedTickets}
                   />
                 </div>
@@ -454,9 +553,10 @@ const CartPage = () => {
                     disabled={
                       eventStatus.disabled ||
                       !selectedTickets?.quantity ||
+                      parseInt(selectedTickets.quantity) === 0 ||
                       parseInt(selectedTickets.quantity) === 0
                     }
-                    HandleClick={handleProcess}
+                    HandleClick={() => handleProcess()}
                     icon={attendeeRequired ? <Users size={20} /> : null}
                     buttonText={<span>{buttonText}</span>}
                     className="cart-proceed-btn mt-2"
@@ -470,14 +570,134 @@ const CartPage = () => {
           </Col>
         </Row>
 
+        {/* Date Selection - Responsive: Modal for Desktop, Drawer for Mobile */}
+        {isMobile ? (
+          <CustomDrawer
+            showOffcanvas={showDatePicker}
+            setShowOffcanvas={setShowDatePicker}
+            title="Select Booking Date"
+            placement="bottom"
+            className="bg-dark text-white"
+            style={{ height: 'auto', minHeight: '50vh' }}
+          >
+            <div className="d-flex flex-column align-items-center justify-content-center h-100">
+              <div className="custom-flatpickr-wrapper">
+                <Flatpickr
+                  value={selectedDate}
+                  options={{
+                    inline: true,
+                    dateFormat: "Y-m-d",
+                    enable: [
+                      {
+                        from: parseDateRange.minDateStr,
+                        to: parseDateRange.maxDateStr
+                      }
+                    ]
+                  }}
+                  onChange={([date]) => {
+                    if (date) {
+                      const dateStr = date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+                      setSelectedDate(dateStr);
+                      setShowDatePicker(false);
+                    }
+                  }}
+                  render={(_, ref) => {
+                    return (
+                      <input
+                        ref={ref}
+                        type="text"
+                        placeholder="Select Date.."
+                        className="form-control bg-dark text-white border-secondary text-center"
+                        readOnly
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          </CustomDrawer>
+        ) : (
+          <Modal
+            show={showDatePicker}
+            onHide={() => setShowDatePicker(false)}
+            centered
+            className="modal-glass-bg"
+          >
+
+            <CustomHeader title="Select Booking Date" closable={false} onClose={() => setShowDatePicker(false)} />
+            <Modal.Body>
+              <div className="d-flex flex-column align-items-center justify-content-center">
+                <div className="custom-flatpickr-wrapper">
+                  <Flatpickr
+                    value={selectedDate}
+                    options={{
+                      inline: true,
+                      dateFormat: "Y-m-d",
+                      enable: [
+                        {
+                          from: parseDateRange.minDateStr,
+                          to: parseDateRange.maxDateStr
+                        }
+                      ]
+                    }}
+                    onChange={([date]) => {
+                      if (date) {
+                        const dateStr = date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+                        setSelectedDate(dateStr);
+                        setShowDatePicker(false);
+                      }
+                    }}
+                    render={(_, ref) => {
+                      return (
+                        <input
+                          ref={ref}
+                          type="text"
+                          placeholder="Select Date.."
+                          className="form-control bg-dark text-white border-secondary text-center"
+                          readOnly
+                        />
+                      );
+                    }}
+                  />
+                </div>
+              </div>
+            </Modal.Body>
+          </Modal>
+        )}
+
         <LoginModal
           redirectPath={path}
           show={showLoginModal}
           onHide={() => setShowLoginModal(false)}
           eventKey={event_key}
         />
+
+        {/* Registration Modal - auto-opens for Registration category */}
+        <RegistrationBooking
+          show={showRegistrationModal}
+          eventId={event?.event_key}
+          cartItems={cartItems}
+          tax_data={event?.taxData}
+          isMobile={isMobile}
+          setSelectedTickets={setSelectedTickets}
+          onVerified={(data) => {
+            // Set the selected tickets with tax data for checkout
+            setSelectedTickets({
+              ...data.taxData,
+              itemId: data.selectedTicket?.id,
+              fieldsData: data.fieldsData,
+              attendee_qty: data.attendee_qty
+            });
+            // Store registration_id separately so it doesn't get lost
+            if (data.registration_id) {
+              setRegistrationId(data.registration_id);
+            }
+            // Close the modal
+            setShowRegistrationModal(false);
+          }}
+        />
       </Container>
-    </div>
+    </div >
   );
 };
 

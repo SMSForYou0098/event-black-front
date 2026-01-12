@@ -415,6 +415,16 @@ const CartPage = () => {
     // Payment method
     formData.append('payment_method', 'online');
 
+    // Registration fields - only for Registration category
+    if (checkoutData?.event?.category?.title === 'Registration') {
+      formData.append('registration', 'true');
+      // Check both summaryData and checkoutData?.data for registration_id
+      const registrationId = summaryData?.registration_id || checkoutData?.data?.registration_id;
+      if (registrationId) {
+        formData.append('attendee_id', String(registrationId));
+      }
+    }
+
     // Attendees — handle files and primitives safely
     if (attendeeRequired && Array.isArray(checkoutData?.attendees) && checkoutData.attendees.length > 0) {
       const attendeeList = checkoutData.attendees;

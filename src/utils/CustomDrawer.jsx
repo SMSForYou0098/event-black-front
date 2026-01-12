@@ -7,7 +7,8 @@ const CustomDrawer = ({
   children,
   showOffcanvas,
   setShowOffcanvas,
-  placement // optional: can override default behavior
+  placement, // optional: can override default behavior
+  ...props
 }) => {
   // Use media query to conditionally render instead of CSS hiding
   const isMobile = useMediaQuery({ maxWidth: 575 }); // Bootstrap sm breakpoint
@@ -17,6 +18,7 @@ const CustomDrawer = ({
       show={showOffcanvas}
       onHide={() => setShowOffcanvas(false)}
       placement={placement || (isMobile ? "bottom" : "top")}
+      {...props}
     >
       <Offcanvas.Header className='d-flex justify-content-center align-items-center pt-3 text-center'>
         <Offcanvas.Title>{title}</Offcanvas.Title>

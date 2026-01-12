@@ -80,20 +80,46 @@ const FooterMega = memo(() => {
         footer_menu: [
           { id: 3, title: "Privacy Policy", page_id: "privacy-policy" },
           { id: 4, title: "Terms & Conditions", page_id: "terms-and-conditions" },
-          { id: 4, title: "Pricing Policy", page_id: "pricing-policy" },
+          { id: 5, title: "Pricing Policy", page_id: "pricing-policy" },
         ],
       },
       {
-        id: 2,
+        id: 3,
         title: "Links",
         footer_menu: [
-          { id: 3, title: "Offers and Sale", page_id: "events/offers" },
-          { id: 4, title: "Live Events", page_id: "events/live" },
+          { id: 6, title: "Offers and Sale", page_id: "events/offers" },
+          { id: 7, title: "Live Events", page_id: "events/live" },
+        ],
+      },
 
+      // 🔥 Top Trending
+      {
+        id: 4,
+        title: "Top Trending",
+        footer_menu: [
+          { id: 8, title: "Recommended", page_id: "events/recommended" },
+          { id: 9, title: "Popular", page_id: "events/popular" },
+          { id: 10, title: "Free", page_id: "events/free" },
+          { id: 11, title: "Promotional Event", page_id: "events/promotional" },
+          { id: 12, title: "Educational", page_id: "events/educational" },
+        ],
+      },
+
+      // 🎉 Cultural Events
+      {
+        id: 5,
+        title: "Cultural Events",
+        footer_menu: [
+          { id: 13, title: "Christmas Festival", page_id: "events/christmas-festival" },
+          { id: 14, title: "Holi Festival", page_id: "events/holi-festival" },
+          { id: 15, title: "Navratri Fest", page_id: "events/navratri-fest" },
+          { id: 16, title: "Weekend Bazaars", page_id: "events/weekend-bazaars" },
+          { id: 17, title: "Global Festivals", page_id: "events/global-festivals" },
         ],
       },
     ],
   };
+
 
   const socialPlatforms = [
     { key: 'facebook', icon: 'fab fa-facebook' },
@@ -118,15 +144,12 @@ const FooterMega = memo(() => {
               <div className="footer-top pb-0">
                 <Row>
                   {/* Logo and Contact Section */}
-                  <Col xl={3} lg={6} className="mb-5 mb-lg-0 d-flex flex-column align-items-center text-center">
-                    <Logo height={150} width={250} size={200} />
-                  </Col>
 
                   {/* Dynamic Footer Link Groups - Limited to 2 groups for layout */}
-                  <Col xl={6} lg={6} className="mb-5 mb-lg-0">
+                  <Col size={12} className="mb-5 mb-lg-0">
                     <Row>
                       {footerStaticData.groups.map((group) => (
-                        <Col xs={12} sm={4} key={group.id} className="mb-4">
+                        <Col xs={12} sm={2} key={group.id} className="mb-4">
                           <h4 className="footer-link-title">{group.title}</h4>
                           <ul className="list-unstyled footer-menu">
                             {group.footer_menu.map((link) => (

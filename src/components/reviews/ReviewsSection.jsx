@@ -160,7 +160,7 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
             {!isLoading && !isError && (
                 <>
                     {displayReviews.length === 0 ? (
-                        <Card className="bg-dark border rounded-3">
+                        <Card className="bg-dark rounded-3">
                             <Card.Body className="d-flex flex-column align-items-center py-5">
                                 <Star className="text-muted mb-3" size={40} />
                                 <p className="text-muted mb-3">No reviews yet</p>
@@ -177,11 +177,12 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
                         <div>
                             {/* Horizontal Scroll Layout */}
                             <div
-                                className="reviews-carousel d-flex gap-3 pb-3"
+                                className="reviews-carousel d-flex gap-3 pb-3 hide-scrollbar"
                                 style={{
                                     overflowX: 'auto',
-                                    scrollbarWidth: 'thin',
+                                    scrollbarWidth: 'none',
                                     msOverflowStyle: 'none',
+                                    WebkitOverflowScrolling: 'touch',
                                     paddingBottom: '0.5rem'
                                 }}
                             >

@@ -195,8 +195,8 @@ const EventReviewsPage = () => {
                 redirectPath={router.asPath}
             />
 
-            <Container className="pt-4">
-                <div className="d-flex align-items-center mb-4">
+            <Container className="">
+                <div className="d-none d-sm-flex align-items-center mb-4">
                     <Button
                         variant="link"
                         className="text-white p-0 me-3"
@@ -208,7 +208,7 @@ const EventReviewsPage = () => {
                 </div>
 
                 {/* Header Stats Card */}
-                <Card className="bg-dark border-secondary mb-4">
+                <Card className="bg-dark border-muted rounded-3 mb-4">
                     <Card.Body>
                         <Row className="align-items-center">
                             <Col xs="auto">

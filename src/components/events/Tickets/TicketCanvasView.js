@@ -3,6 +3,18 @@ import { fabric } from 'fabric-pure-browser';
 import { api } from '@/lib/axiosInterceptor';
 import { useMyContext } from "@/Context/MyContextProvider";
 import QRCode from 'qrcode';
+import { useQuery } from '@tanstack/react-query';
+
+// API fetch function for TanStack Query
+const fetchTicketImage = async (path) => {
+    if (!path) return null;
+    const response = await api.post(
+        'get-image/retrive',
+        { path },
+        { responseType: 'blob' }
+    );
+    return URL.createObjectURL(response.data);
+};
 
 /**
  * TicketCanvasView - A reusable canvas component for rendering tickets
@@ -30,7 +42,17 @@ const TicketCanvasView = forwardRef((props, ref) => {
     const ticket = ticketData?.ticket || ticketData?.bookings?.[0]?.ticket || {};
     const event = ticket?.event || {};
     const venue = event?.venue || {};
-    const user = ticketData?.user || ticketData?.attendee || ticketData?.bookings?.[0]?.user || ticketData?.bookings?.[0]?.attendee || {};
+
+    // Handle user data - can be in nested user/attendee object OR directly on the booking item
+    const userObj = ticketData?.user || ticketData?.attendee || ticketData?.bookings?.[0]?.user || ticketData?.bookings?.[0]?.attendee;
+    const firstBooking = ticketData?.bookings?.[0] || {};
+
+    // Build user object - prioritize nested user object, fallback to direct properties on booking
+    const user = userObj ? userObj : {
+        name: firstBooking?.name || ticketData?.name,
+        number: firstBooking?.number || ticketData?.number,
+        email: firstBooking?.email || ticketData?.email,
+    };
 
     // Derived values
     const ticketName = ticket?.name || 'Ticket Name';
@@ -46,10 +68,10 @@ const TicketCanvasView = forwardRef((props, ref) => {
     const time = convertTo12HourFormat?.(event?.start_time) || 'Time Not Set';
     const OrderId = ticketData?.order_id || ticketData?.token || 'N/A';
     const title = event?.name || 'Event Name';
-    const bookingType = ticketData?.booking_type || 'Online';
+    // Handle booking_type - can be at parent level or in booking item
+    const bookingType = ticketData?.booking_type || firstBooking?.booking_type || 'Online';
 
     // State
-    const [imageUrl, setImageUrl] = useState(null);
     const [qrDataUrl, setQrDataUrl] = useState(null);
     const [isCanvasReady, setIsCanvasReady] = useState(false);
 
@@ -74,44 +96,28 @@ const TicketCanvasView = forwardRef((props, ref) => {
         }
     }), [isCanvasReady]);
 
-    // 1. Handle Image URL
+    // Check if preloadedImage is provided (blob URL from parent)
+    const hasPreloadedImage = !!preloadedImage;
+
+    // TanStack Query for fetching ticket background image
+    // Skip fetching if preloadedImage is provided
+    const { data: fetchedImageUrl, isError: isImageError } = useQuery({
+        queryKey: ['ticket-bg-image', ticketBG],
+        queryFn: () => fetchTicketImage(ticketBG),
+        enabled: !!ticketBG && !hasPreloadedImage,
+        staleTime: 1000 * 60 * 30, // 30 minutes
+        retry: 1,
+    });
+
+    // Use preloaded image if provided, otherwise use fetched URL
+    const imageUrl = hasPreloadedImage ? preloadedImage : fetchedImageUrl;
+
+    // Handle image fetch error
     useEffect(() => {
-        let active = true;
-        let localUrl = null;
-
-        const fetchImage = async () => {
-            if (preloadedImage && ticketBG && ticketBG.startsWith('blob:')) {
-                if (active) setImageUrl(ticketBG);
-                return;
-            }
-
-            try {
-                const response = await api.post(
-                    'get-image/retrive',
-                    { path: ticketBG },
-                    { responseType: 'blob' }
-                );
-                if (active) {
-                    localUrl = URL.createObjectURL(response.data);
-                    setImageUrl(localUrl);
-                }
-            } catch (error) {
-                console.error('Image fetch error:', error);
-                onError?.('Failed to load ticket background');
-            }
-        };
-
-        if (ticketBG) {
-            fetchImage();
+        if (isImageError) {
+            onError?.('Failed to load ticket background');
         }
-
-        return () => {
-            active = false;
-            if (localUrl && !preloadedImage) {
-                URL.revokeObjectURL(localUrl);
-            }
-        };
-    }, [ticketBG, preloadedImage, onError]);
+    }, [isImageError, onError]);
 
     // 2. Generate QR Code
     useEffect(() => {

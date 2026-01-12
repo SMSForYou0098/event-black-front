@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { Calendar, Clock, Mail, MapPin, User, } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
@@ -124,9 +124,35 @@ const BookingSummary = () => {
 
     // Derived data from mutation (before conditional returns)
     const isMaster = mutation.data?.isMaster || false;
-    const booking = isMaster ? mutation.data?.bookings?.bookings[0] || {} : mutation.data?.bookings || {};
+    
+    // For display purposes (user info, dates etc), use first individual booking
+    const booking = isMaster ? mutation.data?.bookings?.bookings?.[0] || {} : mutation.data?.bookings || {};
+    
+    // For TicketModal, transform the booking data to ensure each individual booking
+    // has the token needed for QR code display
+    // NOTE: Individual tickets use their own 'token' for QR, group tickets use 'order_id'
+    const fullBookingData = useMemo(() => {
+        const masterBooking = mutation.data?.bookings || {};
+        
+        if (!isMaster) return masterBooking;
+        
+        // For individual bookings, ensure token exists (fallback to order_id only if no token)
+        // Do NOT add order_id to individual bookings - we want QR from token
+        if (masterBooking.bookings && Array.isArray(masterBooking.bookings)) {
+            return {
+                ...masterBooking,
+                bookings: masterBooking.bookings.map(b => ({
+                    ...b,
+                    // Only set token fallback, don't add order_id to individual bookings
+                    token: b.token || masterBooking.order_id
+                }))
+            };
+        }
+        
+        return masterBooking;
+    }, [mutation.data, isMaster]);
 
-    const quantity = isMaster ? mutation.data?.bookings?.bookings.length : 1;
+    const quantity = isMaster ? mutation.data?.bookings?.bookings?.length || 0 : 1;
     // For master bookings, get the first booking from the bookings array to extract ticket/event data
     const firstBooking = isMaster && booking?.bookings?.length > 0 ? booking.bookings[0] : null;
 
@@ -201,8 +227,8 @@ const BookingSummary = () => {
                 show={show}
                 handleCloseModal={handleCloseModal}
                 ticketType={ticketType}
-                ticketData={booking}
-                isAccreditation={booking?.type === 'AccreditationBooking'}
+                ticketData={fullBookingData}
+                isAccreditation={fullBookingData?.type === 'AccreditationBooking'}
                 showTicketDetails={true}
                 formatDateRange={formatDateRange}
             />
@@ -223,9 +249,9 @@ const BookingSummary = () => {
                             sale_price={ticket?.sale_price}
                             currency={ticket?.currency}
                             showAttBtn={true}
-                            subTotal={mutation?.data?.taxes?.total_base_amount}
-                            processingFee={mutation?.data?.taxes?.total_tax}
-                            total={mutation?.data?.taxes?.total_final_amount}
+                            subTotal={mutation?.data?.taxes?.total_base_amount ?? 0}
+                            processingFee={mutation?.data?.taxes?.total_tax ?? 0}
+                            total={mutation?.data?.taxes?.total_final_amount ?? 0}
                         />
                         <AttendeesOffcanvas
                             show={showAttendees}
