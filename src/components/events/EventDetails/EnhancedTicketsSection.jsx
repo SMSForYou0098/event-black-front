@@ -60,9 +60,8 @@ const EnhancedTicketsSection = ({ tickets }) => {
           return (
             <Col key={ticket.id} lg={6}>
               <Card
-                className={`h-100 border-0 shadow-lg position-relative overflow-hidden ${
-                  ticket.popular ? "border-warning" : ""
-                }`}
+                className={`h-100 border-0 shadow-lg position-relative overflow-hidden ${ticket.popular ? "border-warning" : ""
+                  }`}
               >
                 {/* Popular Badge */}
                 {ticket.popular && (
@@ -143,8 +142,8 @@ const EnhancedTicketsSection = ({ tickets }) => {
                         availabilityPercentage > 50
                           ? "success"
                           : availabilityPercentage > 20
-                          ? "warning"
-                          : "danger"
+                            ? "warning"
+                            : "danger"
                       }
                     />
                   </div>

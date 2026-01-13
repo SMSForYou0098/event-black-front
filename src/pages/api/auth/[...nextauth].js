@@ -14,7 +14,7 @@ export const authOptions = {
     async signIn({ user, account, profile }) {
       try {
         console.log('Google Sign In:', { user, account, profile });
-        
+
         // Send Google user data to your existing backend API
         const response = await fetch(`${baseURL}/auth/google-login`, {
           method: 'POST',
@@ -27,9 +27,9 @@ export const authOptions = {
             accessToken: account.access_token,
           }),
         });
-        
+
         const data = await response.json();
-        
+
         if (data.status) {
           // Store backend response data in the token for later use
           user.backendToken = data.token;
@@ -69,8 +69,8 @@ export const authOptions = {
     },
   },
   pages: {
-    signIn: '/auth/login',
-    error: '/auth/error', 
+    // signIn: '/auth/login',
+    error: '/auth/error',
   },
   session: {
     strategy: 'jwt',

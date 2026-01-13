@@ -67,7 +67,7 @@ const LostPassword = () => {
 
       // Redirect to login after 2 seconds
       setTimeout(() => {
-        router.push('/auth/login');
+        // router.push('/auth/login');
       }, 2000);
     },
     onError: (error) => {

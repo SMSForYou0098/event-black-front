@@ -6,6 +6,7 @@ import CustomBtn from "../../../utils/CustomBtn";
 import { CustomHeader } from "../../../utils/ModalUtils/CustomModalHeader";
 import { api } from "@/lib/axiosInterceptor";
 import toast from "react-hot-toast";
+import { useMyContext } from "@/Context/MyContextProvider";
 
 const MODAL_VIEWS = {
   EDIT_FORM: "edit_form",
@@ -31,6 +32,7 @@ const UserProfileModal = ({
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [otpSent, setOtpSent] = useState(false);
+  const { UserData } = useMyContext();
 
   const [errors, setErrors] = useState({
     name: "",
@@ -94,24 +96,17 @@ const UserProfileModal = ({
     return true;
   };
 
-  // Dummy API call to send OTP
+  // API call to send OTP
   const sendOtp = async () => {
     setOtpLoading(true);
     try {
-      // TODO: Replace with actual API call
-      // const response = await api.post('/send-profile-update-otp', {
-      //   email: formValues.email,
-      //   name: formValues.name,
-      // });
-
-      // Dummy API call simulation
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Simulate success response
-      const response = { data: { status: true, message: "OTP sent successfully" } };
+      const response = await api.post('/user/otp', {
+        number: UserData?.number,
+        // email: formValues?.email,
+      });
 
       if (response.data.status) {
-        toast.success("OTP sent to your email");
+        toast.success(response.data.message || "OTP sent to your email");
         setCurrentView(MODAL_VIEWS.OTP_VERIFICATION);
         setOtpSent(true);
         setCountdown(30);
@@ -125,28 +120,23 @@ const UserProfileModal = ({
     }
   };
 
-  // Dummy API call to verify OTP
+  // API call to verify OTP
   const verifyOtp = async () => {
     if (!validateOtp()) return;
 
     setVerifyLoading(true);
     try {
-      // TODO: Replace with actual API call
-      // const response = await api.post('/verify-profile-update-otp', {
-      //   email: formValues.email,
-      //   otp: otp,
-      // });
-
-      // Dummy API call simulation
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Simulate success response (for testing, accept any 6-digit OTP)
-      const response = { data: { status: true, message: "OTP verified successfully" } };
+      const response = await api.post('user/otp/verify', {
+        number: UserData?.number,
+        // email: formValues?.email,
+        otp: otp,
+      });
 
       if (response.data.status) {
-        toast.success("OTP verified successfully");
-        // Now proceed with the actual profile update
-        handleEditSubmit({ preventDefault: () => { } });
+        toast.success(response.data.message || "OTP verified successfully");
+        // Pass the session_id to handleEditSubmit for the update payload
+        const sessionId = response.data.session_id;
+        handleEditSubmit({ preventDefault: () => { } }, sessionId);
       } else {
         setErrors((prev) => ({ ...prev, otp: response.data.message || "Invalid OTP" }));
       }

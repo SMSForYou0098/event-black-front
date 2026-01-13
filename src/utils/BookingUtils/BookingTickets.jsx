@@ -90,7 +90,7 @@ const BookingTickets = ({
   );
 
   const getSubtotal = (item) => {
-    const price = Number(item?.sale === 1 ? item?.sale_price : item?.price);
+    const price = Number(item?.sale ? item?.sale_price : item?.price);
     const quantity = Number(selectedTickets?.quantity);
     if (
       quantity > 0 &&
@@ -208,11 +208,15 @@ const BookingTickets = ({
                   resetCounterTrigger={resetCounterTrigger}
                   getTicketCount={getTicketCount}
                   category={item.name}
-                  price={item?.sale === 1 ? item?.sale_price : item?.price}
-                  limit={10}
+                  price={item?.sale === true ? item?.sale_price : item?.price}
+                  limit={Math.min(
+                    item?.user_booking_limit ?? 10,
+                    item?.remaining_count ?? 10,
+                    item?.booking_per_customer ?? 10
+                  )}
                   ticketID={item.id}
                   selectedTickets={selectedTickets}
-                  isDisable={item?.sold_out === 1 || item?.booking_not_open === 1}
+                  isDisable={item?.sold_out === true || item?.booking_not_open === true}
                 />
               </td>
 

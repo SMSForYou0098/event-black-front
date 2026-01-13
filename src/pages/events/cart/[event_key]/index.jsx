@@ -193,7 +193,7 @@ const CartPage = () => {
     }
   }, [isDailyEvent, categoryData, selectedDate, parseDateRange]);
 
-  console.log(categoryData)
+  // console.log(categoryData)
 
   // console.log(event)
 
@@ -316,6 +316,8 @@ const CartPage = () => {
       "sale_price",
       "currency",
       "ticket_quantity",
+      "remaining_count",
+      "booking_per_customer",
       "sale",
       "sold_out",
       "status",

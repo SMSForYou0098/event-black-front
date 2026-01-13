@@ -93,18 +93,25 @@ const UserProfile = () => {
   const handleEditClick = () => setIsEditing(true);
   const handleCloseEdit = () => setIsEditing(false);
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = (e, sessionId = null) => {
     e.preventDefault();
     if (!formValues.name || !formValues.email) {
       toast.error("Name and Email are required");
       return;
     }
 
-    updateMutation.mutate({
+    const payload = {
       name: formValues.name,
       email: formValues.email,
       phone: formValues.phone,
-    });
+    };
+
+    // Include session_id if provided (from OTP verification)
+    if (sessionId) {
+      payload.session_id = sessionId;
+    }
+
+    updateMutation.mutate(payload);
   };
 
   useEffect(() => {
