@@ -668,10 +668,31 @@ const CartPage = () => {
         )}
 
         <LoginModal
-          redirectPath={path}
           show={showLoginModal}
           onHide={() => setShowLoginModal(false)}
           eventKey={event_key}
+          onSuccess={async () => {
+            // After successful login, run the ticket check and proceed
+            setShowLoginModal(false);
+            const allowed = await checkTicketStatus();
+            if (allowed) {
+              if (seatingModule && selectedTickets?.seats && selectedTickets.seats.length > 0) {
+                try {
+                  const seatIds = selectedTickets.seats.map(seat => seat.seat_id);
+                  await lockSeatsMutation.mutateAsync({
+                    event_id: event?.id,
+                    seats: seatIds,
+                    user_id: UserData?.id,
+                  });
+                  router.push(path);
+                } catch (error) {
+                  return;
+                }
+              } else {
+                router.push(path);
+              }
+            }
+          }}
         />
 
         {/* Registration Modal - auto-opens for Registration category */}

@@ -19,7 +19,7 @@ const MODAL_VIEWS = {
     PASSWORD: "PASSWORD",
 };
 
-const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
+const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSuccessCallback }) => {
     const router = useRouter();
     const dispatch = useDispatch();
     const { isMobile } = useMyContext();
@@ -151,7 +151,11 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
         },
         onSuccess: () => {
             handleModalClose();
-            router.push(redirectPath || `/events/${eventKey}/process`);
+            if (onSuccessCallback) {
+                onSuccessCallback();
+            } else {
+                router.push(redirectPath || `/events/${eventKey}/process`);
+            }
         },
         onError: (error) => {
             setServerError(error.message || "An error occurred");
@@ -173,7 +177,11 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
         },
         onSuccess: () => {
             handleModalClose();
-            router.push(redirectPath || `/events/${eventKey}/process`);
+            if (onSuccessCallback) {
+                onSuccessCallback();
+            } else {
+                router.push(redirectPath || `/events/${eventKey}/process`);
+            }
         },
         onError: (error) => {
             setServerError(error.message || "An error occurred");
