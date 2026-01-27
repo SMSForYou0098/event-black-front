@@ -210,7 +210,7 @@ const BookingTickets = ({
                   category={item.name}
                   price={item?.sale === true ? item?.sale_price : item?.price}
                   limit={Math.min(
-                    item?.user_booking_limit ?? 10,
+                    item?.selection_limit ?? 10,
                     item?.remaining_count ?? 10,
                     item?.booking_per_customer ?? 10
                   )}

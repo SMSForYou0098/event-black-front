@@ -11,7 +11,7 @@ import { signIn } from "@/store/auth/authSlice";
 
 /**
  * RegistrationBooking Component
- * 1. Shows ticket cards for single selection with quantity input (max = user_booking_limit)
+ * 1. Shows ticket cards for single selection with quantity input (max = selection_limit)
  * 2. Checks if user exists, if not creates user and triggers OTP verification
  * 3. Renders dynamic event fields from API
  * 4. Calculates taxes and passes data to parent for checkout
@@ -60,8 +60,8 @@ const RegistrationBooking = ({
     const [registrationData, setRegistrationData] = useState(null);
 
     // Get max booking limit for selected ticket
-    const maxBookingLimit = selectedTicket?.user_booking_limit
-        ? parseInt(selectedTicket.user_booking_limit)
+    const maxBookingLimit = selectedTicket?.selection_limit
+        ? parseInt(selectedTicket.selection_limit)
         : 1;
 
     // Calculate tax for selected ticket

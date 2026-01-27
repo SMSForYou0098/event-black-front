@@ -322,7 +322,7 @@ const CartPage = () => {
       "sold_out",
       "status",
       "description",
-      "user_booking_limit",
+      "selection_limit",
       "sale_date",
       "booking_not_open",
       "fast_filling"
@@ -577,7 +577,7 @@ const CartPage = () => {
           <CustomDrawer
             showOffcanvas={showDatePicker}
             setShowOffcanvas={setShowDatePicker}
-            title="Select Booking Date"
+            title=""
             placement="bottom"
             className="bg-dark text-white"
             style={{ height: 'auto', minHeight: '50vh' }}
@@ -626,7 +626,7 @@ const CartPage = () => {
             className="modal-glass-bg"
           >
 
-            <CustomHeader title="Select Booking Date" closable={false} onClose={() => setShowDatePicker(false)} />
+            <CustomHeader title="" closable={false} onClose={() => setShowDatePicker(false)} />
             <Modal.Body>
               <div className="d-flex flex-column align-items-center justify-content-center">
                 <div className="custom-flatpickr-wrapper">

@@ -140,7 +140,7 @@ const ProfileHeader = ({ user = {}, onEditClick, onAvatarUpload, loading }) => {
 
                 <div className="text-muted small mt-1">{user?.email || '-'}</div>
                 <div className="text-muted small">{user?.username || user?.number || ''}</div>
-                <Link href='/my-bookings'>View My Bookings</Link>
+                <Link href='/bookings'>View My Bookings</Link>
               </div>
             </div>
           </Col>

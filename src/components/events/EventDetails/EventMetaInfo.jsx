@@ -24,6 +24,13 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   // Determine the event status and button text
   // Only house full has a stamp image, others just show text
   const getEventStatus = () => {
+    if (eventData?.total_tickets === 0) return {
+      disabled: true,
+      text: 'No Tickets Available',
+      showStamp: false,
+      stampImage: null,
+      message: 'No tickets are available for this event.'
+    };
     if (isCancelled) return {
       disabled: true,
       text: 'Cancelled',

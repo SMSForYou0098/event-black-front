@@ -124,18 +124,18 @@ const BookingSummary = () => {
 
     // Derived data from mutation (before conditional returns)
     const isMaster = mutation.data?.isMaster || false;
-    
+
     // For display purposes (user info, dates etc), use first individual booking
     const booking = isMaster ? mutation.data?.bookings?.bookings?.[0] || {} : mutation.data?.bookings || {};
-    
+
     // For TicketModal, transform the booking data to ensure each individual booking
     // has the token needed for QR code display
     // NOTE: Individual tickets use their own 'token' for QR, group tickets use 'order_id'
     const fullBookingData = useMemo(() => {
         const masterBooking = mutation.data?.bookings || {};
-        
+
         if (!isMaster) return masterBooking;
-        
+
         // For individual bookings, ensure token exists (fallback to order_id only if no token)
         // Do NOT add order_id to individual bookings - we want QR from token
         if (masterBooking.bookings && Array.isArray(masterBooking.bookings)) {
@@ -148,7 +148,7 @@ const BookingSummary = () => {
                 }))
             };
         }
-        
+
         return masterBooking;
     }, [mutation.data, isMaster]);
 
@@ -249,9 +249,9 @@ const BookingSummary = () => {
                             sale_price={ticket?.sale_price}
                             currency={ticket?.currency}
                             showAttBtn={true}
-                            subTotal={mutation?.data?.taxes?.total_base_amount ?? 0}
+                            subTotal={mutation?.data?.taxes?.base_amount ?? 0}
                             processingFee={mutation?.data?.taxes?.total_tax ?? 0}
-                            total={mutation?.data?.taxes?.total_final_amount ?? 0}
+                            total={mutation?.data?.taxes?.final_amount ?? 0}
                         />
                         <AttendeesOffcanvas
                             show={showAttendees}

@@ -378,7 +378,7 @@ const CartPage = () => {
     // Ticket info
     formData.append('ticket_id', summaryData.id ? String(summaryData.id) : '');
     formData.append('ticket_price', String(summaryData?.price ?? '0'));
-    formData.append('quantity', String(quantity));
+    // formData.append('quantity', String(quantity));
 
     // add seats in formadata
     formData.append('seats', JSON.stringify(summaryData?.seats));

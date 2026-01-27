@@ -23,12 +23,12 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: 'tbz.getyourticket.in',
-        pathname: '/uploads/**',
+        
       },
       {
         protocol: 'https',
         hostname: 'tb.getyourticket.in',
-        // pathname: '/uploads/**',
+        // 
       },
       // {
       //   protocol: 'https',
@@ -63,55 +63,61 @@ const nextConfig = {
         protocol: 'http',
         hostname: '192.168.0.197',
         port: '8000',
-        pathname: '/uploads/**',
+        
       },
       {
         protocol: 'http',
         hostname: '192.168.0.191',
         port: '8000',
-        pathname: '/uploads/**',
+        
       },
       {
         protocol: 'http',
         hostname: '192.168.0.122',
         port: '8000',
-        pathname: '/uploads/**',
+        
+      },
+      {
+        protocol: 'http',
+        hostname: '192.168.0.156',
+        port: '8000',
+        // 
       },
       {
         protocol: 'http',
         hostname: '192.168.0.184',
         port: '8000',
-        pathname: '/uploads/**',
+        
       },
       {
         protocol: 'http',
         hostname: '192.168.0.144',
         port: '8000',
-        pathname: '/uploads/**',
+        
       },
       {
         protocol: 'http',
         hostname: '192.168.0.166',
         port: '8000',
-        pathname: '/uploads/**',
+        
       },
       {
         protocol: 'http',
         hostname: '192.168.0.106',
         port: '8000',
-        pathname: '/uploads/**',
+        
       },
       {
         protocol: 'http',
         hostname: '192.168.0.153',
         port: '8000',
-        pathname: '/uploads/**',
+        
       },
       {
         protocol: 'http',
         hostname: '192.168.0.141',
         port: '8000',
-        pathname: '/uploads/**',
+        
       },
     ],
   },

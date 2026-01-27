@@ -6,7 +6,7 @@ import { getFooterData } from "@/services/home";
 import DOMPurify from 'dompurify';
 import { MailCheck } from "lucide-react";
 import Logo from "./Logo";
-import Divider from '../../utils/Divider'
+
 const FooterMega = memo(() => {
   const [animationClass, setAnimationClass] = useState("animate__fadeIn");
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -80,76 +80,61 @@ const FooterMega = memo(() => {
         footer_menu: [
           { id: 3, title: "Privacy Policy", page_id: "privacy-policy" },
           { id: 4, title: "Terms & Conditions", page_id: "terms-and-conditions" },
-          { id: 5, title: "Pricing Policy", page_id: "pricing-policy" },
+          { id: 4, title: "Pricing Policy", page_id: "pricing-policy" },
         ],
       },
       {
-        id: 3,
+        id: 2,
         title: "Links",
         footer_menu: [
-          { id: 6, title: "Offers and Sale", page_id: "events/offers" },
-          { id: 7, title: "Live Events", page_id: "events/live" },
-        ],
-      },
+          { id: 3, title: "Offers and Sale", page_id: "events/offers" },
+          { id: 4, title: "Live Events", page_id: "events/live" },
 
-      // 🔥 Top Trending
-      {
-        id: 4,
-        title: "Top Trending",
-        footer_menu: [
-          { id: 8, title: "Recommended", page_id: "events/recommended" },
-          { id: 9, title: "Popular", page_id: "events/popular" },
-          { id: 10, title: "Free", page_id: "events/free" },
-          { id: 11, title: "Promotional Event", page_id: "events/promotional" },
-          { id: 12, title: "Educational", page_id: "events/educational" },
-        ],
-      },
-
-      // 🎉 Cultural Events
-      {
-        id: 5,
-        title: "Cultural Events",
-        footer_menu: [
-          { id: 13, title: "Christmas Festival", page_id: "events/christmas-festival" },
-          { id: 14, title: "Holi Festival", page_id: "events/holi-festival" },
-          { id: 15, title: "Navratri Fest", page_id: "events/navratri-fest" },
-          { id: 16, title: "Weekend Bazaars", page_id: "events/weekend-bazaars" },
-          { id: 17, title: "Global Festivals", page_id: "events/global-festivals" },
         ],
       },
     ],
   };
 
-
-  const socialPlatforms = [
-    { key: 'facebook', icon: 'fab fa-facebook' },
-    { key: 'twitter', icon: 'fab fa-x-twitter' },
-    { key: 'github', icon: 'fab fa-github' },
-    { key: 'instagram', icon: 'fab fa-instagram' },
-    { key: 'youtube', icon: 'fab fa-youtube' },
-    { key: 'linkedin', icon: 'fab fa-linkedin' },
-  ];
-
-  // Create a mapping object for easy lookup
-  const platformIconMap = socialPlatforms.reduce((acc, platform) => {
-    acc[platform.key] = platform.icon;
-    return acc;
-  }, {});
   return (
     <>
       {isSuccess && data && (
         <Fragment>
           <footer className="footer footer-default">
             <Container fluid>
-              <div className="footer-top pb-0">
+              <div className="footer-top">
                 <Row>
                   {/* Logo and Contact Section */}
+                  <Col xl={3} lg={6} className="mb-5 mb-lg-0 d-flex flex-column align-items-center text-center">
+                    <div className="footer-logo d-flex justify-content-center">
+                      {/* <Logo size={120} /> */}
+                      <Logo
+                        desktopUrl="/assets/images/logo/footer-logo.webp"
+                        mobileUrl="/assets/images/logo/footer-logo.webp"
+                        height={150}
+                        width={275}
+                        handleClick={() => {
+                          const phoneNumber = "918000408888";
+                          const message = encodeURIComponent("Chat");
+                          window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
+                        }}
+                      />
+                    </div>
+                    <p className="mb-4 font-size-14 text-center">
+                      <MailCheck color="var(--bs-primary)" /> {" "}
+                      <a
+                        href={`mailto:${'contact@getyourticket.in'}`}
+                        className="text-white"
+                      >
+                        {'contact@getyourticket.in'}
+                      </a>
+                    </p>
+                  </Col>
 
                   {/* Dynamic Footer Link Groups - Limited to 2 groups for layout */}
-                  <Col size={12} className="mb-5 mb-lg-0">
+                  <Col xl={6} lg={6} className="mb-5 mb-lg-0">
                     <Row>
                       {footerStaticData.groups.map((group) => (
-                        <Col xs={12} sm={2} key={group.id} className="mb-4">
+                        <Col xs={12} sm={4} key={group.id} className="mb-4">
                           <h4 className="footer-link-title">{group.title}</h4>
                           <ul className="list-unstyled footer-menu">
                             {group.footer_menu.map((link) => (
@@ -167,99 +152,163 @@ const FooterMega = memo(() => {
 
 
                   {/* Newsletter and Social Media Section */}
+                  <Col xl={3} lg={6} className="text-center d-flex flex-column align-items-center">
+                    <h4 className="footer-link-title">Subscribe Newsletter</h4>
+                    <div className="mailchimp mailchimp-dark">
+                      <div className="input-group mb-3 mt-4">
+                        <input
+                          type="email"
+                          className="form-control mb-0 font-size-14"
+                          placeholder="Email*"
+                          aria-describedby="button-addon2"
+                        />
+                        <div className="iq-button">
+                          <button
+                            type="submit"
+                            className="btn btn-sm"
+                            id="button-addon2"
+                          >
+                            Subscribe
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Social Media Links */}
+                    <div className="d-flex align-items-center justify-content-center mt-5 gap-2">
+                      <span className="font-size-14">Follow Us:</span>
+                      <ul className="p-0 m-0 list-unstyled widget_social_media d-flex align-items-center justify-content-center gap-3">
+                        {data.socialLinks?.facebook && (
+                          <li>
+                            <Link
+                              href={data.socialLinks.facebook}
+                              className="position-relative"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <i className="fab fa-facebook"></i>
+                            </Link>
+                          </li>
+                        )}
+                        {data.socialLinks?.twitter && (
+                          <li>
+                            <Link
+                              href={data.socialLinks.twitter}
+                              className="position-relative"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <i className="fab fa-twitter"></i>
+                            </Link>
+                          </li>
+                        )}
+                        {data.socialLinks?.github && (
+                          <li>
+                            <Link
+                              href={data.socialLinks.github}
+                              className="position-relative"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <i className="fab fa-github"></i>
+                            </Link>
+                          </li>
+                        )}
+                        {data.socialLinks?.instagram && (
+                          <li>
+                            <Link
+                              href={data.socialLinks.instagram}
+                              className="position-relative"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <i className="fab fa-instagram"></i>
+                            </Link>
+                          </li>
+                        )}
+                        {data.socialLinks?.youtube && (
+                          <li>
+                            <Link
+                              href={data.socialLinks.youtube}
+                              className="position-relative"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <i className="fab fa-youtube"></i>
+                            </Link>
+                          </li>
+                        )}
+                        {data.socialLinks?.linkedin && (
+                          <li>
+                            <Link
+                              href={data.socialLinks.linkedin}
+                              className="position-relative"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <i className="fab fa-linkedin"></i>
+                            </Link>
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  </Col>
                 </Row>
               </div>
 
               {/* Footer Bottom Section */}
-              <div className="footer-bottom pt-0">
-                <Container className="footer-border">
-                  <Row>
-                    <Col xl={12} lg={12} className="text-center d-flex justify-content-center flex-column align-items-center">
-                      <h4 className="footer-link-title">Subscribe Newsletter</h4>
-                      <div className="mailchimp mailchimp-dark w-50">
-                        <div className="input-group mb-3">
-                          <input
-                            type="email"
-                            className="form-control mb-0 font-size-14"
-                            placeholder="Email*"
-                            aria-describedby="button-addon2"
-                          />
-                          <div className="iq-button">
-                            <button
-                              type="submit"
-                              className="btn btn-sm"
-                              id="button-addon2"
-                            >
-                              Subscribe
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </Col>
-                    <Col md={12} className="text-center" >
-                      <Divider>
-                        <Logo
-                          desktopUrl="/assets/images/logo/footer-logo.webp"
-                          mobileUrl="/assets/images/logo/footer-logo.webp"
-                          height={100}
-                          width={175}
-                          handleClick={() => {
-                            const phoneNumber = "918000408888";
-                            const message = encodeURIComponent("Chat");
-                            window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
-                          }}
-                        />
-                      </Divider>
-                      <p className="mb-4 font-size-14 text-center">
-                        <MailCheck color="var(--bs-primary)" size={16} className="me-2" />
-                        <a
-                          href={`mailto:${'contact@getyourticket.in'}`}
-                          className="text-white"
-                        >
-                          {'contact@getyourticket.in'}
-                        </a>
-                      </p>
-                      {/* Social Media Links */}
-                      <div className="d-flex align-items-center justify-content-center my-2 gap-2">
-                        <ul className="p-0 m-0 list-unstyled widget_social_media d-flex align-items-center justify-content-center gap-3">
-                          {Object.entries(data.socialLinks || {})
-                            .filter(([platform, url]) => {
-                              // More strict validation
-                              return url &&
-                                typeof url === 'string' &&
-                                url.trim() !== '' &&
-                                url !== 'null' &&
-                                url !== 'undefined' &&
-                                platformIconMap[platform]; // Only include if we have an icon for it
-                            })
-                            .map(([platform, url]) => {
-                              const iconClass = platformIconMap[platform];
+              <div className="footer-bottom border-top">
+                <Row className="align-items-center">
+                  <Col md={6}>
+                    {/* Dynamic footer menu links for bottom */}
+                    {/* <ul className="menu list-inline p-0 d-flex flex-wrap align-items-center">
+                      {data.groups.slice(0, 1).map((group) =>
+                        group.footer_menu.slice(0, 4).map((link) => (
+                          <li className="menu-item" key={link.id}>
+                            <Link href={`/page/${link.page_id}`}>
+                              {link.title}
+                            </Link>
+                          </li>
+                        ))
+                      )}
+                    </ul> */}
 
-                              return (
-                                <li key={platform}>
-                                  <Link
-                                    href={String(url)}
-                                    className="position-relative"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    <i className={iconClass}></i>
-                                  </Link>
-                                </li>
-                              );
-                            })
-                          }
-                        </ul>
-                      </div>
-                      <small className="mb-0 my-4 d-flex gap-2 justify-content-center">
-                        © {currentYear} All Right Reserved | TRAVA GET YOUR TICKET PVT LTD.
-                      </small>
-                      <small>
-                        All content and images on this website are copyrighted and belong to their respective owners. They are used solely for promotional purposes, with no implied endorsement. Any unauthorized use, copying, or distribution is strictly prohibited and may lead to legal action.
-                      </small>
-                    </Col>
-                  </Row>
-                </Container>
+                    {/* Copyright Text */}
+                  </Col>
+                  <Container className=" footer-border">
+                    <Row>
+                      <Col md={12} className="text-center" >
+                        <p className="mb-0 d-flex gap-2 justify-content-center">
+                          © {currentYear} {data?.config?.site_credit && (
+                            <span
+                              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data?.config?.site_credit) }}
+                            />
+                          )}
+                        </p>
+                      </Col>
+                    </Row>
+                  </Container>
+                  {/* <Col md={3}></Col>
+                  <Col md={3}>
+                    <h6 className="font-size-14 pb-1">Download Streamit Apps</h6>
+                    <div className="d-flex align-items-center">
+                      <Link className="app-image" href="#">
+                        <img 
+                          src="/assets/images/footer/google-play.webp" 
+                          loading="lazy" 
+                          alt="play-store" 
+                        />
+                      </Link>
+                      <Link className="ms-3 app-image" href="#">
+                        <img 
+                          src="/assets/images/footer/apple.webp" 
+                          loading="lazy" 
+                          alt="app-store" 
+                        />
+                      </Link>
+                    </div>
+                  </Col> */}
+                </Row>
               </div>
             </Container>
           </footer>

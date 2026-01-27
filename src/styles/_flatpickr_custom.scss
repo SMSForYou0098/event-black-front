@@ -191,9 +191,41 @@
       }
       
       &.disabled,
-      &.disabled:hover {
-        color: rgba(var(--bs-body-color-rgb), 0.3);
-        background: transparent;
+      &.disabled:hover,
+      &.flatpickr-disabled,
+      &.flatpickr-disabled:hover {
+        color: rgba(var(--bs-body-color-rgb), 0.15) !important;
+        background: transparent !important;
+        cursor: not-allowed;
+      }
+      
+      // Enabled dates styling (dates within the enabled range)
+      &:not(.flatpickr-disabled):not(.disabled):not(.prevMonthDay):not(.nextMonthDay) {
+        color: #ffffff !important;
+        font-weight: 500;
+        
+        &:hover {
+          background: rgba(var(--bs-primary-rgb), 0.3) !important;
+          color: #ffffff !important;
+        }
+      }
+      
+      // Previous/Next month days that are enabled
+      &.prevMonthDay:not(.flatpickr-disabled),
+      &.nextMonthDay:not(.flatpickr-disabled) {
+        color: rgba(255, 255, 255, 0.5) !important;
+        // color: #b51515 !important;
+        
+        &:hover {
+          background: rgba(var(--bs-primary-rgb), 0.2) !important;
+          color: #ffffff !important;
+        }
+      }
+      
+      // Disabled previous/next month days
+      &.prevMonthDay.flatpickr-disabled,
+      &.nextMonthDay.flatpickr-disabled {
+        color: rgba(var(--bs-body-color-rgb), 0.1) !important;
       }
     }
   }

@@ -465,7 +465,7 @@ const HeaderDefault = memo(() => {
                         </span>
                       </li>
                       <li onClick={handleClose}>
-                        <Link href="/my-bookings" className="iq-sub-card d-flex align-items-center gap-3">
+                        <Link href="/bookings" className="iq-sub-card d-flex align-items-center gap-3">
                           <CreditCardIcon size={20} />
                           <h6 className="mb-0 font-size-14 fw-normal">Bookings</h6>
                         </Link>

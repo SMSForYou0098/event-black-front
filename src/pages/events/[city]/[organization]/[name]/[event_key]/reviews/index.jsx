@@ -117,7 +117,7 @@ const EventReviewsPage = () => {
     }, [inView, hasNextPage, fetchNextPage]);
 
     // Flatten reviews
-    const reviews = reviewsData?.pages?.flatMap(page => page?.data?.data || []) || [];
+    const reviews = reviewsData?.pages?.flatMap(page => page?.data || []) || [];
     const totalReviews = reviewsData?.pages?.[0]?.data?.total || reviews.length || 0;
 
     // Stats

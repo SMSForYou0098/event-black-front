@@ -68,71 +68,75 @@ const PaymentWaiting = () => {
         }, TIMEOUT_DURATION);
 
         // Try EventSource for real-time updates
-        try {
-            // const eventSource = new EventSource(`http://192.168.0.166:8000/api/dark/payments/status-stream/ORD123`);
-            const eventSource = new EventSource(`${process.env.NEXT_PUBLIC_API_PATH}payments/status-stream/${session_id}?token=${authToken}`);
-            eventSourceRef.current = eventSource;
-            eventSource.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
+        // Delay EventSource creation by 3 seconds
+        const eventSourceTimeout = setTimeout(() => {
+            try {
+                // const eventSource = new EventSource(`http://192.168.0.166:8000/api/dark/payments/status-stream/ORD123`);
+                const eventSource = new EventSource(`${process.env.NEXT_PUBLIC_API_PATH}payments/status-stream/${session_id}?token=${authToken}`);
+                eventSourceRef.current = eventSource;
+                eventSource.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
 
-                    if (data.payment_status === 'confirmed' || data.payment_status === 'success') {
-                        // Clear timeout since we got a response
-                        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                        if (data.payment_status === 'confirmed' || data.payment_status === 'success') {
+                            // Clear timeout since we got a response
+                            if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-                        setStatus('confirmed');
-                        setMessage('Payment Successful!');
-                        eventSource.close();
+                            setStatus('confirmed');
+                            setMessage('Payment Successful!');
+                            eventSource.close();
 
-                        // Navigate to summary page
-                        setTimeout(() => {
-                            router.push(
-                                `/events/summary/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(session_id)}`
-                            );
-                        }, 1500);
-                    } else if (data.status === 'failed') {
-                        // Clear timeout since we got a response
-                        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                            // Navigate to summary page
+                            setTimeout(() => {
+                                router.push(
+                                    `/events/summary/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(session_id)}`
+                                );
+                            }, 1500);
+                        } else if (data.status === 'failed') {
+                            // Clear timeout since we got a response
+                            if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-                        setStatus('failed');
-                        setErrorMessage(data.message || 'Payment failed. Please try again.');
-                        eventSource.close();
+                            setStatus('failed');
+                            setErrorMessage(data.message || 'Payment failed. Please try again.');
+                            eventSource.close();
+                        }
+                    } catch (parseError) {
+                        console.error('Error parsing SSE data:', parseError);
                     }
-                } catch (parseError) {
-                    console.error('Error parsing SSE data:', parseError);
-                }
-            };
+                };
 
-            eventSource.onerror = (error) => {
-                console.error('EventSource error:', error);
-                eventSource.close();
+                eventSource.onerror = (error) => {
+                    console.error('EventSource error:', error);
+                    eventSource.close();
 
-                // Don't immediately fail, let the timeout handle it for better UX
-                // Only set failed if we haven't already timed out
-                if (timeoutRef.current) {
-                    clearTimeout(timeoutRef.current);
-                    setStatus('timeout');
-                    setMessage('Taking longer than expected...');
+                    // Don't immediately fail, let the timeout handle it for better UX
+                    // Only set failed if we haven't already timed out
+                    if (timeoutRef.current) {
+                        clearTimeout(timeoutRef.current);
+                        setStatus('timeout');
+                        setMessage('Taking longer than expected...');
 
-                    setTimeout(() => {
-                        router.push('/');
-                    }, 5000);
-                }
-            };
+                        setTimeout(() => {
+                            router.push('/');
+                        }, 5000);
+                    }
+                };
 
-        } catch (error) {
-            console.error('EventSource not supported or failed:', error);
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-            setStatus('timeout');
-            setMessage('Taking longer than expected...');
+            } catch (error) {
+                console.error('EventSource not supported or failed:', error);
+                if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                setStatus('timeout');
+                setMessage('Taking longer than expected...');
 
-            setTimeout(() => {
-                router.push('/');
-            }, 5000);
-        }
+                setTimeout(() => {
+                    router.push('/');
+                }, 5000);
+            }
+        }, 3000); // 3 second delay
 
         // Cleanup
         return () => {
+            clearTimeout(eventSourceTimeout);
             if (eventSourceRef.current) {
                 eventSourceRef.current.close();
             }
@@ -161,7 +165,7 @@ const PaymentWaiting = () => {
     };
 
     const handleViewBookings = () => {
-        router.push('/my-bookings');
+        router.push('/bookings');
     };
 
     if (!session_id) {

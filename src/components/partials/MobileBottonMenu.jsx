@@ -164,7 +164,7 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     // },
     {
       key: "Bookings",
-      onClick: () => router.push("/my-bookings"),
+      onClick: () => router.push("/bookings"),
       Icon: UserIcon,
       text: "Bookings",
       animation: { scale: [1, 1.2, 1] },
