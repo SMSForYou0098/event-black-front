@@ -13,6 +13,7 @@ export const initialState = {
   session_id: null,
   auth_session: null,
   isImpersonating: false,
+  lastLogin: null,
 };
 
 const api = process.env.NEXT_PUBLIC_API_PATH;
@@ -56,6 +57,7 @@ export const authSlice = createSlice({
       state.user = action.payload.user;
       state.auth_session = action.payload.auth_session || null;
       state.isImpersonating = action.payload.isImpersonating || false;
+      state.lastLogin = Date.now();
     },
 
     showAuthMessage: (state, action) => {
@@ -78,6 +80,7 @@ export const authSlice = createSlice({
       state.session_id = null;
       state.auth_session = null;
       state.isImpersonating = false;
+      state.lastLogin = null;
 
       // ✅ Clear localStorage
       localStorage.clear();
@@ -91,7 +94,7 @@ export const authSlice = createSlice({
           .replace(/^ +/, "")
           .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
       });
-       logoutUser();
+      logoutUser();
     },
 
     updateUser: (state, action) => {
@@ -132,6 +135,7 @@ export const authSlice = createSlice({
         // ✅ Store session details
         state.session_id = action.payload.session_key || null;
         state.auth_session = action.payload.user?.id?.toString() || null;
+        state.lastLogin = Date.now();
 
         // ✅ Store data to cookie for 7 days
         setAuthToken(action.payload.token);

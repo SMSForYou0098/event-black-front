@@ -60,6 +60,24 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       stampImage: '/assets/images/hfull.webp',
       message: 'All tickets for this event have been sold out.'
     };
+    // Check if event has ended
+    if (eventData?.date_range) {
+      const dates = eventData.date_range.split(',');
+      const lastDate = dates[dates.length - 1];
+      const eventEndDate = new Date(lastDate);
+      eventEndDate.setHours(23, 59, 59, 999);
+
+      if (new Date() > eventEndDate) {
+        return {
+          disabled: true,
+          text: 'Event has finished',
+          showStamp: false,
+          stampImage: null,
+          message: 'The event has finished.'
+        };
+      }
+    }
+
     return { disabled: false, text: 'Book Now', showStamp: false, stampImage: null, message: null };
   };
 

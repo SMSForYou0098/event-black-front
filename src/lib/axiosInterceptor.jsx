@@ -40,6 +40,9 @@ api.interceptors.response.use(
     if (status === 401) {
       // Unauthorized → log out
       store.dispatch(logout());
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
     } else if (status === 429) {
       // Too Many Requests → notify user
       console.error("Too many requests, please try again later.");

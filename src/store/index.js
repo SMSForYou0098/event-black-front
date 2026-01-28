@@ -27,10 +27,10 @@ const checkoutDataTransform = createTransform(
         if (key === 'checkoutData') {
             // Type assertion to fix TypeScript error
             const state = inboundState;
-            
+
             // Clean the data to ensure it's serializable
             const cleanedData = {};
-            
+
             if (state && state.checkoutData) {
                 Object.keys(state.checkoutData).forEach(dataKey => {
                     const item = state.checkoutData[dataKey];
@@ -44,7 +44,7 @@ const checkoutDataTransform = createTransform(
                     }
                 });
             }
-            
+
             return { checkoutData: cleanedData };
         }
         return inboundState;
@@ -55,6 +55,35 @@ const checkoutDataTransform = createTransform(
     },
     // Only apply this transform to checkoutData
     { whitelist: ['checkoutData'] }
+);
+
+// Transform to expire auth session after 24 hours
+const authExpirationTransform = createTransform(
+    // inbound (before persisting)
+    (inboundState, key) => {
+        return inboundState;
+    },
+    // outbound (after rehydrating)
+    (outboundState, key) => {
+        if (key === 'auth' && outboundState.lastLogin) {
+            const twentyFourHours = 2 * 24 * 60 * 60 * 1000;
+            const now = Date.now();
+            if (now - outboundState.lastLogin > twentyFourHours) {
+                // Session expired
+                return {
+                    ...outboundState,
+                    token: null,
+                    user: null,
+                    session_id: null,
+                    auth_session: null,
+                    isImpersonating: false,
+                    lastLogin: null
+                };
+            }
+        }
+        return outboundState;
+    },
+    { whitelist: ['auth'] }
 );
 
 // 1. Combine Reducers
@@ -72,7 +101,7 @@ const persistConfig = {
     key: 'root',
     storage,
     whitelist: ['auth', 'setting', 'checkoutData'], // Added checkoutData back
-    transforms: [checkoutDataTransform], // Added transform
+    transforms: [checkoutDataTransform, authExpirationTransform], // Added auth expiration transform
 };
 
 // 3. Persisted Reducer

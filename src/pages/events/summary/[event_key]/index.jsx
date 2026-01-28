@@ -284,6 +284,19 @@ const BookingSummary = () => {
                                             </div>
                                         </div>
                                     </Col>
+                                    {
+                                        booking?.booking_date && (
+                                            <Col xs={6}>
+                                                <div className="d-flex align-items-start">
+                                                    <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+                                                    <div>
+                                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Booked For Date</div>
+                                                        <div className="text-white fw-bold">{formatDate(booking?.booking_date) || 'N/A'}</div>
+                                                    </div>
+                                                </div>
+                                            </Col>
+                                        )
+                                    }
                                     <Col xs={6}>
                                         <div className="d-flex align-items-center">
                                             <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
