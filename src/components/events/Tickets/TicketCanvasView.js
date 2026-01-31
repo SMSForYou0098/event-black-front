@@ -173,7 +173,8 @@ const TicketCanvasView = forwardRef((props, ref) => {
     // 3. Draw Canvas
     useEffect(() => {
         if (!canvasRef.current) return;
-        if (!imageUrl && !qrDataUrl) return;
+        // Only need QR code to draw - image is optional (will use fallback bg)
+        if (!qrDataUrl) return;
 
         if (fabricCanvasRef.current) {
             fabricCanvasRef.current.dispose();
@@ -196,6 +197,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
                         scaleY: CANVAS_HEIGHT / img.height
                     });
                 } else {
+                    // White fallback background when no image
                     canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
                 }
 

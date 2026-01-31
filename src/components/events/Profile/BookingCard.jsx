@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Image, Button, Dropdown, Alert, Row, Col, Container } from 'react-bootstrap';
+import { Image, Button, Dropdown, Row, Col } from 'react-bootstrap';
 import {
   Film,
   Music,
@@ -17,10 +17,9 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useMyContext } from "@/Context/MyContextProvider";
-import TicketModal from '../../../components/Tickets/TicketModal';
+import TicketDrawer from '../../../components/Tickets/TicketDrawer';
 import CustomBadge from '../../../utils/ProfileUtils/getBadgeClass';
 import CustomBtn from '../../../utils/CustomBtn';
-import CustomDrawer from '../../../utils/CustomDrawer';
 import { MobileOnly, TabletAndDesktop, DesktopOnly } from "@/utils/ResponsiveRenderer";
 
 // Constants moved outside component to prevent recreation
@@ -50,9 +49,7 @@ TypeIcon.displayName = 'TypeIcon';
 const BookingCard = React.memo(({ booking, compact = false }) => {
   const [ticketData, setTicketData] = useState([]);
   const [ticketType, setTicketType] = useState({ id: '', type: '' });
-  const [show, setShow] = useState(false);
-  const [showDrawer, setShowDrawer] = useState(false);
-  const [pendingDownloadType, setPendingDownloadType] = useState('');
+  const [showTicketDrawer, setShowTicketDrawer] = useState(false);
 
   const { isMobile, formatDateRange, getCurrencySymbol } = useMyContext();
 
@@ -69,6 +66,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
       hour12: true,
     });
   };
+
   const bookingData = useMemo(() => {
     const normalizeBooking = booking?.bookings ? booking.bookings[0] : booking;
     return {
@@ -83,42 +81,24 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
   }, [booking]);
 
   // Memoized handlers
-  const handleTicketPreview = useCallback((item, type, id) => {
-    setTicketData(item);
+  const handleTicketPreview = useCallback((type, id) => {
+    setTicketData(booking);
     setTicketType({ id, type });
-    setShow(true);
-  }, []);
+    setShowTicketDrawer(true);
+  }, [booking]);
 
-  const handleCloseModal = useCallback(() => {
+  const handleCloseDrawer = useCallback(() => {
     setTicketData([]);
     setTicketType({ id: '', type: '' });
-    setShow(false);
+    setShowTicketDrawer(false);
   }, []);
 
-  // Handle dropdown item click - Show drawer first
+  // Handle dropdown item click - directly open ticket drawer
   const handleDownloadSelect = useCallback((type) => {
-    setPendingDownloadType(type);
-    setShowDrawer(true);
-  }, []);
+    handleTicketPreview(type, booking?.id);
+  }, [handleTicketPreview, booking?.id]);
 
-  // Confirm download after reading drawer info
-  const handleConfirmDownload = useCallback(() => {
-    setShowDrawer(false);
-
-    if (pendingDownloadType === 'combine') {
-      handleTicketPreview(booking, 'combine', booking?.id);
-    } else if (pendingDownloadType === 'individual') {
-      handleTicketPreview(booking, 'individual', booking?.id);
-    }
-  }, [pendingDownloadType, booking, handleTicketPreview]);
-
-  // Cancel download
-  const handleCancelDownload = useCallback(() => {
-    setShowDrawer(false);
-    setPendingDownloadType('');
-  }, []);
-
-  // Check if individual option should be available - EXACT SAME LOGIC AS FIRST COMPONENT
+  // Check if individual option should be available
   const hasIndividualOption = booking?.bookings;
 
   // Memoized image dimensions
@@ -126,51 +106,6 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
     width: compact ? 60 : 80,
     height: compact ? 80 : 110,
   }), [compact]);
-
-  // Drawer content
-  const drawerContent = useMemo(() => (
-    <div className="p-3">
-
-      {pendingDownloadType === 'individual' && (
-        <>
-          <h6 className="alert-heading mb-2 mt-3">Individual QR Codes</h6>
-          <p className="mb-0">
-            If you select individual QR, each attendee receives a personal QR code for entry,
-            and group QRs won't work.
-          </p>
-        </>
-      )}
-
-      {pendingDownloadType === 'combine' && (
-        <>
-          <h6 className="alert-heading mb-2 mt-3">Group QR Code</h6>
-          <p className="mb-0">
-            If you select group QR, all attendees must arrive together and show the group QR
-            at the venue for entry. Individual QRs will not work.
-          </p>
-        </>
-      )}
-
-      <MobileOnly customClass="mt-4">
-        <CustomBtn
-          buttonText='Ok'
-          variant="primary"
-          size="sm"
-          className="w-100"
-          HandleClick={handleConfirmDownload}
-        />
-      </MobileOnly>
-      <TabletAndDesktop customClass="mt-4">
-        <CustomBtn
-          buttonText='Ok'
-          variant="primary"
-          size="sm"
-          className=""
-          HandleClick={handleConfirmDownload}
-        />
-      </TabletAndDesktop>
-    </div>
-  ), [pendingDownloadType, handleConfirmDownload, handleCancelDownload]);
 
   return (
     <>
@@ -263,24 +198,13 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
         </Row>
       </div>
 
-      {/* Custom Drawer for Download Information */}
-      <CustomDrawer
-        title="Important Information"
-        showOffcanvas={showDrawer}
-        setShowOffcanvas={setShowDrawer}
-      >
-        {drawerContent}
-      </CustomDrawer>
-
-      {/* Ticket Modal */}
-      <TicketModal
-        show={show}
-        handleCloseModal={handleCloseModal}
+      {/* Ticket Drawer */}
+      <TicketDrawer
+        show={showTicketDrawer}
+        onClose={handleCloseDrawer}
         ticketType={ticketType}
         ticketData={ticketData}
-        isAccreditation={ticketData?.type === 'AccreditationBooking'}
         showTicketDetails={true}
-        formatDateRange={formatDateRange}
       />
     </>
   );

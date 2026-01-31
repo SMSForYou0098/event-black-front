@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Container, Row, Col, Card, Dropdown } from 'react-bootstrap';
 import { Calendar, Clock, Mail, MapPin, User, } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
 import { CUSTOM_SECONDORY } from '../../../../utils/consts';
@@ -15,7 +15,7 @@ import { FaWhatsapp, FaSms } from "react-icons/fa";
 import { MdEmail, } from "react-icons/md";
 import Swal from 'sweetalert2';
 import CustomBtn from '../../../../utils/CustomBtn';
-import TicketModal from '../../../../components/Tickets/TicketModal';
+import TicketDrawer from '../../../../components/Tickets/TicketDrawer';
 import BookingFooterLayout from '../../../../utils/BookingFooterLayout';
 
 const BookingSummary = () => {
@@ -117,7 +117,7 @@ const BookingSummary = () => {
         setShow(true);
     }, []);
 
-    const handleCloseModal = useCallback(() => {
+    const handleCloseDrawer = useCallback(() => {
         setTicketType({ type: '' });
         setShow(false);
     }, []);
@@ -203,34 +203,15 @@ const BookingSummary = () => {
         return entryTime || startTime;
     };
 
-    const HandleDownload = () => {
-        Swal.fire({
-            title: 'Download Ticket',
-            text: "Choose how you want to download your ticket. Once a ticket type is selected, it can't be changed!",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Group',
-            cancelButtonText: isMaster ? 'Individual' : 'Cancel',
-            reverseButtons: true,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                handleTicketPreview('combine', booking?.id);
-            } else if (result.dismiss === Swal.DismissReason.cancel && isMaster) {
-                handleTicketPreview('individual', booking?.id);
-            }
-        });
-    };
 
     return (
         <div className="cart-page">
-            <TicketModal
+            <TicketDrawer
                 show={show}
-                handleCloseModal={handleCloseModal}
+                onClose={handleCloseDrawer}
                 ticketType={ticketType}
                 ticketData={fullBookingData}
-                isAccreditation={fullBookingData?.type === 'AccreditationBooking'}
                 showTicketDetails={true}
-                formatDateRange={formatDateRange}
             />
             <Container className="">
                 <CartSteps id={'last'} />
@@ -359,13 +340,25 @@ const BookingSummary = () => {
                         <div className='d-block d-sm-none'>
                             <BookingFooterLayout
                                 center={<div className='d-flex gap-2 justify-content-center align-items-center d-sm-none'>
-                                    <CustomBtn
-                                        size="sm"
-                                        variant="primary"
-                                        HandleClick={HandleDownload}
-                                        buttonText="Download Tickets"
-                                        icon={<i className="fa-solid fa-download"></i>}
-                                    />
+                                    <Dropdown>
+                                        <Dropdown.Toggle
+                                            variant="primary"
+                                            size="sm"
+                                            className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                                        >
+                                            <i className="fa-solid fa-download"></i> Download
+                                        </Dropdown.Toggle>
+                                        <Dropdown.Menu align="end" className="custom-dropdown-menu">
+                                            <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
+                                                Group QR
+                                            </Dropdown.Item>
+                                            {isMaster && (
+                                                <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
+                                                    Individual QR
+                                                </Dropdown.Item>
+                                            )}
+                                        </Dropdown.Menu>
+                                    </Dropdown>
                                     {attendees?.length !== 0 && (
                                         <CustomBtn
                                             size="sm"
@@ -382,13 +375,25 @@ const BookingSummary = () => {
                         <div
                             className=" d-none d-sm-flex gap-2 justify-content-center align-items-center"
                         >
-                            <CustomBtn
-                                size="sm"
-                                variant="primary"
-                                HandleClick={HandleDownload}
-                                buttonText="Download Tickets"
-                                icon={<i className="fa-solid fa-download"></i>}
-                            />
+                            <Dropdown>
+                                <Dropdown.Toggle
+                                    variant="primary"
+                                    size="sm"
+                                    className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                                >
+                                    <i className="fa-solid fa-download"></i> Download Tickets
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu align="end" className="custom-dropdown-menu">
+                                    <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
+                                        Group QR
+                                    </Dropdown.Item>
+                                    {isMaster && (
+                                        <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
+                                            Individual QR
+                                        </Dropdown.Item>
+                                    )}
+                                </Dropdown.Menu>
+                            </Dropdown>
                             {attendees?.length !== 0 && (
                                 <CustomBtn
                                     size="sm"

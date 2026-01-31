@@ -20,6 +20,7 @@ import {
   User,
   UserRound,
   Download,
+  AlertCircle,
 } from "lucide-react";
 import Image from "next/image";
 import { useMyContext } from "@/Context/MyContextProvider";
@@ -127,6 +128,7 @@ const UserCard = () => {
   const {
     data: cardImage,
     isLoading: isImageLoading,
+    isError: isImageError,
   } = useQuery({
     queryKey: ["card-image", ticketData?.card_url],
     queryFn: () => fetchCardImage(ticketData?.card_url),
@@ -135,7 +137,7 @@ const UserCard = () => {
     retry: 1,
   });
 
-  // Track image loaded state
+  // Track image loaded state - also treat errors as "loaded" to show fallback
   useEffect(() => {
     if (cardImage) {
       setCardImageUrl(cardImage);
@@ -144,9 +146,13 @@ const UserCard = () => {
       img.onload = () => setImageLoaded(true);
       img.onerror = () => setImageLoaded(true);
     } else if (ticketData && !ticketData.card_url) {
+      // No card URL - proceed with white fallback
+      setImageLoaded(true);
+    } else if (isImageError) {
+      // Image fetch failed - proceed with white fallback
       setImageLoaded(true);
     }
-  }, [cardImage, ticketData]);
+  }, [cardImage, ticketData, isImageError]);
 
   // Cleanup blob URL on unmount
   useEffect(() => {
@@ -466,42 +472,55 @@ const UserCard = () => {
           <Offcanvas.Header closeButton className="pb-0 mb-0">
             <Offcanvas.Title className="text-center mb-0 pb-0 w-100">
               {showTicketInDrawer
-                ? (drawerType === 'combine' ? 'Combined Ticket' : drawerType === 'single' ? 'Your Ticket' : 'Individual Tickets')
-                : 'Important Notice !!!'
+                ? (drawerType === 'combine' ? 'Group Ticket' : drawerType === 'single' ? '' : 'Individual Tickets')
+                : (drawerType === 'combine' ? 'Group Ticket' : drawerType === 'single' ? '' : 'Individual Tickets')
               }
             </Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body className="position-relative" style={{ paddingBottom: !showTicketInDrawer ? '80px' : '0' }}>
             <div className={`text-center d-flex flex-column ${showTicketInDrawer ? 'h-100' : ''}`}>
               {!showTicketInDrawer ? (
-                <div className="d-flex align-items-center justify-content-center mt-0 mb-0 pt-0 py-4">
-                  <div>
-                    {drawerType === 'combine' ? (
-                      <p className="text-white mb-0">
-                        If everyone is coming together, choose Combined Ticket. Only one QR code will be scanned for the whole group — it saves time at the entry gate!
+                <div className="p-3">
+                  <div className="d-flex align-items-center gap-2 mb-3">
+                    <AlertCircle size={24} className="text-warning" />
+                    <h6 className="mb-0 fw-bold">Important Information</h6>
+                  </div>
+
+                  {drawerType === 'combine' && (
+                    <div className="alert alert-info mb-3 text-start">
+                      <h6 className="alert-heading mb-2">Group QR Code</h6>
+                      <p className="mb-0">
+                        If you select group QR, all attendees must arrive together and show the group QR
+                        at the venue for entry. Individual QRs will not work.
                       </p>
-                    ) : drawerType === 'single' ? (
-                      <p className="text-white mb-0">
+                    </div>
+                  )}
+
+                  {drawerType === 'single' && (
+                    <div className="alert alert-success mb-3 text-start">
+                      {/* <h6 className="alert-heading mb-2">Your Ticket</h6> */}
+                      <p className="mb-0">
                         Your ticket is ready to download. Use the QR code at the entry gate for quick access.
                       </p>
-                    ) : (
-                      <p className="text-white mb-0">
-                        If people are arriving separately, choose Individual Ticket, so each person gets their own QR code.
-                      </p>
-                    )}
-                    {/* Desktop Button - Hidden on mobile */}
-                    <div className="d-none d-md-block mt-4">
-                      <Button
-                        variant="primary"
-                        size="lg"
-                        onClick={handleGenerateTicket}
-                        className="px-5"
-                      >
-                        <Ticket size={20} className="me-2" />
-                        {drawerType === 'combine' ? 'Generate Combined Ticket' : drawerType === 'single' ? 'Generate Ticket' : 'Generate Individual Tickets'}
-                      </Button>
                     </div>
-                  </div>
+                  )}
+
+                  {drawerType === 'download' && (
+                    <div className="alert alert-warning mb-3 text-start">
+                      <h6 className="alert-heading mb-2">Individual QR Codes</h6>
+                      <p className="mb-0">
+                        If you select individual QR, each attendee receives a personal QR code for entry,
+                        and group QRs won't work.
+                      </p>
+                    </div>
+                  )}
+
+                  <CustomBtn
+                    buttonText="Generate Ticket"
+                    variant="primary"
+                    className="w-100 mt-3"
+                    HandleClick={handleGenerateTicket}
+                  />
                 </div>
               ) : (
                 // Ticket Display in Drawer
@@ -514,7 +533,7 @@ const UserCard = () => {
                             <TicketCanvasView
                               ref={singleCanvasRef}
                               showDetails={true}
-                              preloadedImage={true}
+                              preloadedImage={cardImageUrl}
                               ticketNumber={drawerType === 'single' ? 1 : undefined}
                               onReady={() => setIsCanvasReady(true)}
                               ticketData={{
@@ -566,7 +585,7 @@ const UserCard = () => {
                                   <TicketCanvasView
                                     ref={(el) => { swiperCanvasRefs.current[index] = el; }}
                                     showDetails={true}
-                                    preloadedImage={true}
+                                    preloadedImage={cardImageUrl}
                                     ticketNumber={index + 1}
                                     onReady={() => setIsCanvasReady(true)}
                                     ticketData={{
@@ -638,31 +657,7 @@ const UserCard = () => {
               )}
             </div>
 
-            {/* Fixed Footer Button - Mobile Only */}
-            {!showTicketInDrawer && (
-              <div
-                className="d-md-none bg-dark"
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  padding: '1rem',
-                  boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
-                  borderTop: '1px solid #e0e0e0'
-                }}
-              >
-                <Button
-                  variant="primary"
-                  size="lg"
-                  onClick={handleGenerateTicket}
-                  className="w-100"
-                >
-                  <Ticket size={20} className="me-2" />
-                  {drawerType === 'combine' ? 'Generate Combined Ticket' : drawerType === 'single' ? 'Generate Ticket' : 'Generate Individual Tickets'}
-                </Button>
-              </div>
-            )}
+
           </Offcanvas.Body>
         </Offcanvas>
       </Container>
