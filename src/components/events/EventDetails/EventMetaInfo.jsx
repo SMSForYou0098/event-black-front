@@ -78,7 +78,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       }
     }
 
-    return { disabled: false, text: 'Book Now', showStamp: false, stampImage: null, message: null };
+    return { disabled: false, text: 'Book', showStamp: false, stampImage: null, message: null };
   };
 
   const eventStatus = getEventStatus();

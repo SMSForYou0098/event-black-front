@@ -34,6 +34,11 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 'season ticket QR that allows access throughout the season, but only one entry per day',
         },
         {
+            icon: "fa-regular fa-clock", // Date & Time icon
+            value: event_date,
+            valueClass: "fw-semibold",
+        },
+        {
             icon: "fa-solid fa-location-dot",
             value: (
                 <>
@@ -54,12 +59,6 @@ const DetailsHeader = ({ eventData, event_key }) => {
             ),
             valueClass: "fw-semibold",
         }
-        ,
-        {
-            icon: "fa-regular fa-clock", // Date & Time icon
-            value: event_date,
-            valueClass: "fw-semibold",
-        },
     ];
 
 

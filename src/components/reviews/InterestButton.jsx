@@ -114,7 +114,7 @@ const InterestButton = ({ eventId, eventData, onLoginRequired, className = "" })
                             <span className="text-white fw-bold fs-5">
                                 {formatCount(interestCount)}
                             </span>
-                            <span className="text-white fs-5">are interested</span>
+                            <span className="text-white fs-6">are interested</span>
                         </div>
                         <div className="text-muted small">
                             Mark seeks more info.
