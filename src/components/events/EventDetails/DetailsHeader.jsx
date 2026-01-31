@@ -18,7 +18,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
     const [showShareModal, setShowShareModal] = useState(false);
     const event_date = formatDateRange(eventData?.date_range) +
         " | " +
-        `${convertTo12HourFormat(eventData?.start_time)}`
+        `${convertTo12HourFormat(eventData?.start_time)} - ${convertTo12HourFormat(eventData?.end_time)}`
     const metaInfo = [
         {
             icon: "fa-regular fa-bookmark", // Category icon
@@ -145,16 +145,16 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 {/* Event Description */}
 
                 <div ref={descRef}>
-                    <div
+                    <span
                         className="description-content"
                         dangerouslySetInnerHTML={{
                             __html: showFullDesc
                                 ? eventData?.description || ""
-                                : getShortDesc(eventData?.description || "").truncatedHtml,
+                                : getShortDesc(eventData?.description || "", 10).truncatedHtml,
                         }}
-                    />
+                    />{" "}
                     {!showFullDesc && eventData?.description &&
-                        getShortDesc(eventData?.description)?.isTruncated && (
+                        getShortDesc(eventData?.description, 10)?.isTruncated && (
                             <a
                                 href="#"
                                 className="text-primary fw-semibold"

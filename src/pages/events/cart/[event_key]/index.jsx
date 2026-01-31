@@ -588,6 +588,7 @@ const CartPage = () => {
                   value={selectedDate}
                   options={{
                     inline: true,
+                    minDate: "today",
                     dateFormat: "Y-m-d",
                     enable: [
                       {
@@ -626,7 +627,7 @@ const CartPage = () => {
             className="modal-glass-bg"
           >
 
-            <CustomHeader title="" closable={false} onClose={() => setShowDatePicker(false)} />
+            <CustomHeader title="" className='border-0' closable={false} onClose={() => setShowDatePicker(false)} />
             <Modal.Body>
               <div className="d-flex flex-column align-items-center justify-content-center">
                 <div className="custom-flatpickr-wrapper">
@@ -634,6 +635,7 @@ const CartPage = () => {
                     value={selectedDate}
                     options={{
                       inline: true,
+                      minDate: "today",
                       dateFormat: "Y-m-d",
                       enable: [
                         {

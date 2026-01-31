@@ -338,6 +338,10 @@ export const MyContextProvider = ({ children }) => {
       return formatDateDDMMYYYY(dates[0]);
     } else if (dates.length === 2) {
       const [startDate, endDate] = dates;
+      // If both dates are the same, return only one date
+      if (startDate === endDate) {
+        return formatDateDDMMYYYY(startDate);
+      }
       return `${formatDateDDMMYYYY(startDate)} to ${formatDateDDMMYYYY(endDate)}`;
     } else {
       return dateRange;

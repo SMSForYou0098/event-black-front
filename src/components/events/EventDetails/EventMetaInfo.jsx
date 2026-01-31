@@ -229,22 +229,22 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                 {/* Status Message Alert */}
 
 
-                <Button
-                  ref={bookBtnRef}
-                  size="sm"
-                  className="fw-bold px-5 py-2 d-flex align-items-center rounded-3"
-                  onClick={handleBookNow}
-                  disabled={eventStatus.disabled}
-                  style={{
-                    height: "3rem",
-                    fontSize: "16px",
-                    opacity: eventStatus.disabled ? 0.6 : 1,
-                    cursor: eventStatus.disabled ? "not-allowed" : "pointer"
-                  }}
-                >
-                  <span className="me-2">{eventStatus.text}</span>
-                  {!eventStatus.disabled && <i className="fa-solid fa-arrow-right"></i>}
-                </Button>
+                <div ref={bookBtnRef} className="d-inline-block">
+                  <CustomBtn
+                    size="sm"
+                    className="fw-bold px-5 py-2 d-flex align-items-center rounded-3"
+                    HandleClick={handleBookNow}
+                    disabled={eventStatus.disabled}
+                    style={{
+                      height: "3rem",
+                      fontSize: "16px",
+                      opacity: eventStatus.disabled ? 0.6 : 1,
+                      cursor: eventStatus.disabled ? "not-allowed" : "pointer"
+                    }}
+                    buttonText={eventStatus.text}
+                    icon={!eventStatus.disabled ? <i className="fa-solid fa-arrow-right"></i> : null}
+                  />
+                </div>
               </Col>
             }
           </Row>
@@ -317,9 +317,10 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
             </span>
           }
           right={
-            <Button
-              onClick={handleBookNow}
+            <CustomBtn
+              HandleClick={handleBookNow}
               disabled={eventStatus.disabled}
+              size="sm"
               className="btn btn-primary btn-lg px-3"
               style={{
                 fontSize: "16px",
@@ -327,10 +328,9 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                 opacity: eventStatus.disabled ? 0.6 : 1,
                 cursor: eventStatus.disabled ? "not-allowed" : "pointer"
               }}
-            >
-              <span className="me-2">{eventStatus.text}</span>
-              {!eventStatus.disabled && <i className="fa-solid fa-arrow-right"></i>}
-            </Button>
+              buttonText={eventStatus.text}
+            // icon={!eventStatus.disabled ? <i className="fa-solid fa-arrow-right"></i> : null}
+            />
           }
         />
       </div>

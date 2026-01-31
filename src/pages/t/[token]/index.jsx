@@ -28,14 +28,21 @@ import { publicApi } from "@/lib/axiosInterceptor";
 import { ArrowBigDownDash } from "lucide-react";
 import CustomBtn from "@/utils/CustomBtn";
 import MobileTwoButtonFooter from "@/utils/MobileTwoButtonFooter";
+import TicketErrorDisplay from "@/components/errors/TicketErrorDisplay";
 
 // API fetch functions
 const fetchToken = async (orderId) => {
-  const { data } = await publicApi.get(`generate-token/${orderId}`);
-  if (!data.status) {
-    throw new Error("Invalid Request");
+  try {
+    const { data } = await publicApi.get(`generate-token/${orderId}`);
+    if (!data.status) {
+      throw new Error(data.message || "Invalid Request");
+    }
+    return data; // Return full response including 'token' and 'group'
+  } catch (error) {
+    // Extract message from axios error response
+    const message = error.response?.data?.message || error.message || "Invalid Request";
+    throw new Error(message);
   }
-  return data; // Return full response including 'token' and 'group'
 };
 
 const fetchGanCard = async (token) => {
@@ -392,13 +399,9 @@ const UserCard = () => {
             </Card>
           </>
         ) : (
-          <Card className="text-center py-4">
-            <Card.Body>
-              <p className="text-danger">
-                {hasError ? errorMessage : "No ticket data available"}
-              </p>
-            </Card.Body>
-          </Card>
+          <TicketErrorDisplay
+            errorMessage={hasError ? errorMessage : "No ticket data available"}
+          />
         )}
 
         {/* Fixed Footer Combine and Download Buttons - Visible only on mobile (< md) */}
