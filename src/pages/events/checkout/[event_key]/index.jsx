@@ -425,6 +425,11 @@ const CartPage = () => {
       }
     }
 
+    // Influencer ID - for approval_required events
+    if (checkoutData?.data?.selectedInfluencer) {
+      formData.append('influencer_id', String(checkoutData.data.selectedInfluencer));
+    }
+
     // Attendees — handle files and primitives safely
     if (attendeeRequired && Array.isArray(checkoutData?.attendees) && checkoutData.attendees.length > 0) {
       const attendeeList = checkoutData.attendees;

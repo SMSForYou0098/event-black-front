@@ -87,3 +87,23 @@ export const useLockSeats = (options = {}) =>
         },
         ...options,
     });
+
+/**
+ * Fetch influencers for an event (used when is_approval_required is true)
+ * @param {string|number} eventId - Event ID
+ * @param {boolean} enabled - Whether to enable the query
+ * @returns {UseQueryResult} Query result with influencers data
+ */
+export const useEventInfluencers = (eventId, enabled = true) => {
+    return useQuery({
+        queryKey: ['eventInfluencers', eventId],
+        queryFn: async () => {
+            const response = await api.get(`event/${eventId}/influencers`, {
+                params: { details: true }
+            });
+            return response.data;
+        },
+        enabled: !!eventId && enabled,
+        staleTime: 5 * 60 * 1000,
+    });
+};

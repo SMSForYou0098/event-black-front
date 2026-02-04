@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { Container, Row, Col, Card, Dropdown } from 'react-bootstrap';
-import { Calendar, Clock, Mail, MapPin, User, } from 'lucide-react';
+import { Calendar, Clock, Mail, MapPin, User, AlertCircle } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
 import { CUSTOM_SECONDORY } from '../../../../utils/consts';
 import { useRouter } from "next/router";
@@ -159,6 +159,7 @@ const BookingSummary = () => {
     const ticket = firstBooking?.ticket || booking?.ticket || mutation?.data?.ticket || {};
     const event = ticket?.event || mutation?.data?.event || {};
     const venue = event?.venue || {};
+    const isApprovalRequired = event?.event_controls?.is_approval_required;
 
     // User data can be in booking directly, in the first booking's user, or in a separate user object
     const user = {
@@ -337,28 +338,41 @@ const BookingSummary = () => {
 
                             </Card.Body>
                         </Card>
+                        {/* Pending Approval Message */}
+                        {isApprovalRequired && (
+                            <div className="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
+                                <AlertCircle size={20} className="flex-shrink-0 mt-1" />
+                                <div>
+                                    <strong>Booking Pending Approval</strong>
+                                    <p className="mb-0 small">Your booking is awaiting approval from the event organizer. You will receive your tickets once approved.</p>
+                                </div>
+                            </div>
+                        )}
+
                         <div className='d-block d-sm-none'>
                             <BookingFooterLayout
                                 center={<div className='d-flex gap-2 justify-content-center align-items-center d-sm-none'>
-                                    <Dropdown>
-                                        <Dropdown.Toggle
-                                            variant="primary"
-                                            size="sm"
-                                            className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
-                                        >
-                                            <i className="fa-solid fa-download"></i> Download
-                                        </Dropdown.Toggle>
-                                        <Dropdown.Menu align="end" className="custom-dropdown-menu">
-                                            <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
-                                                Group QR
-                                            </Dropdown.Item>
-                                            {isMaster && (
-                                                <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
-                                                    Individual QR
+                                    {!isApprovalRequired && (
+                                        <Dropdown>
+                                            <Dropdown.Toggle
+                                                variant="primary"
+                                                size="sm"
+                                                className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                                            >
+                                                <i className="fa-solid fa-download"></i> Download
+                                            </Dropdown.Toggle>
+                                            <Dropdown.Menu align="end" className="custom-dropdown-menu">
+                                                <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
+                                                    Group QR
                                                 </Dropdown.Item>
-                                            )}
-                                        </Dropdown.Menu>
-                                    </Dropdown>
+                                                {isMaster && (
+                                                    <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
+                                                        Individual QR
+                                                    </Dropdown.Item>
+                                                )}
+                                            </Dropdown.Menu>
+                                        </Dropdown>
+                                    )}
                                     {attendees?.length !== 0 && (
                                         <CustomBtn
                                             size="sm"
@@ -375,25 +389,27 @@ const BookingSummary = () => {
                         <div
                             className=" d-none d-sm-flex gap-2 justify-content-center align-items-center"
                         >
-                            <Dropdown>
-                                <Dropdown.Toggle
-                                    variant="primary"
-                                    size="sm"
-                                    className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
-                                >
-                                    <i className="fa-solid fa-download"></i> Download Tickets
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu align="end" className="custom-dropdown-menu">
-                                    <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
-                                        Group QR
-                                    </Dropdown.Item>
-                                    {isMaster && (
-                                        <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
-                                            Individual QR
+                            {!isApprovalRequired && (
+                                <Dropdown>
+                                    <Dropdown.Toggle
+                                        variant="primary"
+                                        size="sm"
+                                        className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                                    >
+                                        <i className="fa-solid fa-download"></i> Download Tickets
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu align="end" className="custom-dropdown-menu">
+                                        <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
+                                            Group QR
                                         </Dropdown.Item>
-                                    )}
-                                </Dropdown.Menu>
-                            </Dropdown>
+                                        {isMaster && (
+                                            <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
+                                                Individual QR
+                                            </Dropdown.Item>
+                                        )}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            )}
                             {attendees?.length !== 0 && (
                                 <CustomBtn
                                     size="sm"

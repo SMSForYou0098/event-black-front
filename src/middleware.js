@@ -8,78 +8,99 @@ import { roleBasedMiddleware } from './middleware/roleBasedMiddleware';
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  // console.log('Middleware executed for path:', pathname);
-  // 1. Query Parameter Protection (your current requirement)
+  /* =====================================================
+   🚫 1. Skip Next.js internal & static requests
+  ===================================================== */
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon.ico') ||
+    pathname.startsWith('/api')
+  ) {
+    return NextResponse.next();
+  }
+
+  /* =====================================================
+   🔐 2. Auth routes (login / password / success)
+  ===================================================== */
   if (isAuthRoute(pathname)) {
     const token = request.cookies.get('authToken')?.value;
-    // If user is logged in, redirect to home/dashboard
+
+    // If already logged in → redirect to home
     if (token) {
       return NextResponse.redirect(new URL('/', request.url));
     }
+
     return NextResponse.next();
   }
-  const queryParamResult = await queryParamMiddleware(request);
-  if (queryParamResult) return queryParamResult;
 
+  /* =====================================================
+   🔍 3. Query param protection (ONLY real pages)
+  ===================================================== */
+  if (
+    pathname.startsWith('/events/checkout/') &&
+    !pathname.endsWith('.json')
+  ) {
+    const queryParamResult = await queryParamMiddleware(request);
+    if (queryParamResult) return queryParamResult;
+  }
 
-
-  // 2. Authentication Check for private routes
+  /* =====================================================
+   🔑 4. Authentication for private routes
+  ===================================================== */
   if (isPrivateRoute(pathname)) {
     const authResult = await authMiddleware(request);
     if (authResult) return authResult;
   }
 
-  // 3. Role-based access control
+  /* =====================================================
+   🛡 5. Role-based access control
+  ===================================================== */
   if (isAdminRoute(pathname)) {
     const roleResult = await roleBasedMiddleware(request);
     if (roleResult) return roleResult;
   }
 
-  // Continue to the page if all checks pass
+  // ✅ Allow request to continue
   return NextResponse.next();
 }
 
-// Helper functions to determine route types
+/* =====================================================
+   Helper functions
+===================================================== */
+
 function isPrivateRoute(pathname) {
-  const privateRoutes = [
-    '/events/checkout/:path*',
-    '/events/attendee/:path*',
-    '/events/summary/:path*',
-    '/dashboard',
-    '/profile',
-    '/admin',
-    '/events/checkout',
-    '/events/attendee'
-  ];
-  return privateRoutes.some(route => pathname.startsWith(route));
+  return (
+    pathname.startsWith('/events/checkout') ||
+    pathname.startsWith('/events/attendee') ||
+    pathname.startsWith('/events/summary') ||
+    pathname === '/dashboard' ||
+    pathname === '/profile' ||
+    pathname.startsWith('/admin')
+  );
 }
 
 function isAuthRoute(pathname) {
-  const authRoutes = [
-    '/auth/auth-success',
-    '/auth/lost-password',
-  ];
-  return authRoutes.some(route => pathname === route);
+  return (
+    pathname === '/auth/auth-success' ||
+    pathname === '/auth/lost-password'
+  );
 }
 
 function isAdminRoute(pathname) {
   return pathname.startsWith('/admin');
 }
 
-function isQueryProtectedRoute(pathname) {
-  return pathname.includes('/events/checkout/') || pathname.includes('/events/attendee/');
-}
-
+/* =====================================================
+   Middleware matcher
+===================================================== */
 export const config = {
   matcher: [
-    // Auth routes
     '/auth/:path*',
-    // Include all routes that need any kind of middleware
     '/events/checkout/:path*',
     '/events/attendee/:path*',
     '/events/summary/:path*',
     '/dashboard/:path*',
     '/profile/:path*',
     '/admin/:path*'
-  ]
+  ],
 };

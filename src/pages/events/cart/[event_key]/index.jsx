@@ -12,11 +12,11 @@ import BookingTickets from "../../../../utils/BookingUtils/BookingTickets";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
 // import LoginModal from "../../../../components/auth/LoginModal";
 import LoginModal from "../../../../components/auth/LoginOffCanvas";
-import { useEventData, useLockSeats } from "../../../../services/events";
+import { useEventData, useLockSeats, useEventInfluencers } from "../../../../services/events";
 import CustomBtn from "../../../../utils/CustomBtn";
 import CustomDrawer from "../../../../utils/CustomDrawer";
 import { useCheckoutData } from "../../../../hooks/useCheckoutData";
-import { Calendar, Pin, Ticket, Users } from "lucide-react";
+import { Calendar, Pin, Ticket, Users, Check, User } from "lucide-react";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
 import BookingLayout from "../../../../components/events/SeatingModule/Bookinglayout";
@@ -50,6 +50,10 @@ const CartPage = () => {
   const [selectedDate, setSelectedDate] = useState(""); // For daily event date selection
   const [showDatePicker, setShowDatePicker] = useState(false); // Date selection modal/drawer state
 
+  // Influencer selection states (for approval_required events)
+  const [showInfluencerDrawer, setShowInfluencerDrawer] = useState(false);
+  const [selectedInfluencer, setSelectedInfluencer] = useState(null);
+
   // Check if event is daily type
 
   // Parse event date range to get min and max dates
@@ -75,6 +79,13 @@ const CartPage = () => {
   });
 
   const isDailyEvent = event?.event_type === 'daily';
+  const isApprovalRequired = event?.eventControls?.is_approval_required;
+
+  // Fetch influencers when approval is required
+  const { data: influencersData, isLoading: influencersLoading } = useEventInfluencers(
+    event?.id,
+    !!isApprovalRequired // Only fetch when is_approval_required is true
+  );
   const parseDateRange = useMemo(() => {
     if (!event?.date_range) return { minDate: null, maxDate: null, minDateStr: null, maxDateStr: null };
 
@@ -193,6 +204,20 @@ const CartPage = () => {
     }
   }, [isDailyEvent, categoryData, selectedDate, parseDateRange]);
 
+  // Auto-open influencer drawer for approval-required events
+  useEffect(() => {
+    if (
+      isApprovalRequired &&
+      categoryData &&
+      categoryData.title !== 'Registration' &&
+      !selectedInfluencer &&
+      !showInfluencerDrawer &&
+      influencersData?.data?.length > 0
+    ) {
+      setShowInfluencerDrawer(true);
+    }
+  }, [isApprovalRequired, categoryData, selectedInfluencer, showInfluencerDrawer, influencersData]);
+
   // console.log(categoryData)
 
   // console.log(event)
@@ -227,6 +252,12 @@ const CartPage = () => {
     // Validate date selection for daily events - Open date picker if no date
     if (isDailyEvent && !dateToUse) {
       setShowDatePicker(true);
+      return;
+    }
+
+    // Validate influencer selection for approval-required events
+    if (isApprovalRequired && !selectedInfluencer) {
+      setShowInfluencerDrawer(true);
       return;
     }
 
@@ -287,7 +318,8 @@ const CartPage = () => {
       data: {
         ...selectedTickets,
         ...(registrationId && { registration_id: registrationId }),
-        ...(dateToUse && { selectedDate: dateToUse })
+        ...(dateToUse && { selectedDate: dateToUse }),
+        ...(selectedInfluencer && { selectedInfluencer })
       },
       ticket: selectedTicket,
       edata: eventSummary,
@@ -721,6 +753,131 @@ const CartPage = () => {
             setShowRegistrationModal(false);
           }}
         />
+
+        {/* Influencer Selection - For approval_required events */}
+        {isMobile ? (
+          <CustomDrawer
+            showOffcanvas={showInfluencerDrawer}
+            setShowOffcanvas={setShowInfluencerDrawer}
+            title="Select Influencer"
+            placement="bottom"
+            className="bg-dark text-white"
+            style={{ height: 'auto', minHeight: '60vh', maxHeight: '80vh' }}
+          >
+            <div className="d-flex flex-column h-100">
+              <p className="text-muted small mb-3">Select an influencer to proceed with booking</p>
+              <div className="flex-grow-1 overflow-auto">
+                {influencersLoading ? (
+                  <div className="d-flex justify-content-center py-4">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="d-flex flex-column gap-2">
+                    {influencersData?.data?.map((influencer) => (
+                      <div
+                        key={influencer.id}
+                        className={`p-3 rounded-3 border cursor-pointer d-flex align-items-center gap-3 ${selectedInfluencer === influencer.id
+                          ? 'border-warning bg-warning bg-opacity-10'
+                          : 'border-secondary'
+                          }`}
+                        onClick={() => setSelectedInfluencer(influencer.id)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className={`rounded-circle d-flex align-items-center justify-content-center ${selectedInfluencer === influencer.id ? 'bg-warning' : 'bg-secondary'
+                          }`} style={{ width: 40, height: 40 }}>
+                          {selectedInfluencer === influencer.id ? (
+                            <Check size={20} className="text-dark" />
+                          ) : (
+                            <User size={20} className="text-white" />
+                          )}
+                        </div>
+                        <div className="flex-grow-1">
+                          <div className="text-white fw-medium">{influencer.name}</div>
+                        </div>
+                      </div>
+                    ))}
+                    {(!influencersData?.data || influencersData?.data?.length === 0) && (
+                      <div className="text-center text-muted py-4">
+                        No influencers available for this event
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="mt-3 pt-3 border-top border-secondary">
+                <CustomBtn
+                  disabled={!selectedInfluencer}
+                  HandleClick={() => setShowInfluencerDrawer(false)}
+                  buttonText="Continue"
+                  className="w-100"
+                />
+              </div>
+            </div>
+          </CustomDrawer>
+        ) : (
+          <Modal
+            show={showInfluencerDrawer}
+            onHide={() => setShowInfluencerDrawer(false)}
+            centered
+            className="modal-glass-bg"
+            size="md"
+          >
+            <CustomHeader title="Select Influencer" className='border-0' closable={true} onClose={() => setShowInfluencerDrawer(false)} />
+            <Modal.Body>
+              <p className="text-muted small mb-3">Select an influencer to proceed with booking</p>
+              <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                {influencersLoading ? (
+                  <div className="d-flex justify-content-center py-4">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="d-flex flex-column gap-2">
+                    {influencersData?.data?.map((influencer) => (
+                      <div
+                        key={influencer.id}
+                        className={`p-3 rounded-3 border cursor-pointer d-flex align-items-center gap-3 ${selectedInfluencer === influencer.id
+                          ? 'border-warning bg-warning bg-opacity-10'
+                          : 'border-secondary'
+                          }`}
+                        onClick={() => setSelectedInfluencer(influencer.id)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className={`rounded-circle d-flex align-items-center justify-content-center ${selectedInfluencer === influencer.id ? 'bg-warning' : 'bg-secondary'
+                          }`} style={{ width: 40, height: 40 }}>
+                          {selectedInfluencer === influencer.id ? (
+                            <Check size={20} className="text-dark" />
+                          ) : (
+                            <User size={20} className="text-white" />
+                          )}
+                        </div>
+                        <div className="flex-grow-1">
+                          <div className="text-white fw-medium">{influencer.name}</div>
+                        </div>
+                      </div>
+                    ))}
+                    {(!influencersData?.data || influencersData?.data?.length === 0) && (
+                      <div className="text-center text-muted py-4">
+                        No influencers available for this event
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="mt-3 pt-3 border-top border-secondary">
+                <CustomBtn
+                  disabled={!selectedInfluencer}
+                  HandleClick={() => setShowInfluencerDrawer(false)}
+                  buttonText="Continue"
+                  className="w-100"
+                />
+              </div>
+            </Modal.Body>
+          </Modal>
+        )}
       </Container>
     </div >
   );
