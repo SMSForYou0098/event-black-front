@@ -64,10 +64,10 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 <Col md="4">
                   <Card className="border-0 shadow-sm">
                     <Card.Body>
-                      <h6 className="text-primary mb-2">
+                      <h6 className="text-primary mb-2" style={{ fontSize: '14px' }}>
                         <i className="fa fa-calendar me-2"></i>Date Range
                       </h6>
-                      <p className="mb-0">
+                      <p className="mb-0" style={{ fontSize: '14px' }}>
                         {startDate} to {endDate}
                       </p>
                     </Card.Body>
@@ -76,20 +76,20 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 <Col md="4">
                   <Card className="border-0 shadow-sm">
                     <Card.Body>
-                      <h6 className="text-primary mb-2">
+                      <h6 className="text-primary mb-2" style={{ fontSize: '14px' }}>
                         <i className="fa fa-clock me-2"></i>Timings
                       </h6>
                       <Row className="mb-0">
                         <Col xs={4}>
-                          <strong>Entry:</strong> {eventData?.entry_time} <br />
+                          <span style={{ fontSize: '14px' }}><strong>Entry:</strong> {eventData?.entry_time}</span> <br />
 
                         </Col>
                         <Col xs={4}>
-                          <strong>Start:</strong> {eventData?.start_time} <br />
+                          <span style={{ fontSize: '14px' }}><strong>Start:</strong> {eventData?.start_time}</span> <br />
 
                         </Col>
                         <Col xs={4}>
-                          <strong>End:</strong> {eventData?.end_time}
+                          <span style={{ fontSize: '14px' }}><strong>End:</strong> {eventData?.end_time}</span>
                         </Col>
                       </Row>
 
@@ -99,11 +99,11 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 <Col md="4">
                   <Card className="border-0 shadow-sm">
                     <Card.Body>
-                      <h6 className="text-primary mb-2">
+                      <h6 className="text-primary mb-2" style={{ fontSize: '14px' }}>
                         <i className="fa fa-map-marker-alt me-2"></i>
                         Location
                       </h6>
-                      <p className="mb-3">
+                      <p className="mb-3" style={{ fontSize: '14px' }}>
                         {eventData?.venue?.address}, {eventData?.venue?.city},{" "}
                         {eventData?.venue?.state}, {eventData?.venue?.country}
                       </p>
@@ -147,7 +147,7 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                           />
                         </div>
                       ) : (
-                        <div className="p-4 text-muted">No layout image available.</div>
+                        <div className="p-4 text-muted" style={{ fontSize: '14px' }}>No layout image available.</div>
                       )}
                     </Card.Body>
                   </Card>
@@ -166,7 +166,7 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                           dangerouslySetInnerHTML={{ __html: eventData.venue.aembeded_code }}
                         />
                       ) : (
-                        <div className="p-3 text-muted text-center">No map available for this venue.</div>
+                        <div className="p-3 text-muted text-center" style={{ fontSize: '14px' }}>No map available for this venue.</div>
                       )}
                     </Card.Body>
                   </Card>

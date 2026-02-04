@@ -31,6 +31,13 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       stampImage: null,
       message: 'No tickets are available for this event.'
     };
+    if (eventData?.active_tickets === 0) return {
+      disabled: true,
+      text: 'No Active Tickets',
+      showStamp: false,
+      stampImage: null,
+      message: 'No tickets are active for this event.'
+    };
     if (isCancelled) return {
       disabled: true,
       text: 'Cancelled',
@@ -137,7 +144,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                 <span
                   className={`${info.valueClass} ${isDailyEvent ? "bg-warning text-dark px-2 py-1 rounded-pill" : ""} ${isSeasonalEvent ? "bg-info text-dark px-2 py-1 rounded-pill" : ""}`}
 
-                  style={{ fontSize: "15px", fontWeight: 500 }}
+                  style={{ fontSize: "12px", fontWeight: 500 }}
                 >
                   {info.value}
                 </span>

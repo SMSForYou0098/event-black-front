@@ -473,7 +473,7 @@ const CartPage = () => {
     },
   ];
 
-  const buttonText = `Proceed to ${attendeeRequired ? "Attendee" : "Checkout"}`;
+  const buttonText = `${attendeeRequired ? "Proceed to Attendee" : "Checkout"}`;
   return (
     <div className="cart-page">
       <Container>

@@ -87,58 +87,58 @@ const BookingLegend = ({ sections }) => {
 
 
 
-                {/* ---- Ticket Categories ---- */}
-                {ticketCategories.length > 0 && (
-                    <>
-                        <div className="vr" style={{ height: 'auto' }}></div>
+                    {/* ---- Ticket Categories ---- */}
+                    {ticketCategories.length > 0 && (
+                        <>
+                            <div className="vr" style={{ height: 'auto' }}></div>
 
-                        <div>
-                            <strong className="d-block mb-2" style={{ fontSize: 13 }}>
-                                Ticket Categories:
-                            </strong>
+                            <div>
+                                <strong className="d-block mb-2" style={{ fontSize: 13 }}>
+                                    Ticket Categories:
+                                </strong>
 
-                            <div className="d-flex flex-column gap-2">
-                                {ticketCategories.map(cat => (
-                                    <div key={cat.id} className="d-flex align-items-center gap-3">
-                                        <div style={box(PRIMARY, `1px solid ${PRIMARY}`)} />
-                                        <span style={{ fontSize: 13, minWidth: 100 }}>{cat.name}</span>
-                                        <Badge bg="success" style={{ fontSize: 11 }}>
-                                            ₹{cat.price.toFixed(2)}
-                                        </Badge>
-                                    </div>
-                                ))}
+                                <div className="d-flex flex-column gap-2">
+                                    {ticketCategories.map(cat => (
+                                        <div key={cat.id} className="d-flex align-items-center gap-3">
+                                            <div style={box(PRIMARY, `1px solid ${PRIMARY}`)} />
+                                            <span style={{ fontSize: 13, minWidth: 100 }}>{cat.name}</span>
+                                            <Badge bg="success" style={{ fontSize: 11 }}>
+                                                ₹{cat.price.toFixed(2)}
+                                            </Badge>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
+                        </>
+                    )}
+
+                    {/* ---- Instructions ---- */}
+                    <div className="vr" style={{ height: 'auto' }}></div>
+
+                    <div style={{ maxWidth: 250 }}>
+                        <strong className="d-block mb-2" style={{ fontSize: 13 }}>How to Book:</strong>
+
+                        <ol style={{ fontSize: 12, paddingLeft: 20, margin: 0 }}>
+                            <li className="mb-1">Click on available seats to select</li>
+                            <li className="mb-1">Review your selection in the summary</li>
+                            <li className="mb-1">Click "Proceed to Checkout"</li>
+                            <li className="mb-1">Fill in your details and confirm</li>
+                        </ol>
+
+                        <div
+                            className="mt-2 p-2"
+                            style={{
+                                fontSize: 11,
+                                backgroundColor: '#fff3cd',
+                                borderRadius: 4,
+                                color: '#856404'
+                            }}
+                        >
+                            <strong>Note:</strong> Seats without tickets assigned cannot be selected.
                         </div>
-                    </>
-                )}
-
-                {/* ---- Instructions ---- */}
-                <div className="vr" style={{ height: 'auto' }}></div>
-
-                <div style={{ maxWidth: 250 }}>
-                    <strong className="d-block mb-2" style={{ fontSize: 13 }}>How to Book:</strong>
-
-                    <ol style={{ fontSize: 12, paddingLeft: 20, margin: 0 }}>
-                        <li className="mb-1">Click on available seats to select</li>
-                        <li className="mb-1">Review your selection in the summary</li>
-                        <li className="mb-1">Click "Proceed to Checkout"</li>
-                        <li className="mb-1">Fill in your details and confirm</li>
-                    </ol>
-
-                    <div
-                        className="mt-2 p-2"
-                        style={{
-                            fontSize: 11,
-                            backgroundColor: '#fff3cd',
-                            borderRadius: 4,
-                            color: '#856404'
-                        }}
-                    >
-                        <strong>Note:</strong> Seats without tickets assigned cannot be selected.
                     </div>
-                </div>
 
-            </div>
+                </div>
             </Card.Body>
         </Card>
     );

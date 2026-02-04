@@ -77,7 +77,7 @@ const BookingSummary = ({
                                             {seat.sectionName} - Row {seat.rowTitle}
                                         </strong>
                                         <div className="d-flex align-items-center gap-1">
-                                            <span className="text-secondary" style={{ fontSize: '12px' }}>
+                                            <span className="text-secondary" style={{ fontSize: '14px' }}>
                                                 Seat {seat.number}
                                             </span>
                                             {seat.ticket && (

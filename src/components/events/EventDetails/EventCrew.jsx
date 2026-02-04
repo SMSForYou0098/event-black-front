@@ -54,8 +54,8 @@ const EventCrew = ({ crews = dummyCrews }) => {
                     }}
                 />
             </div>
-            <h5 className="crew-name mb-1">{crew.name}</h5>
-            <p className="crew-role text-muted mb-0">{crew.role}</p>
+            <h5 className="crew-name mb-1" style={{ fontSize: '14px' }}>{crew.name}</h5>
+            <p className="crew-role text-muted mb-0" style={{ fontSize: '14px' }}>{crew.role}</p>
         </div>
     );
 

@@ -110,7 +110,7 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
             {/* Header with Stats */}
             <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                 <div>
-                    <h5 className="text-white mb-2">Reviews & Ratings</h5>
+                    <h5 className="text-white mb-2" style={{ fontSize: '18px' }}>Reviews & Ratings</h5>
                     {totalReviews > 0 && (
                         <div className="d-flex align-items-center gap-2">
                             <StarRating rating={averageRating} size={18} readOnly />

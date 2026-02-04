@@ -126,7 +126,7 @@ const ShareModal = ({ show, onHide, url, title, eventData, event_date }) => {
                             style={{ objectFit: 'cover' }}
                         />
                         <div className="flex-grow-1">
-                            <h6 className="mb-1 fw-bold">{eventData.title || title}</h6>
+                            <h6 className="mb-1 fw-bold" style={{ fontSize: '14px' }}>{eventData.title || title}</h6>
                             <div className="d-flex align-items-center text-muted">
                                 <Calendar size={16} className='me-2 custom-text-secondary' />
                                 <small>{event_date || 'Event Date'}</small>
@@ -154,7 +154,7 @@ const ShareModal = ({ show, onHide, url, title, eventData, event_date }) => {
 
                 {/* Social Share Section */}
                 <div className="mb-4">
-                    <h6 className="mb-3 text-muted">Social share</h6>
+                    <h6 className="mb-3 text-muted" style={{ fontSize: '14px' }}>Social share</h6>
                     <Row className="g-3">
                         {socialShareButtons.map(button => (
                             <Col xs={4} sm={2} key={button.id} className="text-center">

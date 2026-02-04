@@ -40,7 +40,7 @@ const EnhancedTicketsSection = ({ tickets }) => {
               <Ticket className="me-3 text-primary" size={40} />
               Tickets And Pricing
             </h2>
-            <p className="text-muted fs-5">
+            <p className="text-muted" style={{ fontSize: '14px' }}>
               Book tickets and create unforgettable memories
             </p>
           </div>

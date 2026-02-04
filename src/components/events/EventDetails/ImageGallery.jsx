@@ -49,7 +49,7 @@ const EventPhotoGallery = ({ eventPhotos = [] }) => {
     return photosArray.map((url, i) => {
       const normalizedUrl = normalizeUrl(url);
       const title = fileNameFromUrl(normalizedUrl);
-      
+
       return {
         src: normalizedUrl,
         alt: `Event photo ${i + 1}`,
@@ -113,7 +113,7 @@ const EventPhotoGallery = ({ eventPhotos = [] }) => {
                     />
 
                     <div className="photo-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-end p-3">
-                      <div className="text-white fw-bold small">
+                      <div className="text-white fw-bold" style={{ fontSize: '14px' }}>
                         {photo.title}
                       </div>
                     </div>

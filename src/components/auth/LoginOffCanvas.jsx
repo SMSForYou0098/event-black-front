@@ -863,7 +863,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                         </Form.Group>
 
                         <div className="d-flex flex-column gap-3 mb-3">
-                            <span style={{ fontSize: '12px' }} className="text-secondary mt-2 d-block">
+                            <span style={{ fontSize: '14px' }} className="text-secondary mt-2 d-block">
                                 By continuing, you agree to accept our <Link href="/terms-and-conditions" className="text-decoration-underline text-primary">Terms & Conditions</Link> and <Link href="/privacy-policy" className="text-decoration-underline text-primary">Privacy Policy</Link>.
                             </span>
 

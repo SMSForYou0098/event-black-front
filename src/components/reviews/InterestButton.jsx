@@ -111,12 +111,12 @@ const InterestButton = ({ eventId, eventData, onLoginRequired, className = "" })
                     </div>
                     <div>
                         <div className="d-flex align-items-center gap-1">
-                            <span className="text-white fw-bold fs-5">
+                            <span className="text-white fw-bold" style={{ fontSize: '14px' }}>
                                 {formatCount(interestCount)}
                             </span>
-                            <span className="text-white fs-6">are interested</span>
+                            <span className="text-white" style={{ fontSize: '14px' }}>are interested</span>
                         </div>
-                        <div className="text-muted small">
+                        <div className="text-muted" style={{ fontSize: '14px' }}>
                             Mark seeks more info.
                         </div>
                     </div>

@@ -17,7 +17,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
   const [commentList, setCommentList] = useState(comments);
   const [replyTo, setReplyTo] = useState(null);
   const [expandedReplies, setExpandedReplies] = useState({});
-  const {   UserData ,ErrorAlert, AskAlert } = useMyContext();
+  const { UserData, ErrorAlert, AskAlert } = useMyContext();
 
   useEffect(() => {
     setCommentList(comments);
@@ -64,11 +64,11 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
           comment.id === commentId
             ? { ...comment, likes }
             : {
-                ...comment,
-                replies: comment.replies?.map((r) =>
-                  r.id === commentId ? { ...r, likes } : r
-                ) || [],
-              }
+              ...comment,
+              replies: comment.replies?.map((r) =>
+                r.id === commentId ? { ...r, likes } : r
+              ) || [],
+            }
         )
       );
     } catch (error) {
@@ -84,11 +84,11 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
       "Yes, delete it!",                           // confirm button text
       "Comment deleted successfully!"              // success message
     );
-  
+
     if (confirmed) {
       try {
         await api.delete(`/blog-comment-destroy/${commentId}`);
-  
+
         setCommentList((prev) => prev.filter((c) => c.id !== commentId));
         refreshComments();
       } catch (error) {
@@ -97,7 +97,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
       }
     }
   };
-  
+
 
   const renderComment = (comment, depth = 0) => {
     const hasReplies = comment.replies && comment.replies.length > 0;
@@ -110,9 +110,9 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
       <div key={comment.id} className={`mb-2 ${depth > 0 ? 'ms-4 ps-3 border-start border-light' : ''}`}>
         <div className="d-flex">
           <div className="flex-shrink-0 me-2">
-            <div className="rounded-circle bg-light d-flex align-items-center justify-content-center" 
+            <div className="rounded-circle bg-light d-flex align-items-center justify-content-center"
               style={{ width: '32px', height: '32px', border: '1px solid black' }}>
-              <span className="text-dark fw-bold" style={{ fontSize: '12px' }}>
+              <span className="text-dark fw-bold" style={{ fontSize: '14px' }}>
                 {userName.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -121,7 +121,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
           <div className="flex-grow-1">
             <div className="d-flex align-items-center mb-1">
               <span className="fw-bold me-2" style={{ fontSize: '14px' }}>{userName}</span>
-              <span className="text-muted" style={{ fontSize: '12px' }}>
+              <span className="text-muted" style={{ fontSize: '14px' }}>
                 {moment(comment?.created_at).fromNow()}
               </span>
             </div>
@@ -178,7 +178,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
               <button
                 className="btn p-0 mt-1 border-0 bg-transparent text-muted"
                 onClick={() => toggleReplies(comment.id)}
-                style={{ fontSize: '12px' }}
+                style={{ fontSize: '14px' }}
               >
                 {showReplies ? 'Hide replies' : `View replies (${comment.replies.length})`}
               </button>
