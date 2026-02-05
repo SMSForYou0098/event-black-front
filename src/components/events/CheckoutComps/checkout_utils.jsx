@@ -61,7 +61,7 @@ export const SavingsHighlight = ({ totalSavings }) => (
     className="rounded-2 p-3 border-top"
   >
     <div className="d-flex justify-content-between align-items-center">
-      <span className="text-success w-100 text-center fs-3 fw-semibold">
+      <span className="text-success w-100 text-center fw-semibold" style={{ fontSize: '18px' }}>
         🎉 Great job! You saved ₹{totalSavings.toLocaleString()}!
       </span>
     </div>
@@ -86,8 +86,8 @@ export const TotalAmountHeader = ({
     transition={{ duration: ANIMATION_TIMINGS.fast }}
   >
     <div>
-      <h5 className="mb-1 fw-bold">Total Amount</h5>
-      <small className="">
+      <h6 className="mb-1 fw-bold">Total Amount</h6>
+      <small className="" style={{ fontSize: '14px' }}>
         {summaryData?.quantity} ticket{summaryData?.quantity > 1 ? 's' : ''}
         {summaryData?.discount > 0 && (
           <span className="text-success ms-2">
@@ -97,7 +97,7 @@ export const TotalAmountHeader = ({
       </small>
     </div>
     <div className="d-flex align-items-center gap-2">
-      <h4 className="mb-0 fw-bold">
+      <h4 className="mb-0 fw-bold" style={{ fontSize: '20px' }}>
         {summaryData?.discount > 0 ? (
           <>
             {/* Original Price (strikethrough) */}
@@ -154,19 +154,19 @@ export const ETicketAlert = () => (
   <MotionWrapper variant="fadeInDown">
     <Alert variant="success" className="mb-4 border-0 shadow-sm">
       <div className="d-flex align-items-center mb-2">
-        <Receipt size={20} className="me-2" />
+        <Ticket size={20} className="me-2" />
         <span>E-Ticket saves the planet. Go for eco-clean.</span>
       </div>
-      <div className="mb-2" style={{ fontWeight: 500 }}>
+      <div className="mb-2" style={{ fontWeight: 500, fontSize: '14px' }}>
       </div>
-      <ol className="mt-2 mb-0">
+      <ol className="mt-2 mb-0" style={{ fontSize: '14px' }}>
 
         <li>
           View tickets in 'My Profile' on mobile web.
         </li>
         <li>E-ticket required. Download and present.</li>
         <li>
-          Download ticket, skip the line! Watch video for easy entry <span className="fw-semibold">
+          Watch the video to enter easily<span className="fw-semibold">
             <a
               href="https://www.youtube.com/watch?v=QIVkT5Iie3c"
               target="_blank"
@@ -209,30 +209,16 @@ export const PromoCodeSection = ({
         value={couponCode}
         onChange={(e) => setCouponCode(e.target.value)}
       />
-      <Button
+      <CustomBtn
         variant="primary"
         size="sm"
-        className="rounded-3 rounded-start-0"
-        onClick={handleApplyCoupon}
+        className="rounded-start-0"
+        HandleClick={handleApplyCoupon}
         disabled={promoCodeLoading}
-        aria-disabled={promoCodeLoading}
-        aria-busy={promoCodeLoading}
-      >
-        {promoCodeLoading ? (
-          <>
-            <Spinner
-              animation="border"
-              size="sm"
-              role="status"
-              aria-hidden="true"
-              className="me-2"
-            />
-            <span>Applying…</span>
-          </>
-        ) : (
-          <>Apply</>
-        )}
-      </Button>
+        loading={promoCodeLoading}
+        buttonText={promoCodeLoading ? "Applying..." : "Apply"}
+        hideIcon={true}
+      />
     </InputGroup>
   </MotionWrapper>
 );
@@ -296,12 +282,12 @@ export const TicketDataSummary = (props) => {
       <Card.Body className="p-4 pb-0">
         <div className="d-flex justify-content-between align-items-start mb-3">
           <div>
-            <div className="text-white fw-bold fs-6">
+            <div className="text-white fw-bold" style={{ fontSize: '14px' }}>
               {eventName}
             </div>
             <div className="d-flex align-items-center mt-1">
               <Ticket size={18} className='text-warning fw-bold me-2' />
-              <span className='text-warning fs-6 fw-bold'>{ticketName} * {quantity} </span>
+              <span className='text-warning fw-bold' style={{ fontSize: '14px' }}>{ticketName} * {quantity} </span>
             </div>
           </div>
           <div className="text-end">
@@ -319,20 +305,20 @@ export const TicketDataSummary = (props) => {
         </div> */}
         {!hidePrices &&
           <>
-            <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="d-flex justify-content-between align-items-center mb-2" style={{ fontSize: '14px' }}>
               <span>Subtotal</span>
               <span className="text-white fw-bold">{currency ? getCurrencySymbol(currency) : '₹'}{subTotal}</span>
             </div>
 
-            <div className="d-flex justify-content-between align-items-center mb-3">
+            <div className="d-flex justify-content-between align-items-center mb-3" style={{ fontSize: '14px' }}>
               <span>Processing Fee</span>
               <span className="text-white fw-bold">{currency ? getCurrencySymbol(currency) : '₹'}{processingFee || 0}</span>
             </div>
             {/* <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' /> */}
 
-            <div className="d-flex justify-content-between align-items-center">
-              <span className="text-white fw-bold fs-5">Total Amount</span>
-              <span className='custom-text-secondary h5 fw-bold'>{currency ? getCurrencySymbol(currency) : '₹'}{total}</span>
+            <div className="d-none d-md-flex justify-content-between align-items-center">
+              <h6 className="text-white fw-bold">Total Amount</h6>
+              <span className='custom-text-secondary fw-bold' style={{ fontSize: '18px' }}>{currency ? getCurrencySymbol(currency) : '₹'}{total}</span>
             </div>
           </>
         }
@@ -411,7 +397,7 @@ export const AttendeesOffcanvas = ({
 
                 <div className="flex-grow-1">
                   <div className="d-flex align-items-center justify-content-between">
-                    <div className="fw-semibold">{a?.Name ?? "Unknown"}</div>
+                    <div className="fw-semibold" style={{ fontSize: '14px' }}>{a?.Name ?? "Unknown"}</div>
                     {/* optional small id badge */}
                     {/* {a?.user_id != null && (
                       <small className="text-muted ms-2">ID: {a.user_id}</small>
@@ -419,10 +405,10 @@ export const AttendeesOffcanvas = ({
                   </div>
 
                   <div className="mt-1">
-                    <div className="text-muted small">
+                    <div className="text-muted" style={{ fontSize: '14px' }}>
                       <strong>Phone:</strong> {a?.Mo ?? "—"}
                     </div>
-                    <div className="text-muted small">
+                    <div className="text-muted" style={{ fontSize: '14px' }}>
                       <strong>Email:</strong>{" "}
                       {a?.Email ? (
                         <a href={`mailto:${a.Email}`} className="text-decoration-none">

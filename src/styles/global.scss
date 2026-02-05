@@ -540,6 +540,10 @@ canvas {
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(15px) saturate(180%);
 
+    &.hide-indicator::before {
+      display: none !important;
+    }
+
     // Common indicator styles
     &::before {
       content: '';

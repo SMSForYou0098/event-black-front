@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { Container, Row, Col, Card, Dropdown } from 'react-bootstrap';
 import { Calendar, Clock, Mail, MapPin, User, AlertCircle } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
-import { CUSTOM_SECONDORY } from '../../../../utils/consts';
+import { CUSTOM_SECONDORY, PRIMARY } from '../../../../utils/consts';
 import { useRouter } from "next/router";
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -50,16 +50,16 @@ const BookingSummary = () => {
             if (res.data.status) {
                 Swal.fire({
                     title: 'Booking Confirmed',
-                    html: `<p>Booking details sent via:</p>
-                            <div style="display:flex;justify-content:center;gap:1rem;margin-top:0.5rem;">
+                    html: `<p style="display:flex;justify-content:center;align-items:center;gap:10px">
+                            Tickets sent via:
                             ${whatsappIcon}
                             ${smsIcon}
                             ${emailIcon}
-                            </div>
-                        `,
+                        </p>
+                        <p class='text-warning'>Please do not share your tickets</p>`,
                     icon: 'success',
                     confirmButtonText: 'View Summary',
-                    confirmButtonColor: '#ff0000'
+                    confirmButtonColor: PRIMARY
                 });
 
                 return res.data;
@@ -252,8 +252,8 @@ const BookingSummary = () => {
                                         <div className="d-flex align-items-center">
                                             <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
                                             <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Date</div>
-                                                <div className="text-white fw-bold">{getEventDates()}</div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Date</div>
+                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{getEventDates()}</div>
                                             </div>
                                         </div>
                                     </Col>
@@ -261,8 +261,8 @@ const BookingSummary = () => {
                                         <div className="d-flex align-items-start">
                                             <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
                                             <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Booking Date</div>
-                                                <div className="text-white fw-bold">{formatDate(booking?.created_at) || 'N/A'}</div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Booking Date</div>
+                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{formatDate(booking?.created_at) || 'N/A'}</div>
                                             </div>
                                         </div>
                                     </Col>
@@ -272,8 +272,8 @@ const BookingSummary = () => {
                                                 <div className="d-flex align-items-start">
                                                     <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
                                                     <div>
-                                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Booked For Date</div>
-                                                        <div className="text-white fw-bold">{formatDate(booking?.booking_date) || 'N/A'}</div>
+                                                        <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Booked For Date</div>
+                                                        <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{formatDate(booking?.booking_date) || 'N/A'}</div>
                                                     </div>
                                                 </div>
                                             </Col>
@@ -283,8 +283,8 @@ const BookingSummary = () => {
                                         <div className="d-flex align-items-center">
                                             <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
                                             <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Entry Time</div>
-                                                <div className="text-white fw-bold">{event?.entry_time}</div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Entry Time</div>
+                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{event?.entry_time}</div>
                                             </div>
                                         </div>
                                     </Col>
@@ -292,17 +292,17 @@ const BookingSummary = () => {
                                         <div className="d-flex align-items-center">
                                             <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
                                             <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Start Time</div>
-                                                <div className="text-white fw-bold">{event?.start_time}</div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Start Time</div>
+                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{event?.start_time}</div>
                                             </div>
                                         </div>
                                     </Col>
-                                    <Col xs={6}>
+                                    <Col xs={12}>
                                         <div className="d-flex align-items-start">
                                             <MapPin size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
                                             <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Venue</div>
-                                                <div className="text-white fw-bold">{venue?.address || event?.address || 'Venue Address'}</div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Venue</div>
+                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{venue?.address || event?.address || 'Venue Address'}</div>
                                             </div>
                                         </div>
                                     </Col>
@@ -310,8 +310,8 @@ const BookingSummary = () => {
                                         <div className="d-flex align-items-start">
                                             <User size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
                                             <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Name</div>
-                                                <div className="text-white fw-bold">{user?.name || 'N/A'}</div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Name</div>
+                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{user?.name || 'N/A'}</div>
                                             </div>
                                         </div>
                                     </Col>
@@ -319,20 +319,20 @@ const BookingSummary = () => {
                                         <div className="d-flex align-items-start">
                                             <User size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
                                             <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Contact Number</div>
-                                                <div className="text-white fw-bold">{user?.number || 'N/A'}</div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Contact Number</div>
+                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{user?.number || 'N/A'}</div>
                                             </div>
                                         </div>
                                     </Col>
-                                    <Col xs={6}>
+                                    {/* <Col xs={6}>
                                         <div className="d-flex align-items-start">
                                             <Mail size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
                                             <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Email</div>
-                                                <div className="text-white fw-bold">{user?.email || 'N/A'}</div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Email</div>
+                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{user?.email || 'N/A'}</div>
                                             </div>
                                         </div>
-                                    </Col>
+                                    </Col> */}
 
                                 </Row>
 
@@ -363,11 +363,11 @@ const BookingSummary = () => {
                                             </Dropdown.Toggle>
                                             <Dropdown.Menu align="end" className="custom-dropdown-menu">
                                                 <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
-                                                    Group QR
+                                                    Group Ticket
                                                 </Dropdown.Item>
                                                 {isMaster && (
                                                     <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
-                                                        Individual QR
+                                                        Single Ticket
                                                     </Dropdown.Item>
                                                 )}
                                             </Dropdown.Menu>
@@ -396,15 +396,15 @@ const BookingSummary = () => {
                                         size="sm"
                                         className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
                                     >
-                                        <i className="fa-solid fa-download"></i> Download Tickets
+                                        <i className="fa-solid fa-download"></i> Download
                                     </Dropdown.Toggle>
                                     <Dropdown.Menu align="end" className="custom-dropdown-menu">
                                         <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
-                                            Group QR
+                                            Group Ticket
                                         </Dropdown.Item>
                                         {isMaster && (
                                             <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
-                                                Individual QR
+                                                Single Ticket
                                             </Dropdown.Item>
                                         )}
                                     </Dropdown.Menu>

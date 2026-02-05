@@ -129,7 +129,7 @@ const BookingTickets = ({
           if (activeItems.length === 0) {
             return (
               <tr>
-                <td colSpan={isMobile ? 2 : 3} className="text-center py-4 text-muted fw-semibold">
+                <td colSpan={isMobile ? 2 : 3} className="text-center py-4 text-muted fw-semibold" style={{ fontSize: '14px' }}>
                   No tickets available.
                 </td>
               </tr>
@@ -143,7 +143,7 @@ const BookingTickets = ({
             >
               <td>
                 <span className="fw-500 d-flex flex-column justify-content-start">
-                  <span className="d-flex align-items-center gap-2">
+                  <span className="d-flex align-items-center gap-2" style={{ fontSize: '14px' }}>
                     {item.name}
                   </span>
                   <span>
@@ -189,11 +189,12 @@ const BookingTickets = ({
                   {/* Inline Description */}
                   {item.description && expandedTicket === item.id && (
                     <span
-                      className="mt-2 fw-100 text-light small"
+                      className="mt-2 fw-100 text-light"
                       style={{
                         animation: 'fadeIn 0.3s ease-in-out',
                         display: 'block',
-                        fontWeight: '300'
+                        fontWeight: '300',
+                        fontSize: '12px'
                       }}
                     >
                       {/* <strong className="d-block mb-1">Description:</strong> */}
@@ -222,7 +223,7 @@ const BookingTickets = ({
 
               {!isMobile && (
                 <td>
-                  <span className="fw-500">
+                  <span className="fw-500" style={{ fontSize: '14px' }}>
                     {item?.currency ? getCurrencySymbol(item.currency) : "₹"}
                     {getSubtotal(item).toLocaleString("en-IN")}
                   </span>

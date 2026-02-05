@@ -179,7 +179,7 @@ const BookingsTab = () => {
   const searchControls = useMemo(
     () => (
       <div>
-        <div className="d-flex justify-content-between align-items-center mb-2">
+        <div className="d-flex justify-content-between align-items-center">
           <h6 className="mb-0">My Bookings</h6>
           <CustomBtn
             variant="primary"

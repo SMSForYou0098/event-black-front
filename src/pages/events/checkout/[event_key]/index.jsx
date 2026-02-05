@@ -310,7 +310,7 @@ const CartPage = () => {
     // Show confirmation dialog
     const result = await Swal.fire({
       title: 'Confirm Booking',
-      text: "Are you sure you want to proceed with this booking?",
+      text: "Are you sure you want to proceed?",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, Book Now!',

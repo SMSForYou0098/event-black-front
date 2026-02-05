@@ -109,10 +109,10 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
 
   return (
     <>
-      <div className={`${compact ? 'p-3' : 'p-3 p-sm-4'} rounded custom-dark-content-bg rounded-4 h-100`}>
+      <div className={`${compact ? 'p-3' : 'p-2 p-sm-4'} rounded custom-dark-content-bg rounded-4 h-100`}>
         <Row className="g-3">
           {/* Image and Button Column */}
-          <Col xs="auto" className="d-flex flex-column gap-2">
+          <Col xs="auto" className="d-flex flex-column align-items-center gap-2">
             <Image
               src={bookingData?.thumbnail}
               alt={bookingData.ticket?.name}
@@ -129,7 +129,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
                 as={Button}
                 variant="primary"
                 size="sm"
-                className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap w-100"
+                className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap w-100"
                 style={{
                   background: 'var(--bs-primary)',
                   border: 'none',
@@ -146,7 +146,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
                   disabled={ticketType && ticketType.id === booking.id}
                   className="custom-dropdown-item"
                 >
-                  Group QR
+                  Group Ticket
                 </Dropdown.Item>
 
                 {hasIndividualOption && (
@@ -155,7 +155,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
                     disabled={ticketType && ticketType.id === booking.id}
                     className="custom-dropdown-item"
                   >
-                    Individual QR
+                    Single Ticket
                   </Dropdown.Item>
                 )}
               </Dropdown.Menu>
@@ -181,7 +181,11 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
 
             <small className="text-muted d-block mt-1">
               <Calendar size={14} className='text-warning me-1' />
-              <span className="text-break">{bookingData.ticket?.event?.date_range} • {bookingData.created_at}</span>
+              <span className="text-break">{formatDateRange(bookingData.ticket?.event?.date_range)}</span>
+            </small>
+            <small className="text-muted d-block mt-1">
+              <Calendar size={14} className='text-warning me-1' /> Booked On:
+              <span className="text-break">{formatDate(bookingData?.created_at)}</span>
             </small>
 
             <small className="text-muted d-block mt-1">

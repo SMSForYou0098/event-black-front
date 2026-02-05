@@ -8,6 +8,7 @@ const CustomDrawer = ({
   showOffcanvas,
   setShowOffcanvas,
   placement, // optional: can override default behavior
+  hideIndicator = false,
   ...props
 }) => {
   // Use media query to conditionally render instead of CSS hiding
@@ -17,6 +18,7 @@ const CustomDrawer = ({
     <Offcanvas
       show={showOffcanvas}
       onHide={() => setShowOffcanvas(false)}
+      className={hideIndicator ? 'hide-indicator' : ''}
       placement={placement || (isMobile ? "bottom" : "top")}
       {...props}
     >

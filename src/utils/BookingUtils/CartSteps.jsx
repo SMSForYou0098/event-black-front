@@ -34,7 +34,7 @@ const CartSteps = ({ id, showAttendee }) => {
         >
           {step.number}
         </span>
-        <span className="cart-page-link">{step.title}</span>
+        <span className="cart-page-link" style={{ fontSize: '14px' }}>{step.title}</span>
       </li>
       {!isLast && (
         <li className="d-flex justify-content-center align-items-center">

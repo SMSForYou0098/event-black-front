@@ -488,10 +488,10 @@ const UserCard = () => {
 
                   {drawerType === 'combine' && (
                     <div className="alert alert-info mb-3 text-start">
-                      <h6 className="alert-heading mb-2">Group QR Code</h6>
+                      <h6 className="alert-heading mb-2">Group Ticket</h6>
                       <p className="mb-0">
-                        If you select group QR, all attendees must arrive together and show the group QR
-                        at the venue for entry. Individual QRs will not work.
+                        If you select group ticket, all attendees must arrive together and show the group ticket
+                        at the venue for entry. Individual tickets will not work.
                       </p>
                     </div>
                   )}
@@ -507,10 +507,10 @@ const UserCard = () => {
 
                   {drawerType === 'download' && (
                     <div className="alert alert-warning mb-3 text-start">
-                      <h6 className="alert-heading mb-2">Individual QR Codes</h6>
+                      <h6 className="alert-heading mb-2">Single Ticket</h6>
                       <p className="mb-0">
-                        If you select individual QR, each attendee receives a personal QR code for entry,
-                        and group QRs won't work.
+                        If you select single ticket, each attendee receives a personal QR code for entry,
+                        and group tickets won't work.
                       </p>
                     </div>
                   )}

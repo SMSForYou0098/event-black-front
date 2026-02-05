@@ -44,7 +44,9 @@ import AvatarImage from "../../utils/ProfileUtils/AvatarImage";
 import GlobalSearch from "../modals/GlobalSearch";
 import Logo from "./Logo";
 // import LoginModal from "../auth/LoginOffCanvas";
+// import LoginModal from "../auth/LoginOffCanvas";
 import LoginModal from "../auth/LoginOffCanvas";
+import UserProfileDrawer from "./UserProfileDrawer";
 
 
 
@@ -435,58 +437,25 @@ const HeaderDefault = memo(() => {
 
                 </div>
                 {isLoggedIn ? (
-                  <Dropdown
-                    as="li"
-                    className=""
-                    show={userDropdownOpen}
-                    onToggle={(isOpen) => setUserDropdownOpen(isOpen)}
-                  >
-                    <Dropdown.Toggle
-                      as={CustomToggle}
-                      href="#"
-                      variant=" nav-link d-flex align-items-center p-0"
-                      size="sm"
-                      id="dropdownMenuButton1"
+                  <>
+                    <div
+                      className="nav-link d-flex align-items-center p-0 cursor-pointer"
+                      onClick={() => setUserDropdownOpen(true)}
                     >
                       <div className="btn-icon rounded-pill user-icons">
                         <span className="btn-inner">
                           <UserIcon size={20} />
                         </span>
                       </div>
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu
-                      as="ul"
-                      className="dropdown-menu-end dropdown-user border-0 p-0 m-0"
-                    >
-                      <li className="user-info d-flex align-items-center gap-3 mb-3">
-                        <AvatarImage src={UserData.photo} alt="Profile" name={UserData.name} size={43} />
-                        <span className="font-size-14 fw-500 text-capitalize text-white">
-                          {UserData?.name}
-                        </span>
-                      </li>
-                      <li onClick={handleClose}>
-                        <Link href="/bookings" className="iq-sub-card d-flex align-items-center gap-3">
-                          <CreditCardIcon size={20} />
-                          <h6 className="mb-0 font-size-14 fw-normal">Bookings</h6>
-                        </Link>
-                      </li>
-                      <li onClick={handleClose}>
-                        <Link href="/profile" className="iq-sub-card d-flex align-items-center gap-3">
-                          <UserIcon size={20} />
-                          <h6 className="mb-0 font-size-14 fw-normal">My Profile</h6>
-                        </Link>
-                      </li>
-                      <li onClick={handleClose}>
-                        <Button
-                          className="border-0 iq-sub-card iq-logout-2 mt-1 d-flex justify-content-center gap-2 w-100"
-                          onClick={handleLogout}
-                        >
-                          <LogOutIcon size={20} />
-                          <h6 className="mb-0 font-size-14 fw-normal">Logout</h6>
-                        </Button>
-                      </li>
-                    </Dropdown.Menu>
-                  </Dropdown>
+                    </div>
+
+                    <UserProfileDrawer
+                      show={userDropdownOpen}
+                      onHide={() => setUserDropdownOpen(false)}
+                      userData={UserData}
+                      onLogout={handleLogout}
+                    />
+                  </>
                 ) : (
                   <CustomBtn
                     // labelStyle={{ fontSize:"0.8rem !important"}}

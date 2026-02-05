@@ -19,16 +19,16 @@ const BookingMobileFooter = ({ handleClick, selectedTickets, step = 0, isLoading
     <>
       <BookingFooterLayout
         left={
-          <h5 className="p-0 m-0 fw-bold">
+          <h6 className="p-0 m-0 " >
             Total: ₹
             {step == 2
               ? selectedTickets?.discount > 0
                 ? (selectedTickets?.totalFinalAmount - selectedTickets?.discount)?.toLocaleString()
                 : selectedTickets?.totalFinalAmount?.toLocaleString()
               : selectedTickets?.totalBaseAmount?.toLocaleString() || 0}
-          </h5>
+          </h6>
         }
-        middle={<h5 className="p-0 m-0 fw-bold">Ticket: {selectedTickets?.quantity || 0}</h5>}
+        middle={<h6 className="p-0 m-0 " >Ticket: {selectedTickets?.quantity || 0}</h6>}
         right={
           // <Button
           //   onClick={handleProceedClick}
@@ -57,7 +57,7 @@ const BookingMobileFooter = ({ handleClick, selectedTickets, step = 0, isLoading
             </div>
           </Alert>
 
-          <p className="mb-4">
+          <p className="mb-4" style={{ fontSize: '14px' }}>
             You need to select at least one ticket before proceeding to checkout.
           </p>
 

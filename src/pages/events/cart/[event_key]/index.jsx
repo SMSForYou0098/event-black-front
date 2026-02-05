@@ -400,7 +400,7 @@ const CartPage = () => {
 
   // Reusable Card Header Component
   const CardHeader = ({ icon: Icon, title, iconColor = "text-warning" }) => (
-    <h5 className="mb-3 font-size-16 fw-500 text-light d-flex align-items-center gap-2">
+    <h5 className="mb-3 fw-500 text-light d-flex align-items-center gap-2" style={{ fontSize: '18px' }}>
       <Icon size={20} className={iconColor} /> {title}
     </h5>
   );
@@ -410,9 +410,9 @@ const CartPage = () => {
     <div className={isLast ? "mb-0" : "mb-3"}>
       <div className="d-flex align-items-center mb-1">
         <Icon size={16} className="custom-text-secondary" />
-        <span className="ms-2 text-muted small">{label}</span>
+        <span className="ms-2 text-muted" style={{ fontSize: '12px' }}>{label}</span>
       </div>
-      <div className="fw-bold text-light ms-4">{value}</div>
+      <div className="fw-bold text-light ms-4" style={{ fontSize: '14px' }}>{value}</div>
     </div>
   );
 
@@ -420,13 +420,13 @@ const CartPage = () => {
   const CartRow = ({ label, value, isHeader = false }) => (
     <tr className={isHeader ? "order-total" : "cart-subtotal border-bottom"}>
       <td className="border-0 fs-6">
-        {isHeader ? <span>{label}</span> : <h6>{label}</h6>}
+        {isHeader ? <span>{label}</span> : <h6 style={{ fontSize: '14px' }}>{label}</h6>}
       </td>
       <td className="border-0">
         {isHeader ? (
           <span className="text-light fw-bold">{value}</span>
         ) : (
-          <h6 className="text-light">{value}</h6>
+          <h6 className="text-light" style={{ fontSize: '14px' }}>{value}</h6>
         )}
       </td>
     </tr>
@@ -462,7 +462,7 @@ const CartPage = () => {
   // Cart data configuration
   const cartData = [
     {
-      label: "Quantity",
+      label: "QTY",
       value: selectedTickets?.quantity || 0,
       isHeader: false,
     },
@@ -493,8 +493,8 @@ const CartPage = () => {
               <div className="custom-dark-bg p-4 rounded-3 text-center">
                 <div className="py-5">
                   <i className={`fa-solid ${eventStatus.icon} fa-3x mb-3 text-${eventStatus.variant === 'danger' ? 'danger' : eventStatus.variant === 'warning' ? 'warning' : 'info'}`}></i>
-                  <h5 className="mb-2">Event {eventStatus.text}</h5>
-                  <p className="text-muted mb-0">
+                  <h5 className="mb-2" style={{ fontSize: '18px' }}>Event {eventStatus.text}</h5>
+                  <p className="text-muted mb-0" style={{ fontSize: '14px' }}>
                     {eventStatus.message}
                   </p>
                   {isPostponed && expectedDate && (
