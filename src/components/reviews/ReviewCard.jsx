@@ -5,6 +5,7 @@ import StarRating from "./StarRating";
 import { useMyContext } from "@/Context/MyContextProvider";
 import moment from "moment";
 import CustomBtn from "../../utils/CustomBtn";
+import CustomHeader from "../../utils/ModalUtils/CustomModalHeader";
 
 /**
  * ReviewCard Component
@@ -124,15 +125,18 @@ const ReviewCard = ({ review, onEdit, onDelete }) => {
                 centered
                 contentClassName="bg-dark border-secondary"
             >
-                <Modal.Header closeButton className="pt-2 border-secondary">
-                    <Modal.Title className="text-white">Delete Review</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
+                <CustomHeader
+                    title="Delete Review"
+                    closable
+                    onClose={() => setShowDeleteConfirm(false)}
+                    className="border-secondary border-0"
+                />
+                <Modal.Body className="pb-0">
                     <p className="text-light mb-0">
                         Are you sure you want to delete this review? This action cannot be undone.
                     </p>
                 </Modal.Body>
-                <Modal.Footer className="border-secondary">
+                <Modal.Footer className="border-secondary border-0 p-2">
                     <CustomBtn
                         size="sm"
                         variant="outline-secondary"

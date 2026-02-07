@@ -1,8 +1,9 @@
 import React from 'react';
 import { Card, ListGroup, Button } from 'react-bootstrap';
-import { ChevronRight, MessageSquare, FileText, Lock, LogOut, Ticket } from 'lucide-react';
+import { ChevronRight, MessageSquare, FileText, Lock, LogOut, Ticket, User } from 'lucide-react';
 import CustomDrawer from '@/utils/CustomDrawer';
 import AvatarImage from '@/utils/ProfileUtils/AvatarImage';
+import CustomBtn from '@/utils/CustomBtn';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -34,6 +35,7 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
             title=""
             className="user-profile-drawer"
             hideIndicator={true}
+
         >
             <div className="d-flex flex-column h-100">
 
@@ -57,6 +59,11 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
                     label="View all bookings"
                     href="/bookings"
                 />
+                <MenuItem
+                    icon={User}
+                    label="Profile"
+                    href="/profile"
+                />
 
                 {/* Support Section */}
                 <div className="mt-4">
@@ -64,7 +71,7 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
                     <MenuItem
                         icon={MessageSquare}
                         label="Chat with us"
-                        onClick={() => window.open('https://wa.me/919737227359', '_blank')}
+                        onClick={() => window.open('https://wa.me/918000408888', '_blank')}
                     />
                 </div>
 
@@ -83,19 +90,18 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
                     />
                 </div>
 
-                {/* Logout Section */}
                 <div className="mt-auto pb-3">
-                    <div
-                        className="d-flex align-items-center gap-3 p-3 rounded-3 cursor-pointer"
-                        style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-                        onClick={() => {
+                    <CustomBtn
+                        variant="primary"
+                        buttonText="Logout"
+                        icon={<LogOut size={18} />}
+                        iconPosition="left"
+                        HandleClick={() => {
                             onLogout();
                             onHide();
                         }}
-                    >
-                        <LogOut size={20} className="text-danger" />
-                        <span className="fw-medium text-danger">Logout</span>
-                    </div>
+                        className="w-100"
+                    />
                 </div>
 
             </div>

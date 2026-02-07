@@ -14,13 +14,15 @@ import {
   ChevronDown,
   IndianRupee,
   Armchair,
-  AlertCircle
+  AlertCircle,
+  ArrowRightLeft
 } from 'lucide-react';
 import { useMyContext } from "@/Context/MyContextProvider";
 import TicketDrawer from '../../../components/Tickets/TicketDrawer';
 import CustomBadge from '../../../utils/ProfileUtils/getBadgeClass';
 import CustomBtn from '../../../utils/CustomBtn';
 import { MobileOnly, TabletAndDesktop, DesktopOnly } from "@/utils/ResponsiveRenderer";
+import TransferBookingDrawer from './TransferBookingDrawer';
 
 // Constants moved outside component to prevent recreation
 const TYPE_CONFIG = {
@@ -50,6 +52,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
   const [ticketData, setTicketData] = useState([]);
   const [ticketType, setTicketType] = useState({ id: '', type: '' });
   const [showTicketDrawer, setShowTicketDrawer] = useState(false);
+  const [showTransferDrawer, setShowTransferDrawer] = useState(false);
 
   const { isMobile, formatDateRange, getCurrencySymbol } = useMyContext();
 
@@ -160,6 +163,17 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
                 )}
               </Dropdown.Menu>
             </Dropdown>
+
+            {/* Transfer Button */}
+            <Button
+              variant="outline-primary"
+              size="sm"
+              className="p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-1 w-100"
+              onClick={() => setShowTransferDrawer(true)}
+            >
+              <ArrowRightLeft size={14} />
+              Transfer
+            </Button>
           </Col>
 
           {/* Content Column */}
@@ -209,6 +223,14 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
         ticketType={ticketType}
         ticketData={ticketData}
         showTicketDetails={true}
+      />
+
+      {/* Transfer Drawer */}
+      <TransferBookingDrawer
+        show={showTransferDrawer}
+        onHide={() => setShowTransferDrawer(false)}
+        booking={booking}
+        onTransferSuccess={() => window.location.reload()}
       />
     </>
   );

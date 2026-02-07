@@ -9,6 +9,7 @@ const CustomDrawer = ({
   setShowOffcanvas,
   placement, // optional: can override default behavior
   hideIndicator = false,
+  className = '',
   ...props
 }) => {
   // Use media query to conditionally render instead of CSS hiding
@@ -18,8 +19,8 @@ const CustomDrawer = ({
     <Offcanvas
       show={showOffcanvas}
       onHide={() => setShowOffcanvas(false)}
-      className={hideIndicator ? 'hide-indicator' : ''}
-      placement={placement || (isMobile ? "bottom" : "top")}
+      className={`${hideIndicator ? 'hide-indicator' : ''} ${className}`.trim()}
+      placement={placement || (isMobile ? "bottom" : "end ")}
       {...props}
     >
       <Offcanvas.Header className='d-flex justify-content-center align-items-center pt-3 text-center'>

@@ -180,8 +180,8 @@ const HeaderDefault = memo(() => {
   const handleLogout = () => {
     dispatch(logout());
     // Redirect to home page after logout
-    // router.push('/');
-    window.location.reload();
+    // window.location.href = '/';
+    router.push('/');
   };
 
   const { event_key } = router.query;

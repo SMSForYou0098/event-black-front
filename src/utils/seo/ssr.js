@@ -139,7 +139,7 @@ export const getUserProfileSSR = withSSR(async (context) => {
   if (!token) {
     return {
       redirect: {
-        destination: '/auth/login',
+        destination: '/',
         permanent: false,
       },
     };
