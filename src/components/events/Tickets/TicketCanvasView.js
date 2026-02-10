@@ -40,7 +40,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
     // For multiple bookings (quantity > 1), data is in bookings[0]
     // For single booking, data is at parent level
     const ticket = ticketData?.ticket || ticketData?.bookings?.[0]?.ticket || {};
-    const event = ticket?.event || ticketData?.event || ticketData?.bookings?.[0]?.event || {};
+    const event = ticketData?.event || ticketData?.bookings?.[0]?.event || ticketData?.ticket?.event || ticketData?.bookings?.[0]?.ticket?.event || {};
     const venue = event?.venue || {};
 
     // Handle user data - can be in nested user/attendee object OR directly on the booking item
