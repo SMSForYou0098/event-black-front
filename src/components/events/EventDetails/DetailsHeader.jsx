@@ -114,6 +114,20 @@ const DetailsHeader = ({ eventData, event_key }) => {
                         priority
                         style={{ maxHeight: "400px", objectFit: "cover" }}
                     />
+                    {(eventData?.eventControls?.house_full || eventData?.eventControls?.is_sold_out) && (
+                        <Image
+                            src="/assets/images/hfull.webp"
+                            alt="Sold Out"
+                            width={120}
+                            height={120}
+                            className="position-absolute top-50 start-50 translate-middle z-3"
+                            style={{
+                                transform: "translate(-50%, -50%) rotate(-15deg)",
+                                pointerEvents: "none",
+                                objectFit: "contain"
+                            }}
+                        />
+                    )}
 
                     {/* Share button at top-right */}
                     <div

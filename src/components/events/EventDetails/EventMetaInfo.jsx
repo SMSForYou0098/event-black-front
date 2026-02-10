@@ -56,15 +56,15 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
     if (isSoldOut) return {
       disabled: true,
       text: 'Sold Out',
-      showStamp: false,
-      stampImage: null,
+      showStamp: true,
+      stampImage: '/assets/images/hfull.webp',
       message: 'All tickets for this event have been sold out.'
     };
     if (isHouseFull) return {
       disabled: true,
       text: 'Sold Out',
-      showStamp: true,
-      stampImage: '/assets/images/hfull.webp',
+      showStamp: false,
+      stampImage: null,
       message: 'All tickets for this event have been sold out.'
     };
     // Check if event has ended
@@ -185,7 +185,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                 className="d-flex justify-content-between align-items-center border-dashed rounded-3 position-relative"
               >
                 {/* Event Status Stamp for Desktop */}
-                {eventStatus.showStamp && (
+                {/* {eventStatus.showStamp && (
                   <Image
                     src={eventStatus.stampImage}
                     alt={eventStatus.text}
@@ -199,7 +199,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                       objectFit: "contain"
                     }}
                   />
-                )}
+                )} */}
 
 
                 <h4 className="price mt-3 mb-3 d-flex gap-2 align-items-center flex-wrap">
@@ -258,7 +258,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         </div>
       </div>
       {eventStatus.message && (
-        <Row>
+        <Row className="d-none d-sm-flex">
           <Col>
             <Alert variant={isCancelled ? 'danger' : isPostponed ? 'warning' : 'info'} className="p-0 m-0">
               <i className={`fa-solid ${isCancelled ? 'fa-circle-xmark' : isPostponed ? 'fa-clock' : 'fa-circle-info'} me-2`}></i>
@@ -287,7 +287,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       <div className="d-block d-sm-none">
         {/* Status Message Alert for Mobile */}
         {eventStatus.message && (
-          <div className="px-3 pb-3">
+          <div className="px-3 mt-3">
             <Alert variant={isCancelled ? 'danger' : isPostponed ? 'warning' : 'info'} className="mb-0">
               <i className={`fa-solid ${isCancelled ? 'fa-circle-xmark' : isPostponed ? 'fa-clock' : 'fa-circle-info'} me-2`}></i>
               {eventStatus.message}
@@ -299,7 +299,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
           left={
             <span className="p-0 m-0 position-relative">
               {/* Event Status Stamp for Mobile */}
-              {eventStatus.showStamp && (
+              {/* {eventStatus.showStamp && (
                 <Image
                   src={eventStatus.stampImage}
                   alt={eventStatus.text}
@@ -315,7 +315,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                     zIndex: 10
                   }}
                 />
-              )}
+              )} */}
               Starts From{" "}
               <h5 className="fw-bold">
                 ₹
@@ -324,20 +324,33 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
             </span>
           }
           right={
-            <CustomBtn
-              HandleClick={handleBookNow}
-              disabled={eventStatus.disabled}
-              size="sm"
-              className="btn btn-primary btn-lg px-3"
-              style={{
-                fontSize: "16px",
-                fontWeight: "600",
-                opacity: eventStatus.disabled ? 0.6 : 1,
-                cursor: eventStatus.disabled ? "not-allowed" : "pointer"
-              }}
-              buttonText={eventStatus.text}
-            // icon={!eventStatus.disabled ? <i className="fa-solid fa-arrow-right"></i> : null}
-            />
+            eventStatus.disabled ? (
+              <CustomBtn
+                size="sm"
+                className="btn btn-primary btn-lg px-3"
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "600",
+                }}
+                HandleClick={() => router.push('/events')}
+                buttonText="View More"
+              />
+            ) : (
+              <CustomBtn
+                HandleClick={handleBookNow}
+                disabled={eventStatus.disabled}
+                size="sm"
+                className="btn btn-primary btn-lg px-3"
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  opacity: eventStatus.disabled ? 0.6 : 1,
+                  cursor: eventStatus.disabled ? "not-allowed" : "pointer"
+                }}
+                buttonText={eventStatus.text}
+              // icon={!eventStatus.disabled ? <i className="fa-solid fa-arrow-right"></i> : null}
+              />
+            )
           }
         />
       </div>

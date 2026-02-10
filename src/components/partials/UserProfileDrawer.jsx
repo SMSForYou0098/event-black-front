@@ -12,8 +12,7 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
 
     const MenuItem = ({ icon: Icon, label, onClick, href, className = "" }) => (
         <div
-            className={`d-flex align-items-center justify-content-between p-3 rounded-3 mb-2 cursor-pointer ${className}`}
-            style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+            className={`d-flex align-items-center justify-content-between p-3 rounded-3 mb-2 gray-bg cursor-pointer ${className}`}
             onClick={() => {
                 if (onClick) onClick();
                 if (href) router.push(href);

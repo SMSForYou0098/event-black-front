@@ -48,7 +48,7 @@ const TypeIcon = React.memo(({ type, size = 16 }) => {
 
 TypeIcon.displayName = 'TypeIcon';
 
-const BookingCard = React.memo(({ booking, compact = false }) => {
+const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
   const [ticketData, setTicketData] = useState([]);
   const [ticketType, setTicketType] = useState({ id: '', type: '' });
   const [showTicketDrawer, setShowTicketDrawer] = useState(false);
@@ -72,6 +72,11 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
 
   const bookingData = useMemo(() => {
     const normalizeBooking = booking?.bookings ? booking.bookings[0] : booking;
+    const approvalStatus = booking?.approval_status || booking?.bookings?.[0]?.approval_status;
+    // Check if any booking is scanned - for master bookings check all, for single check directly
+    const isScanned = booking?.bookings
+      ? booking.bookings.some(b => b.is_scanned === true)
+      : (booking?.is_scanned === true);
     return {
       ticket: normalizeBooking?.ticket,
       quantity: booking?.bookings ? booking?.bookings?.length : 1,
@@ -79,7 +84,10 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
       amount: booking?.total_amount,
       type: normalizeBooking?.type,
       created_at: formatDate(booking?.created_at),
-      thumbnail: normalizeBooking?.ticket?.event?.event_media?.thumbnail
+      thumbnail: normalizeBooking?.ticket?.event?.event_media?.thumbnail,
+      ticketTransferEnabled: (normalizeBooking?.event?.event_controls?.ticket_transfer || normalizeBooking?.ticket?.event?.event_controls?.ticket_transfer) ?? false,
+      isApprovalPending: approvalStatus === "pending",
+      isScanned: isScanned
     };
   }, [booking]);
 
@@ -126,54 +134,58 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
               loading="lazy"
             />
 
-            {/* Download Button Below Image */}
-            <Dropdown className="w-100">
-              <Dropdown.Toggle
-                as={Button}
-                variant="primary"
-                size="sm"
-                className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap w-100"
-                style={{
-                  background: 'var(--bs-primary)',
-                  border: 'none',
-                  lineHeight: 1.2,
-                }}
-                disabled={ticketType && ticketType.id === booking.id}
-              >
-                Download
-              </Dropdown.Toggle>
-
-              <Dropdown.Menu align="end" className="custom-dropdown-menu">
-                <Dropdown.Item
-                  onClick={() => handleDownloadSelect('combine')}
+            {/* Download Button Below Image - Hidden when approval pending */}
+            {!bookingData.isApprovalPending && (
+              <Dropdown className="w-100">
+                <Dropdown.Toggle
+                  as={Button}
+                  variant="primary"
+                  size="sm"
+                  className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap w-100"
+                  style={{
+                    background: 'var(--bs-primary)',
+                    border: 'none',
+                    lineHeight: 1.2,
+                  }}
                   disabled={ticketType && ticketType.id === booking.id}
-                  className="custom-dropdown-item"
                 >
-                  Group Ticket
-                </Dropdown.Item>
+                  Download
+                </Dropdown.Toggle>
 
-                {hasIndividualOption && (
+                <Dropdown.Menu align="end" className="custom-dropdown-menu">
                   <Dropdown.Item
-                    onClick={() => handleDownloadSelect('individual')}
+                    onClick={() => handleDownloadSelect('combine')}
                     disabled={ticketType && ticketType.id === booking.id}
                     className="custom-dropdown-item"
                   >
-                    Single Ticket
+                    Group Ticket
                   </Dropdown.Item>
-                )}
-              </Dropdown.Menu>
-            </Dropdown>
 
-            {/* Transfer Button */}
-            <Button
-              variant="outline-primary"
-              size="sm"
-              className="p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-1 w-100"
-              onClick={() => setShowTransferDrawer(true)}
-            >
-              <ArrowRightLeft size={14} />
-              Transfer
-            </Button>
+                  {hasIndividualOption && (
+                    <Dropdown.Item
+                      onClick={() => handleDownloadSelect('individual')}
+                      disabled={ticketType && ticketType.id === booking.id}
+                      className="custom-dropdown-item"
+                    >
+                      Single Ticket
+                    </Dropdown.Item>
+                  )}
+                </Dropdown.Menu>
+              </Dropdown>
+            )}
+
+            {/* Transfer Button - Only show if ticket transfer is enabled, not pending approval, and not scanned */}
+            {bookingData.ticketTransferEnabled && !bookingData.isApprovalPending && !bookingData.isScanned && (
+              <Button
+                variant="outline-primary"
+                size="sm"
+                className="p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-1 w-100"
+                onClick={() => setShowTransferDrawer(true)}
+              >
+                <ArrowRightLeft size={14} />
+                Transfer
+              </Button>
+            )}
           </Col>
 
           {/* Content Column */}
@@ -230,7 +242,7 @@ const BookingCard = React.memo(({ booking, compact = false }) => {
         show={showTransferDrawer}
         onHide={() => setShowTransferDrawer(false)}
         booking={booking}
-        onTransferSuccess={() => window.location.reload()}
+        onTransferSuccess={onRefetch}
       />
     </>
   );

@@ -25,7 +25,7 @@ export const getUserByPhone = async (phoneNumber) => {
  */
 export const createTransferUser = async (userData) => {
     try {
-        const response = await api.post('create-user', userData);
+        const response = await api.post('bookings/verify-user', userData);
         return response.data;
     } catch (error) {
         return {
@@ -48,6 +48,23 @@ export const transferBooking = async (payload) => {
         return {
             status: false,
             message: error.response?.data?.message || 'Failed to transfer booking'
+        };
+    }
+};
+
+/**
+ * Verify OTP for ticket transfer
+ * @param {object} payload - { number, otp, event_id }
+ * @returns {Promise<{status: boolean, message: string, user?: object}>}
+ */
+export const verifyTransferOtp = async (payload) => {
+    try {
+        const response = await api.post('bookings/verify-transfer-otp', payload);
+        return response.data;
+    } catch (error) {
+        return {
+            status: false,
+            message: error.response?.data?.message || 'Failed to verify OTP'
         };
     }
 };

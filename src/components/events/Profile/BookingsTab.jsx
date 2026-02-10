@@ -67,6 +67,7 @@ const BookingsTab = () => {
     isLoading,
     isError,
     error,
+    refetch,
   } = useInfiniteQuery({
     queryKey: ['userBookings', UserData?.id, debouncedSearch, formattedDateRange.startDate, formattedDateRange.endDate],
     queryFn: ({ pageParam = 1 }) =>
@@ -246,7 +247,7 @@ const BookingsTab = () => {
         <Card.Body className="px-2 px-sm-4">
           <div className="text-center text-danger py-4">
             <p>Error loading bookings: {error?.message || 'Unknown error'}</p>
-            <Button variant="outline-primary" size="sm" onClick={() => window.location.reload()}>
+            <Button variant="outline-primary" size="sm" onClick={() => refetch()}>
               Retry
             </Button>
           </div>
@@ -279,7 +280,7 @@ const BookingsTab = () => {
             <Row className="g-3">
               {uniqueBookings.map((booking, idx) => (
                 <Col key={makeBookingKey(booking, idx)} xs={12} md={6} lg={4}>
-                  <BookingCard booking={booking} />
+                  <BookingCard booking={booking} onRefetch={refetch} />
                 </Col>
               ))}
             </Row>

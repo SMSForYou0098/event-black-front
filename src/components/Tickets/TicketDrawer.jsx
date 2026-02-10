@@ -248,6 +248,8 @@ const TicketDrawer = ({
             title={ticketType?.type === 'individual' ? 'Individual Tickets' : 'Group Ticket'}
             showOffcanvas={show}
             setShowOffcanvas={onClose}
+            hideIndicator={true}
+
         >
             {showTicket ? ticketContent : noticeContent}
         </CustomDrawer>

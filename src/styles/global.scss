@@ -9,8 +9,16 @@
 @import './_gallery';
 @import './pages.scss';
 
+:root {
+  --user-drawer-item-bg: rgba(255, 255, 255, 0.05);
+}
+
 .modal-body-padding {
   padding: 1.2rem 0.7rem !important;
+}
+
+.gray-bg {
+  background-color: var(--user-drawer-item-bg);
 }
 
 .blog-content p,
