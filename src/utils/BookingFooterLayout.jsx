@@ -1,26 +1,27 @@
 import StickyBottom from "./StickyBottom";
 
-const BookingFooterLayout = ({ left, middle, right, center }) => (
+const BookingFooterLayout = ({ left, middle, right, center, children }) => (
   <StickyBottom>
-    <div className="d-flex justify-content-between align-items-center w-100">
-      {/* Left + Middle */}
-      <div className="d-flex flex-column gap-1">
-        {left}
-        {middle}
-      </div>
-
-      {/* Center (only visible if passed) */}
-      {center && (
-        <div className="flex-grow-1 d-flex justify-content-center">
-          {center}
+    {children ? (
+      children
+    ) : (
+      <div className="d-flex justify-content-between align-items-center w-100">
+        <div className="d-flex flex-column gap-1">
+          {left}
+          {middle}
         </div>
-      )}
 
-      {/* Right */}
-      <div className="nxt-btn">
-        {right}
+        {center && (
+          <div className="flex-grow-1 d-flex justify-content-center">
+            {center}
+          </div>
+        )}
+
+        <div className="nxt-btn">
+          {right}
+        </div>
       </div>
-    </div>
+    )}
   </StickyBottom>
 );
 

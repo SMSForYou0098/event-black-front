@@ -13,7 +13,9 @@ import CustomHeader from "../../utils/ModalUtils/CustomModalHeader";
  * @param {Function} onEdit - Callback to edit review
  * @param {Function} onDelete - Callback to delete review
  */
-const ReviewCard = ({ review, onEdit, onDelete }) => {
+
+
+const ReviewCard = ({ review, onEdit, onDelete, onViewMore }) => {
     const { UserData } = useMyContext();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -40,85 +42,101 @@ const ReviewCard = ({ review, onEdit, onDelete }) => {
         )}`;
     };
 
+    // Use truncated text logic
+    const MAX_LENGTH = 120;
+    const isLongText = review?.review && review.review.length > MAX_LENGTH;
+    const displayText = isLongText
+        ? review.review.substring(0, MAX_LENGTH) + "..."
+        : review.review;
+
     return (
-        <>
-            <Card className="mb-3 bg-dark border-muted rounded-3">
-                <Card.Body className="p-3">
-                    <div className="d-flex justify-content-between align-items-start">
-                        {/* User Info */}
-                        <div className="d-flex align-items-center gap-3">
-                            <img
-                                src={review?.user?.photo || getAvatarUrl(review?.user?.name)}
-                                alt={review?.user?.name || "User"}
-                                className="rounded-circle"
-                                width={45}
-                                height={45}
-                                style={{ objectFit: "cover" }}
-                            />
-                            <div>
-                                <h6 className="mb-0 text-white fw-semibold">
-                                    {review?.user?.name || "Anonymous"}
-                                </h6>
-                                <div className="d-flex align-items-center gap-2 mt-1">
-                                    <StarRating rating={review?.rating || 0} size={14} readOnly />
-                                    <small className="text-muted">
-                                        {formatDate(review?.created_at)}
-                                    </small>
-                                </div>
+        <Card className="mb-0 bg-dark border-muted rounded-3 h-100">
+            <Card.Body className="p-2 d-flex flex-column">
+                <div className="d-flex justify-content-between align-items-start mb-2">
+                    {/* User Info */}
+                    <div className="d-flex align-items-center gap-2">
+                        <img
+                            src={review?.user?.photo || getAvatarUrl(review?.user?.name)}
+                            alt={review?.user?.name || "User"}
+                            className="rounded-circle"
+                            width={35}
+                            height={35}
+                            style={{ objectFit: "cover" }}
+                        />
+                        <div>
+                            <h6 className="mb-0 text-white fw-semibold" style={{ fontSize: '0.9rem' }}>
+                                {review?.user?.name || "Anonymous"}
+                            </h6>
+                            <div className="d-flex align-items-center gap-2">
+                                <StarRating rating={review?.rating || 0} size={12} readOnly />
+                                <small className="text-muted" style={{ fontSize: '0.75rem' }}>
+                                    {formatDate(review?.created_at)}
+                                </small>
                             </div>
                         </div>
-
-                        {/* Actions (only for owner) */}
-                        {isOwner && (
-                            <Dropdown align="end">
-                                <Dropdown.Toggle
-                                    as={React.forwardRef(({ children, onClick }, ref) => (
-                                        <Button
-                                            ref={ref}
-                                            variant="link"
-                                            className="p-0 text-white"
-                                            style={{ boxShadow: "none" }}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                onClick(e);
-                                            }}
-                                        >
-                                            {children}
-                                        </Button>
-                                    ))}
-                                >
-                                    <MoreVertical size={18} />
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu className="bg-dark border-secondary hover-bg-secondary">
-                                    <Dropdown.Item
-                                        className="d-flex align-items-center gap-2 text-info hover-bg-secondary"
-                                        onClick={() => onEdit?.(review)}
-                                    >
-                                        <Pencil size={14} />
-                                        Edit
-                                    </Dropdown.Item>
-                                    <Dropdown.Item
-                                        className="d-flex align-items-center gap-2 text-primary hover-bg-secondary"
-                                        onClick={() => setShowDeleteConfirm(true)}
-                                    >
-                                        <Trash2 size={14} />
-                                        Delete
-                                    </Dropdown.Item>
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        )}
                     </div>
 
-                    {/* Review Text */}
-                    {review?.review && (
-                        <p className="text-light mb-0 mt-3" style={{ lineHeight: 1.6 }}>
-                            {review.review}
-                        </p>
+                    {/* Actions (only for owner) */}
+                    {isOwner && (
+                        <Dropdown align="end">
+                            <Dropdown.Toggle
+                                as={React.forwardRef(({ children, onClick }, ref) => (
+                                    <Button
+                                        ref={ref}
+                                        variant="link"
+                                        className="p-0 text-white"
+                                        style={{ boxShadow: "none" }}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onClick(e);
+                                        }}
+                                    >
+                                        {children}
+                                    </Button>
+                                ))}
+                            >
+                                <MoreVertical size={16} />
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu className="bg-dark border-secondary hover-bg-secondary">
+                                <Dropdown.Item
+                                    className="d-flex align-items-center gap-2 text-info hover-bg-secondary"
+                                    onClick={() => onEdit?.(review)}
+                                >
+                                    <Pencil size={14} />
+                                    Edit
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                    className="d-flex align-items-center gap-2 text-primary hover-bg-secondary"
+                                    onClick={() => setShowDeleteConfirm(true)}
+                                >
+                                    <Trash2 size={14} />
+                                    Delete
+                                </Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
                     )}
-                </Card.Body>
-            </Card>
+                </div>
 
-            {/* Delete Confirmation Modal */}
+                {/* Review Text */}
+                {review?.review && (
+                    <div className="mt-1 flex-grow-1">
+                        <p className="text-light mb-0 small" style={{ lineHeight: 1.4 }}>
+                            {displayText}
+                            {isLongText && (
+                                <span
+                                    className="text-primary ms-1 cursor-pointer fw-semibold"
+                                    style={{ cursor: "pointer", fontSize: '0.8rem' }}
+                                    onClick={() => onViewMore?.(review)}
+                                >
+                                    Read More
+                                </span>
+                            )}
+                        </p>
+                    </div>
+                )}
+            </Card.Body>
+
+            {/* Delete Confirmation Modal - kept inside but could be moved up if needed */}
             <Modal
                 show={showDeleteConfirm}
                 onHide={() => setShowDeleteConfirm(false)}
@@ -154,7 +172,7 @@ const ReviewCard = ({ review, onEdit, onDelete }) => {
                     />
                 </Modal.Footer>
             </Modal>
-        </>
+        </Card>
     );
 };
 

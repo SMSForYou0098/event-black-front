@@ -480,48 +480,63 @@ const UserCard = () => {
           <Offcanvas.Body className="position-relative" style={{ paddingBottom: !showTicketInDrawer ? '80px' : '0' }}>
             <div className={`text-center d-flex flex-column ${showTicketInDrawer ? 'h-100' : ''}`}>
               {!showTicketInDrawer ? (
-                <div className="p-3">
-                  <div className="d-flex align-items-center gap-2 mb-3">
-                    <AlertCircle size={24} className="text-warning" />
-                    <h6 className="mb-0 fw-bold">Important Information</h6>
+                <>
+                  <div className="p-3">
+                    <div className="d-flex align-items-center gap-2 mb-3">
+                      <AlertCircle size={24} className="text-warning" />
+                      <h6 className="mb-0 fw-bold">Important Information</h6>
+                    </div>
+
+                    {drawerType === 'combine' && (
+                      <div className="alert alert-info mb-3 text-start">
+                        <h6 className="alert-heading mb-2">Group Ticket</h6>
+                        <p className="mb-0">
+                          If you select group ticket, all attendees must arrive together and show the group ticket
+                          at the venue for entry. Individual tickets will not work.
+                        </p>
+                      </div>
+                    )}
+
+                    {drawerType === 'single' && (
+                      <div className="alert alert-success mb-3 text-start">
+                        {/* <h6 className="alert-heading mb-2">Your Ticket</h6> */}
+                        <p className="mb-0">
+                          Your ticket is ready to download. Use the QR code at the entry gate for quick access.
+                        </p>
+                      </div>
+                    )}
+
+                    {drawerType === 'download' && (
+                      <div className="alert alert-warning mb-3 text-start">
+                        <h6 className="alert-heading mb-2">Single Ticket</h6>
+                        <p className="mb-0">
+                          If you select single ticket, each attendee receives a personal QR code for entry,
+                          and group tickets won't work.
+                        </p>
+                      </div>
+                    )}
                   </div>
-
-                  {drawerType === 'combine' && (
-                    <div className="alert alert-info mb-3 text-start">
-                      <h6 className="alert-heading mb-2">Group Ticket</h6>
-                      <p className="mb-0">
-                        If you select group ticket, all attendees must arrive together and show the group ticket
-                        at the venue for entry. Individual tickets will not work.
-                      </p>
-                    </div>
-                  )}
-
-                  {drawerType === 'single' && (
-                    <div className="alert alert-success mb-3 text-start">
-                      {/* <h6 className="alert-heading mb-2">Your Ticket</h6> */}
-                      <p className="mb-0">
-                        Your ticket is ready to download. Use the QR code at the entry gate for quick access.
-                      </p>
-                    </div>
-                  )}
-
-                  {drawerType === 'download' && (
-                    <div className="alert alert-warning mb-3 text-start">
-                      <h6 className="alert-heading mb-2">Single Ticket</h6>
-                      <p className="mb-0">
-                        If you select single ticket, each attendee receives a personal QR code for entry,
-                        and group tickets won't work.
-                      </p>
-                    </div>
-                  )}
-
-                  <CustomBtn
-                    buttonText="Generate Ticket"
-                    variant="primary"
-                    className="w-100 mt-3"
-                    HandleClick={handleGenerateTicket}
-                  />
-                </div>
+                  {/* Fixed Generate Ticket Button at Bottom */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      padding: '1rem',
+                      background: 'linear-gradient(transparent, rgba(0,0,0,0.9))',
+                      borderTop: '1px solid rgba(255,255,255,0.1)'
+                    }}
+                  >
+                    <CustomBtn
+                      buttonText="Generate Ticket"
+                      variant="primary"
+                      className="w-100"
+                      wrapperClassName="w-100"
+                      HandleClick={handleGenerateTicket}
+                    />
+                  </div>
+                </>
               ) : (
                 // Ticket Display in Drawer
                 <div className="d-flex flex-column h-100">

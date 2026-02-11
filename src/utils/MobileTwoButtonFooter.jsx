@@ -1,24 +1,28 @@
 import React from 'react';
 import StickyBottom from './StickyBottom';
 
-const MobileTwoButtonFooter = ({ 
-  leftButton, 
-  rightButton, 
+const MobileTwoButtonFooter = ({
+  leftButton,
+  rightButton,
   className = "",
 }) => {
   return (
     <StickyBottom>
       <div className="container">
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 justify-content-center">
           {/* Left Button */}
-          <div className="flex-fill">
-            {leftButton}
-          </div>
+          {leftButton && (
+            <div className="flex-fill">
+              {leftButton}
+            </div>
+          )}
 
           {/* Right Button */}
-          <div className="flex-fill">
-            {rightButton}
-          </div>
+          {rightButton && (
+            <div className="flex-fill">
+              {rightButton}
+            </div>
+          )}
         </div>
       </div>
     </StickyBottom>

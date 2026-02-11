@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Card, Button, Spinner } from "react-bootstrap";
-import { Star, MessageSquarePlus, AlertCircle, ChevronRight, User } from "lucide-react";
+import { Card, Button, Spinner, Container, Row, Col, Badge } from "react-bootstrap";
+import { Star, MessageSquarePlus, AlertCircle, ChevronRight } from "lucide-react";
 import ReviewCard from "./ReviewCard";
 import ReviewForm from "./ReviewForm";
 import StarRating from "./StarRating";
@@ -95,10 +95,7 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
     const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
     const navigateToAllReviews = () => {
-        // Construct path relative to current page
-        // Remove existing query params from asPath
         const currentPath = router.asPath.split('?')[0];
-
         router.push({
             pathname: `${currentPath}/reviews`,
             query: { id: eventId }
@@ -107,128 +104,182 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
 
     return (
         <div className="reviews-section py-4">
-            {/* Header with Stats */}
-            <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                <div>
-                    <h5 className="text-white mb-2" style={{ fontSize: '18px' }}>Reviews & Ratings</h5>
-                    {totalReviews > 0 && (
-                        <div className="d-flex align-items-center gap-2">
-                            <StarRating rating={averageRating} size={18} readOnly />
-                            <span className="text-white fw-semibold">
-                                {averageRating?.toFixed(1)}
-                            </span>
-                            <span className="text-muted">
-                                ({totalReviews} review{totalReviews !== 1 ? "s" : ""})
-                            </span>
-                        </div>
-                    )}
-                </div>
+            <Container fluid className="px-3 px-md-4">
+                {/* Header with Stats */}
+                <Row className="mb-4 g-3">
+                    <Col xs={12} lg={6} className="d-flex flex-column justify-content-center">
+                        <h5 className="text-white mb-3 fw-bold">Reviews & Ratings</h5>
+                        {totalReviews > 0 && (
+                            <div className="d-flex align-items-center gap-3 flex-wrap">
+                                <div className="d-flex align-items-center gap-2">
+                                    <StarRating rating={averageRating} size={20} readOnly />
+                                    <span className="text-white fw-bold fs-5">
+                                        {averageRating?.toFixed(1)}
+                                    </span>
+                                </div>
+                                <Badge bg="secondary" className="px-3 py-2">
+                                    {totalReviews} review{totalReviews !== 1 ? "s" : ""}
+                                </Badge>
+                            </div>
+                        )}
+                    </Col>
 
-                {/* Write Review Button */}
-                {!userReview && (
-                    <CustomBtn
-                        HandleClick={handleWriteReview}
-                        size="sm"
-                        className="d-flex align-items-center gap-2"
-                        buttonText='Write a Review'
-                        icon={<MessageSquarePlus size={18} />}
-                    />
+                    {/* Write Review Button */}
+                    <Col xs={12} lg={6} className="d-flex align-items-center justify-content-lg-end">
+                        {!userReview && (
+                            <CustomBtn
+                                HandleClick={handleWriteReview}
+                                size="sm"
+                                className="d-flex align-items-center gap-2 w-100 w-lg-auto justify-content-center"
+                                buttonText='Write a Review'
+                                icon={<MessageSquarePlus size={18} />}
+                            />
+                        )}
+                    </Col>
+                </Row>
+
+                {/* Loading State */}
+                {isLoading && (
+                    <Card className="bg-dark border-0 shadow-sm">
+                        <Card.Body className="text-center py-5">
+                            <Spinner animation="border" variant="primary" size="sm" />
+                            <p className="text-muted mt-3 mb-0">Loading reviews...</p>
+                        </Card.Body>
+                    </Card>
                 )}
-            </div>
 
-            {/* Loading State */}
-            {isLoading && (
-                <div className="text-center py-5">
-                    <Spinner animation="border" variant="primary" size="sm" />
-                    <p className="text-muted mt-2 mb-0">Loading reviews...</p>
-                </div>
-            )}
+                {/* Error State */}
+                {isError && (
+                    <Card className="bg-dark border-danger shadow-sm">
+                        <Card.Body className="text-center py-4">
+                            <AlertCircle className="text-danger mb-3" size={40} />
+                            <p className="text-danger mb-0 fw-semibold">
+                                {error?.message || "Failed to load reviews"}
+                            </p>
+                        </Card.Body>
+                    </Card>
+                )}
 
-            {/* Error State */}
-            {isError && (
-                <Card className="bg-dark border-danger">
-                    <Card.Body className="text-center py-4">
-                        <AlertCircle className="text-danger mb-2" size={32} />
-                        <p className="text-danger mb-0">
-                            {error?.message || "Failed to load reviews"}
-                        </p>
-                    </Card.Body>
-                </Card>
-            )}
-
-            {/* Reviews List */}
-            {!isLoading && !isError && (
-                <>
-                    {displayReviews.length === 0 ? (
-                        <Card className="bg-dark rounded-3">
-                            <Card.Body className="d-flex flex-column align-items-center py-5">
-                                <Star className="text-muted mb-3" size={40} />
-                                <p className="text-muted mb-3">No reviews yet</p>
-                                <CustomBtn
-                                    HandleClick={handleWriteReview}
-                                    size="sm"
-                                    hideIcon={true}
-                                    buttonText='Be the first to review'
-                                    variant='outline-primary'
-                                />
-                            </Card.Body>
-                        </Card>
-                    ) : (
-                        <div>
-                            {/* Horizontal Scroll Layout */}
-                            <div
-                                className="reviews-carousel d-flex gap-3 pb-3 hide-scrollbar"
-                                style={{
-                                    overflowX: 'auto',
-                                    scrollbarWidth: 'none',
-                                    msOverflowStyle: 'none',
-                                    WebkitOverflowScrolling: 'touch',
-                                    paddingBottom: '0.5rem'
-                                }}
-                            >
-                                {displayReviews.map((review) => (
-                                    <div key={review.id} style={{ minWidth: '300px', maxWidth: '350px' }}>
-                                        <ReviewCard
-                                            review={review}
-                                            onEdit={handleEditReview}
-                                            onDelete={handleDeleteReview}
-                                        />
+                {/* Reviews List */}
+                {!isLoading && !isError && (
+                    <>
+                        {displayReviews.length === 0 ? (
+                            <Card className="bg-dark border-0 shadow-sm rounded-3">
+                                <Card.Body className="d-flex flex-column align-items-center justify-content-center py-5">
+                                    <div className="bg-secondary bg-opacity-25 rounded-circle p-4 mb-3">
+                                        <Star className="text-muted" size={48} />
                                     </div>
-                                ))}
+                                    <h6 className="text-white mb-2">No reviews yet</h6>
+                                    <p className="text-muted mb-4 text-center">
+                                        Be the first to share your experience
+                                    </p>
+                                    <CustomBtn
+                                        HandleClick={handleWriteReview}
+                                        size="sm"
+                                        hideIcon={true}
+                                        buttonText='Write the First Review'
+                                        variant='outline-primary'
+                                    />
+                                </Card.Body>
+                            </Card>
+                        ) : (
+                            <>
+                                {/* Horizontal Scroll Layout for Desktop, Stack for Mobile */}
+                                <div className="d-none d-md-block">
+                                    <div
+                                        className="d-flex gap-3 pb-3 overflow-auto"
+                                        style={{
+                                            scrollbarWidth: 'thin',
+                                            msOverflowStyle: 'auto',
+                                        }}
+                                    >
+                                        {displayReviews.map((review) => (
+                                            <div
+                                                key={review.id}
+                                                className="flex-shrink-0"
+                                                style={{ width: '320px' }}
+                                            >
+                                                <ReviewCard
+                                                    review={review}
+                                                    onEdit={handleEditReview}
+                                                    onDelete={handleDeleteReview}
+                                                />
+                                            </div>
+                                        ))}
 
-                                {/* View All "Card" at the end if more reviews exist */}
+                                        {/* View All Card */}
+                                        {totalReviews > 10 && (
+                                            <div
+                                                className="flex-shrink-0 d-flex align-items-center justify-content-center"
+                                                style={{ width: '180px' }}
+                                            >
+                                                <Card
+                                                    className="bg-dark border-0 shadow-sm h-100 w-100 cursor-pointer"
+                                                    onClick={navigateToAllReviews}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
+                                                    <Card.Body className="d-flex flex-column align-items-center justify-content-center text-center">
+                                                        <div className="bg-primary bg-opacity-25 rounded-circle p-3 mb-3">
+                                                            <ChevronRight size={32} className="text-primary" />
+                                                        </div>
+                                                        <h6 className="text-white mb-1">View All</h6>
+                                                        <small className="text-muted">
+                                                            {totalReviews} reviews
+                                                        </small>
+                                                    </Card.Body>
+                                                </Card>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Mobile Stack Layout */}
+                                <div className="d-md-none">
+                                    <Row className="g-3">
+                                        {displayReviews.slice(0, 3).map((review) => (
+                                            <Col xs={12} key={review.id}>
+                                                <ReviewCard
+                                                    review={review}
+                                                    onEdit={handleEditReview}
+                                                    onDelete={handleDeleteReview}
+                                                />
+                                            </Col>
+                                        ))}
+                                    </Row>
+                                </div>
+
+                                {/* View All Button */}
                                 {totalReviews > 10 && (
-                                    <div style={{ minWidth: '150px' }} className="d-flex align-items-center justify-content-center">
+                                    <div className="text-center mt-4 d-none d-md-block">
                                         <Button
-                                            variant="outline-secondary"
-                                            className="d-flex flex-column align-items-center gap-2 border-0"
+                                            variant="outline-primary"
+                                            className="px-4 py-2 d-inline-flex align-items-center gap-2"
                                             onClick={navigateToAllReviews}
                                         >
-                                            <div className="bg-secondary bg-opacity-25 p-3 rounded-circle">
-                                                <ChevronRight size={24} className="text-white" />
-                                            </div>
-                                            <span className="text-white">View All</span>
+                                            <span>View all {totalReviews} reviews</span>
+                                            <ChevronRight size={18} />
                                         </Button>
                                     </div>
                                 )}
-                            </div>
 
-                            {/* View All Button below for mobile or ease of access */}
-                            {totalReviews > reviews.length && (
-                                <div className="text-center mt-3">
-                                    <Button
-                                        variant="link"
-                                        className="text-decoration-none text-primary"
-                                        onClick={navigateToAllReviews}
-                                    >
-                                        View all {totalReviews} reviews
-                                    </Button>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </>
-            )}
+                                {/* Mobile View All Button - Show after 3 reviews */}
+                                {totalReviews > 3 && (
+                                    <div className="text-center mt-4 d-md-none">
+                                        <Button
+                                            variant="outline-primary"
+                                            className="px-4 py-2 w-100 d-flex align-items-center justify-content-center gap-2"
+                                            onClick={navigateToAllReviews}
+                                        >
+                                            <span>View all {totalReviews} reviews</span>
+                                            <ChevronRight size={18} />
+                                        </Button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </>
+                )}
+            </Container>
 
             {/* Review Form Modal */}
             <ReviewForm
@@ -241,6 +292,13 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
                 onSubmit={handleSubmitReview}
                 isLoading={isSubmitting}
             />
+
+            <style jsx>{`
+                .cursor-pointer:hover {
+                    transform: translateY(-2px);
+                    transition: transform 0.2s ease-in-out;
+                }
+            `}</style>
         </div>
     );
 };

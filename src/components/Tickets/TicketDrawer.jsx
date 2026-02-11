@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper';
 import { ArrowBigDownDash, Printer, AlertCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/axiosInterceptor';
@@ -135,6 +136,7 @@ const TicketDrawer = ({
                 buttonText="Generate Ticket"
                 variant="primary"
                 className="w-100 mt-3"
+                wrapperClassName="w-100"
                 HandleClick={handleGenerateTicket}
                 loading={!isImageReady}
             />
@@ -143,10 +145,10 @@ const TicketDrawer = ({
 
     // Drawer content - Ticket display after user confirms
     const ticketContent = (
-        <div className="p-3">
+        <div className="p-3 pb-5 position-relative" style={{ minHeight: '100%' }}>
             {/* Loading state */}
             {!isImageReady && (
-                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '750px' }}>
                     <div className="spinner-border text-primary" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </div>
@@ -155,37 +157,37 @@ const TicketDrawer = ({
 
             {/* Ticket Canvas */}
             {isImageReady && (
-                <Row>
+                <Row className="mb-5">
                     <Col lg="12">
                         {ticketType?.type === 'individual' ? (
                             ticketData?.bookings?.length > 0 && (
                                 <Swiper
-                                    autoplay={true}
+                                    modules={[Navigation, Pagination]}
                                     spaceBetween={10}
                                     slidesPerView={1}
                                     navigation
+                                    pagination={{ clickable: true }}
                                     onSlideChange={(swiper) => setActiveSlideIndex(swiper.activeIndex)}
+                                    className="ticket-swiper"
                                 >
-                                    <div className="d-flex gap-2 flex-column justify-content-center">
-                                        {ticketData.bookings.map((item, index) => (
-                                            <SwiperSlide className="card-slide" key={index}>
-                                                <Col lg={12} md={12} xl={12}>
-                                                    <div>
-                                                        <TicketCanvasView
-                                                            ref={(el) => { swiperCanvasRefs.current[index] = el; }}
-                                                            showDetails={showTicketDetails}
-                                                            ticketData={item}
-                                                            ticketNumber={index + 1}
-                                                            ticketLabel="(I)"
-                                                            onReady={() => setIsCanvasReady(true)}
-                                                            preloadedImage={cachedBgImage}
-                                                        />
-                                                    </div>
-                                                    <p className="text-center text-secondary">{index + 1} (I)</p>
-                                                </Col>
-                                            </SwiperSlide>
-                                        ))}
-                                    </div>
+                                    {ticketData.bookings.map((item, index) => (
+                                        <SwiperSlide className="card-slide" key={index}>
+                                            <Col lg={12} md={12} xl={12}>
+                                                <div>
+                                                    <TicketCanvasView
+                                                        ref={(el) => { swiperCanvasRefs.current[index] = el; }}
+                                                        showDetails={showTicketDetails}
+                                                        ticketData={item}
+                                                        ticketNumber={index + 1}
+                                                        ticketLabel="(I)"
+                                                        onReady={() => setIsCanvasReady(true)}
+                                                        preloadedImage={cachedBgImage}
+                                                    />
+                                                </div>
+                                                <p className="text-center text-secondary mt-2">{index + 1} (I)</p>
+                                            </Col>
+                                        </SwiperSlide>
+                                    ))}
                                 </Swiper>
                             )
                         ) : ticketType?.type === 'combine' ? (
@@ -210,36 +212,37 @@ const TicketDrawer = ({
                 </Row>
             )}
 
-            {/* Footer info */}
-            <div className="text-center text-secondary small p-3 mt-3">
-                <p className="mb-0">No physical ticket needed! Download your Ticket & enjoy unlimited fun.</p>
-            </div>
-            {/* Download/Print Buttons */}
-            <Row className="d-flex justify-content-center mt-3">
-                <Col xs={12} sm={6} className="d-flex justify-content-center gap-2">
-                    <CustomBtn
-                        buttonText="Download"
-                        icon={<ArrowBigDownDash size={14} />}
-                        loading={!isCanvasReady}
-                        className="flex-grow-1 btn-sm"
-                        HandleClick={handleDownload}
-                        disabled={!isCanvasReady}
-                    />
-
-                    {showPrintButton && (
+            {/* Sticky Footer */}
+            <div className="position-fixed bottom-0 start-0 w-100 bg-black border-top border-secondary p-3 z-3">
+                {/* Footer info */}
+                <div className="text-center text-secondary small mb-3">
+                    <p className="mb-0">No physical ticket needed! Download your Ticket & enjoy unlimited fun.</p>
+                </div>
+                {/* Download/Print Buttons */}
+                <Row className="d-flex justify-content-center">
+                    <Col xs={12} sm={6} className="d-flex justify-content-center gap-2">
                         <CustomBtn
-                            buttonText="Print"
-                            icon={<Printer size={18} />}
-                            variant="secondary"
-                            className="flex-grow-1"
-                            HandleClick={handlePrint}
+                            buttonText="Download"
+                            icon={<ArrowBigDownDash size={14} />}
+                            loading={!isCanvasReady}
+                            className="flex-grow-1 btn-sm"
+                            HandleClick={handleDownload}
                             disabled={!isCanvasReady}
                         />
-                    )}
-                </Col>
-            </Row>
 
-
+                        {showPrintButton && (
+                            <CustomBtn
+                                buttonText="Print"
+                                icon={<Printer size={18} />}
+                                variant="secondary"
+                                className="flex-grow-1"
+                                HandleClick={handlePrint}
+                                disabled={!isCanvasReady}
+                            />
+                        )}
+                    </Col>
+                </Row>
+            </div>
         </div>
     );
 
@@ -249,6 +252,7 @@ const TicketDrawer = ({
             showOffcanvas={show}
             setShowOffcanvas={onClose}
             hideIndicator={true}
+            style={isMobile ? { height: "85vh" } : {}}
 
         >
             {showTicket ? ticketContent : noticeContent}

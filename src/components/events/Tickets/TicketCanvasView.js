@@ -64,7 +64,8 @@ const TicketCanvasView = forwardRef((props, ref) => {
     const number = seatNames || ticketData?.seat_name || ticketData?.event_seat_status?.seat_name || 'N/A';
     const address = venue?.address || event?.address || 'Address Not Specified';
     const ticketBG = ticket?.background_image || '';
-    const date = formatDateRange?.(ticketData?.booking_date || event?.date_range) || 'Date Not Available';
+    const formattedDate = formatDateRange?.(ticketData?.booking_date || event?.date_range) || 'Date Not Available';
+    const date = formattedDate.replace(/\/\d{4}/g, "");
     const time = convertTo12HourFormat?.(event?.start_time) || 'Time Not Set';
     const OrderId = ticketData?.order_id || ticketData?.token || 'N/A';
     const title = event?.name || 'Event Name';
@@ -77,7 +78,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
 
     const textColor = '#000';
     const CANVAS_WIDTH = 300;
-    const CANVAS_HEIGHT = 600;
+    const CANVAS_HEIGHT = 750;
 
     // Expose methods to parent via ref
     useImperativeHandle(ref, () => ({
@@ -180,7 +181,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
             fabricCanvasRef.current.dispose();
         }
 
-        const canvas = new fabric.Canvas(canvasRef.current, {
+        const canvas = new fabric.StaticCanvas(canvasRef.current, {
             enableRetinaScaling: true
         });
         fabricCanvasRef.current = canvas;
@@ -203,7 +204,8 @@ const TicketCanvasView = forwardRef((props, ref) => {
 
                 // Event name at top (above QR code)
                 if (showDetails) {
-                    centerText(title, 14, 'Arial', canvas, 20, { fontWeight: 'bold' });
+                    centerText(title, 16, 'Arial', canvas, 50, { fontWeight: 'bold' });
+                    centerText(ticketName, 18, 'Arial', canvas, 185, { fontWeight: 'bold' });
                 }
 
                 // Add QR code
@@ -211,8 +213,8 @@ const TicketCanvasView = forwardRef((props, ref) => {
                     const qrImg = await loadFabricImage(qrDataUrl);
                     const qrCodeSize = 85;
                     const padding = 4;
-                    const qrPositionX = (CANVAS_WIDTH / 2) - (qrCodeSize / 2) + 5;
-                    const qrPositionY = 62;
+                    const qrPositionX = (CANVAS_WIDTH / 2) - (qrCodeSize / 2);
+                    const qrPositionY = 220;
 
                     const qrBackground = new fabric.Rect({
                         left: qrPositionX - padding,
@@ -241,22 +243,22 @@ const TicketCanvasView = forwardRef((props, ref) => {
 
                 // Add details
                 if (showDetails) {
-                    let currentY = 170;
+                    let currentY = 310;
 
-                    // Ticket name (larger and bold)
-                    centerText(ticketName, 24, 'Arial', canvas, currentY, { fontWeight: 'bold' });
-                    currentY += 30;
+                    // Ticket name (larger and bold) - REMOVE THIS
+                    // centerText(ticketName, 18, 'Arial', canvas, currentY, { fontWeight: 'bold' });
+                    // currentY += 30;
 
                     // Label (I) or (G)
                     if (props.ticketLabel) {
-                        centerText(props.ticketLabel + (ticketNumber ? ' ' + ticketNumber : ''), 16, 'Arial', canvas, currentY, { fontWeight: 'bold', fill: '#666' });
-                        currentY += 25;
+                        centerText(props.ticketLabel + (ticketNumber ? ' ' + ticketNumber : ''), 12, 'Arial', canvas, currentY, { fontWeight: 'bold', fill: '#666' });
+                        currentY += 30;
                     } else {
                         currentY += 10;
                     }
 
                     // Booking Type
-                    centerText(` ${bookingType.toUpperCase()}`, 18, 'Arial', canvas, currentY);
+                    centerText(` ${bookingType}`, 10, 'Arial', canvas, currentY);
                     currentY += 30;
 
                     // User number/seat
@@ -265,42 +267,64 @@ const TicketCanvasView = forwardRef((props, ref) => {
                         currentY += 30;
                     }
 
-                    // Entry time and Date on same line
-                    const entryTimeText = new fabric.Text(`TIME:\n${time}`, {
-                        left: 15,
+                    // Time Column
+                    const timeLabel = new fabric.Text('Time', {
+                        left: 40,
                         top: currentY,
-                        fontSize: 15,
+                        fontSize: 14,
+                        fontFamily: 'Arial',
+                        fill: textColor,
+                        selectable: false,
+                        evented: false,
+                        fontWeight: 'normal',
+                    });
+                    canvas.add(timeLabel);
+
+                    const timeValue = new fabric.Text(time, {
+                        left: 40,
+                        top: currentY + 20,
+                        fontSize: 14,
                         fontFamily: 'Arial',
                         fill: textColor,
                         selectable: false,
                         evented: false,
                         fontWeight: 'bold',
-                        textAlign: 'left',
                     });
-                    canvas.add(entryTimeText);
+                    canvas.add(timeValue);
 
-                    // Date range with wrapping (on the right side, same line)
-                    const dateStartX = 150; // Position date on the right side
-                    const eventDateText = new fabric.Textbox(`DATE:\n${date}`, {
+                    // Date Column
+                    const dateStartX = 180;
+                    const dateLabel = new fabric.Text('Date', {
                         left: dateStartX,
                         top: currentY,
-                        fontSize: 15,
+                        fontSize: 14,
+                        fontFamily: 'Arial',
+                        fill: textColor,
+                        selectable: false,
+                        evented: false,
+                        fontWeight: 'normal',
+                    });
+                    canvas.add(dateLabel);
+
+                    const dateValue = new fabric.Textbox(date, {
+                        left: dateStartX,
+                        top: currentY + 20,
+                        fontSize: 14,
                         fontFamily: 'Arial',
                         fill: textColor,
                         selectable: false,
                         evented: false,
                         fontWeight: 'bold',
-                        width: CANVAS_WIDTH - dateStartX - 15, // Remaining width
+                        width: CANVAS_WIDTH - dateStartX - 15,
                         lineHeight: 1.4,
-                        textAlign: 'left',
                     });
-                    canvas.add(eventDateText);
+                    canvas.add(dateValue);
 
                     // Calculate height based on the taller element
-                    const timeHeight = entryTimeText.height || 20;
-                    const dateHeight = eventDateText.height || 20;
+                    const timeHeight = 20 + (timeValue.height || 20);
+                    const dateHeight = 20 + (dateValue.height || 20);
                     const maxHeight = Math.max(timeHeight, dateHeight);
-                    currentY += maxHeight + 25;
+                    currentY += maxHeight + 10;
 
                     // Venue/Address - wrapped to multiple lines for readability
                     const venueLabel = new fabric.Text('', {
@@ -314,19 +338,20 @@ const TicketCanvasView = forwardRef((props, ref) => {
                         evented: false,
                     });
                     canvas.add(venueLabel);
-                    currentY += 20;
+                    currentY += 180;
 
                     const eventVenueText = new fabric.Textbox(address, {
                         left: 15,
                         top: currentY,
-                        fontSize: 16,
+                        fontSize: 14,
                         fontFamily: 'Arial',
+                        fontWeight: 'bold',
                         fill: textColor,
                         selectable: false,
                         evented: false,
                         width: CANVAS_WIDTH - 30,
                         lineHeight: 1.5,
-                        textAlign: 'left',
+                        textAlign: 'center',
                     });
                     canvas.add(eventVenueText);
 

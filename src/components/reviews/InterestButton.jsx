@@ -9,9 +9,6 @@ import CustomBtn from "../../utils/CustomBtn";
 
 /**
  * InterestButton Component (BookMyShow-style)
- * @param {number|string} eventId - Event ID
- * @param {Function} onLoginRequired - Callback when login is needed
- * @param {string} className - Additional CSS classes
  */
 const InterestButton = ({ eventId, eventData, onLoginRequired, className = "" }) => {
     const { UserData } = useMyContext();
@@ -25,15 +22,14 @@ const InterestButton = ({ eventId, eventData, onLoginRequired, className = "" })
     const toggleMutation = useToggleInterest();
     const { data: myInterestsData } = useMyInterests(eventId);
 
-    // Sync with my-interests API if available
+    // Sync with API
     React.useEffect(() => {
-        // Response format: {"status":true,"event_id":8,"interest_count":1,"is_interested":false}
         const data = myInterestsData;
         if (data) {
-            if (typeof data.is_interested !== 'undefined') {
+            if (typeof data.is_interested !== "undefined") {
                 setIsInterested(data.is_interested);
             }
-            if (typeof data.interest_count !== 'undefined') {
+            if (typeof data.interest_count !== "undefined") {
                 setInterestCount(data.interest_count);
             }
         }
@@ -45,24 +41,22 @@ const InterestButton = ({ eventId, eventData, onLoginRequired, className = "" })
             return;
         }
 
-        // Rate limit check
         if (inCooldown) return;
 
         try {
-            // Start cooldown
             setInCooldown(true);
-            setTimeout(() => setInCooldown(false), 4000); // 1 second limit (better UX)
+            setTimeout(() => setInCooldown(false), 4000);
 
-            // Trigger animation if adding interest
             if (!isInterested) {
                 setShowAnimation(true);
                 setTimeout(() => setShowAnimation(false), 600);
             }
 
-            // Optimistic update
             const newInterestState = !isInterested;
             setIsInterested(newInterestState);
-            setInterestCount(prev => newInterestState ? prev + 1 : Math.max(0, prev - 1));
+            setInterestCount((prev) =>
+                newInterestState ? prev + 1 : Math.max(0, prev - 1)
+            );
 
             await toggleMutation.mutateAsync({ eventId });
 
@@ -70,85 +64,88 @@ const InterestButton = ({ eventId, eventData, onLoginRequired, className = "" })
                 toast.success("Added to your interests!");
             }
         } catch (err) {
-            // Revert on error
             setIsInterested(!isInterested);
-            setInterestCount(prev => !isInterested ? prev + 1 : Math.max(0, prev - 1));
+            setInterestCount((prev) =>
+                !isInterested ? prev + 1 : Math.max(0, prev - 1)
+            );
             toast.error(err?.response?.data?.message || "Failed to update interest");
         }
     };
 
-    ///call this api on get /my-interests
-
     const isLoading = toggleMutation.isPending;
 
     const formatCount = (n) => {
-        return Intl.NumberFormat('en-US', {
+        return Intl.NumberFormat("en-US", {
             notation: "compact",
-            maximumFractionDigits: 1
+            maximumFractionDigits: 1,
         }).format(n);
     };
 
     return (
         <div className={`interest-section-wrapper ${className}`}>
-            <div
-                className="d-flex justify-content-between align-items-center bg-dark border border rounded-3 p-3"
-            >
-                {/* Left Side: Stats and Info */}
+            <div className="d-flex justify-content-between align-items-center bg-dark border rounded-3 p-3">
+
+                {/* Left Side */}
                 <div className="d-flex align-items-center gap-3">
-                    <div className="d-flex align-items-center">
-                        <motion.div
-                            animate={{
-                                scale: isInterested ? [1, 1.3, 1] : 1,
-                            }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <ThumbsUp
-                                size={28}
-                                className="text-success"
-                                fill={isInterested ? "currentColor" : "currentColor"}
-                            />
-                        </motion.div>
-                    </div>
+                    <motion.div
+                        animate={{
+                            scale: isInterested ? [1, 1.2, 1] : 1,
+                        }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <ThumbsUp
+                            size={26}
+                            className="text-success"
+                            fill="currentColor"
+                        />
+                    </motion.div>
+
                     <div>
                         <div className="d-flex align-items-center gap-1">
-                            <span className="text-white fw-bold" style={{ fontSize: '14px' }}>
+                            <span
+                                className="text-white fw-bold"
+                                style={{ fontSize: "12px" }}
+                            >
                                 {formatCount(interestCount)}
                             </span>
-                            <span className="text-white" style={{ fontSize: '14px' }}>are interested</span>
-                        </div>
-                        <div className="text-muted" style={{ fontSize: '14px' }}>
-                            Mark seeks more info.
+                            <span
+                                className="text-white"
+                                style={{ fontSize: "12px" }}
+                            >
+                                are interested
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                {/* Right Side: Button */}
+                {/* Button */}
                 <div className="position-relative">
                     <CustomBtn
-                        variant={isInterested ? "primary" : "outline-danger"} // Red outline as requested? User img had red outline.
+                        variant={isInterested ? "primary" : "outline-danger"}
                         size="md"
                         className="px-4 py-2"
                         HandleClick={handleClick}
                         disabled={isLoading || inCooldown}
                         style={{
-                            borderRadius: "4px", // More like the screenshot (squared corners) or standard rounded
-                            minWidth: "120px"
+                            borderRadius: "4px",
+                            minWidth: "120px",
                         }}
                         hideIcon={true}
-                        buttonText={isLoading ? (
-                            <Spinner animation="border" size="sm" />
-                        ) : (
-                            <span className="fw-medium">
-                                {isInterested ? "Interested" : "Interested?"}
-                            </span>
-                        )}
+                        buttonText={
+                            isLoading ? (
+                                <Spinner animation="border" size="sm" />
+                            ) : (
+                                <span
+                                    className="fw-medium"
+                                    style={{ fontSize: "13px" }}
+                                >
+                                    {isInterested ? "Interested" : "Interested?"}
+                                </span>
+                            )
+                        }
                     />
 
-
-                    {/* Heart/Thumb burst animation positioned near button or icon? 
-                        User wanted UI like image. Image doesn't show burst but previous code had it.
-                        I'll keep it centered on the button.
-                     */}
+                    {/* Animation */}
                     <AnimatePresence>
                         {showAnimation && (
                             <motion.div
@@ -162,10 +159,14 @@ const InterestButton = ({ eventId, eventData, onLoginRequired, className = "" })
                                     left: "50%",
                                     transform: "translate(-50%, -50%)",
                                     pointerEvents: "none",
-                                    zIndex: 10
+                                    zIndex: 10,
                                 }}
                             >
-                                <ThumbsUp size={24} className="text-success" fill="currentColor" />
+                                <ThumbsUp
+                                    size={22}
+                                    className="text-success"
+                                    fill="currentColor"
+                                />
                             </motion.div>
                         )}
                     </AnimatePresence>

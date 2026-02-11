@@ -103,46 +103,50 @@ const DetailsHeader = ({ eventData, event_key }) => {
             <Col lg="3" md="12" className="mb-4 mb-lg-0">
                 {/* --- Single Event Image --- */}
                 <div
-                    className="product-image-container d-flex justify-content-center align-items-center position-relative"
+                    className="product-image-container d-flex justify-content-center align-items-center"
                 >
-                    <Image
-                        src={eventData?.eventMedia?.thumbnail || "https://placehold.co/500x400"}
-                        alt={eventData?.name}
-                        className="img-fluid rounded-4"
-                        width={210}
-                        height={400}
-                        priority
-                        style={{ maxHeight: "400px", objectFit: "cover" }}
-                    />
-                    {(eventData?.eventControls?.house_full || eventData?.eventControls?.is_sold_out) && (
+                    <div className="position-relative d-inline-block">
                         <Image
-                            src="/assets/images/hfull.webp"
-                            alt="Sold Out"
-                            width={120}
-                            height={120}
-                            className="position-absolute top-50 start-50 translate-middle z-3"
-                            style={{
-                                transform: "translate(-50%, -50%) rotate(-15deg)",
-                                pointerEvents: "none",
-                                objectFit: "contain"
-                            }}
+                            src={eventData?.eventMedia?.thumbnail || "https://placehold.co/500x400"}
+                            alt={eventData?.name}
+                            className="img-fluid rounded-4"
+                            width={210}
+                            height={400}
+                            priority
+                            style={{ maxHeight: "400px", objectFit: "cover" }}
                         />
-                    )}
+                        {(eventData?.eventControls?.house_full || eventData?.eventControls?.is_sold_out) && (
+                            <Image
+                                src="/assets/images/hfull.webp"
+                                alt="Sold Out"
+                                width={70}
+                                height={70}
+                                className="position-absolute z-3"
+                                style={{
+                                    bottom: "-10px",
+                                    right: "-10px",
+                                    transform: "rotate(-15deg)",
+                                    pointerEvents: "none",
+                                    objectFit: "contain"
+                                }}
+                            />
+                        )}
 
-                    {/* Share button at top-right */}
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: "10px",
-                            right: "100px",
-                            zIndex: 10,
-                        }}
-                    >
-                        <CustomBtn
-                            icon={<Share2 />}
-                            className="p-1 m-0"
-                            HandleClick={handleShare}
-                        />
+                        {/* Share button at top-right */}
+                        <div
+                            style={{
+                                position: "absolute",
+                                top: "10px",
+                                right: "10px",
+                                zIndex: 10,
+                            }}
+                        >
+                            <CustomBtn
+                                icon={<Share2 />}
+                                className="p-1 m-0"
+                                HandleClick={handleShare}
+                            />
+                        </div>
                     </div>
                 </div>
 

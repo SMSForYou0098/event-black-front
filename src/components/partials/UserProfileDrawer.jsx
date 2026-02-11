@@ -1,11 +1,12 @@
 import React from 'react';
 import { Card, ListGroup, Button } from 'react-bootstrap';
-import { ChevronRight, MessageSquare, FileText, Lock, LogOut, Ticket, User } from 'lucide-react';
+import { ChevronRight, MessageSquare, FileText, ShieldQuestionMark, Lock, LogOut, Ticket, User } from 'lucide-react';
 import CustomDrawer from '@/utils/CustomDrawer';
 import AvatarImage from '@/utils/ProfileUtils/AvatarImage';
 import CustomBtn from '@/utils/CustomBtn';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { BsQuestion } from 'react-icons/bs';
 
 const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
     const router = useRouter();
@@ -72,11 +73,17 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
                         label="Chat with us"
                         onClick={() => window.open('https://wa.me/918000408888', '_blank')}
                     />
+                    <MenuItem
+                        icon={ShieldQuestionMark}
+                        label="FAQ"
+                        href="/faq"
+                    />
                 </div>
 
                 {/* More Section */}
                 <div className="mt-4">
                     <h6 className="fw-bold mb-3 px-2">More</h6>
+
                     <MenuItem
                         icon={FileText}
                         label="Terms & Conditions"

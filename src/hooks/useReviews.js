@@ -20,8 +20,8 @@ export const useEventReviews = (eventId) => {
         },
         getNextPageParam: (lastPage) => {
             // Check if there are more pages based on the API response structure
-            if (lastPage?.data?.current_page < lastPage?.data?.last_page) {
-                return lastPage?.data?.current_page + 1;
+            if (lastPage?.pagination?.current_page < lastPage?.pagination?.last_page) {
+                return lastPage.pagination.current_page + 1;
             }
             return undefined;
         },

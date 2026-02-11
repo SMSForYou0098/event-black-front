@@ -29,7 +29,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       text: 'No Tickets Available',
       showStamp: false,
       stampImage: null,
-      message: 'No tickets are available for this event.'
+      // message: 'No tickets are available for this event.'
     };
     // if (eventData?.active_tickets === 0) return {
     //   disabled: true,
@@ -43,7 +43,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       text: 'Cancelled',
       showStamp: false,
       stampImage: null,
-      message: 'This event has been cancelled'
+      // message: 'This event has been cancelled'
       //  Refunds will be processed if applicable.'
     };
     if (isPostponed) return {
@@ -51,21 +51,21 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       text: 'Postponed',
       showStamp: false,
       stampImage: null,
-      message: 'This event has been postponed.'
+      // message: 'This event has been postponed.'
     };
     if (isSoldOut) return {
       disabled: true,
       text: 'Sold Out',
       showStamp: true,
       stampImage: '/assets/images/hfull.webp',
-      message: 'All tickets for this event have been sold out.'
+      // message: 'All tickets for this event have been sold out.'
     };
     if (isHouseFull) return {
       disabled: true,
       text: 'Sold Out',
       showStamp: false,
       stampImage: null,
-      message: 'All tickets for this event have been sold out.'
+      // message: 'All tickets for this event have been sold out.'
     };
     // Check if event has ended
     if (eventData?.date_range) {
@@ -295,47 +295,32 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
           </div>
         )}
 
-        <BookingFooterLayout
-          left={
-            <span className="p-0 m-0 position-relative">
-              {/* Event Status Stamp for Mobile */}
-              {/* {eventStatus.showStamp && (
-                <Image
-                  src={eventStatus.stampImage}
-                  alt={eventStatus.text}
-                  width={60}
-                  height={60}
-                  className="position-absolute"
-                  style={{
-                    transform: "rotate(-15deg) translate(-50%, -80%)",
-                    left: "50%",
-                    top: "0",
-                    pointerEvents: "none",
-                    objectFit: "contain",
-                    zIndex: 10
-                  }}
-                />
-              )} */}
-              Starts From{" "}
-              <h5 className="fw-bold">
-                ₹
-                {eventData?.on_sale ? eventData?.lowest_sale_price : eventData?.lowest_ticket_price}
-              </h5>
-            </span>
-          }
-          right={
-            eventStatus.disabled ? (
-              <CustomBtn
-                size="sm"
-                className="btn btn-primary btn-lg px-3"
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "600",
-                }}
-                HandleClick={() => router.push('/events')}
-                buttonText="View More"
-              />
-            ) : (
+        {eventStatus.disabled ? (
+          <BookingFooterLayout>
+            <CustomBtn
+              size="sm"
+              className="btn btn-primary btn-lg px-3 w-100"
+              style={{
+                fontSize: "16px",
+                fontWeight: "600",
+              }}
+              wrapperClassName="w-100"
+              HandleClick={() => router.push('/events')}
+              buttonText="View More Events"
+            />
+          </BookingFooterLayout>
+        ) : (
+          <BookingFooterLayout
+            left={
+              <span className="p-0 m-0 position-relative">
+                Starts From{" "}
+                <h5 className="fw-bold">
+                  ₹
+                  {eventData?.on_sale ? eventData?.lowest_sale_price : eventData?.lowest_ticket_price}
+                </h5>
+              </span>
+            }
+            right={
               <CustomBtn
                 HandleClick={handleBookNow}
                 disabled={eventStatus.disabled}
@@ -348,11 +333,10 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
                   cursor: eventStatus.disabled ? "not-allowed" : "pointer"
                 }}
                 buttonText={eventStatus.text}
-              // icon={!eventStatus.disabled ? <i className="fa-solid fa-arrow-right"></i> : null}
               />
-            )
-          }
-        />
+            }
+          />
+        )}
       </div>
 
       {/* drawer */}
