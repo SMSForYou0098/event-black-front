@@ -13,6 +13,27 @@ import CustomBtn from "../../../../utils/CustomBtn";
 import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
 import Timer from "../../../../utils/BookingUtils/Timer";
 import MobileTwoButtonFooter from "../../../../utils/MobileTwoButtonFooter";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/axiosInterceptor";
+
+export const useEventFields = (eventId, options = {}) =>
+  useQuery({
+    queryKey: ['event-fields', eventId],
+    enabled: !!eventId,
+    queryFn: async () => {
+      const res = await api.get(`event/attendee/fields/${eventId}`);
+      if (!res?.data?.status) {
+        return [];
+      }
+      return res.data.data || [];
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: (count, err) => {
+      const status = err?.response?.status;
+      return status >= 500 && count < 2;
+    },
+    ...options,
+  });
 
 const AttendeePage = () => {
   const router = useRouter();
@@ -23,8 +44,10 @@ const AttendeePage = () => {
   const [attendeeList, setAttendeesList] = useState([]);
   const [selectedAttendees, setSelectedAttendees] = useState([]);
 
+
   const dispatch = useDispatch();
   const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
+  console.log('k', data)
   useEffect(() => {
     if (!data) return;
 
@@ -41,10 +64,22 @@ const AttendeePage = () => {
   }, [data]);
 
   // fetch category config when categoryId is available
+  // Derive switch flag
+  const isAttendeeRequired = data?.event?.category?.attendy_required === 1 || data?.event?.category?.attendy_required === true;
+  const eventId = data?.event?.id;
+
+  // New hook for event fields (when attendee_required is false)
+  const { data: eventFieldsData, isLoading: loadingEventFields } = useEventFields(eventId, {
+    enabled: !isAttendeeRequired && !!eventId
+  });
+
+
+  console.log('eventFieldsData', eventFieldsData)
+  // fetch category config when categoryId is available (ONLY when attendee_required is true)
   useEffect(() => {
     let mounted = true;
     const getData = async () => {
-      if (!categoryId) return;
+      if (!categoryId || !isAttendeeRequired) return;
       setLoadingCategory(true);
       try {
         const CData = await fetchCategoryData(categoryId);
@@ -62,19 +97,24 @@ const AttendeePage = () => {
     return () => {
       mounted = false;
     };
-  }, [categoryId, fetchCategoryData]);
+  }, [categoryId, fetchCategoryData, isAttendeeRequired]);
+
+  // Determine which data to use
+  const activeApiData = isAttendeeRequired ? categoryData : (eventFieldsData || []);
+  const activeLoading = isAttendeeRequired ? loadingCategory : loadingEventFields;
 
   // derive list of required field names (memoized)
+  // derive list of required field names (memoized)
   const requiredFieldNames = useMemo(() => {
-    if (!Array.isArray(categoryData)) return [];
+    if (!Array.isArray(activeApiData)) return [];
     try {
-      return categoryData
+      return activeApiData
         .filter((f) => f.field_required === 1)
         .map((f) => f.field_name);
     } catch {
       return [];
     }
-  }, [categoryData]);
+  }, [activeApiData]);
 
   // memoized check whether any attendee has missing fields
   const hasMissingFields = useMemo(
@@ -133,11 +173,11 @@ const AttendeePage = () => {
         <Row className="m-0 p-0">
           <Col lg="8" className="px-0 px-sm-2">
             <DynamicAttendeeForm
-              loadingCategory={loadingCategory}
+              loadingCategory={activeLoading}
               requiredFields={requiredFieldNames}
               setAttendeesList={onSetAttendeesList}
               attendeeList={attendeeList}
-              apiData={categoryData}
+              apiData={activeApiData}
               categoryId={categoryId}
               data={data}
               selectedTickets={data?.data}

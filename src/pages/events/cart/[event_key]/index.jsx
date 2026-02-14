@@ -327,7 +327,7 @@ const CartPage = () => {
 
     // Alternative: Manual navigation
 
-    if (categoryData?.attendy_required === true) {
+    if (categoryData?.attendy_required === true || event?.eventControls?.attendee_required === true) {
       return `/events/attendee/${event_key}/?k=${dataKey}&categoryId=${event?.Category?.id}`;
     } else {
       // Alternative: Manual navigation
@@ -384,7 +384,7 @@ const CartPage = () => {
   // }, []);
 
   const attendeeRequired = useMemo(() => {
-    return categoryData?.attendy_required === true;
+    return categoryData?.attendy_required === true || event?.eventControls?.attendee_required === true;
   }, [categoryData]);
   // Early return if no items
 
@@ -480,7 +480,7 @@ const CartPage = () => {
         {/* Cart Steps */}
         <CartSteps
           id={1}
-          showAttendee={categoryData?.attendy_required === true}
+          showAttendee={categoryData?.attendy_required === true || event?.eventControls?.attendee_required === true}
         />
         <Row>
           {/* Cart Items */}
@@ -732,7 +732,7 @@ const CartPage = () => {
         {/* Registration Modal - auto-opens for Registration category */}
         <RegistrationBooking
           show={showRegistrationModal}
-          eventId={event?.event_key}
+          eventId={event?.id}
           cartItems={cartItems}
           tax_data={event?.taxData}
           isMobile={isMobile}

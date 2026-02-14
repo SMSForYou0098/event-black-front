@@ -5,7 +5,7 @@ import { User, Mail, Phone, FileText, Hash, Upload, Check, Ticket, Users, Minus,
 import CustomBtn from "@/utils/CustomBtn";
 import CommonPricingComp from "@/components/Tickets/CommonPricingComp";
 import { useMyContext } from "@/Context/MyContextProvider";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { signIn } from "@/store/auth/authSlice";
 
@@ -37,14 +37,61 @@ const RegistrationBooking = ({
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [photo, setPhoto] = useState(null);
-
-    const [checkingUser, setCheckingUser] = useState(false);
-    const [isExist, setIsExist] = useState(null);
     const [showFields, setShowFields] = useState(false);
+    const [isExist, setIsExist] = useState(null);
 
-    // Event fields state
-    const [eventFields, setEventFields] = useState([]);
-    const [loadingFields, setLoadingFields] = useState(false);
+    // User check query
+    const { data: userData, isLoading: checkingUser, isError: isUserCheckError } = useQuery({
+        queryKey: ["user-check", number],
+        queryFn: async () => {
+            const response = await api.get(`user-from-number/${number}`);
+            return response.data;
+        },
+        enabled: (number.length === 10 || number.length === 12) && !showFields,
+        retry: false,
+    });
+
+    // Sync user data to form when query brings data or error occurs
+    useEffect(() => {
+        if (!checkingUser) {
+            if (userData) {
+                if (userData.status) {
+                    // User exists
+                    setIsExist(true);
+                    setName(userData.user?.name || "");
+                    setEmail(userData.user?.email || "");
+                    setPhoto(userData.user?.photo || null);
+                } else {
+                    // User doesn't exist
+                    setIsExist(false);
+                    setName("");
+                    setEmail("");
+                    setPhoto(null);
+                }
+                setShowFields(true);
+            } else if (isUserCheckError) {
+                // Error fetching user (network error or server error) - treat as new user/allow entry
+                setIsExist(false);
+                setName("");
+                setEmail("");
+                setPhoto(null);
+                setShowFields(true);
+            }
+        }
+    }, [userData, checkingUser, isUserCheckError]);
+
+    // Event fields query
+    const { data: eventFields = [], isLoading: loadingFields } = useQuery({
+        queryKey: ["event-fields", eventId],
+        queryFn: async () => {
+            const response = await api.get(`event/attendee/fields/${eventId}`);
+            return response.data.data || [];
+        },
+        enabled: !!eventId && show,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
+
+    console.log(eventFields, "eventFields");
 
     // Dynamic custom fields values state
     const [customFieldValues, setCustomFieldValues] = useState({});
@@ -282,68 +329,11 @@ const RegistrationBooking = ({
         }
     };
 
-    useEffect(() => {
-        const fetchEventFields = async () => {
-            if (!eventId) return;
-
-            setLoadingFields(true);
-            try {
-                const response = await api.get(`event/fields/${eventId}`);
-                if (response.data?.status) {
-                    setEventFields(response.data.data || []);
-                }
-            } catch (error) {
-                console.error("Error fetching event fields:", error);
-            } finally {
-                setLoadingFields(false);
-            }
-        };
-
-        fetchEventFields();
-    }, [eventId]);
+    // Removed fetchEventFields useEffect as it is replaced by useQuery
 
     const isValidPhone = number.length === 10 || number.length === 12;
 
-    const handleCheckUser = useCallback(async (phoneNumber) => {
-        if (!phoneNumber || (phoneNumber.length !== 10 && phoneNumber.length !== 12)) {
-            return;
-        }
-
-        setCheckingUser(true);
-        try {
-            const url = `user-from-number/${phoneNumber}`;
-            const response = await api.get(url);
-
-            if (response.data?.status) {
-                // User exists
-                setIsExist(true);
-                setName(response.data.user?.name || "");
-                setEmail(response.data.user?.email || "");
-                setPhoto(response.data.user?.photo || null);
-            } else {
-                // User doesn't exist - will need to create
-                setIsExist(false);
-                setName("");
-                setEmail("");
-                setPhoto(null);
-            }
-            setShowFields(true);
-        } catch (error) {
-            console.error("Error fetching user:", error);
-            setIsExist(false);
-            setName("");
-            setEmail("");
-            setShowFields(true);
-        } finally {
-            setCheckingUser(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (isValidPhone && !showFields) {
-            handleCheckUser(number);
-        }
-    }, [number, isValidPhone, showFields, handleCheckUser]);
+    // Removed handleCheckUser and its useEffect as it is replaced by useQuery
 
     const handlePhoneChange = (e) => {
         const value = e.target.value.replace(/\D/g, "");
@@ -423,7 +413,7 @@ const RegistrationBooking = ({
 
     // Filter out name, email, number, photo from dynamic fields
     const filteredEventFields = eventFields.filter(field => {
-        const title = field.title?.toLowerCase();
+        const title = field.field_name?.toLowerCase();
         return !['name', 'email', 'number', 'photo'].includes(title);
     });
 
@@ -604,22 +594,22 @@ const RegistrationBooking = ({
                                     <Col xs={12} md={4} key={index}>
                                         <Form.Group>
                                             <Form.Label className="text-white d-flex align-items-center gap-2 small text-capitalize">
-                                                {getFieldIcon(field.type)} {field.title?.replace(/_/g, ' ')}
+                                                {getFieldIcon(field.type)} {field.field_name?.replace(/_/g, ' ')}
                                             </Form.Label>
 
                                             {field.type === 'file' ? (
                                                 <Form.Control
                                                     type="file"
-                                                    onChange={(e) => handleFileChange(field.title, e)}
+                                                    onChange={(e) => handleFileChange(field.field_name, e)}
                                                     className="bg-dark text-white border-secondary"
                                                     accept="image/*"
                                                 />
                                             ) : (
                                                 <Form.Control
                                                     type={field.type === 'number' ? 'number' : 'text'}
-                                                    placeholder={`Enter ${field.title?.replace(/_/g, ' ')}`}
-                                                    value={customFieldValues[field.title] || ""}
-                                                    onChange={(e) => handleCustomFieldChange(field.title, e.target.value)}
+                                                    placeholder={`Enter ${field.field_name?.replace(/_/g, ' ')}`}
+                                                    value={customFieldValues[field.field_name] || ""}
+                                                    onChange={(e) => handleCustomFieldChange(field.field_name, e.target.value)}
                                                     className="bg-dark text-white border-secondary"
                                                 />
                                             )}

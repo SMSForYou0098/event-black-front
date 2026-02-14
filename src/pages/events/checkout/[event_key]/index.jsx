@@ -59,7 +59,7 @@ const CartPage = () => {
   useHeaderSimple({
     title: event?.name || "Event Details",
   });
-  const attendeeRequired = checkoutData?.event?.category?.attendy_required === 1
+  const attendeeRequired = checkoutData?.event?.category?.attendy_required === 1 || checkoutData?.event?.eventControls?.attendee_required === true;
 
 
   useEffect(() => {
@@ -736,7 +736,7 @@ const CartPage = () => {
         <Container>
           <CartSteps
             id={2}
-            showAttendee={checkoutData?.event?.category?.attendy_required === 1}
+            showAttendee={checkoutData?.event?.category?.attendy_required === 1 || checkoutData?.event?.eventControls?.attendee_required === true}
           />
           <Timer
             timestamp={data?.timestamp}

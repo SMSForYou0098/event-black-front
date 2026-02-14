@@ -69,6 +69,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
     const time = convertTo12HourFormat?.(event?.start_time) || 'Time Not Set';
     const OrderId = ticketData?.order_id || ticketData?.token || 'N/A';
     const title = event?.name || 'Event Name';
+    const eventType = event?.event_type || '';
     // Handle booking_type - can be at parent level or in booking item
     const bookingType = ticketData?.booking_type || firstBooking?.booking_type || 'Online';
 
@@ -78,7 +79,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
 
     const textColor = '#000';
     const CANVAS_WIDTH = 300;
-    const CANVAS_HEIGHT = 750;
+    const CANVAS_HEIGHT = 600;
 
     // Expose methods to parent via ref
     useImperativeHandle(ref, () => ({
@@ -205,6 +206,9 @@ const TicketCanvasView = forwardRef((props, ref) => {
                 // Event name at top (above QR code)
                 if (showDetails) {
                     centerText(title, 16, 'Arial', canvas, 50, { fontWeight: 'bold' });
+                    if (eventType) {
+                        centerText(eventType.charAt(0).toUpperCase() + eventType.slice(1), 11, 'Arial', canvas, 70, { fill: '#666' });
+                    }
                     centerText(ticketName, 18, 'Arial', canvas, 185, { fontWeight: 'bold' });
                 }
 
@@ -327,7 +331,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
                     currentY += maxHeight + 10;
 
                     // Venue/Address - wrapped to multiple lines for readability
-                    const venueLabel = new fabric.Text('', {
+                    const venueLabel = new fabric.Text('Location', {
                         left: 15,
                         top: currentY,
                         fontSize: 18,
@@ -338,7 +342,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
                         evented: false,
                     });
                     canvas.add(venueLabel);
-                    currentY += 180;
+                    currentY += 30;
 
                     const eventVenueText = new fabric.Textbox(address, {
                         left: 15,

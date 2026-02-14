@@ -43,13 +43,14 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
           <DetailsHeader eventData={eventData} event_key={event_key} />
 
           {/* Interest Button */}
-          <div className="my-3">
+          <div className="my-3 d-block d-sm-none">
             <InterestButton
               eventId={eventData?.id}
               eventData={eventData}
               onLoginRequired={handleLoginRequired}
             />
           </div>
+
           {/* Terms Accordion */}
           {/* {eventData?.ticket_terms && (
             <TermsAccordion terms={eventData.ticket_terms} />
