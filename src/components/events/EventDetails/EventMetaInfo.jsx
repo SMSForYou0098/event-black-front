@@ -146,7 +146,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
               <Col md={4}>
                 <CustomBtn
                   size="sm"
-                  className="fw-bold w-100 py-2 rounded-3"
+                  className="fw-bold py-2 rounded-3 text-end"
                   HandleClick={handleBookNow}
                   disabled={eventStatus.disabled}
                   buttonText={eventStatus.text}
@@ -181,11 +181,11 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       </Row>
 
       {/* Login Modal */}
-      <LoginModal
+      {/* <LoginModal
         show={showLoginModal}
         onHide={() => setShowLoginModal(false)}
         eventKey={event_key}
-      />
+      /> */}
 
       {/* Postponed Notice */}
       {isPostponed && expectedDate && (

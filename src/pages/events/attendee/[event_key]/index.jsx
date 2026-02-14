@@ -20,8 +20,10 @@ export const useEventFields = (eventId, options = {}) =>
   useQuery({
     queryKey: ['event-fields', eventId],
     enabled: !!eventId,
-    queryFn: async () => {
-      const res = await api.get(`event/attendee/fields/${eventId}`);
+    queryFn: async ({ queryKey }) => {
+      const [_, id] = queryKey;
+      if (!id || id === 'undefined' || id === 'null') return [];
+      const res = await api.get(`event/attendee/fields/${id}`);
       if (!res?.data?.status) {
         return [];
       }
@@ -43,11 +45,10 @@ const AttendeePage = () => {
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [attendeeList, setAttendeesList] = useState([]);
   const [selectedAttendees, setSelectedAttendees] = useState([]);
-
+  const [event_id, setEventId] = useState(null);
 
   const dispatch = useDispatch();
   const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
-  console.log('k', data)
   useEffect(() => {
     if (!data) return;
 
@@ -61,25 +62,25 @@ const AttendeePage = () => {
 
     // Only set initial attendees if local list is empty to avoid overwriting edits
     setAttendeesList((prev) => (prev && prev.length > 0 ? prev : attendeesFromRedux));
+    setEventId(data?.event?.id);
   }, [data]);
 
   // fetch category config when categoryId is available
   // Derive switch flag
-  const isAttendeeRequired = data?.event?.category?.attendy_required === 1 || data?.event?.category?.attendy_required === true;
-  const eventId = data?.event?.id;
+  const isCategoryAttendeeRequired = data?.event?.category?.attendy_required;
+  const isEventAttendeeRequired = data?.event?.attendee_required;
 
   // New hook for event fields (when attendee_required is false)
-  const { data: eventFieldsData, isLoading: loadingEventFields } = useEventFields(eventId, {
-    enabled: !isAttendeeRequired && !!eventId
+  const isEnabled = !isCategoryAttendeeRequired && !!isEventAttendeeRequired && !!event_id;
+  const { data: eventFieldsData, isLoading: loadingEventFields } = useEventFields(event_id, {
+    enabled: isEnabled
   });
 
-
-  console.log('eventFieldsData', eventFieldsData)
   // fetch category config when categoryId is available (ONLY when attendee_required is true)
   useEffect(() => {
     let mounted = true;
     const getData = async () => {
-      if (!categoryId || !isAttendeeRequired) return;
+      if (!categoryId || !isCategoryAttendeeRequired) return;
       setLoadingCategory(true);
       try {
         const CData = await fetchCategoryData(categoryId);
@@ -97,13 +98,12 @@ const AttendeePage = () => {
     return () => {
       mounted = false;
     };
-  }, [categoryId, fetchCategoryData, isAttendeeRequired]);
+  }, [categoryId, fetchCategoryData, isCategoryAttendeeRequired]);
 
   // Determine which data to use
-  const activeApiData = isAttendeeRequired ? categoryData : (eventFieldsData || []);
-  const activeLoading = isAttendeeRequired ? loadingCategory : loadingEventFields;
+  const activeApiData = isCategoryAttendeeRequired ? categoryData : (isEventAttendeeRequired ? (eventFieldsData || []) : []);
+  const activeLoading = isCategoryAttendeeRequired ? loadingCategory : loadingEventFields;
 
-  // derive list of required field names (memoized)
   // derive list of required field names (memoized)
   const requiredFieldNames = useMemo(() => {
     if (!Array.isArray(activeApiData)) return [];
@@ -164,7 +164,6 @@ const AttendeePage = () => {
       0;
     return q;
   }, [data]);
-  //  console.log(k)
   return (
     <div className="">
       <Container>
@@ -185,6 +184,7 @@ const AttendeePage = () => {
               event_key={event_key}
               selectedAttendees={selectedAttendees}
               setSelectedAttendees={setSelectedAttendees}
+              event_id={event_id}
             />
             {hasMissingFields && (
               <div className="mb-3 text-white fw-bold">

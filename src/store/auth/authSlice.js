@@ -107,6 +107,12 @@ export const authSlice = createSlice({
       }
     },
 
+    updateUserAddress: (state, action) => {
+      if (state.user) {
+        state.user.address = action.payload;
+      }
+    },
+
     validateTwoFector: (state) => {
       state.twoFactor = false;
     },
@@ -156,6 +162,7 @@ export const {
   showLoading,
   logout,
   updateUser,
+  updateUserAddress,
   validateTwoFector,
   signInSuccess
 } = authSlice.actions;

@@ -26,9 +26,9 @@ const EventsContainer = memo(({
   // Memoized default fetch function using axios interceptor
   const defaultFetchEvents = useMemo(() => async () => {
     const response = await api.get(apiEndpoint, {
-      params: {
-        fields: "id,name,thumbnail,eventMedia,city,organisation,event_key,house_full"
-      }
+      // params: {
+      //   fields: "id,name,thumbnail,eventMedia,city,organisation,event_key,house_full"
+      // }
     });
     if (response.data.status) {
       return response.data?.events || [];
@@ -84,7 +84,7 @@ const EventsContainer = memo(({
               link={`/events/${createSlug(data?.city)}/${createSlug(
                 data?.organisation
               )}/${createSlug(data?.name)}/${data?.event_key}`}
-              houseFull={data?.house_full === 1}
+              houseFull={data?.sold_out === true}
             />
           ) : (
             <ProductCard
@@ -100,7 +100,7 @@ const EventsContainer = memo(({
               link={`/events/${createSlug(data?.city)}/${createSlug(
                 data?.organisation
               )}/${createSlug(data?.name)}/${data?.event_key}`}
-              houseFull={data?.house_full === 1}
+              houseFull={data?.sold_out === true}
             />
           );
         }}

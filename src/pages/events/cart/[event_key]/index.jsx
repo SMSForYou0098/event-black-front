@@ -82,10 +82,11 @@ const CartPage = () => {
   const isApprovalRequired = event?.eventControls?.is_approval_required;
 
   // Fetch influencers when approval is required
-  const { data: influencersData, isLoading: influencersLoading } = useEventInfluencers(
-    event?.id,
-    !!isApprovalRequired // Only fetch when is_approval_required is true
-  );
+  const { data: influencersData, isLoading: influencersLoading } =
+    useEventInfluencers(
+      event?.id,
+      !!isApprovalRequired && !!UserData?.id
+    );
   const parseDateRange = useMemo(() => {
     if (!event?.date_range) return { minDate: null, maxDate: null, minDateStr: null, maxDateStr: null };
 
@@ -306,6 +307,7 @@ const CartPage = () => {
       user_id: event?.user_id,
       category: categoryData,
       tax_data: event?.tax_data,
+      attendee_required: event?.eventControls?.attendee_required,
     };
 
     const selectedTicket = cartItems.find(
@@ -576,13 +578,13 @@ const CartPage = () => {
                 </div>
 
                 {/* Checkout Button */}
-                <div className="d-block d-sm-none">
+                <div className="d-block d-lg-none">
                   <BookingMobileFooter
                     handleClick={() => handleProcess()}
                     selectedTickets={selectedTickets}
                   />
                 </div>
-                <div className="d-none d-sm-block">
+                <div className="d-none d-lg-block">
                   <CustomBtn
                     disabled={
                       eventStatus.disabled ||
@@ -727,6 +729,7 @@ const CartPage = () => {
               }
             }
           }}
+          is_address_required={event?.eventControls?.use_preprinted_cards}
         />
 
         {/* Registration Modal - auto-opens for Registration category */}

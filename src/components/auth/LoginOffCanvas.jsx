@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect, useState } from "react";
+import React, { Fragment, memo, useEffect, useRef, useState } from "react";
 import { Modal, Offcanvas, Row, Col, Form, Button, Alert, Card, InputGroup } from "react-bootstrap";
 import { useMutation } from "@tanstack/react-query";
 import { publicApi } from "@/lib/axiosInterceptor";
@@ -19,11 +19,10 @@ const MODAL_VIEWS = {
     PASSWORD: "PASSWORD",
 };
 
-const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSuccessCallback }) => {
+const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSuccessCallback, is_address_required }) => {
     const router = useRouter();
     const dispatch = useDispatch();
     const { isMobile } = useMyContext();
-
     // States
     const [currentView, setCurrentView] = useState(MODAL_VIEWS.SIGN_IN);
     const [otpSent, setOtpSent] = useState(false);
@@ -31,6 +30,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [number, setNumber] = useState("");
+    const [address, setAddress] = useState(""); // Add address state
     const [credential, setCredential] = useState("");
     const [otp, setOTP] = useState("");
     const [attempts, setAttempts] = useState(0);
@@ -303,6 +303,17 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
     }, [email, touched.email]);
 
     useEffect(() => {
+        if (!touched.address) return;
+        const errors = { ...validationErrors };
+        if (is_address_required && !address.trim()) {
+            errors.address = "Address is required";
+        } else {
+            delete errors.address;
+        }
+        setValidationErrors(errors);
+    }, [address, touched.address, is_address_required]);
+
+    useEffect(() => {
         if (!touched.terms) return;
         const errors = { ...validationErrors };
         if (!termsAccepted) {
@@ -321,6 +332,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         setEmail("");
         setNumber("");
         setName("");
+        setAddress(""); // Clear address
         setCredential("");
         setResendCount(0);
         setCurrentView(MODAL_VIEWS.SIGN_IN);
@@ -425,6 +437,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             name: true,
             number: true,
             email: true,
+            address: true, // Mark address as touched
             terms: true,
         });
 
@@ -452,6 +465,11 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             isValid = false;
         }
 
+        if (is_address_required && !address.trim()) {
+            errors.address = "Address is required";
+            isValid = false;
+        }
+
         if (!termsAccepted) {
             errors.terms = "You must agree to the terms of use";
             isValid = false;
@@ -467,6 +485,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             email,
             number,
             role_id: 4,
+            ...(is_address_required && { address }), // Include address if required
         });
     };
 
@@ -543,12 +562,13 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             )}
 
             {currentView === MODAL_VIEWS.OTP ? (
-                <Form noValidate onSubmit={handleVerifyOtp}>
-                    <div className="">
+                <Form noValidate onSubmit={handleVerifyOtp} className="d-flex flex-column flex-grow-1">
+                    <div className="d-flex flex-column flex-grow-1">
                         <Form.Group controlId="otp" className="mb-3">
                             <Form.Label>Enter OTP</Form.Label>
                             <Form.Control
                                 type="text"
+                                size=""
                                 value={otp}
                                 autoFocus
                                 className="card-glassmorphism__input"
@@ -568,7 +588,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             </Form.Control.Feedback>
                         </Form.Group>
 
-                        <div className="d-flex justify-content-between align-items-center mt-2">
+                        <div className="d-flex justify-content-between align-items-center sticky-mobile-footer">
                             <CustomBtn
                                 type="button"
                                 variant="default"
@@ -611,8 +631,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                     </div>
                 </Form>
             ) : currentView === MODAL_VIEWS.SIGN_UP ? (
-                <Form noValidate onSubmit={handleSignUp}>
-                    <div className="p-3">
+                <Form noValidate onSubmit={handleSignUp} className="d-flex flex-column flex-grow-1">
+                    <div className="p-3 d-flex flex-column flex-grow-1">
                         <Row className="mb-3 g-3">
                             <Col sm={12}>
                                 <Form.Group controlId="name">
@@ -627,6 +647,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                             setName(e.target.value);
                                             setTouched(prev => ({ ...prev, name: true }));
                                         }}
+                                        size={isMobile ? "sm" : ""}
                                         autoFocus
                                         isInvalid={touched.name && !!validationErrors.name}
                                     />
@@ -645,6 +666,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                         className="card-glassmorphism__input"
                                         maxLength={12}
                                         required
+                                        size={isMobile ? "sm" : ""}
                                         onChange={(e) => {
                                             setNumber(e.target.value.replace(/\D/g, ""));
                                             setTouched(prev => ({ ...prev, number: true }));
@@ -665,6 +687,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                         placeholder="Enter email"
                                         value={email}
                                         required
+                                        size={isMobile ? "sm" : ""}
                                         onChange={(e) => {
                                             setEmail(e.target.value.toLowerCase());
                                             setTouched(prev => ({ ...prev, email: true }));
@@ -676,6 +699,30 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                     </Form.Control.Feedback>
                                 </Form.Group>
                             </Col>
+                            {is_address_required && (
+                                <Col sm={12}>
+                                    <Form.Group controlId="address">
+                                        <Form.Label>Address *</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={2}
+                                            className="card-glassmorphism__input"
+                                            placeholder="Enter your address"
+                                            value={address}
+                                            required
+                                            size={isMobile ? "sm" : ""}
+                                            onChange={(e) => {
+                                                setAddress(e.target.value);
+                                                setTouched(prev => ({ ...prev, address: true }));
+                                            }}
+                                            isInvalid={touched.address && !!validationErrors.address}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {validationErrors.address}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Col>
+                            )}
                         </Row>
 
                         <div className="mb-3">
@@ -700,7 +747,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                 {validationErrors.terms}
                             </Form.Control.Feedback>
                         </div>
-                        <div className="d-flex justify-content-between align-items-center mt-2">
+                        <div className="d-flex justify-content-between align-items-center sticky-mobile-footer">
                             <CustomBtn
                                 variant="link"
                                 HandleClick={handleBack}
@@ -720,13 +767,14 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                 icon={isLoading ? <LoaderCircle className="spin" /> : null}
                                 buttonText={isLoading ? "Creating Account..." : "Sign Up"}
                                 className="w-100"
+                                size='sm'
                             />
                         </div>
                     </div>
                 </Form>
             ) : currentView === MODAL_VIEWS.PASSWORD ? (
-                <Form noValidate onSubmit={handleVerifyPassword}>
-                    <div className="p-3">
+                <Form noValidate onSubmit={handleVerifyPassword} className="d-flex flex-column flex-grow-1">
+                    <div className="p-3 d-flex flex-column flex-grow-1">
                         <Form.Group controlId="password" className="mb-3">
                             <Form.Label>Password</Form.Label>
                             <PasswordField
@@ -752,7 +800,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             </Form.Control.Feedback>
                         </Form.Group>
 
-                        <div className="d-flex flex-column gap-2 pb-3">
+                        <div className="d-flex flex-column gap-2 pb-3 mt-auto">
                             <CustomBtn
                                 type="submit"
                                 variant="primary"
@@ -763,7 +811,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                 className="w-100"
                             />
 
-                            <div className="d-flex justify-content-between align-items-center mt-2">
+                            <div className="d-flex justify-content-between align-items-center sticky-mobile-footer">
                                 <CustomBtn
                                     variant="link"
                                     HandleClick={handleBack}
@@ -797,8 +845,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                     </div>
                 </Form>
             ) : (
-                <Form noValidate onSubmit={handleLogin}>
-                    <div className="p-3">
+                <Form noValidate onSubmit={handleLogin} className="d-flex flex-column flex-grow-1">
+                    <div className="p-3 d-flex flex-column flex-grow-1">
                         <Form.Group controlId="credential" className="mb-3">
                             {/* <Form.Label>Email or Mobile Number</Form.Label> */}
                             <InputGroup
@@ -862,7 +910,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             </Form.Control.Feedback>
                         </Form.Group>
 
-                        <div className="d-flex flex-column gap-3 mb-3">
+                        <div className="d-flex flex-column gap-3 mb-3 sticky-mobile-footer">
                             <span style={{ fontSize: '14px' }} className="text-secondary mt-2 d-block">
                                 By continuing, you agree to accept our <Link href="/terms-and-conditions" className="text-decoration-underline text-primary">Terms & Conditions</Link> and <Link href="/privacy-policy" className="text-decoration-underline text-primary">Privacy Policy</Link>.
                             </span>
@@ -889,6 +937,28 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         </>
     );
 
+    const offcanvasBodyRef = useRef(null);
+
+    // Auto-scroll to focused input on mobile
+    useEffect(() => {
+        const body = offcanvasBodyRef.current;
+        if (!isMobile || !body || !show) return;
+
+        const handleFocus = (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                setTimeout(() => {
+                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 500); // Delay for keyboard animation
+            }
+        };
+
+        body.addEventListener('focusin', handleFocus);
+
+        return () => {
+            body.removeEventListener('focusin', handleFocus);
+        };
+    }, [isMobile, show]);
+
     // Render as Modal for desktop or Offcanvas for mobile
     return isMobile ? (
         <Offcanvas
@@ -911,7 +981,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                 </Offcanvas.Title>
             </Offcanvas.Header>
 
-            <Offcanvas.Body className="pt-0 pb-2" style={{ overflowY: 'auto' }}>
+            <Offcanvas.Body ref={offcanvasBodyRef} className="pt-0 pb-2 d-flex flex-column" style={{ overflowY: 'auto' }}>
                 {renderContent()}
             </Offcanvas.Body>
         </Offcanvas>

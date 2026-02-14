@@ -91,8 +91,6 @@ const RegistrationBooking = ({
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
-    console.log(eventFields, "eventFields");
-
     // Dynamic custom fields values state
     const [customFieldValues, setCustomFieldValues] = useState({});
 

@@ -21,9 +21,11 @@ import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import { SavingsHighlight } from "../../../../components/events/CheckoutComps/checkout_utils";
 import Image from "next/image";
 import TermsAccordion from "../../../../components/events/EventDetails/TermsAccordion";
+import AddressUpdateDrawer from "../../../../components/events/CheckoutComps/AddressUpdateDrawer";
 const CartPage = () => {
   const router = useRouter();
   const { isMobile, ErrorAlert, successAlert, UserData, systemSetting } = useMyContext();
+  console.log("UserData", UserData);
   const { event_key, k } = router.query;
   const [isLoading, setIsLoading] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -291,6 +293,14 @@ const CartPage = () => {
       // Check for duplicate attendees
       const isDuplicate = checkForDuplicateAttendees(attendees, setErrorMessages, setShowErrorModal);
       if (isDuplicate) {
+        return false;
+      }
+    }
+    // Address validation for pre-printed cards
+    if (event?.eventControls?.use_preprinted_cards) {
+      if (!UserData?.address || UserData.address.trim() === '') {
+        ErrorAlert("Shipping address is required for this event. Please update your address.");
+        setShowAddressDrawer(true);
         return false;
       }
     }
@@ -716,6 +726,24 @@ const CartPage = () => {
     ProcessBooking();
   };
 
+  const [showAddressDrawer, setShowAddressDrawer] = useState(false);
+
+  useEffect(() => {
+    if (event?.eventControls?.use_preprinted_cards && UserData?.address !== undefined) {
+      // Open drawer if preprinted cards are used
+      // We might want to check if address is empty? 
+      // User said: "display UserData?.address, it it should not be null, undefined, ... provide two button conditionwise, update address or without updating address"
+      // Implicitly, always show it to confirm? Or only if missing? 
+      // "if this field is true then you need to open a drawer" -> implies always open to confirm.
+      setShowAddressDrawer(true);
+    }
+  }, [event, UserData?.address, event?.eventControls?.use_preprinted_cards]);
+
+  const handleAddressUpdateSuccess = (newAddress) => {
+    // Optionally update local UserData state if needed, but context might handle it or a refetch
+    setShowAddressDrawer(false);
+  };
+
   return (
     <div className="cart-page position-relative">
       {/* Loader Overlay */}
@@ -792,10 +820,19 @@ const CartPage = () => {
             showTrigger={false}
             loading={isLoading}
           />
+
+          <AddressUpdateDrawer
+            open={showAddressDrawer}
+            onClose={() => setShowAddressDrawer(false)}
+            userData={UserData}
+            onSuccess={handleAddressUpdateSuccess}
+            backdrop={UserData?.address ? true : "static"}
+            keyboard={!!UserData?.address}
+          />
+
         </Container>
       </div>
     </div>
-
   );
 };
 

@@ -23,6 +23,7 @@ const DynamicAttendeeForm = ({
   attendeeList,
   setAttendeeState,
   quantity = 1,
+  event_id,
   AttendyView,
   setAttendees,
   setDisable,
@@ -51,11 +52,11 @@ const DynamicAttendeeForm = ({
   const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false);
   const [errors, setErrors] = useState({});
   const fetchExistingAttendees = async () => {
-    if (!UserData?.id || !categoryId) return [];
+    if (!UserData?.id || !categoryId || !event_id) return [];
 
     const url = isCorporate
       ? `/corporate-attendee/${UserData.id}/${categoryId}`
-      : `/user-attendee/${UserData.id}/${categoryId}?isAgent=${isAgent ? 1 : 0}`;
+      : `/user-attendee/${UserData.id}/${categoryId}/${event_id}?isAgent=${isAgent ? 1 : 0}`;
 
     const resp = await api.get(url);
     // return attendees array or empty
@@ -71,9 +72,9 @@ const DynamicAttendeeForm = ({
         ? data.data?.attendees
         : [];
   const { data: fetchedAttendees = [], refetch: refetchExisting } = useQuery({
-    queryKey: ["existingAttendees", UserData?.id, categoryId, isCorporate, isAgent],
+    queryKey: ["existingAttendees", UserData?.id, categoryId, isCorporate, isAgent, event_id],
     queryFn: fetchExistingAttendees,
-    enabled: !!UserData?.id && !!categoryId && showAttendeeSuggetion,
+    enabled: !!UserData?.id && !!categoryId && !!event_id && showAttendeeSuggetion,
     // staleTime: 5 * 60 * 1000,
     onSuccess: (data) => {
 
@@ -184,25 +185,25 @@ const DynamicAttendeeForm = ({
     handleCloseModal();
   };
 
-  const handleDeleteAttendee = (index) => {  
+  const handleDeleteAttendee = (index) => {
     AskAlert(
       "You won't be able to revert this!",
       "Yes, delete it!",
       "The attendee has been deleted."
     ).then((confirmed) => {
       if (!confirmed) return;
-  
+
       // 1️⃣ Create the updated attendee list (remove deleted one)
       const updatedList = attendeeList.filter((_, i) => i !== index);
       setAttendeesList(updatedList);
-  
+
       // 2️⃣ Keep only those selected attendees whose IDs are still present
       const validIds = new Set(updatedList.map((a) => a.id));
       const updatedSelected = selectedAttendees.filter((attendee) =>
         validIds.has(attendee.id)
       );
       setSelectedAttendees(updatedSelected);
-  
+
       // 3️⃣ Success message
       successAlert?.("The attendee has been deleted.");
     });
@@ -504,8 +505,8 @@ const DynamicAttendeeForm = ({
             <CustomBtn
               variant="outline-primary"
               className="d-flex align-items-center justify-content-center  btn-sm w-25"
-              HandleClick={()=>setShowAddAttendeeModal(true)}
-              icon={<Users2Icon size={16}/>}
+              HandleClick={() => setShowAddAttendeeModal(true)}
+              icon={<Users2Icon size={16} />}
             />
           </div>
         </Card.Header>
