@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Image } from 'react-bootstrap';
 
 const getInitials = (name = "") => {
-  const names = name?.trim().split(" ");
-  if (names?.length === 0) return "";
-  if (names?.length === 1) return names[0][0].toUpperCase();
-  return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+  const names = name?.trim().split(" ").filter(Boolean);
+  if (!names?.length) return "";
+  if (names.length === 1) return names[0]?.[0]?.toUpperCase() ?? "";
+  return ((names[0]?.[0] ?? "") + (names[names.length - 1]?.[0] ?? "")).toUpperCase();
 };
 
 const getAvatarColor = (name) => {
@@ -13,9 +13,10 @@ const getAvatarColor = (name) => {
     '#dc3545', '#6f42c1', '#0d6efd', '#198754', '#fd7e14',
     '#20c997', '#6610f2', '#d63384', '#fd7e14', '#198754'
   ];
+  const str = name || "";
   let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
   return colors[Math.abs(hash) % colors.length];
 };

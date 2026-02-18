@@ -25,7 +25,14 @@ const UserProfileModal = ({
   // Check if form values have changed from original
   const hasChanges =
     formValues.name?.trim() !== originalValues?.name?.trim() ||
-    formValues.email?.trim() !== originalValues?.email?.trim();
+    formValues.email?.trim() !== originalValues?.email?.trim() ||
+    formValues.address?.trim() !== (originalValues?.address?.trim() ?? "");
+
+  // If only address changed (no name/email change), skip OTP
+  const onlyAddressChanged =
+    formValues.name?.trim() === originalValues?.name?.trim() &&
+    formValues.email?.trim() === originalValues?.email?.trim() &&
+    formValues.address?.trim() !== (originalValues?.address?.trim() ?? "");
   const [currentView, setCurrentView] = useState(MODAL_VIEWS.EDIT_FORM);
   const [otp, setOtp] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
@@ -150,12 +157,16 @@ const UserProfileModal = ({
     }
   };
 
-  // Handle form submission - send OTP first
+  // Handle form submission - send OTP first (skip OTP if only address changed)
   const onSubmit = (e) => {
     e.preventDefault();
     if (updateMutation?.isPending || otpLoading) return;
     if (!validate()) return;
-    sendOtp();
+    if (onlyAddressChanged) {
+      handleEditSubmit(e);
+    } else {
+      sendOtp();
+    }
   };
 
   // Handle OTP verification submission
@@ -228,6 +239,19 @@ const UserProfileModal = ({
               </Form.Control.Feedback>
             </Form.Group>
 
+            <Form.Group className="mb-3" controlId="formAddress">
+              <Form.Label>Address</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="address"
+                className="card-glassmorphism__input"
+                value={formValues.address}
+                onChange={handleChange}
+                placeholder="Enter your address"
+              />
+            </Form.Group>
+
             <div className="text-muted text-center small">
               To change your photo, click the camera icon below the profile picture.
             </div>
@@ -241,6 +265,7 @@ const UserProfileModal = ({
               icon={<X size={20} />}
               buttonText="Cancel"
               HandleClick={onClose}
+              size="sm"
             />
 
             <CustomBtn
@@ -248,6 +273,7 @@ const UserProfileModal = ({
               variant="primary"
               className="btn-sm"
               disabled={otpLoading || !hasChanges}
+              size="sm"
               icon={
                 otpLoading ? (
                   <LoaderCircle className="spin" size={20} />

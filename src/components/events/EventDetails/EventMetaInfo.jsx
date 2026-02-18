@@ -146,10 +146,11 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
               <Col md={4}>
                 <CustomBtn
                   size="sm"
-                  className="fw-bold py-2 rounded-3 text-end"
+                  className="fw-bold py-2 rounded-3 text-end "
                   HandleClick={handleBookNow}
                   disabled={eventStatus.disabled}
                   buttonText={eventStatus.text}
+                  wrapperClassName={"justify-content-end"}
                 />
               </Col>
             </Row>

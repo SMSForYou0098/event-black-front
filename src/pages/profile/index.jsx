@@ -74,6 +74,7 @@ const UserProfile = () => {
     email: "",
     phone: "",
     photo: "",
+    address: "",
   });
 
   useEffect(() => {
@@ -82,6 +83,7 @@ const UserProfile = () => {
       name: profile?.name || "",
       email: profile?.email || "",
       phone: profile?.phone || "",
+      address: profile?.address || "",
     });
   }, [isEditing]);
 
@@ -104,6 +106,7 @@ const UserProfile = () => {
       name: formValues.name,
       email: formValues.email,
       phone: formValues.phone,
+      address: formValues.address,
     };
 
     // Include session_id if provided (from OTP verification)
@@ -138,7 +141,7 @@ const UserProfile = () => {
       <UserProfileModal
         isEditing={isEditing}
         formValues={formValues}
-        originalValues={{ name: profile?.name || "", email: profile?.email || "" }}
+        originalValues={{ name: profile?.name || "", email: profile?.email || "", address: profile?.address || "" }}
         handleChange={handleChange}
         handleCloseEdit={handleCloseEdit}
         handleEditSubmit={handleEditSubmit}

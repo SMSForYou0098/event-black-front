@@ -459,9 +459,8 @@ const HeaderDefault = memo(() => {
                 ) : (
                   <CustomBtn
                     // labelStyle={{ fontSize:"0.8rem !important"}}
-                    buttonText={!isMobile && <span style={{ fontSize: "0.8rem" }}>Login</span>}
                     className={"btn-sm p-1 text-xs"}
-                    icon={<Fingerprint size={16} />}
+                    icon={<UserIcon size={16} />}
                     HandleClick={() => setShowLoginModal(true)}
                   />
                   // <Button onClick={() => location.push("/auth/login")} size='sm' className="p-1 text-xs">

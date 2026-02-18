@@ -5,15 +5,19 @@ import { BsWhatsapp } from "react-icons/bs";
 import CustomBtn from "../../../utils/CustomBtn";
 
 const SupportOptions = () => {
+  const whatsappNumber = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP_NUMBER;
+  const callPhone1 = process.env.NEXT_PUBLIC_SUPPORT_CALL_PHONE1;
+  const callPhone2 = process.env.NEXT_PUBLIC_SUPPORT_CALL_PHONE2;
+  const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL;
+
   // Open WhatsApp chat
   const handleWhatsApp = () => {
-    const phoneNumber = "918000408888";
     const message = encodeURIComponent("Chat ");
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
+    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
   };
 
   const handleEmail = () => {
-    window.location.href = "mailto:support@getyourtickt.in";
+    window.location.href = `mailto:${supportEmail}`;
   };
 
   const options = [
@@ -22,7 +26,7 @@ const SupportOptions = () => {
       icon: Phone,
       title: "Call Support",
       sub: "Time:- 11 AM – 6 PM",
-      phones: ["+918000308888", "+918000306666"],
+      phones: [callPhone1, callPhone2],
       buttonVariant: "primary",
       iconColor: "text-primary",
     },
@@ -40,7 +44,7 @@ const SupportOptions = () => {
       id: "email",
       icon: Mail,
       title: "Email Support",
-      sub: "[EMAIL_ADDRESS]",
+      sub: supportEmail,
       buttonText: "Email",
       buttonVariant: "info",
       iconColor: "text-info",
