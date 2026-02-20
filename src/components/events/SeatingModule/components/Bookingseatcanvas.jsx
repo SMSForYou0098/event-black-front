@@ -1,639 +1,17 @@
 import React, { useRef, useState, useEffect, useCallback, useMemo, memo, useLayoutEffect } from 'react';
-import { Stage, Layer, Rect, Text, Group, Path, Line } from 'react-konva';
-import { Image as KonvaImage } from 'react-konva';
+import { Stage, Layer } from 'react-konva';
 import Konva from 'konva';
-import { PRIMARY, SECONDARY } from '../../../../utils/consts';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { FaChair } from 'react-icons/fa';
-import { MdOutlineChair, MdOutlineTableBar } from 'react-icons/md';
-import { PiArmchairLight, PiChair, PiOfficeChair } from 'react-icons/pi';
-import { LuSofa } from 'react-icons/lu';
-import { TbSofa } from 'react-icons/tb';
-import { GiRoundTable } from 'react-icons/gi';
-import { SiTablecheck } from 'react-icons/si';
 import { Minus, Plus, RotateCcw } from 'lucide-react';
-import { FaClock } from 'react-icons/fa';
-
-const THEME = {
-    primary: PRIMARY,
-    primaryLight: '#ff3333',
-    primaryDark: '#8a1010',
-    canvasBg: SECONDARY,
-    screenGradientStart: '#0a0a0a',
-    screenGradientMid: '#1a0505',
-    screenGradientEnd: '#0d0d0d',
-    textPrimary: '#ffffff',
-    textSecondary: '#e5e5e5',
-    textMuted: '#9ca3af',
-    seatAvailable: PRIMARY,
-    seatSelected: PRIMARY,
-    seatBooked: 'rgb(255 255 255 / 6%)',
-    seatDisabled: '#1f2937',
-    seatNoTicket: '#111827',
-    buttonBg: 'rgba(181, 21, 21, 0.9)',
-    buttonShadow: 'rgba(181, 21, 21, 0.4)',
-    buttonSecondaryBg: 'rgba(30, 30, 30, 0.9)',
-    hintBg: 'rgba(20, 5, 5, 0.9)',
-    hintBorder: 'rgba(181, 21, 21, 0.5)',
-    legendBg: SECONDARY,
-    errorColor: '#ef4444',
-};
-
-const IS_MOBILE = typeof navigator !== 'undefined' &&
-    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-const PIXEL_RATIO = typeof window !== 'undefined' ?
-    Math.min(window.devicePixelRatio || 1, IS_MOBILE ? 2 : 3) : 1;
+import { PRIMARY } from '../../../../utils/consts';
+import { THEME, IS_MOBILE, PIXEL_RATIO, SEAT_COLORS } from './constants';
+import { getLayoutBounds, getDistance, getCenter } from './utils';
+import Section from './Section';
+import StageScreen from './StageScreen';
+import ZoomButton from './ZoomButton';
+import Legend from './Legend';
+import SeatTooltip from './SeatTooltip';
 
 Konva.showWarnings = false;
-const iconImageCache = new Map();
-const iconLoadingPromises = new Map();
-
-const ICON_MAP = {
-    'FaChair': FaChair,
-    'MdOutlineChair': MdOutlineChair,
-    'PiArmchairLight': PiArmchairLight,
-    'PiChair': PiChair,
-    'PiOfficeChair': PiOfficeChair,
-    'LuSofa': LuSofa,
-    'TbSofa': TbSofa,
-    'GiRoundTable': GiRoundTable,
-    'SiTablecheck': SiTablecheck,
-    'MdOutlineTableBar': MdOutlineTableBar
-};
-
-const createIconImage = (iconName, size, color = '#FFFFFF') => {
-    const cacheKey = `${iconName}-${size}-${color}`;
-
-    if (iconImageCache.has(cacheKey)) {
-        return Promise.resolve(iconImageCache.get(cacheKey));
-    }
-
-    if (iconLoadingPromises.has(cacheKey)) {
-        return iconLoadingPromises.get(cacheKey);
-    }
-
-    const promise = new Promise((resolve) => {
-        try {
-            const IconComponent = ICON_MAP[iconName];
-
-            if (!IconComponent) {
-                const DefaultIcon = ICON_MAP['FaChair'];
-                const svgString = renderToStaticMarkup(
-                    <DefaultIcon size={size} color={color} />
-                );
-
-                const img = new window.Image();
-                img.onload = () => {
-                    iconImageCache.set(cacheKey, img);
-                    iconLoadingPromises.delete(cacheKey);
-                    resolve(img);
-                };
-                img.onerror = () => {
-                    iconLoadingPromises.delete(cacheKey);
-                    resolve(null);
-                };
-                img.src = 'data:image/svg+xml;base64,' + btoa(svgString);
-                return;
-            }
-
-            const svgString = renderToStaticMarkup(
-                <IconComponent size={size} color={color} />
-            );
-
-            const img = new window.Image();
-            img.onload = () => {
-                iconImageCache.set(cacheKey, img);
-                iconLoadingPromises.delete(cacheKey);
-                resolve(img);
-            };
-            img.onerror = () => {
-                iconLoadingPromises.delete(cacheKey);
-                resolve(null);
-            };
-            img.src = 'data:image/svg+xml;base64,' + btoa(svgString);
-        } catch (error) {
-            console.error('Error creating icon image:', error);
-            iconLoadingPromises.delete(cacheKey);
-            resolve(null);
-        }
-    });
-
-    iconLoadingPromises.set(cacheKey, promise);
-    return promise;
-};
-
-const SEAT_COLORS = {
-    available: THEME.seatAvailable,
-    selected: THEME.seatSelected,
-    booked: THEME.seatBooked,
-    hold: '#B51515', // Orange for locked/hold seats
-    disabled: THEME.seatDisabled,
-    noTicket: THEME.seatNoTicket,
-};
-
-const getSeatColor = (seat, isSelected) => {
-    if (!seat.ticket) return SEAT_COLORS.noTicket;
-    if (seat.status === 'booked') return SEAT_COLORS.booked;
-    if (seat.status === 'hold' || seat.status === 'locked') return SEAT_COLORS.hold;
-    if (seat.status === 'disabled') return SEAT_COLORS.disabled;
-    if (isSelected || seat.status === 'selected') return SEAT_COLORS.selected;
-    return SEAT_COLORS.available;
-};
-
-const Seat = memo(({
-    seat,
-    isSelected,
-    onClick,
-    onHover,
-    onLeave,
-    sectionId,
-    rowId,
-    rowTitle,
-    currentUserId
-}) => {
-    const [iconImage, setIconImage] = useState(null);
-    const [clockIconImage, setClockIconImage] = useState(null);
-
-    const hasTicket = !!seat.ticket;
-    const isDisabled = seat.status === 'disabled' || !hasTicket;
-    const isBooked = seat.status === 'booked';
-    const isHold = seat.status === 'hold' || seat.status === 'locked';
-    // Allow clicking if seat is held by current user
-    const isOwnHold = isHold && currentUserId && String(seat.hold_by) === String(currentUserId);
-    const isClickable = !isDisabled && !isBooked && (!isHold || isOwnHold);
-    const seatColor = getSeatColor(seat, isSelected);
-    const seatOpacity = isDisabled ? 0.3 : 1;
-
-    useEffect(() => {
-        if (seat.icon) {
-            createIconImage(seat.icon, Math.floor(seat.radius * 1.2)).then(img => {
-                if (img) setIconImage(img);
-            });
-        }
-    }, [seat.icon, seat.radius]);
-
-
-
-
-    // Create clock icon for hold/locked status (only for other users' holds)
-    useEffect(() => {
-        if (isHold && !isOwnHold) {
-            try {
-                const svgString = renderToStaticMarkup(
-                    <FaClock size={Math.floor(seat.radius * 1.2)} color="#ffffff" />
-                );
-                const img = new window.Image();
-                img.onload = () => {
-                    // console.log('Clock icon loaded successfully');
-                    setClockIconImage(img);
-                };
-                img.onerror = (err) => {
-                    console.error('Failed to load clock icon:', err);
-                };
-                // Use exact encoding from reference
-                img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
-            } catch (error) {
-                console.error('Error creating clock icon:', error);
-            }
-        } else {
-            setClockIconImage(null);
-        }
-    }, [isHold, isOwnHold, seat.radius]);
-
-    const handleInteraction = useCallback((e) => {
-        if (isClickable) {
-            e.cancelBubble = true;
-            onClick(seat, sectionId, rowId);
-        }
-    }, [isClickable, onClick, seat, sectionId, rowId]);
-
-    const x = seat.x;
-    const y = seat.y;
-    const radius = seat.radius;
-
-    if (seat.type === 'blank') {
-        return (
-            <Group x={x} y={y}>
-                <Rect
-                    x={-radius}
-                    y={-radius}
-                    width={radius * 2}
-                    height={radius * 2}
-                    fill="transparent"
-                    stroke="transparent"
-                    strokeWidth={1}
-                    dash={[3, 3]}
-                    cornerRadius={4}
-                    listening={false}
-                    opacity={0.3}
-                    perfectDrawEnabled={false}
-                />
-            </Group>
-        );
-    }
-
-    const isAvailable = hasTicket && seat.status !== 'booked' && seat.status !== 'disabled' && (!isHold || isOwnHold) && !isSelected;
-    const seatFill = isAvailable ? 'transparent' : seatColor;
-    const seatStroke = isAvailable || isSelected ? SEAT_COLORS.available : ((isHold && !isOwnHold) ? SEAT_COLORS.hold : 'transparent');
-    const strokeWidth = isAvailable || isSelected || (isHold && !isOwnHold) ? 1 : 0;
-
-    // On mobile, expand the hit area and shift it down to compensate for
-    // the natural finger-touch offset (touch point registers above the perceived tap).
-    const hitPadding = IS_MOBILE ? Math.max(radius * 0.7, 6) : 0;
-    const hitOffsetY = IS_MOBILE ? Math.max(radius * 0.5, 4) : 0;
-
-    return (
-        <Group x={x} y={y} opacity={seatOpacity}>
-            <Rect
-                x={-radius}
-                y={-radius}
-                width={radius * 2}
-                height={radius * 2}
-                fill={seatFill}
-                cornerRadius={4}
-                stroke={seatStroke}
-                strokeWidth={strokeWidth}
-                shadowColor={isSelected ? SEAT_COLORS.selected : 'transparent'}
-                shadowBlur={isSelected ? 8 : 0}
-                shadowOpacity={0.6}
-                onClick={handleInteraction}
-                onTap={handleInteraction}
-                listening={isClickable}
-                perfectDrawEnabled={false}
-                shadowForStrokeEnabled={false}
-                hitStrokeWidth={0}
-                hitFunc={IS_MOBILE ? (context, shape) => {
-                    context.beginPath();
-                    context.rect(
-                        -radius - hitPadding,
-                        -radius - hitPadding - hitOffsetY,   // ← MINUS not PLUS
-                        radius * 2 + hitPadding * 2,
-                        radius * 2 + hitPadding * 2
-                    );
-                    context.closePath();
-                    context.fillStrokeShape(shape);
-                } : undefined}
-                onMouseEnter={(e) => {
-                    const container = e.target.getStage().container();
-                    if (isClickable) {
-                        container.style.cursor = 'pointer';
-                    } else if (isDisabled || isBooked || isHold) {
-                        container.style.cursor = 'not-allowed';
-                    }
-                    if (onHover) {
-                        onHover(seat, rowTitle, e.evt.clientX, e.evt.clientY);
-                    }
-                }}
-                onMouseLeave={(e) => {
-                    const container = e.target.getStage().container();
-                    container.style.cursor = 'default';
-                    if (onLeave) onLeave();
-                }}
-            />
-
-            {!isBooked && (!isHold || isOwnHold) && (
-                iconImage ? (
-                    <KonvaImage
-                        image={iconImage}
-                        x={-radius * 0.6}
-                        y={-radius * 0.6}
-                        width={radius * 1.2}
-                        height={radius * 1.2}
-                        listening={false}
-                        perfectDrawEnabled={false}
-                    />
-                ) : (
-                    <Text
-                        x={-radius}
-                        y={-radius}
-                        width={radius * 2}
-                        height={radius * 2}
-                        text={String(seat.number)}
-                        fontSize={Math.max(9, Math.min(11, radius * 0.8))}
-                        fill={THEME.textPrimary}
-                        align="center"
-                        verticalAlign="middle"
-                        listening={false}
-                        perfectDrawEnabled={false}
-                    />
-                )
-            )}
-
-            {isBooked && (
-                <Text
-                    x={-radius}
-                    y={-radius * 0.8}
-                    width={radius * 2}
-                    height={radius * 2}
-                    text="✕"
-                    fontSize={radius * 1.2}
-                    fill={THEME.errorColor}
-                    align="center"
-                    verticalAlign="middle"
-                    listening={false}
-                    perfectDrawEnabled={false}
-                />
-            )}
-
-            {isHold && !isOwnHold && (
-                clockIconImage ? (
-                    <KonvaImage
-                        image={clockIconImage}
-                        x={-radius * 0.6}
-                        y={-radius * 0.6}
-                        width={radius * 1.2}
-                        height={radius * 1.2}
-                        listening={false}
-                        perfectDrawEnabled={false}
-                    />
-                ) : (
-                    <Text
-                        x={-radius}
-                        y={-radius}
-                        width={radius * 2}
-                        height={radius * 2}
-                        text="⏱"
-                        fontSize={radius * 1}
-                        fill="#ffffff"
-                        align="center"
-                        verticalAlign="middle"
-                        listening={false}
-                        perfectDrawEnabled={false}
-                    />
-                )
-            )}
-
-            {isDisabled && !isBooked && (
-                <Line
-                    points={[-radius * 0.5, -radius * 0.5, radius * 0.5, radius * 0.5]}
-                    stroke={THEME.errorColor}
-                    strokeWidth={1.5}
-                    listening={false}
-                    perfectDrawEnabled={false}
-                />
-            )}
-        </Group>
-    );
-}, (prevProps, nextProps) => {
-    return prevProps.isSelected === nextProps.isSelected &&
-        prevProps.seat.status === nextProps.seat.status &&
-        prevProps.seat.hold_by === nextProps.seat.hold_by &&
-        prevProps.seat.x === nextProps.seat.x &&
-        prevProps.seat.y === nextProps.seat.y &&
-        prevProps.currentUserId === nextProps.currentUserId;
-});
-
-Seat.displayName = 'Seat';
-
-const Row = memo(({ row, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave, sectionId, currentUserId }) => {
-    if (!row.seats || row.seats.length === 0) return null;
-
-    const firstSeatY = row.seats[0]?.y ?? 50;
-
-    return (
-        <Group>
-            <Text
-                x={10}
-                y={firstSeatY - 5}
-                text={row.title}
-                fontSize={13}
-                fill={THEME.textSecondary}
-                fontStyle="600"
-                listening={false}
-                perfectDrawEnabled={false}
-            />
-
-            {row.seats.map((seat, index) => {
-                if (!seat || typeof seat.x !== 'number' || typeof seat.y !== 'number') {
-                    return null;
-                }
-
-                return (
-                    <Seat
-                        key={`${sectionId}-${row.id}-${seat.id}-${index}`}
-                        seat={seat}
-                        isSelected={selectedSeatIds.has(seat.id)}
-                        onClick={onSeatClick}
-                        onHover={onSeatHover}
-                        onLeave={onSeatLeave}
-                        sectionId={sectionId}
-                        rowId={row.id}
-                        rowTitle={row.title}
-                        currentUserId={currentUserId}
-                    />
-                );
-            })}
-        </Group>
-    );
-}, (prevProps, nextProps) => {
-    // Check if row reference changed (new data from state update)
-    if (prevProps.row !== nextProps.row) return false;
-
-    // Check selected seat changes
-    const prevHasSelected = prevProps.row.seats.some(s => prevProps.selectedSeatIds.has(s.id));
-    const nextHasSelected = nextProps.row.seats.some(s => nextProps.selectedSeatIds.has(s.id));
-
-    if (prevHasSelected !== nextHasSelected) return false;
-    if (prevProps.selectedSeatIds !== nextProps.selectedSeatIds) {
-        // Check if any seat in this row changed selection
-        for (const seat of prevProps.row.seats) {
-            if (prevProps.selectedSeatIds.has(seat.id) !== nextProps.selectedSeatIds.has(seat.id)) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-});
-
-Row.displayName = 'Row';
-
-const Section = memo(({ section, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave, currentUserId }) => {
-    return (
-        <Group x={section.x} y={section.y}>
-            <Text
-                x={0}
-                y={12}
-                width={section.width}
-                text={section.name}
-                fontSize={14}
-                fill={THEME.textPrimary}
-                fontStyle="bold"
-                align="center"
-                listening={false}
-                perfectDrawEnabled={false}
-            />
-
-            {section.rows.map(row => (
-                <Row
-                    key={row.id}
-                    row={row}
-                    selectedSeatIds={selectedSeatIds}
-                    onSeatClick={onSeatClick}
-                    onSeatHover={onSeatHover}
-                    onSeatLeave={onSeatLeave}
-                    sectionId={section.id}
-                    currentUserId={currentUserId}
-                />
-            ))}
-        </Group>
-    );
-}, (prevProps, nextProps) => {
-    // Always re-render if section reference changed (new data from state update)
-    if (prevProps.section !== nextProps.section) return false;
-
-    // Only skip re-render if both section and selectedSeatIds are same reference
-    if (prevProps.selectedSeatIds === nextProps.selectedSeatIds) return true;
-
-    // Check if any seat in this section changed selection
-    for (const row of prevProps.section.rows) {
-        for (const seat of row.seats) {
-            if (prevProps.selectedSeatIds.has(seat.id) !== nextProps.selectedSeatIds.has(seat.id)) {
-                return false;
-            }
-        }
-    }
-    return true;
-});
-
-Section.displayName = 'Section';
-
-const StageScreen = memo(({ stage }) => {
-    if (!stage) return null;
-
-    const isStraight = stage.shape === 'straight';
-    const curveIntensity = stage.curve || 0.12;
-    const curveHeight = isStraight ? 0 : stage.width * curveIntensity;
-
-    return (
-        <Group x={stage.x} y={stage.y}>
-            {isStraight ? (
-                <Line
-                    points={[0, 0, stage.width, 0]}
-                    stroke={THEME.primary}
-                    strokeWidth={3}
-                    lineCap="round"
-                    listening={false}
-                    perfectDrawEnabled={false}
-                    shadowColor={THEME.primary}
-                    shadowBlur={12}
-                    shadowOpacity={0.7}
-                />
-            ) : (
-                <Path
-                    data={`
-                        M 0 ${curveHeight}
-                        Q ${stage.width / 2} 0 ${stage.width} ${curveHeight}
-                    `}
-                    stroke={THEME.primary}
-                    strokeWidth={3}
-                    fill="transparent"
-                    lineCap="round"
-                    listening={false}
-                    perfectDrawEnabled={false}
-                    shadowColor={THEME.primary}
-                    shadowBlur={12}
-                    shadowOpacity={0.7}
-                />
-            )}
-
-            <Text
-                width={stage.width}
-                y={curveHeight + 15}
-                text={stage.name || 'SCREEN'}
-                fontSize={14}
-                fill={THEME.textSecondary}
-                fontStyle="500"
-                align="center"
-                letterSpacing={4}
-                listening={false}
-                perfectDrawEnabled={false}
-            />
-        </Group>
-    );
-});
-
-StageScreen.displayName = 'StageScreen';
-
-const getLayoutBounds = (stage, sections) => {
-    if (!stage || !sections || sections.length === 0) {
-        return { minX: 0, minY: 0, maxX: 1000, maxY: 600, width: 1000, height: 600 };
-    }
-
-    let minX = stage.x;
-    let minY = stage.y;
-    let maxX = stage.x + stage.width;
-    let maxY = stage.y + stage.height;
-
-    sections.forEach(section => {
-        minX = Math.min(minX, section.x);
-        minY = Math.min(minY, section.y);
-        maxX = Math.max(maxX, section.x + section.width);
-        maxY = Math.max(maxY, section.y + section.height);
-    });
-
-    return {
-        minX,
-        minY,
-        maxX,
-        maxY,
-        width: maxX - minX,
-        height: maxY - minY
-    };
-};
-
-const getDistance = (p1, p2) => {
-    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-};
-
-const getCenter = (p1, p2) => {
-    return {
-        x: (p1.x + p2.x) / 2,
-        y: (p1.y + p2.y) / 2,
-    };
-};
-
-// Custom Button Component (no react-bootstrap)
-const ZoomButton = ({ onClick, variant = 'primary', children }) => {
-    const isPrimary = variant === 'primary';
-
-    return (
-        <button
-            onClick={onClick}
-            className="zoom-control-btn"
-            style={{
-                width: IS_MOBILE ? 36 : 40,
-                height: IS_MOBILE ? 36 : 40,
-                borderRadius: '50%',
-                border: 'none',
-                backgroundColor: isPrimary ? THEME.primary : 'rgba(100, 100, 100, 0.9)',
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                transition: 'transform 0.15s ease, background-color 0.15s ease',
-                outline: 'none',
-                padding: 0,
-            }}
-            onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.1)';
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-            }}
-            onTouchStart={(e) => {
-                e.currentTarget.style.transform = 'scale(0.95)';
-            }}
-            onTouchEnd={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-            }}
-        >
-            {children}
-        </button>
-    );
-};
 
 const BookingSeatCanvas = ({
     stageRef: externalStageRef,
@@ -655,8 +33,9 @@ const BookingSeatCanvas = ({
     const lastDist = useRef(0);
     const dragStopped = useRef(false);
     const hasInitialized = useRef(false);
-    const lastTapTime = useRef(0);
     const wasPinching = useRef(false);
+    const initializedDims = useRef({ width: 0, height: 0 });
+    const dragStartPos = useRef(null);
 
     // Block browser double-tap zoom and pinch-zoom on the canvas container
     useEffect(() => {
@@ -747,7 +126,6 @@ const BookingSeatCanvas = ({
     const handleSeatLeave = useCallback(() => {
         setHoveredSeat(null);
     }, []);
-    // Replace ONLY the useEffect for dimensions with this:
 
     useEffect(() => {
         const updateDimensions = () => {
@@ -794,9 +172,21 @@ const BookingSeatCanvas = ({
 
     useEffect(() => {
         if (dimensions.width > 0 && dimensions.height > 0) {
-            hasInitialized.current = false;
+            const dw = Math.abs(dimensions.width - initializedDims.current.width);
+            const dh = Math.abs(dimensions.height - initializedDims.current.height);
+            // Only re-init on significant size changes (orientation flip, actual resize)
+            // Ignore small changes like mobile address bar show/hide (~50-80px)
+            if (dw > 120 || dh > 120) {
+                hasInitialized.current = false;
+            }
         }
-    }, [stage, dimensions.width, dimensions.height]);
+    }, [dimensions.width, dimensions.height]);
+
+    // Always re-init when stage data changes (new layout)
+    useEffect(() => {
+        hasInitialized.current = false;
+    }, [stage]);
+
     useLayoutEffect(() => {
         if (!stageRef.current) return;
         if (!stage) return;
@@ -813,6 +203,7 @@ const BookingSeatCanvas = ({
 
         setIsReady(true);
         hasInitialized.current = true;
+        initializedDims.current = { width: dimensions.width, height: dimensions.height };
     }, [stage, sections, dimensions, externalSetStagePosition, getInitialView]);
 
     const handleWheel = useCallback((e) => {
@@ -851,13 +242,8 @@ const BookingSeatCanvas = ({
         const touch1 = e.evt.touches[0];
         const touch2 = e.evt.touches[1];
 
-        if (e.evt.touches.length === 1) {
-            // No double-tap reset here — fires on seat taps too which causes accidental resets.
-            // Use the reset (↺) button instead. Browser zoom is blocked via touch-action:none.
-        }
-
         if (touch1 && touch2) {
-            wasPinching.current = true;   // ← add this
+            wasPinching.current = true;
             const stageInstance = stageRef.current;
             if (stageInstance) {
                 stageInstance.stopDrag();
@@ -870,7 +256,7 @@ const BookingSeatCanvas = ({
             lastCenter.current = getCenter(p1, p2);
             lastDist.current = getDistance(p1, p2);
         }
-    }, [stageRef, getInitialView]);
+    }, [stageRef]);
 
     const handleTouchMove = useCallback((e) => {
         const touch1 = e.evt.touches[0];
@@ -938,13 +324,31 @@ const BookingSeatCanvas = ({
         setTimeout(() => { wasPinching.current = false; }, 50);
     }, []);
 
+    const handleDragStart = useCallback((e) => {
+        dragStartPos.current = { ...e.target.position() };
+    }, []);
+
     const handleDragEnd = useCallback((e) => {
-        if (wasPinching.current) return;  // ← ignore drag end from pinch
+        if (wasPinching.current) return;
 
         const pos = e.target.position();
+        // Ignore micro-movements (accidental taps interpreted as drag on mobile)
+        if (dragStartPos.current) {
+            const dx = Math.abs(pos.x - dragStartPos.current.x);
+            const dy = Math.abs(pos.y - dragStartPos.current.y);
+            if (dx < 2 && dy < 2) {
+                // Snap back — this was a tap, not a real drag
+                e.target.position(dragStartPos.current);
+                dragStartPos.current = null;
+                return;
+            }
+        }
+        dragStartPos.current = null;
+
         setPosition(pos);
         if (externalSetStagePosition) externalSetStagePosition(pos);
     }, [externalSetStagePosition]);
+
     const handleZoomIn = useCallback(() => {
         const newScale = Math.min(3, scale * 1.3);
         const centerX = dimensions.width / 2;
@@ -1173,6 +577,7 @@ const BookingSeatCanvas = ({
                         dragDistance={8}
                         tapDistance={10}
                         onWheel={handleWheel}
+                        onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}
                         onTouchStart={handleTouchStart}
                         onTouchMove={handleTouchMove}
@@ -1196,6 +601,7 @@ const BookingSeatCanvas = ({
                                     onSeatHover={handleSeatHover}
                                     onSeatLeave={handleSeatLeave}
                                     currentUserId={currentUserId}
+                                    canvasScale={scale}
                                 />
                             ))}
                         </Layer>
@@ -1205,22 +611,7 @@ const BookingSeatCanvas = ({
                 {/* Overlay Container */}
                 <div className="booking-canvas-overlay">
                     {/* Legend */}
-                    <div className="booking-legend">
-                        {[
-                            { color: SEAT_COLORS.available, label: 'Available' },
-                            { color: SEAT_COLORS.selected, label: 'Selected' },
-                            { color: SEAT_COLORS.hold, label: 'Locked' },
-                            { color: SEAT_COLORS.booked, label: 'Booked' },
-                        ].map((item) => (
-                            <div key={item.label} className="booking-legend-item">
-                                <div
-                                    className="booking-legend-color"
-                                    style={{ backgroundColor: item.color }}
-                                />
-                                <span className="booking-legend-label">{item.label}</span>
-                            </div>
-                        ))}
-                    </div>
+                    <Legend />
 
                     {/* Zoom Controls */}
                     <div className="booking-zoom-controls">
@@ -1247,37 +638,7 @@ const BookingSeatCanvas = ({
                 </div>
 
                 {/* Seat Tooltip */}
-                {hoveredSeat && (
-                    <div
-                        className="booking-tooltip card-glassmorphism p-2 rounded-3"
-                        style={{
-                            top: Math.max(10, hoveredSeat.y - 100),
-                            left: Math.min(
-                                Math.max(10, hoveredSeat.x - 30),
-                                dimensions.width - 100
-                            ),
-                        }}
-                    >
-                        <div>
-                            <strong>
-                                {hoveredSeat.rowTitle}{hoveredSeat.seat.number}
-                            </strong>
-
-                            {hoveredSeat.seat.ticket && (
-                                <>
-                                    <br />
-                                    <span style={{ fontSize: 12, opacity: 0.8 }}>
-                                        {hoveredSeat.seat.ticket.name}
-                                    </span>
-                                    <br />
-                                    <strong style={{ color: THEME.primary }}>
-                                        ₹{hoveredSeat.seat.ticket.price}
-                                    </strong>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                )}
+                <SeatTooltip hoveredSeat={hoveredSeat} dimensions={dimensions} />
             </div>
         </>
     );
