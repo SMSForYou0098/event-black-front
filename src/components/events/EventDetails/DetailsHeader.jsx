@@ -16,9 +16,9 @@ const DetailsHeader = ({ eventData, event_key }) => {
     const { convertTo12HourFormat, formatDateRange } = useMyContext();
     const [showFullDesc, setShowFullDesc] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
-    const event_date = formatDateRange(eventData?.date_range) +
-        " | " +
-        `${convertTo12HourFormat(eventData?.start_time)} - ${convertTo12HourFormat(eventData?.end_time)}`
+    const event_time = `${convertTo12HourFormat(eventData?.start_time)} - ${convertTo12HourFormat(eventData?.end_time)}`;
+    const event_date = formatDateRange(eventData?.date_range);
+
     const metaInfo = [
         {
             icon: "fa-regular fa-bookmark", // Category icon
@@ -34,7 +34,12 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 'season ticket QR that allows access throughout the season, but only one entry per day',
         },
         {
-            icon: "fa-regular fa-clock", // Date & Time icon
+            icon: "fa-regular fa-clock", // Time icon
+            value: event_time,
+            valueClass: "fw-semibold",
+        },
+        {
+            icon: "fa-regular fa-calendar-days", // Date icon
             value: event_date,
             valueClass: "fw-semibold",
         },
@@ -147,6 +152,40 @@ const DetailsHeader = ({ eventData, event_key }) => {
                                 HandleClick={handleShare}
                             />
                         </div>
+
+                        {/* Category Label at bottom-left */}
+                        {eventData?.Category?.title && (
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    bottom: "10px",
+                                    left: "10px",
+                                    zIndex: 10,
+                                }}
+                            >
+                                <span className="badge bg-light text-dark shadow-sm px-2 py-1 rounded-pill fw-semibold border">
+                                    <i className="fa-regular fa-bookmark me-1"></i>
+                                    {eventData?.Category?.title}
+                                </span>
+                            </div>
+                        )}
+
+                        {/* Event Type Label at bottom-right */}
+                        {eventData?.event_type && (
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    bottom: "10px",
+                                    right: "10px",
+                                    zIndex: 10,
+                                }}
+                            >
+                                <span className="badge bg-light text-dark shadow-sm px-2 py-1 rounded-pill fw-semibold border text-capitalize">
+                                    <i className="fa-regular fa-calendar me-1"></i>
+                                    {eventData?.event_type}
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -154,7 +193,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
             <Col lg="9" md="12" className="ps-lg-4">
                 {/* --- Main Event Info --- */}
                 <div className="d-flex justify-content-between">
-                    <h4 className="text-primary fw-bold d-none d-sm-block text-capitalize">{eventData?.name}</h4>
+                    <h5 className="text-primary fw-bold d-none d-sm-block text-capitalize">{eventData?.name}</h5>
 
                 </div>
                 {/* <h5 className="text-secondary">{eventData?.tagline || 'tagline'}</h5> */}

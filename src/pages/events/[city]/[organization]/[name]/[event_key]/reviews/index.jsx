@@ -310,26 +310,34 @@ const EventReviewsPage = () => {
                         {/* Filter Dropdown */}
                         <Dropdown>
                             <Dropdown.Toggle
-                                variant="outline-secondary"
+                                as={Button}
+                                variant="primary"
                                 size="sm"
-                                className="d-flex align-items-center gap-2"
+                                className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap"
+                                style={{
+                                    background: 'var(--bs-primary)',
+                                    border: 'none',
+                                    lineHeight: 1.2,
+                                }}
                             >
                                 <Filter size={16} />
                                 <span className="d-none d-sm-inline">Filter</span>
                             </Dropdown.Toggle>
-                            <Dropdown.Menu variant="dark" align="end">
+                            <Dropdown.Menu align="end" className="custom-dropdown-menu">
                                 <Dropdown.Item
                                     active={selectedFilter === "all"}
                                     onClick={() => setSelectedFilter("all")}
+                                    className="custom-dropdown-item"
                                 >
                                     All Ratings
                                 </Dropdown.Item>
-                                <Dropdown.Divider />
+                                {/* <Dropdown.Divider /> */}
                                 {[5, 4, 3, 2, 1].map((rating) => (
                                     <Dropdown.Item
                                         key={rating}
                                         active={selectedFilter === rating.toString()}
                                         onClick={() => setSelectedFilter(rating.toString())}
+                                        className="custom-dropdown-item"
                                     >
                                         <div className="d-flex align-items-center gap-2">
                                             <span>{rating}</span>
@@ -346,29 +354,38 @@ const EventReviewsPage = () => {
                         {/* Sort Dropdown */}
                         <Dropdown>
                             <Dropdown.Toggle
-                                variant="outline-secondary"
+                                as={Button}
+                                variant="primary"
                                 size="sm"
-                                className="d-flex align-items-center gap-2"
+                                className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap"
+                                style={{
+                                    background: 'var(--bs-primary)',
+                                    border: 'none',
+                                    lineHeight: 1.2,
+                                }}
                             >
                                 <SortDesc size={16} />
                                 <span className="d-none d-sm-inline">Sort</span>
                             </Dropdown.Toggle>
-                            <Dropdown.Menu variant="dark" align="end">
+                            <Dropdown.Menu align="end" className="custom-dropdown-menu">
                                 <Dropdown.Item
                                     active={sortBy === "recent"}
                                     onClick={() => setSortBy("recent")}
+                                    className="custom-dropdown-item"
                                 >
                                     Most Recent
                                 </Dropdown.Item>
                                 <Dropdown.Item
                                     active={sortBy === "highest"}
                                     onClick={() => setSortBy("highest")}
+                                    className="custom-dropdown-item"
                                 >
                                     Highest Rating
                                 </Dropdown.Item>
                                 <Dropdown.Item
                                     active={sortBy === "lowest"}
                                     onClick={() => setSortBy("lowest")}
+                                    className="custom-dropdown-item"
                                 >
                                     Lowest Rating
                                 </Dropdown.Item>

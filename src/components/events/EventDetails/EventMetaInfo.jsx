@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Badge, Button, Col, Row, Alert } from "react-bootstrap";
+import { Star } from "lucide-react";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useRouter } from "next/router";
 import BookingFooterLayout from "../../../utils/BookingFooterLayout";
@@ -10,13 +11,57 @@ import CustomDrawer from "../../../utils/CustomDrawer";
 import { CustomTooltip } from "../../../utils/CustomTooltip";
 import CustomBadge from "../../../utils/ProfileUtils/getBadgeClass";
 import { MobileOnly, TabletAndDesktop } from "@/utils/ResponsiveRenderer";
+import ReviewForm from "../../reviews/ReviewForm";
+import { useCreateReview, useUpdateReview } from "@/hooks/useReviews";
+import toast from "react-hot-toast";
 
 const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
-  const { setShowHeaderBookBtn, isMobile, formatDateDDMMYYYY } = useMyContext();
+  const { setShowHeaderBookBtn, isMobile, formatDateDDMMYYYY, UserData } = useMyContext();
   const bookBtnRef = useRef(null);
   const [showOffcanvas, setShowOffcanvas] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [editingReview, setEditingReview] = useState(null);
   const router = useRouter();
+
+  const createReviewMutation = useCreateReview();
+  const updateReviewMutation = useUpdateReview();
+
+  const handleWriteReview = () => {
+    if (!UserData) {
+      setShowLoginModal(true);
+      return;
+    }
+    setEditingReview(null);
+    setShowReviewForm(true);
+  };
+
+  const handleSubmitReview = async ({ rating, review }) => {
+    try {
+      if (editingReview) {
+        await updateReviewMutation.mutateAsync({
+          reviewId: editingReview.id,
+          eventId: eventData?.id,
+          rating,
+          review,
+        });
+        toast.success('Review updated');
+      } else {
+        await createReviewMutation.mutateAsync({
+          eventId: eventData?.id,
+          rating,
+          review,
+        });
+        toast.success('Review submitted');
+      }
+      setShowReviewForm(false);
+      setEditingReview(null);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to submit review');
+    }
+  };
+
+  const isSubmittingReview = createReviewMutation.isPending || updateReviewMutation.isPending;
 
   const isHouseFull = eventData?.eventControls?.house_full === true;
   const isSoldOut = eventData?.eventControls?.is_sold_out;
@@ -107,50 +152,86 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         {/* Desktop Pricing + Book Button */}
         <div className="d-none d-sm-block">
           {!eventStatus.disabled && (
+            <div className="mt-4 mb-3 border-dashed rounded-3 p-3 d-inline-flex align-items-center justify-content-between gap-3 flex-wrap">
+
+              {/* Pricing label */}
+              <h6 className="m-0 d-flex gap-2 align-items-center flex-wrap text-nowrap">
+                <span className="text-primary fw-bold">Pricing :</span>
+                <span>
+                  {(() => {
+                    let displayPrice = 0;
+                    let showSaleBadge = false;
+
+                    if (eventData?.on_sale && eventData?.lowest_sale_price) {
+                      displayPrice = Number(eventData.lowest_sale_price);
+                      showSaleBadge = true;
+                    } else if (eventData?.lowest_ticket_price) {
+                      displayPrice = Number(eventData.lowest_ticket_price);
+                    }
+
+                    if (!displayPrice) return "Free";
+
+                    return (
+                      <>
+                        ₹{displayPrice} Onwards
+                        {showSaleBadge && (
+                          <CustomBadge className="ms-2">
+                            On Sale
+                          </CustomBadge>
+                        )}
+                      </>
+                    );
+                  })()}
+                </span>
+              </h6>
+
+              {/* Book */}
+              <CustomBtn
+                size="sm"
+                className="fw-bold py-2 rounded-3"
+                wrapperClassName=""
+                style={{ fontSize: "13px" }}
+                HandleClick={handleBookNow}
+                disabled={eventStatus.disabled}
+                buttonText={eventStatus.text}
+              />
+
+              {/* Interested */}
+              <InterestButton
+                eventId={eventData?.id}
+                eventData={eventData}
+                onLoginRequired={handleLoginRequired}
+              />
+
+              {/* Write a Review */}
+              <CustomBtn
+                HandleClick={handleWriteReview}
+                variant='outline-danger'
+                size="sm"
+                className="fw-bold py-2 rounded-3 d-flex align-items-center gap-2 justify-content-center"
+                style={{ fontSize: "13px" }}
+                buttonText="Write a Review"
+                icon={<Star size={16} />}
+              />
+            </div>
+          )}
+
+          {eventStatus.disabled && (
             <Row className="mt-4 mb-3 align-items-center border-dashed rounded-3 g-2 p-3">
-
-              {/* Pricing */}
-              <Col md={8}>
-                <h4 className="m-0 d-flex gap-2 align-items-center flex-wrap">
-                  <span className="text-primary">Pricing :</span>
-                  <span className="fw-bold">
-                    {(() => {
-                      let displayPrice = 0;
-                      let showSaleBadge = false;
-
-                      if (eventData?.on_sale && eventData?.lowest_sale_price) {
-                        displayPrice = Number(eventData.lowest_sale_price);
-                        showSaleBadge = true;
-                      } else if (eventData?.lowest_ticket_price) {
-                        displayPrice = Number(eventData.lowest_ticket_price);
-                      }
-
-                      if (!displayPrice) return "Free";
-
-                      return (
-                        <>
-                          ₹{displayPrice} Onwards
-                          {showSaleBadge && (
-                            <CustomBadge className="ms-2">
-                              On Sale
-                            </CustomBadge>
-                          )}
-                        </>
-                      );
-                    })()}
-                  </span>
-                </h4>
-              </Col>
-
-              {/* Book Button */}
-              <Col md={4}>
-                <CustomBtn
+              <Col md={6}>
+                <Button
                   size="sm"
-                  className="fw-bold py-2 rounded-3 text-end "
-                  HandleClick={handleBookNow}
-                  disabled={eventStatus.disabled}
-                  buttonText={eventStatus.text}
-                  wrapperClassName={"justify-content-end"}
+                  className="fw-bold w-100 py-2 rounded-3"
+                  onClick={() => router.push("/events")}
+                >
+                  View More Events
+                </Button>
+              </Col>
+              <Col md={6}>
+                <InterestButton
+                  eventId={eventData?.id}
+                  eventData={eventData}
+                  onLoginRequired={handleLoginRequired}
                 />
               </Col>
             </Row>
@@ -158,35 +239,13 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         </div>
       </div>
 
-      {/* Desktop Interest Section */}
-      <Row className="d-none d-sm-flex align-items-center g-2 mt-2">
-        {eventStatus.disabled && (
-          <Col md={6}>
-            <Button
-              size="sm"
-              className="fw-bold w-100 py-2 rounded-3"
-              onClick={() => router.push("/events")}
-            >
-              View More Events
-            </Button>
-          </Col>
-        )}
-
-        <Col md={eventStatus.disabled ? 6 : 12}>
-          <InterestButton
-            eventId={eventData?.id}
-            eventData={eventData}
-            onLoginRequired={handleLoginRequired}
-          />
-        </Col>
-      </Row>
 
       {/* Login Modal */}
-      {/* <LoginModal
+      <LoginModal
         show={showLoginModal}
         onHide={() => setShowLoginModal(false)}
         eventKey={event_key}
-      /> */}
+      />
 
       {/* Postponed Notice */}
       {isPostponed && expectedDate && (
@@ -250,6 +309,15 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
           </div>
         </MobileOnly>
       </CustomDrawer>
+
+      {/* Write a Review Modal */}
+      <ReviewForm
+        show={showReviewForm}
+        onHide={() => { setShowReviewForm(false); setEditingReview(null); }}
+        onSubmit={handleSubmitReview}
+        isSubmitting={isSubmittingReview}
+        editingReview={editingReview}
+      />
     </>
   );
 };

@@ -172,6 +172,9 @@ const Seat = memo(({
         }
     }, [seat.icon, seat.radius]);
 
+
+
+
     // Create clock icon for hold/locked status (only for other users' holds)
     useEffect(() => {
         if (isHold && !isOwnHold) {
@@ -234,13 +237,18 @@ const Seat = memo(({
     const seatStroke = isAvailable || isSelected ? SEAT_COLORS.available : ((isHold && !isOwnHold) ? SEAT_COLORS.hold : 'transparent');
     const strokeWidth = isAvailable || isSelected || (isHold && !isOwnHold) ? 1 : 0;
 
+    // On mobile, expand the hit area and shift it down to compensate for
+    // the natural finger-touch offset (touch point registers above the perceived tap).
+    const hitPadding = IS_MOBILE ? Math.max(radius * 0.7, 6) : 0;
+    const hitOffsetY = IS_MOBILE ? Math.max(radius * 0.5, 4) : 0;
+
     return (
         <Group x={x} y={y} opacity={seatOpacity}>
             <Rect
                 x={-radius}
-                y={-radius * (IS_MOBILE ? 1.2 : 1)}
+                y={-radius}
                 width={radius * 2}
-                height={radius * 2 * (IS_MOBILE ? 1.2 : 1)}
+                height={radius * 2}
                 fill={seatFill}
                 cornerRadius={4}
                 stroke={seatStroke}
@@ -253,7 +261,18 @@ const Seat = memo(({
                 listening={isClickable}
                 perfectDrawEnabled={false}
                 shadowForStrokeEnabled={false}
-                hitStrokeWidth={IS_MOBILE ? 12 : 4}
+                hitStrokeWidth={0}
+                hitFunc={IS_MOBILE ? (context, shape) => {
+                    context.beginPath();
+                    context.rect(
+                        -radius - hitPadding,
+                        -radius - hitPadding - hitOffsetY,   // ← MINUS not PLUS
+                        radius * 2 + hitPadding * 2,
+                        radius * 2 + hitPadding * 2
+                    );
+                    context.closePath();
+                    context.fillStrokeShape(shape);
+                } : undefined}
                 onMouseEnter={(e) => {
                     const container = e.target.getStage().container();
                     if (isClickable) {
@@ -637,6 +656,43 @@ const BookingSeatCanvas = ({
     const dragStopped = useRef(false);
     const hasInitialized = useRef(false);
     const lastTapTime = useRef(0);
+    const wasPinching = useRef(false);
+
+    // Block browser double-tap zoom and pinch-zoom on the canvas container
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        // Block multi-touch pinch from triggering browser zoom
+        const blockPinch = (e) => {
+            if (e.touches.length > 1) e.preventDefault();
+        };
+
+        // Block double-tap zoom
+        let lastTap = 0;
+        const blockDoubleTap = (e) => {
+            const now = Date.now();
+            if (now - lastTap < 300) {
+                e.preventDefault();
+            }
+            lastTap = now;
+        };
+
+        const blockTouchMove = (e) => {
+            // Only block multi-touch (pinch), allow single-touch scroll/drag
+            if (e.touches.length > 1) e.preventDefault();
+        };
+
+        container.addEventListener('touchstart', blockPinch, { passive: false });
+        container.addEventListener('touchmove', blockTouchMove, { passive: false });
+        container.addEventListener('touchstart', blockDoubleTap, { passive: false });
+
+        return () => {
+            container.removeEventListener('touchstart', blockPinch);
+            container.removeEventListener('touchmove', blockTouchMove);
+            container.removeEventListener('touchstart', blockDoubleTap);
+        };
+    }, []);
 
     const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
     const [scale, setScale] = useState(externalScale || 1);
@@ -796,16 +852,12 @@ const BookingSeatCanvas = ({
         const touch2 = e.evt.touches[1];
 
         if (e.evt.touches.length === 1) {
-            const currentTime = Date.now();
-            if (currentTime - lastTapTime.current < 300) {
-                const { scale: fitScale, position: initialPos } = getInitialView();
-                setScale(fitScale);
-                setPosition(initialPos);
-            }
-            lastTapTime.current = currentTime;
+            // No double-tap reset here — fires on seat taps too which causes accidental resets.
+            // Use the reset (↺) button instead. Browser zoom is blocked via touch-action:none.
         }
 
         if (touch1 && touch2) {
+            wasPinching.current = true;   // ← add this
             const stageInstance = stageRef.current;
             if (stageInstance) {
                 stageInstance.stopDrag();
@@ -882,17 +934,17 @@ const BookingSeatCanvas = ({
         lastCenter.current = null;
         lastDist.current = 0;
         dragStopped.current = false;
+        // wasPinching resets after a delay to absorb the dragEnd that fires
+        setTimeout(() => { wasPinching.current = false; }, 50);
     }, []);
 
     const handleDragEnd = useCallback((e) => {
+        if (wasPinching.current) return;  // ← ignore drag end from pinch
+
         const pos = e.target.position();
         setPosition(pos);
-
-        if (externalSetStagePosition) {
-            externalSetStagePosition(pos);
-        }
+        if (externalSetStagePosition) externalSetStagePosition(pos);
     }, [externalSetStagePosition]);
-
     const handleZoomIn = useCallback(() => {
         const newScale = Math.min(3, scale * 1.3);
         const centerX = dimensions.width / 2;
@@ -948,7 +1000,11 @@ const BookingSeatCanvas = ({
                     position: relative;
                     width: 100%;
                     height: 100%;
-                    overflow: hidden;
+                    overflow: visible;
+                    touch-action: none;
+                }
+                .booking-canvas-wrapper canvas {
+                    touch-action: none;
                 }
                 
                 .booking-canvas-stage {
@@ -971,7 +1027,7 @@ const BookingSeatCanvas = ({
                 
                 .booking-legend {
                     position: absolute;
-                    top: 12px;
+                    bottom: 80px;
                     left: 12px;
                     display: flex;
                     flex-direction: row;
@@ -984,7 +1040,7 @@ const BookingSeatCanvas = ({
                 
                 @media (min-width: 768px) {
                     .booking-legend {
-                        top: 20px;
+                        bottom: 80px;
                         left: 20px;
                         gap: 16px;
                         padding: 12px 16px;
@@ -1023,7 +1079,7 @@ const BookingSeatCanvas = ({
                 
                 .booking-zoom-controls {
                     position: absolute;
-                    top: 12px;
+                    bottom: 80px;
                     right: 12px;
                     display: flex;
                     flex-direction: column;
@@ -1033,7 +1089,7 @@ const BookingSeatCanvas = ({
                 
                 @media (min-width: 768px) {
                     .booking-zoom-controls {
-                        top: 20px;
+                        bottom: 80px;
                         right: 20px;
                         gap: 10px;
                     }
@@ -1104,7 +1160,7 @@ const BookingSeatCanvas = ({
                 )}
 
                 {/* Canvas Stage */}
-                <div className="booking-canvas-stage">
+                <div className="booking-canvas-stage" style={{ touchAction: 'none' }}>
                     <Stage
                         ref={stageRef}
                         width={dimensions.width}
@@ -1114,6 +1170,8 @@ const BookingSeatCanvas = ({
                         x={position.x}
                         y={position.y}
                         draggable={true}
+                        dragDistance={8}
+                        tapDistance={10}
                         onWheel={handleWheel}
                         onDragEnd={handleDragEnd}
                         onTouchStart={handleTouchStart}

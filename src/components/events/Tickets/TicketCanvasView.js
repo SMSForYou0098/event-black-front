@@ -396,7 +396,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
 
             const link = document.createElement('a');
             link.href = dataURL;
-            link.download = `ticket_${OrderId || 'event'}.jpg`;
+            link.download = `ticket_${userName}_${ticketName}_${ticketNumber}.jpg`;
             link.click();
             return true;
 

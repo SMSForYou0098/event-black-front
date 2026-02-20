@@ -83,94 +83,72 @@ const InterestButton = ({ eventId, eventData, onLoginRequired, className = "" })
 
     return (
         <div className={`interest-section-wrapper ${className}`}>
-            <div className="d-flex justify-content-between align-items-center bg-dark border rounded-3 p-3">
 
-                {/* Left Side */}
-                <div className="d-flex align-items-center gap-3">
-                    <motion.div
-                        animate={{
-                            scale: isInterested ? [1, 1.2, 1] : 1,
-                        }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <ThumbsUp
-                            size={26}
-                            className="text-success"
-                            fill="currentColor"
-                        />
-                    </motion.div>
-
-                    <div>
-                        <div className="d-flex align-items-center gap-1">
-                            <span
-                                className="text-white fw-bold"
-                                style={{ fontSize: "12px" }}
-                            >
-                                {formatCount(interestCount)}
-                            </span>
-                            <span
-                                className="text-white"
-                                style={{ fontSize: "12px" }}
-                            >
-                                are interested
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Button */}
-                <div className="position-relative">
-                    <CustomBtn
-                        variant={isInterested ? "primary" : "outline-danger"}
-                        size="md"
-                        className="px-4 py-2"
-                        HandleClick={handleClick}
-                        disabled={isLoading || inCooldown}
-                        style={{
-                            borderRadius: "4px",
-                            minWidth: "120px",
-                        }}
-                        hideIcon={true}
-                        buttonText={
-                            isLoading ? (
-                                <Spinner animation="border" size="sm" />
-                            ) : (
-                                <span
-                                    className="fw-medium"
-                                    style={{ fontSize: "13px" }}
+            {/* Button with icon inside */}
+            <div className="position-relative">
+                <CustomBtn
+                    variant={isInterested ? "primary" : "outline-danger"}
+                    size="sm"
+                    className="fw-bold py-2 rounded-3"
+                    HandleClick={handleClick}
+                    disabled={isLoading || inCooldown}
+                    style={{
+                        borderRadius: "4px",
+                        minWidth: "auto",
+                    }}
+                    hideIcon={true}
+                    buttonText={
+                        isLoading ? (
+                            <Spinner animation="border" size="sm" />
+                        ) : (
+                            <span className="d-flex align-items-center gap-2 fw-medium" >
+                                <motion.span
+                                    animate={{
+                                        scale: isInterested ? [1, 1.2, 1] : 1,
+                                    }}
+                                    transition={{ duration: 0.3 }}
+                                    style={{ display: "inline-flex" }}
                                 >
-                                    {isInterested ? "Interested" : "Interested?"}
-                                </span>
-                            )
-                        }
-                    />
+                                    <ThumbsUp
+                                        size={16}
+                                        className="text-success"
+                                        fill="currentColor"
+                                    />
+                                </motion.span>
+                                {interestCount > 0 && (
+                                    <span className="fw-bold">{formatCount(interestCount)}</span>
+                                )}
+                                {isInterested ? "Interested" : "Interested?"}
+                            </span>
+                        )
+                    }
+                />
 
-                    {/* Animation */}
-                    <AnimatePresence>
-                        {showAnimation && (
-                            <motion.div
-                                initial={{ scale: 0, opacity: 1 }}
-                                animate={{ scale: 2, opacity: 0 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.6 }}
-                                style={{
-                                    position: "absolute",
-                                    top: "50%",
-                                    left: "50%",
-                                    transform: "translate(-50%, -50%)",
-                                    pointerEvents: "none",
-                                    zIndex: 10,
-                                }}
-                            >
-                                <ThumbsUp
-                                    size={22}
-                                    className="text-success"
-                                    fill="currentColor"
-                                />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
+                {/* Animation */}
+                <AnimatePresence>
+                    {showAnimation && (
+                        <motion.div
+                            initial={{ scale: 0, opacity: 1 }}
+                            animate={{ scale: 2, opacity: 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.6 }}
+                            style={{
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                                pointerEvents: "none",
+                                zIndex: 10,
+                            }}
+                        >
+                            <ThumbsUp
+                                size={22}
+                                className="text-success"
+                                fill="currentColor"
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );

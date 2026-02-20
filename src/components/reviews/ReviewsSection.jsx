@@ -125,7 +125,7 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
                     </Col>
 
                     {/* Write Review Button */}
-                    <Col xs={12} lg={6} className="d-flex align-items-center justify-content-lg-end">
+                    {/* <Col xs={12} lg={6} className="d-flex align-items-center justify-content-lg-end">
                         {!userReview && (
                             <CustomBtn
                                 HandleClick={handleWriteReview}
@@ -135,7 +135,7 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
                                 icon={<MessageSquarePlus size={18} />}
                             />
                         )}
-                    </Col>
+                    </Col> */}
                 </Row>
 
                 {/* Loading State */}
