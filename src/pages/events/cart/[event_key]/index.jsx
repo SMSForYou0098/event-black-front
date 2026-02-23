@@ -517,6 +517,7 @@ const CartPage = () => {
                     tax_data={event?.taxData}
                     layoutId={event?.EventHasLayout?.layout_id}
                     event={event}
+                    cartItems={cartItems}
                   />
                   :
                   <BookingTickets

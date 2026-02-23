@@ -10,11 +10,12 @@ import EventSeatsListener from './EventSeatsListener';
 import { useMyContext } from '@/Context/MyContextProvider';
 
 const BookingLayout = (props) => {
-    const { layoutId, eventId, setSelectedTkts, event } = props;
-    const { UserData } = useMyContext();
+    const { layoutId, eventId, setSelectedTkts, event, cartItems } = props;
+    const { UserData, ErrorAlert } = useMyContext();
     const stageRef = useRef(null);
+    const selectedSeatsRef = useRef(null);
 
-    // Custom booking hook
+    // Custom booking hook (must be before handler that uses it)
     const {
         selectedSeats,
         setSelectedSeats,
@@ -35,6 +36,30 @@ const BookingLayout = (props) => {
         autoHoldTimeout: true,
         event: event // Pass event data for tax calculations
     });
+
+    selectedSeatsRef.current = selectedSeats;
+
+    // Enforce per-ticket selection_limit — use ref so we always have latest count (shows immediately on click)
+    const handleSeatClickWithLimit = (seat, sectionId, rowId) => {
+        const current = selectedSeatsRef.current;
+        const ticketId = seat.ticket?.id != null ? Number(seat.ticket.id) : null;
+        const isAlreadySelected = (current?.seats || []).some((s) => s.seat_id === seat.id);
+
+        if (!isAlreadySelected && ticketId && Array.isArray(cartItems) && cartItems.length) {
+            const ticketConfig = cartItems.find((t) => Number(t.id) === ticketId);
+            const limit = ticketConfig ? parseInt(ticketConfig.selection_limit, 10) : Infinity;
+            if (Number.isFinite(limit) && limit >= 1) {
+                const currentCountForTicket = current?.ticket_id === ticketId ? (current?.quantity || 0) : 0;
+                if (currentCountForTicket >= limit) {
+                    const ticketName = ticketConfig?.name || 'this category';
+                    ErrorAlert(`You can only select up to ${limit} ticket(s) for ${ticketName}.`);
+                    return;
+                }
+            }
+        }
+
+        handleSeatClick(seat, sectionId, rowId);
+    };
 
     useEffect(() => {
         setSelectedTkts(selectedSeats);
@@ -309,7 +334,7 @@ const BookingLayout = (props) => {
                                     stage={stage}
                                     sections={sections}
                                     selectedSeats={selectedSeats}
-                                    onSeatClick={handleSeatClick}
+                                    onSeatClick={handleSeatClickWithLimit}
                                     handleWheel={handleWheel}
                                     setStagePosition={setStagePosition}
                                     currentUserId={UserData?.id}

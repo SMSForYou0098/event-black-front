@@ -591,7 +591,9 @@ const CartPage = () => {
       }
 
     } else {
-      throw new Error('Payment initiation failed');
+      // API returned 200 with status: false (e.g. "You can only select up to 2 tickets at a time.")
+      const apiMessage = response?.data?.message || 'Payment initiation failed';
+      throw new Error(apiMessage);
     }
   };
 
@@ -660,11 +662,13 @@ const CartPage = () => {
     let errorMessage = 'An error occurred while processing your booking.';
     let shouldRetry = false;
 
-    // Network errors
+    // No response: either network error or API returned 200 with status: false (business rule error)
     console.log(error, 'error');
     if (!error.response) {
-      errorMessage = 'Network error. Please check your internet connection and try again.';
-      shouldRetry = true;
+      errorMessage = error?.message || 'Network error. Please check your internet connection and try again.';
+      // Only suggest retry for real network failures, not for API messages (e.g. "You can only select up to 2 tickets")
+      const isLikelyNetworkError = !error?.message || error.message.includes('Network') || error.message === 'Payment initiation failed';
+      shouldRetry = isLikelyNetworkError;
     }
     // Server errors (5xx)
     else if (error.response.status >= 500) {

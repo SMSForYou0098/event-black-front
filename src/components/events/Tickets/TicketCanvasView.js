@@ -267,7 +267,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
 
                     // User number/seat
                     if (number !== 'N/A') {
-                        centerText(`Seat/Number: ${number}`, 15, 'Arial', canvas, currentY);
+                        centerText(`Seat: ${number}`, 15, 'Arial', canvas, currentY);
                         currentY += 30;
                     }
 

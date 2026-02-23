@@ -5,7 +5,7 @@ import Row from './Row';
 
 const Section = memo(({ section, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave, currentUserId, canvasScale }) => {
     return (
-        <Group x={section.x} y={section.y}>
+        <Group x={section.x} y={section.y +30}>
             <Text
                 x={0}
                 y={12}
