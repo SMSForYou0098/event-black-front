@@ -20,19 +20,19 @@ const DetailsHeader = ({ eventData, event_key }) => {
     const event_date = formatDateRange(eventData?.date_range);
 
     const metaInfo = [
-        {
-            icon: "fa-regular fa-bookmark", // Category icon
-            value: eventData?.Category?.title,
-            valueClass: "fw-semibold",
-        },
-        {
-            icon: "fa-regular fa-calendar", // Event Type icon
-            value: eventData?.event_type,
-            valueClass: "fw-semibold text-capitalize",
-            description: eventData?.event_type === 'daily' ?
-                'daily ticket QR code is valid only for the specific event and date' :
-                'season ticket QR that allows access throughout the season, but only one entry per day',
-        },
+        // {
+        //     icon: "fa-regular fa-bookmark", // Category icon
+        //     value: eventData?.Category?.title,
+        //     valueClass: "fw-semibold",
+        // },
+        // {
+        //     icon: "fa-regular fa-calendar", // Event Type icon
+        //     value: eventData?.event_type,
+        //     valueClass: "fw-semibold text-capitalize",
+        //     description: eventData?.event_type === 'daily' ?
+        //         'daily ticket QR code is valid only for the specific event and date' :
+        //         'season ticket QR that allows access throughout the season, but only one entry per day',
+        // },
         {
             icon: "fa-regular fa-clock", // Time icon
             value: event_time,

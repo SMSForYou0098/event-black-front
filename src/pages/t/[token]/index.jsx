@@ -393,16 +393,37 @@ const UserCard = () => {
               )}
             </div>
 
-            <Card className="mt-5 shadow-sm">
-              <Card.Body style={{ overflowY: "auto" }}>
-                <h5 className="mb-3">Terms & Conditions</h5>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: `<div>${ticketData?.event?.ticket_terms || ''}</div>`,
-                  }}
-                />
-              </Card.Body>
-            </Card>
+            {/* Terms & Conditions */}
+            {(ticketData?.event?.online_ticket_terms || ticketData?.event?.offline_ticket_terms) && (
+              <Card className="mt-5 shadow-sm">
+                <Card.Body style={{ overflowY: "auto" }}>
+                  <h5 className="mb-4">Terms & Conditions</h5>
+
+                  {ticketData?.event?.online_ticket_terms && (
+                    <div className="mb-4">
+                      <h6 className="fw-bold mb-2">Online Ticket Terms</h6>
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: ticketData.event.online_ticket_terms,
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {ticketData?.event?.offline_ticket_terms && (
+                    <div>
+                      <h6 className="fw-bold mb-2">Offline Ticket Terms</h6>
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: ticketData.event.offline_ticket_terms,
+                        }}
+                      />
+                    </div>
+                  )}
+
+                </Card.Body>
+              </Card>
+            )}
           </>
         ) : (
           <TicketErrorDisplay

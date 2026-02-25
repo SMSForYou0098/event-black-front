@@ -80,14 +80,16 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
     return {
       ticket: normalizeBooking?.ticket,
       quantity: booking?.bookings ? booking?.bookings?.length : 1,
-      name: normalizeBooking?.ticket?.event?.name,
+      name: normalizeBooking?.event?.name,
       amount: booking?.total_amount,
       type: normalizeBooking?.type,
       created_at: formatDate(booking?.created_at),
-      thumbnail: normalizeBooking?.ticket?.event?.event_media?.thumbnail,
+      thumbnail: normalizeBooking?.event?.event_media?.thumbnail,
       ticketTransferEnabled: (normalizeBooking?.event?.event_controls?.ticket_transfer || normalizeBooking?.ticket?.event?.event_controls?.ticket_transfer) ?? false,
       isApprovalPending: approvalStatus === "pending",
-      isScanned: isScanned
+      isScanned: isScanned,
+      date_range: normalizeBooking?.event?.date_range,
+      event_type: normalizeBooking?.event?.event_type,
     };
   }, [booking]);
 
@@ -123,7 +125,7 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
       <div className={`${compact ? 'p-3' : 'p-2 p-sm-4'} rounded custom-dark-content-bg rounded-4 h-100`}>
         <Row className="g-3">
           {/* Image and Button Column */}
-          <Col xs="auto" className="d-flex flex-column align-items-center gap-2">
+          <Col xs="6" className="d-flex flex-column align-items-center gap-2">
             <Image
               src={bookingData?.thumbnail}
               alt={bookingData.ticket?.name}
@@ -134,9 +136,64 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
               loading="lazy"
             />
 
-            {/* Download Button Below Image - Hidden when approval pending */}
+          </Col>
+
+          {/* Content Column */}
+          <Col xs="6" className="d-flex flex-column justify-content-start">
+            <div className="d-flex align-items-center flex-wrap gap-1 gap-sm-2 mb-1">
+              <TypeIcon type={bookingData.type} />
+              <h6 className="mb-0 text-truncate" style={{ maxWidth: '100%' }}>
+                {bookingData?.name}
+              </h6>
+              {!compact && (
+                <CustomBadge
+                  variant="outline-primary"
+                  className="text-uppercase flex-shrink-0"
+                >
+                  {bookingData?.event_type}
+                </CustomBadge>
+              )}
+            </div>
+
+            <small className="text-muted d-block mt-1">
+              <Calendar size={14} className='text-warning me-1' />
+              <span className="text-break">{formatDateRange(bookingData?.date_range)}</span>
+            </small>
+            <small className="text-muted d-block mt-1">
+              <Calendar size={14} className='text-warning me-1' /> Booked On:
+              <span className="text-break">{formatDate(bookingData?.created_at)}</span>
+            </small>
+
+            <small className="text-muted d-block mt-1">
+              <Armchair size={14} className='text-success me-1' />
+              {bookingData.ticket?.name} x{' '}
+              <span className="text-success fw-bold">{bookingData.quantity}</span>
+            </small>
+
+            <small className="text-muted d-block mt-1">
+              <IndianRupee size={14} className='text-warning me-1' />
+              {bookingData.amount}
+            </small>
+          </Col>
+
+
+          <Col xs="6">
+            {/* Transfer Button - Only show if ticket transfer is enabled, not pending approval, and not scanned */}
+            {bookingData.ticketTransferEnabled && !bookingData.isApprovalPending && !bookingData.isScanned && (
+              <Button
+                variant="outline-primary"
+                size="sm"
+                className="p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-1 w-100"
+                onClick={() => setShowTransferDrawer(true)}
+              >
+                <ArrowRightLeft size={14} />
+                Transfer
+              </Button>
+            )}
+          </Col>
+          <Col xs="6">
             {!bookingData.isApprovalPending && (
-              <Dropdown className="w-100">
+              <Dropdown>
                 <Dropdown.Toggle
                   as={Button}
                   variant="primary"
@@ -145,7 +202,7 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
                   style={{
                     background: 'var(--bs-primary)',
                     border: 'none',
-                    lineHeight: 1.2,
+                    lineHeight: 1.7,
                   }}
                   disabled={ticketType && ticketType.id === booking.id}
                 >
@@ -173,57 +230,6 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
                 </Dropdown.Menu>
               </Dropdown>
             )}
-
-            {/* Transfer Button - Only show if ticket transfer is enabled, not pending approval, and not scanned */}
-            {bookingData.ticketTransferEnabled && !bookingData.isApprovalPending && !bookingData.isScanned && (
-              <Button
-                variant="outline-primary"
-                size="sm"
-                className="p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-1 w-100"
-                onClick={() => setShowTransferDrawer(true)}
-              >
-                <ArrowRightLeft size={14} />
-                Transfer
-              </Button>
-            )}
-          </Col>
-
-          {/* Content Column */}
-          <Col className="d-flex flex-column justify-content-start">
-            <div className="d-flex align-items-center flex-wrap gap-1 gap-sm-2 mb-1">
-              <TypeIcon type={bookingData.type} />
-              <h6 className="mb-0 text-truncate" style={{ maxWidth: '100%' }}>
-                {bookingData?.name}
-              </h6>
-              {!compact && (
-                <CustomBadge
-                  variant="outline-primary"
-                  className="text-uppercase flex-shrink-0"
-                >
-                  {bookingData.ticket?.event?.event_type}
-                </CustomBadge>
-              )}
-            </div>
-
-            <small className="text-muted d-block mt-1">
-              <Calendar size={14} className='text-warning me-1' />
-              <span className="text-break">{formatDateRange(bookingData.ticket?.event?.date_range)}</span>
-            </small>
-            <small className="text-muted d-block mt-1">
-              <Calendar size={14} className='text-warning me-1' /> Booked On:
-              <span className="text-break">{formatDate(bookingData?.created_at)}</span>
-            </small>
-
-            <small className="text-muted d-block mt-1">
-              <Armchair size={14} className='text-success me-1' />
-              {bookingData.ticket?.name} x{' '}
-              <span className="text-success fw-bold">{bookingData.quantity}</span>
-            </small>
-
-            <small className="text-muted d-block mt-1">
-              <IndianRupee size={14} className='text-warning me-1' />
-              {bookingData.amount}
-            </small>
           </Col>
         </Row>
       </div>

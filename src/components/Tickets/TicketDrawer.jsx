@@ -13,6 +13,7 @@ import CustomDrawer from '../../utils/CustomDrawer';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { TbBrandInstagramFilled, TbBrandYoutubeFilled } from 'react-icons/tb';
 
 // API fetch function for ticket background image
 const fetchTicketImage = async (path) => {
@@ -131,6 +132,31 @@ const TicketDrawer = ({
                     </p>
                 </div>
             )}
+            <div className="alert alert-info mb-3">
+            No physical ticket needed! Download your Ticket & enjoy unlimited fun.
+            </div>
+            <div className="d-flex justify-content-center align-items-center gap-4 mt-3 mb-1">
+                <a
+                    href="https://www.youtube.com/@Get-Your-Ticket"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-decoration-none text-white d-flex align-items-center"
+                    style={{ gap: 6, marginRight: 10 }}
+                >
+                    <TbBrandYoutubeFilled style={{ fontSize: 20 }} />
+                    <span className="small fw-semibold">YouTube</span>
+                </a>
+                <a
+                    href="https://www.instagram.com/getyourticket.in"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-decoration-none text-white d-flex align-items-center"
+                    style={{ gap: 6 }}
+                >
+                    <TbBrandInstagramFilled style={{ fontSize: 20 }} />
+                    <span className="small fw-semibold">Instagram</span>
+                </a>
+            </div>
 
             <CustomBtn
                 buttonText="Generate Ticket"
@@ -216,7 +242,7 @@ const TicketDrawer = ({
             <div className="position-fixed bottom-0 start-0 w-100 bg-black border-top border-secondary p-3 z-3">
                 {/* Footer info */}
                 <div className="text-center text-secondary small mb-3">
-                    <p className="mb-0">No physical ticket needed! Download your Ticket & enjoy unlimited fun.</p>
+                    {/* <p className="mb-0">No physical ticket needed! Download your Ticket & enjoy unlimited fun.</p> */}
                 </div>
                 {/* Download/Print Buttons */}
                 <Row className="d-flex justify-content-center">

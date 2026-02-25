@@ -5,7 +5,8 @@ import CustomDrawer from "../../../utils/CustomDrawer";
 import CustomBtn from "../../../utils/CustomBtn";
 
 const TermsAccordion = ({
-    terms,
+    onlineTerms,
+    offlineTerms,
     show: externalShow,
     onClose,
     onAgree,
@@ -22,7 +23,8 @@ const TermsAccordion = ({
         if (!val && onClose) onClose();
     } : setInternalShow;
 
-    if (!terms) return null;
+    const hasTerms = onlineTerms || offlineTerms;
+    if (!hasTerms) return null;
 
     const handleShow = () => isControlled ? null : setInternalShow(true);
     const handleClose = () => {
@@ -70,11 +72,26 @@ const TermsAccordion = ({
             } showOffcanvas={show} setShowOffcanvas={handleClose} showButton={true}>
 
                 <div style={{ paddingBottom: onAgree ? "80px" : "0" }}>
-                    <div
-                        className="description-content"
-                        style={{ whiteSpace: "pre-line", lineHeight: "1.6" }}
-                        dangerouslySetInnerHTML={{ __html: terms }}
-                    />
+                    {onlineTerms && (
+                        <div className={offlineTerms ? "mb-4" : ""}>
+                            <h6 className="fw-bold mb-3 text-primary">Online Ticket Terms</h6>
+                            <div
+                                className="description-content"
+                                style={{ whiteSpace: "pre-line", lineHeight: "1.6" }}
+                                dangerouslySetInnerHTML={{ __html: onlineTerms }}
+                            />
+                        </div>
+                    )}
+                    {offlineTerms && (
+                        <div>
+                            <h6 className="fw-bold mb-3 text-primary">Offline Ticket Terms</h6>
+                            <div
+                                className="description-content"
+                                style={{ whiteSpace: "pre-line", lineHeight: "1.6" }}
+                                dangerouslySetInnerHTML={{ __html: offlineTerms }}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Agree Section - only show when onAgree callback is provided */}

@@ -14,6 +14,7 @@ import { MobileOnly, TabletAndDesktop } from "@/utils/ResponsiveRenderer";
 import ReviewForm from "../../reviews/ReviewForm";
 import { useCreateReview, useUpdateReview } from "@/hooks/useReviews";
 import toast from "react-hot-toast";
+import TermsAccordion from "./TermsAccordion";
 
 const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const { setShowHeaderBookBtn, isMobile, formatDateDDMMYYYY, UserData } = useMyContext();
@@ -23,6 +24,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
   const router = useRouter();
+  const [showTermsDrawer, setShowTermsDrawer] = useState(false);
 
   const createReviewMutation = useCreateReview();
   const updateReviewMutation = useUpdateReview();
@@ -97,7 +99,21 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
 
   const handleContinue = () => {
     setShowOffcanvas(false);
+    setShowTermsDrawer(false);
     router.push(`/events/cart/${event_key}`);
+  };
+
+  const handleBookingNoticeContinue = () => {
+    setShowOffcanvas(false);
+
+    // Check if any terms exist
+    if (eventData?.online_ticket_terms || eventData?.offline_ticket_terms) {
+      setTimeout(() => {
+        setShowTermsDrawer(true);
+      }, 300); // Slight delay for smoother drawer transition
+    } else {
+      handleContinue();
+    }
   };
 
   const handleLoginRequired = () => setShowLoginModal(true);
@@ -120,8 +136,18 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
 
   const handleBookNow = () => {
     if (eventStatus.disabled) return;
-    if (eventData?.booking_notice?.trim()) setShowOffcanvas(true);
-    else handleContinue();
+
+    if (eventData?.booking_notice?.trim()) {
+      setShowOffcanvas(true);
+      return;
+    }
+
+    if (eventData?.online_ticket_terms || eventData?.offline_ticket_terms) {
+      setShowTermsDrawer(true);
+      return;
+    }
+
+    handleContinue();
   };
 
   return (
@@ -129,7 +155,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       <div className="product-meta-wrapper mt-2">
 
         {/* Event Meta Info */}
-        <div className="event-meta-compact d-flex flex-wrap gap-3 mt-3">
+        <div className="event-meta-compact w-100 d-flex justify-content-between flex-wrap gap-3 mt-3">
           {metaInfo?.map((info, i) => (
             <div
               key={i}
@@ -152,7 +178,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         {/* Desktop Pricing + Book Button */}
         <div className="d-none d-sm-block">
           {!eventStatus.disabled && (
-            <div className="mt-4 mb-3 border-dashed rounded-3 p-3 d-inline-flex align-items-center justify-content-between gap-3 flex-wrap">
+            <div className="mt-4 mb-3 w-100 border-dashed rounded-3 p-3 d-inline-flex align-items-center justify-content-between gap-3 flex-wrap">
 
               {/* Pricing label */}
               <h6 className="m-0 d-flex gap-2 align-items-center flex-wrap text-nowrap">
@@ -295,7 +321,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
 
         <TabletAndDesktop>
           <div className="text-end">
-            <CustomBtn buttonText="Continue" HandleClick={handleContinue} />
+            <CustomBtn buttonText="Continue" HandleClick={handleBookingNoticeContinue} />
           </div>
         </TabletAndDesktop>
 
@@ -304,11 +330,20 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
             <CustomBtn
               wrapperClassName="w-100"
               buttonText="Continue"
-              HandleClick={handleContinue}
+              HandleClick={handleBookingNoticeContinue}
             />
           </div>
         </MobileOnly>
       </CustomDrawer>
+
+      <TermsAccordion
+        onlineTerms={eventData?.online_ticket_terms}
+        offlineTerms={eventData?.offline_ticket_terms}
+        show={showTermsDrawer}
+        onClose={() => setShowTermsDrawer(false)}
+        onAgree={handleContinue}
+        showTrigger={false}
+      />
 
       {/* Write a Review Modal */}
       <ReviewForm

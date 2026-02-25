@@ -15,14 +15,26 @@ const fetchOrgDetailsBySlug = async ({ queryKey }) => {
   const [, { slug, city }] = queryKey;
   if (!slug) return null;
 
-  // Backend must accept slug here:
-  // e.g. GET /landing-orgs/show-details/:slug
-  const resp = await publicApi.get(`/landing-orgs/show-details/${slug}`, {
-    params: { city },
-  });
+  try {
+    // Backend must accept slug here:
+    // e.g. GET /landing-orgs/show-details/:slug
+    const resp = await publicApi.get(`/landing-orgs/show-details/${slug}`, {
+      params: { city },
+    });
 
-  const { status, data } = resp?.data ?? {};
-  return typeof status !== "undefined" ? (status ? data : null) : (resp?.data || null);
+    const { status, data, message } = resp?.data ?? {};
+    if (typeof status !== "undefined" && !status) {
+      throw new Error(message || "No details found for this organization.");
+    }
+    return typeof status !== "undefined" ? data : (resp?.data || null);
+  } catch (err) {
+    // Prefer backend message (e.g. 404 body: { status: false, message: "Organisation not found." })
+    const backendMessage = err?.response?.data?.message;
+    if (backendMessage) {
+      throw new Error(backendMessage);
+    }
+    throw err;
+  }
 };
 
 const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
@@ -118,7 +130,7 @@ const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
     return (
       <div className="p-3">
         <div className="alert alert-danger" role="alert">
-          <strong>Error:</strong> {error?.message || "Failed to load organization details."}
+          {error?.message || "Failed to load organization details."}
         </div>
       </div>
     );

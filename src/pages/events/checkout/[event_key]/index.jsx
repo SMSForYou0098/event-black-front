@@ -25,7 +25,6 @@ import AddressUpdateDrawer from "../../../../components/events/CheckoutComps/Add
 const CartPage = () => {
   const router = useRouter();
   const { isMobile, ErrorAlert, successAlert, UserData, systemSetting } = useMyContext();
-  console.log("UserData", UserData);
   const { event_key, k } = router.query;
   const [isLoading, setIsLoading] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -637,7 +636,6 @@ const CartPage = () => {
         color: '#000',
       },
       handler: function (response) {
-        console.log('💳 Payment successful:', response);
         verifyPaymentAndRedirect(response);
       },
       modal: {
@@ -663,7 +661,6 @@ const CartPage = () => {
     let shouldRetry = false;
 
     // No response: either network error or API returned 200 with status: false (business rule error)
-    console.log(error, 'error');
     if (!error.response) {
       errorMessage = error?.message || 'Network error. Please check your internet connection and try again.';
       // Only suggest retry for real network failures, not for API messages (e.g. "You can only select up to 2 tickets")
@@ -716,7 +713,7 @@ const CartPage = () => {
   // Event handler for the process button
   const handleProcess = () => {
     // If terms exist, show terms drawer first
-    if (event?.ticket_terms) {
+    if (event?.online_ticket_terms || event?.offline_ticket_terms) {
       setShowTermsDrawer(true);
       return;
     }
@@ -817,7 +814,8 @@ const CartPage = () => {
 
           {/* Terms and Conditions Drawer */}
           <TermsAccordion
-            terms={event?.ticket_terms}
+            onlineTerms={event?.online_ticket_terms}
+            offlineTerms={event?.offline_ticket_terms}
             show={showTermsDrawer}
             onClose={() => setShowTermsDrawer(false)}
             onAgree={proceedAfterTerms}

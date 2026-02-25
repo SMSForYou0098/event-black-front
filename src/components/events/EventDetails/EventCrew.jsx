@@ -37,23 +37,43 @@ const EventCrew = ({ crews = dummyCrews }) => {
         setShowModal(true);
     };
 
-    const renderCrewCard = (crew) => (
-        <div className="crew-card text-center">
-            <div className="crew-image mb-3">
+    const CrewImage = ({ crew }) => {
+        const [imgError, setImgError] = useState(false);
+        const src = crew.photo || crew.image;
+
+        if (!src || imgError) {
+            // Fallback dummy image based on initials
+            return (
+                <div
+                    className="d-flex align-items-center justify-content-center rounded-circle bg-secondary text-white fw-bold mb-3 mx-auto"
+                    style={{ width: '100px', height: '100px', fontSize: '2rem' }}
+                >
+                    {crew.name ? crew.name.charAt(0).toUpperCase() : '?'}
+                </div>
+            );
+        }
+
+        return (
+            <div className="crew-image mb-3 mx-auto" style={{ width: '100px', height: '100px' }}>
                 <Image
-                    src={crew.photo || '/images/default-avatar.png'}
+                    src={src}
                     alt={crew.name}
-                    className="img-fluid rounded-circle"
+                    className="img-fluid rounded-circle w-100 h-100"
                     width={100}
                     height={100}
                     loading='lazy'
+                    onError={() => setImgError(true)}
                     style={{
-                        objectFit: 'cover',
-                        width: '100px',
-                        height: '100px',
+                        objectFit: 'cover'
                     }}
                 />
             </div>
+        );
+    };
+
+    const renderCrewCard = (crew) => (
+        <div className="crew-card text-center">
+            <CrewImage crew={crew} />
             <h5 className="crew-name mb-1" style={{ fontSize: '14px' }}>{crew.name}</h5>
             <p className="crew-role text-muted mb-0" style={{ fontSize: '14px' }}>{crew.role}</p>
         </div>

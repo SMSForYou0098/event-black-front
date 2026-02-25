@@ -29,6 +29,7 @@ const PromotionalEvents = () => {
 
   if (isLoading) return <div className="text-center py-5">Loading...</div>;
   if (isError) return <div className="text-center py-5 text-danger">Error: {error?.message}</div>;
+  if (!data?.length) return null;
 
   return (
     <section className=''>
