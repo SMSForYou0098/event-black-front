@@ -8,8 +8,29 @@ import { useMyContext } from '@/Context/MyContextProvider';
 import useBooking from '../SeatingModule/components/Usebooking';
 import SeatingGrid from './components/SeatingGrid';
 
+function SeatingGridSkeleton() {
+  return (
+    <div className="custom-dark-bg rounded-3 overflow-hidden position-relative" style={{ minHeight: 400 }}>
+      <div className="p-3 border-bottom border-secondary border-opacity-25" style={{ height: 40 }} />
+      <div className="d-flex flex-column gap-3 p-4 align-items-center">
+        {[1, 2, 3, 4].map((row) => (
+          <div key={row} className="d-flex gap-2 justify-content-center">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded placeholder-glow"
+                style={{ width: 28, height: 28, backgroundColor: 'rgba(255,255,255,0.08)' }}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const BookingLayout = (props) => {
-  const { layoutId, eventId, setSelectedTkts, event, cartItems } = props;
+  const { layoutId, eventId, setSelectedTkts, event, cartItems, scrollToSectionId, scrollToRowTitle } = props;
   const { UserData, ErrorAlert } = useMyContext();
   const selectedSeatsRef = useRef(null);
 
@@ -38,9 +59,6 @@ const BookingLayout = (props) => {
       const limit = ticketConfig ? parseInt(ticketConfig.selection_limit, 10) : Infinity;
       if (Number.isFinite(limit) && limit >= 1) {
         const currentCountForTicket = current?.ticket_id === ticketId ? (current?.quantity || 0) : 0;
-        console.log(currentCountForTicket);
-        console.log(limit);
-        console.log(current);
         if (currentCountForTicket >= limit) {
           const ticketName = ticketConfig?.name || 'this category';
           const message = `You can only select up to ${limit} ticket(s) for ${ticketName}.`;
@@ -157,10 +175,8 @@ const BookingLayout = (props) => {
 
   if (isLoading) {
     return (
-      <div className="d-flex align-items-center justify-content-center py-5">
-        <div className="spinner-border text-danger" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+      <div className="rounded-4" style={{ width: '100%' }}>
+        <SeatingGridSkeleton />
       </div>
     );
   }
@@ -175,6 +191,9 @@ const BookingLayout = (props) => {
               selectedSeats={selectedSeatsForGrid}
               onSeatClick={handleSeatClickWithLimit}
               stage={stage}
+              storageKey={layoutId ? `layout_${layoutId}` : undefined}
+              scrollToSectionId={scrollToSectionId}
+              scrollToRowTitle={scrollToRowTitle}
             />
           </div>
         </Col>

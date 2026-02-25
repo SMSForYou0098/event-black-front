@@ -24,7 +24,7 @@ import toast from "react-hot-toast";
 import RegistrationBooking from "../../../../components/events/RegistrationBooking/RegistrationBooking";
 import CustomHeader from "../../../../utils/ModalUtils/CustomModalHeader";
 const CartPage = () => {
-  const { event_key } = useRouter().query;
+  const { event_key, section: sectionParam, row: rowParam } = useRouter().query;
 
   const {
     isMobile,
@@ -518,6 +518,8 @@ const CartPage = () => {
                     layoutId={event?.EventHasLayout?.layout_id}
                     event={event}
                     cartItems={cartItems}
+                    scrollToSectionId={sectionParam ? String(sectionParam) : undefined}
+                    scrollToRowTitle={rowParam ? String(rowParam) : undefined}
                   />
                   :
                   <BookingTickets

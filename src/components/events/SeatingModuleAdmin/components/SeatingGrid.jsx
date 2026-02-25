@@ -2,7 +2,7 @@
 
 import React, { useMemo, useCallback, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, LayoutGrid } from 'lucide-react';
 import { PRIMARY } from '@/utils/consts';
 import { IS_MOBILE } from '@/components/events/SeatingModule/components/constants';
 
@@ -154,6 +154,7 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius }) {
     >
       <button
         type="button"
+        className="d-flex align-items-center justify-content-center p-0 user-select-none"
         onClick={handleClick}
         disabled={disabled}
         style={{
@@ -165,15 +166,10 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius }) {
           minWidth: size,
           minHeight: size,
           borderRadius: 6,
-          fontSize: Math.max(10, size * 0.45),
+          fontSize: Math.max(9, size * 0.36),
           fontWeight: 600,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 0,
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          WebkitTouchCallout: 'none',
+          lineHeight: 1,
+          textAlign: 'center',
           ...style,
         }}
         aria-pressed={isSelected}
@@ -184,44 +180,29 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius }) {
       {visible && (seat.ticket || seat.status === 'booked') && (
         <div
           role="tooltip"
+          className="position-absolute small text-white rounded p-2 px-3 text-nowrap border shadow"
           onMouseEnter={handleTooltipMouseEnter}
           onMouseLeave={handleTooltipMouseLeave}
           style={{
-            position: 'absolute',
             left: '50%',
             bottom: '100%',
             transform: 'translateX(-50%) translateY(-8px)',
-            whiteSpace: 'nowrap',
-            padding: '8px 12px',
-            borderRadius: 8,
             background: 'rgba(20,20,20,0.95)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-            fontSize: 12,
-            color: '#fff',
+            borderColor: 'rgba(255,255,255,0.12)',
             zIndex: 1000,
             pointerEvents: 'auto',
           }}
         >
-          <div style={{ fontWeight: 600, marginBottom: 4 }}>Seat {rowTitle}{seatLabel}</div>
+          <div className="fw-bold mb-1">Seat {rowTitle}{seatLabel}</div>
           {seat.ticket ? (
             <>
-              <div style={{ color: 'rgba(255,255,255,0.85)' }}>{seat.ticket.name}</div>
-              <div style={{ color: PRIMARY, marginTop: 2 }}>₹{seat.ticket.price}</div>
+              <div className="text-white-50">{seat.ticket.name}</div>
+              <div className="mt-1" style={{ color: PRIMARY }}>₹{seat.ticket.price}</div>
             </>
           ) : (
-            <div style={{ color: 'rgba(255,255,255,0.6)' }}>Unavailable</div>
+            <div className="text-secondary">Unavailable</div>
           )}
-          <div
-            style={{
-              fontSize: 11,
-              marginTop: 4,
-              color:
-                statusText === 'Available'
-                  ? 'var(--bs-success, #198754)'
-                  : 'rgba(255,255,255,0.5)',
-            }}
-          >
+          <div className={`small mt-1 ${statusText === 'Available' ? 'text-success' : 'text-white-50'}`}>
             {statusText}
           </div>
         </div>
@@ -236,33 +217,14 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, bounds }) {
   const sw = Number(section.width) || 600;
   const sh = Number(section.height) || 250;
 
-  const noSelect = { userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none' };
-
   return (
     <div
-      style={{
-        position: 'absolute',
-        left: sx,
-        top: sy,
-        width: sw,
-        height: sh,
-        pointerEvents: 'none',
-        ...noSelect,
-      }}
+      className="position-absolute user-select-none"
+      style={{ left: sx, top: sy, width: sw, height: sh, pointerEvents: 'none' }}
     >
       <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 12,
-          width: sw,
-          fontSize: 14,
-          fontWeight: 700,
-          color: '#fff',
-          textAlign: 'center',
-          pointerEvents: 'none',
-          ...noSelect,
-        }}
+        className="position-absolute text-white fw-bold text-center user-select-none"
+        style={{ left: 0, top: 12, width: sw, fontSize: 14, pointerEvents: 'none' }}
       >
         {section.name || 'Section'}
       </div>
@@ -270,7 +232,7 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, bounds }) {
         (row.seats || []).map((seat) => {
           if (seat.type === 'blank') {
             return (
-              <div key={seat.id} style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }}>
+              <div key={seat.id} className="position-absolute" style={{ left: 0, top: 0, pointerEvents: 'none' }}>
                 <GapPlaceholder seat={seat} radius={seat.radius} />
               </div>
             );
@@ -285,7 +247,7 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, bounds }) {
             !seat.ticket;
 
           return (
-            <div key={seat.id} style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'auto' }}>
+            <div key={seat.id} className="position-absolute" style={{ left: 0, top: 0, pointerEvents: 'auto' }}>
               <SeatButton
                 seat={seatWithIds}
                 rowTitle={row.title || ''}
@@ -302,7 +264,18 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, bounds }) {
   );
 }
 
-const SeatingGrid = ({ sections, selectedSeats, onSeatClick, stage }) => {
+const STORAGE_KEY_PREFIX = 'seatingView_';
+const VIEW_PERSIST_DEBOUNCE_MS = 500;
+
+const SeatingGrid = ({
+  sections,
+  selectedSeats,
+  onSeatClick,
+  stage,
+  storageKey,
+  scrollToSectionId,
+  scrollToRowTitle,
+}) => {
   const containerRef = useRef(null);
   const [containerReady, setContainerReady] = useState(false);
   const [viewportSize, setViewportSize] = useState({ width: 400, height: 400 });
@@ -325,6 +298,8 @@ const SeatingGrid = ({ sections, selectedSeats, onSeatClick, stage }) => {
   const isPanningRef = useRef(false);
   const DRAG_THRESHOLD_PX = 10;
   const [disableTransformTransition, setDisableTransformTransition] = useState(false);
+  const viewPersistTimeoutRef = useRef(null);
+  const appliedDeepLinkRef = useRef(false);
 
   const selectedSeatIds = useMemo(() => {
     const ids = new Set();
@@ -338,6 +313,22 @@ const SeatingGrid = ({ sections, selectedSeats, onSeatClick, stage }) => {
     () => getLayoutBounds(stage, sections),
     [stage, sections]
   );
+
+  const visibleSections = useMemo(() => {
+    if (!sections?.length) return [];
+    const pad = 50;
+    const left = (-pan.x - pad) / zoom;
+    const top = (-pan.y - pad) / zoom;
+    const width = (viewportSize.width + pad * 2) / zoom;
+    const height = (viewportSize.height + pad * 2) / zoom;
+    return sections.filter((s) => {
+      const sx = (Number(s.x) || 0) - bounds.minX;
+      const sy = (Number(s.y) || 0) - bounds.minY;
+      const sw = Number(s.width) || 600;
+      const sh = Number(s.height) || 250;
+      return !(left > sx + sw || left + width < sx || top > sy + sh || top + height < sy);
+    });
+  }, [sections, bounds.minX, bounds.minY, pan.x, pan.y, zoom, viewportSize.width, viewportSize.height]);
 
 
   useEffect(() => {
@@ -377,6 +368,21 @@ const SeatingGrid = ({ sections, selectedSeats, onSeatClick, stage }) => {
       userHasInteractedRef.current = false;
     }
     if (userHasInteractedRef.current) return;
+    if (storageKey && typeof window !== 'undefined') {
+      try {
+        const raw = sessionStorage.getItem(STORAGE_KEY_PREFIX + storageKey);
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (typeof data.zoom === 'number' && data.pan && typeof data.pan.x === 'number' && typeof data.pan.y === 'number') {
+            const z = Math.max(0.2, Math.min(2, data.zoom));
+            setZoom(z);
+            setPan({ x: data.pan.x, y: data.pan.y });
+            userHasInteractedRef.current = true;
+            return;
+          }
+        }
+      } catch (_) {}
+    }
     const pad = 40;
     const scaleW = (viewportSize.width - pad * 2) / bounds.width;
     const scaleH = (viewportSize.height - pad * 2) / bounds.height;
@@ -384,10 +390,27 @@ const SeatingGrid = ({ sections, selectedSeats, onSeatClick, stage }) => {
     const maxZoom = totalSeats <= 40 ? 1.4 : totalSeats <= 80 ? 1.2 : 1;
     const z = Math.max(0.15, Math.min(fitScale, maxZoom));
     const px = (viewportSize.width - bounds.width * z) / 2;
-    const py = (viewportSize.height - bounds.height * z) / 2;
+    const py = pad;
     setZoom(z);
     setPan({ x: px, y: py });
-  }, [bounds.width, bounds.height, viewportSize.width, viewportSize.height, totalSeats]);
+  }, [bounds.width, bounds.height, viewportSize.width, viewportSize.height, totalSeats, storageKey]);
+
+  useEffect(() => {
+    if (!storageKey || typeof window === 'undefined') return;
+    if (viewPersistTimeoutRef.current) clearTimeout(viewPersistTimeoutRef.current);
+    viewPersistTimeoutRef.current = setTimeout(() => {
+      viewPersistTimeoutRef.current = null;
+      try {
+        sessionStorage.setItem(
+          STORAGE_KEY_PREFIX + storageKey,
+          JSON.stringify({ zoom, pan })
+        );
+      } catch (_) {}
+    }, VIEW_PERSIST_DEBOUNCE_MS);
+    return () => {
+      if (viewPersistTimeoutRef.current) clearTimeout(viewPersistTimeoutRef.current);
+    };
+  }, [storageKey, zoom, pan]);
 
   const handleZoomIn = useCallback(() => {
     setZoom((z) => Math.min(2, z * 1.25));
@@ -407,9 +430,80 @@ const SeatingGrid = ({ sections, selectedSeats, onSeatClick, stage }) => {
     setZoom(z);
     setPan({
       x: (viewportSize.width - bounds.width * z) / 2,
-      y: (viewportSize.height - bounds.height * z) / 2,
+      y: pad,
     });
   }, [bounds.width, bounds.height, viewportSize, totalSeats]);
+
+  const handleZoomToPoint = useCallback(
+    (layoutCenterX, layoutCenterY, zoomLevel) => {
+      const z = Math.max(0.9, Math.min(2, zoomLevel));
+      const px = viewportSize.width / 2 - layoutCenterX * z;
+      const py = viewportSize.height / 2 - layoutCenterY * z;
+      setZoom(z);
+      setPan({ x: px, y: py });
+      userHasInteractedRef.current = true;
+    },
+    [viewportSize]
+  );
+
+  const handleZoomToSection = useCallback(
+    (sectionId, rowTitle) => {
+      const list = sections || [];
+      const byIndex = /^\d+$/.test(String(sectionId)) ? list[parseInt(sectionId, 10)] : null;
+      const section = byIndex || list.find((s) => s.id === sectionId || String(s.id) === String(sectionId));
+      if (!section || bounds.width <= 0 || bounds.height <= 0) return;
+      const sx = (Number(section.x) || 0) - bounds.minX;
+      const sy = (Number(section.y) || 0) - bounds.minY;
+      const sw = Number(section.width) || 600;
+      let centerX = sx + sw / 2;
+      let centerY = sy + (Number(section.height) || 250) / 2;
+      if (rowTitle && section.rows?.length) {
+        const row = section.rows.find((r) => (r.title || '').toUpperCase() === String(rowTitle).toUpperCase());
+        if (row?.seats?.length) {
+          const first = row.seats[0];
+          const last = row.seats[row.seats.length - 1];
+          const rx = ((Number(first?.x) || 0) + (Number(last?.x) || 0)) / 2;
+          const ry = ((Number(first?.y) || 0) + (Number(last?.y) || 0)) / 2;
+          centerX = sx + rx;
+          centerY = sy + ry;
+        }
+      }
+      const z = Math.max(0.9, Math.min(2, (viewportSize.width * 0.85) / sw));
+      handleZoomToPoint(centerX, centerY, z);
+    },
+    [sections, bounds, viewportSize, handleZoomToPoint]
+  );
+
+  useEffect(() => {
+    if (!sections?.length || !scrollToSectionId || appliedDeepLinkRef.current) return;
+    if (bounds.width <= 0 || bounds.height <= 0) return;
+    appliedDeepLinkRef.current = true;
+    handleZoomToSection(scrollToSectionId, scrollToRowTitle || undefined);
+  }, [sections?.length, scrollToSectionId, scrollToRowTitle, bounds.width, bounds.height, handleZoomToSection]);
+
+  const ZOOM_THRESHOLD_FOR_AUTO_ZOOM = 0.75;
+  const SEAT_ZOOM_LEVEL = 1.15;
+  const handleSeatClickWithZoom = useCallback(
+    (seat, sectionId, rowId) => {
+      if (sections?.length && bounds.width > 0 && bounds.height > 0) {
+        const sec = sections.find((s) => s.id === sectionId || String(s.id) === String(sectionId));
+        if (sec) {
+          const sx = (Number(sec.x) || 0) - bounds.minX;
+          const sy = (Number(sec.y) || 0) - bounds.minY;
+          const seatCenterX = sx + (Number(seat.x) || 0);
+          const seatCenterY = sy + (Number(seat.y) || 0);
+          const currentZoom = zoomRef.current;
+          if (currentZoom < ZOOM_THRESHOLD_FOR_AUTO_ZOOM) {
+            handleZoomToPoint(seatCenterX, seatCenterY, SEAT_ZOOM_LEVEL);
+          } else {
+            handleZoomToPoint(seatCenterX, seatCenterY, currentZoom);
+          }
+        }
+      }
+      onSeatClick(seat, sectionId, rowId);
+    },
+    [sections, bounds, onSeatClick, handleZoomToPoint]
+  );
 
   const onPointerDown = useCallback(
     (e) => {
@@ -587,8 +681,12 @@ const SeatingGrid = ({ sections, selectedSeats, onSeatClick, stage }) => {
 
   if (!sections || sections.length === 0) {
     return (
-      <div style={{ padding: 24, color: 'rgba(255,255,255,0.6)', textAlign: 'center' }}>
-        No seating layout loaded.
+      <div className="p-5 text-center text-white-50 rounded-3 d-flex flex-column align-items-center gap-3">
+        <LayoutGrid size={48} className="opacity-50" strokeWidth={1.5} />
+        <div>
+          <p className="mb-0 fw-medium">No seating layout</p>
+          <p className="small mb-0 mt-1 opacity-75">Layout not loaded or this event has no sections yet.</p>
+        </div>
       </div>
     );
   }
@@ -598,16 +696,9 @@ const SeatingGrid = ({ sections, selectedSeats, onSeatClick, stage }) => {
   const stageW = stage ? (stage.width || 800) : 0;
   const stageH = stage ? (stage.height || 50) : 0;
 
-  const noSelectStyle = {
-    userSelect: 'none',
-    WebkitUserSelect: 'none',
-    WebkitTouchCallout: 'none',
-  };
-
   const overlayStyle = {
     position: 'absolute',
     pointerEvents: 'auto',
-    ...noSelectStyle,
   };
 
   const setContainerRef = useCallback((node) => {
@@ -622,22 +713,17 @@ const SeatingGrid = ({ sections, selectedSeats, onSeatClick, stage }) => {
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="custom-dark-bg rounded-3 overflow-hidden position-relative user-select-none w-100"
       style={{
-        backgroundColor: '#0a0a0a',
-        borderRadius: 12,
-        overflow: 'hidden',
-        position: 'relative',
         minHeight: IS_MOBILE ? 350 : 490,
-        width: '100%',
         cursor: isDragging ? 'grabbing' : 'grab',
         touchAction: 'none',
-        ...noSelectStyle,
       }}
     >
       {/* Layout layer: uses full viewport; pan/zoom applied here */}
       <div
+        className="position-absolute user-select-none"
         style={{
-          position: 'absolute',
           left: 0,
           top: 0,
           width: bounds.width,
@@ -648,143 +734,117 @@ const SeatingGrid = ({ sections, selectedSeats, onSeatClick, stage }) => {
             ? 'none'
             : 'transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           pointerEvents: 'auto',
-          ...noSelectStyle,
         }}
       >
         {stage && stageW > 0 && (
           <div
+            className="position-absolute d-flex align-items-center justify-content-center pt-2 user-select-none text-white"
             style={{
-              position: 'absolute',
               left: stageSx,
               top: stageSy,
               width: stageW,
               height: stageH,
               borderTop: `3px solid ${PRIMARY}`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingTop: 14,
               fontSize: 13,
-              color: 'rgba(255,255,255,0.8)',
               letterSpacing: 4,
-              ...noSelectStyle,
             }}
           >
             {stage.name || 'SCREEN'}
           </div>
         )}
-        {sections.map((section) => (
+        {visibleSections.map((section) => (
           <SectionBlock
             key={section.id}
             section={section}
             selectedSeatIds={selectedSeatIds}
-            onSeatClick={onSeatClick}
+            onSeatClick={handleSeatClickWithZoom}
             bounds={bounds}
           />
         ))}
       </div>
 
-      {/* Legend: floating bottom-left */}
+      {/* Legend + Go to section: bottom center on desktop, bottom-left on mobile */}
       <div
+        className="d-flex flex-wrap gap-3 align-items-center p-2 px-2 rounded-3 small text-white user-select-none"
         style={{
           ...overlayStyle,
           bottom: 10,
-          left: 12,
-          display: 'flex',
-          gap: 12,
-          alignItems: 'center',
-          padding: '8px 12px',
-          borderRadius: 8,
+          ...(IS_MOBILE
+            ? { left: 12 }
+            : { left: '50%', transform: 'translateX(-50%)' }),
           background: 'rgba(0,0,0,0.65)',
+          fontSize: '12px',
           backdropFilter: 'blur(6px)',
-          fontSize: 12,
-          color: 'rgba(255,255,255,0.9)',
         }}
       >
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 12, height: 12, borderRadius: 3, ...SEAT_STYLES.available }} />
+        <span className="d-flex align-items-center gap-1">
+          <span className="rounded" style={{ width: 12, height: 12, ...SEAT_STYLES.available }} />
           Available
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 12, height: 12, borderRadius: 3, ...SEAT_STYLES.selected }} />
+        <span className="d-flex align-items-center gap-1">
+          <span className="rounded" style={{ width: 12, height: 12, ...SEAT_STYLES.selected }} />
           Selected
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 12, height: 12, borderRadius: 3, ...SEAT_STYLES.booked }} />
+        <span className="d-flex align-items-center gap-1">
+          <span className="rounded" style={{ width: 12, height: 12, ...SEAT_STYLES.booked }} />
           Booked
         </span>
+        {sections.length > 1 && (
+          <select
+            className="form-select form-select-sm text-white border-secondary ms-2 small"
+            style={{ width: 'auto', fontSize: '0.7rem', backgroundColor: 'transparent' }}
+            aria-label="Go to section"
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v) {
+                handleZoomToSection(v);
+                e.target.value = '';
+              }
+            }}
+          >
+            <option value="">Go to section…</option>
+            {sections.map((s) => (
+              <option key={s.id} value={s.id}>{s.name || s.id}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Zoom / Reset: floating bottom-right */}
       <div
+        className="d-flex flex-column gap-2 align-items-center p-2 rounded-3 user-select-none"
         style={{
           ...overlayStyle,
-          bottom: 12,
-          right: 12,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 8,
-          alignItems: 'center',
-          padding: 6,
-          borderRadius: 10,
+          bottom: IS_MOBILE ? 66 : 12,
+          right: IS_MOBILE ? 5 : 12,
           background: 'rgba(0,0,0,0.5)',
           backdropFilter: 'blur(6px)',
         }}
       >
         <button
           type="button"
+          className="btn btn-primary rounded-circle p-0 d-flex align-items-center justify-content-center"
+          style={{ width: 36, height: 36 }}
           onClick={handleZoomIn}
           aria-label="Zoom in"
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: '50%',
-            border: 'none',
-            background: PRIMARY,
-            color: '#fff',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
         >
           <ZoomIn size={18} strokeWidth={2.5} />
         </button>
         <button
           type="button"
+          className="btn btn-primary rounded-circle p-0 d-flex align-items-center justify-content-center"
+          style={{ width: 36, height: 36 }}
           onClick={handleZoomOut}
           aria-label="Zoom out"
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: '50%',
-            border: 'none',
-            background: PRIMARY,
-            color: '#fff',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
         >
           <ZoomOut size={18} strokeWidth={2.5} />
         </button>
         <button
           type="button"
+          className="btn btn-dark rounded-circle p-0 d-flex align-items-center justify-content-center text-white"
+          style={{ width: 36, height: 36 }}
           onClick={handleResetView}
           aria-label="Reset view"
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: '50%',
-            border: 'none',
-            background: 'rgba(40,40,40,0.95)',
-            color: '#fff',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
         >
           <RotateCcw size={18} strokeWidth={2.5} />
         </button>
