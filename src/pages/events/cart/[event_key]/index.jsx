@@ -54,6 +54,9 @@ const CartPage = () => {
   const [showInfluencerDrawer, setShowInfluencerDrawer] = useState(false);
   const [selectedInfluencer, setSelectedInfluencer] = useState(null);
 
+  // Cart drawer (mobile): show cart summary in drawer when tapping Proceed
+  const [showCartDrawer, setShowCartDrawer] = useState(false);
+
   // Check if event is daily type
 
   // Parse event date range to get min and max dates
@@ -62,7 +65,6 @@ const CartPage = () => {
   // Lock seats mutation
   const lockSeatsMutation = useLockSeats({
     onSuccess: (data) => {
-      // console.log('Seats locked successfully:', data);
       toast.success(data?.message)
     },
     onError: (error) => {
@@ -219,9 +221,6 @@ const CartPage = () => {
     }
   }, [isApprovalRequired, categoryData, selectedInfluencer, showInfluencerDrawer, influencersData]);
 
-  // console.log(categoryData)
-
-  // console.log(event)
 
   const checkTicketStatus = async () => {
     setIsChecking(true);
@@ -368,7 +367,6 @@ const CartPage = () => {
           fields: requiredFields.join(","),
         },
       });
-      // console.log(response);
       const data = await response.data;
       setCartItems(data.tickets);
     } catch (error) {
@@ -535,79 +533,106 @@ const CartPage = () => {
             )}
           </Col>
 
-          {/* Cart Totals */}
-          <Col lg="4">
-            <CardContainer>
-              {/* <CardHeader icon={Ticket} title="Event Details" />œ */}
-              {eventDetails.map((detail, index) => (
-                <DetailItem
-                  key={detail.label}
-                  icon={detail.icon}
-                  label={detail.label}
-                  value={detail.value}
-                  isLast={index === eventDetails.length - 1}
-                />
-              ))}
-            </CardContainer>
+          {/* Cart Totals — desktop: sidebar column; mobile: shown in drawer via handleProcess */}
+          {/* Shared sidebar content (event details + cart overview) */}
+          {(() => {
+            const cartSidebarBody = (
+              <>
+                <CardContainer>
+                  {eventDetails.map((detail, index) => (
+                    <DetailItem
+                      key={detail.label}
+                      icon={detail.icon}
+                      label={detail.label}
+                      value={detail.value}
+                      isLast={index === eventDetails.length - 1}
+                    />
+                  ))}
+                </CardContainer>
 
-            {/* Removed inline date selection for daily events, handled by drawer */}
-
-            <CardContainer className="cart_totals">
-              <CardHeader
-                icon={Ticket}
-                title="Cart Overview"
-                iconColor="text-warning"
-              />
-
-              <div className="css_prefix-woocommerce-cart-box table-responsive">
-                <Table className="table mb-0">
-                  <tbody>
-                    {cartData.map((row, index) => (
-                      <CartRow
-                        key={row.label}
-                        label={row.label}
-                        value={row.value}
-                        isHeader={row.isHeader}
-                      />
-                    ))}
-                  </tbody>
-                </Table>
-
-                {/* Cart Info Box */}
-                <div className="cart-info-box my-2 p-3 rounded-3 border-dashed-thin">
-                  <span className="text-white small">
-                    * Base price only — fees & taxes added at checkout.
-                  </span>
-                </div>
-
-                {/* Checkout Button */}
-                <div className="d-block d-lg-none">
-                  <BookingMobileFooter
-                    handleClick={() => handleProcess()}
-                    selectedTickets={selectedTickets}
+                <CardContainer className="cart_totals">
+                  <CardHeader
+                    icon={Ticket}
+                    title="Cart Overview"
+                    iconColor="text-warning"
                   />
-                </div>
-                <div className="d-none d-lg-block">
-                  <CustomBtn
-                    disabled={
-                      eventStatus.disabled ||
-                      !selectedTickets?.quantity ||
-                      parseInt(selectedTickets.quantity) === 0 ||
-                      parseInt(selectedTickets.quantity) === 0
-                    }
-                    HandleClick={() => handleProcess()}
-                    icon={attendeeRequired ? <Users size={20} /> : null}
-                    buttonText={<span>{buttonText}</span>}
-                    className="cart-proceed-btn mt-2"
-                    style={{ width: "100%" }}
-                    loading={isChecking || lockSeatsMutation.isPending}
-                  />
-                  {/* <CustomDrawer /> */}
-                </div>
-              </div>
-            </CardContainer>
-          </Col>
+
+                  <div className="css_prefix-woocommerce-cart-box table-responsive">
+                    <Table className="table mb-0">
+                      <tbody>
+                        {cartData.map((row) => (
+                          <CartRow
+                            key={row.label}
+                            label={row.label}
+                            value={row.value}
+                            isHeader={row.isHeader}
+                          />
+                        ))}
+                      </tbody>
+                    </Table>
+
+                    <div className="cart-info-box my-2 p-3 rounded-3 border-dashed-thin">
+                      <span className="text-white small">
+                        * Base price only — fees & taxes added at checkout.
+                      </span>
+                    </div>
+
+                    {/* Checkout button — same for desktop column and mobile drawer */}
+                    <CustomBtn
+                      disabled={
+                        eventStatus.disabled ||
+                        !selectedTickets?.quantity ||
+                        parseInt(selectedTickets.quantity) === 0
+                      }
+                      HandleClick={() => {
+                        if (isMobile) setShowCartDrawer(false);
+                        handleProcess();
+                      }}
+                      icon={attendeeRequired ? <Users size={20} /> : null}
+                      buttonText={<span>{buttonText}</span>}
+                      className="cart-proceed-btn mt-2"
+                      style={{ width: "100%" }}
+                      loading={isChecking || lockSeatsMutation.isPending}
+                    />
+                  </div>
+                </CardContainer>
+              </>
+            );
+
+            return (
+              <>
+                {/* Desktop: sidebar column */}
+                {!isMobile && (
+                  <Col lg="4">
+                    {cartSidebarBody}
+                  </Col>
+                )}
+
+                {/* Mobile: cart drawer opened when footer "Proceed" is tapped */}
+                {isMobile && (
+                  <CustomDrawer
+                    showOffcanvas={showCartDrawer}
+                    setShowOffcanvas={setShowCartDrawer}
+                    title="Cart Overview"
+                    placement="bottom"
+                    className="bg-dark text-white"
+                    style={{ height: "auto", minHeight: "50vh" }}
+                  >
+                    {cartSidebarBody}
+                  </CustomDrawer>
+                )}
+              </>
+            );
+          })()}
         </Row>
+
+        {/* Mobile: footer opens cart drawer on Proceed; checkout runs from inside drawer */}
+        <div className="d-block d-lg-none">
+          <BookingMobileFooter
+            handleClick={() => setShowCartDrawer(true)}
+            selectedTickets={selectedTickets}
+          />
+        </div>
 
         {/* Date Selection - Responsive: Modal for Desktop, Drawer for Mobile */}
         {isMobile ? (
