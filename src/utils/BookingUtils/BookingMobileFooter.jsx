@@ -47,7 +47,7 @@ const BookingMobileFooter = ({ handleClick, selectedTickets, step = 0, isLoading
         showOffcanvas={showDrawer}
         setShowOffcanvas={setShowDrawer}
       >
-        <div className="">
+        <div >
           <Alert variant="warning" className="mb-3">
             <div className="d-flex align-items-start">
               <i className="fa-solid fa-triangle-exclamation me-2 mt-1"></i>

@@ -48,7 +48,7 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
               <Row>
                 <Col md="12">
                   <Card className="border-0 shadow-sm">
-                    <Card.Body className="">
+                    <Card.Body >
                       <div
                         dangerouslySetInnerHTML={{
                           __html:

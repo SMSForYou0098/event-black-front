@@ -5,8 +5,8 @@ import { CUSTOM_SECONDORY } from '../consts';
 import { useMyContext } from '@/Context/MyContextProvider';
 
 
-const BookingSummarySkeleton = ({type, itemCount=3}) => {
-    const {isMobile} = useMyContext();
+const BookingSummarySkeleton = ({ type, itemCount = 3 }) => {
+    const { isMobile } = useMyContext();
     const sectionIconStyle = {
         color: CUSTOM_SECONDORY,
         size: 20,
@@ -15,174 +15,174 @@ const BookingSummarySkeleton = ({type, itemCount=3}) => {
 
     return (
         <div className="cart-page">
-            <Container className="">
+            <Container >
                 {/* Header */}
                 {/* <CartSteps id={'last'} /> */}
                 <Row>
                     {/* Left Column */}
                     <Col lg={6} className="mb-4">
-                    {
-                        type ==='cart' ? 
-                        <Table responsive className="cart-table rounded-4">
-                        <thead className="border-bottom">
-                          <tr>
-                            <th scope="col">
-                              <Placeholder as="span" animation="glow">
-                                <Placeholder xs={4} style={{ height: "24px" }} />
-                              </Placeholder>
-                            </th>
-                            <th scope="col" className={isMobile ? "text-end" : ""}>
-                              <Placeholder as="span" animation="glow">
-                                <Placeholder xs={5} style={{ height: "24px" }} />
-                              </Placeholder>
-                            </th>
-                            {!isMobile && (
-                              <th scope="col">
-                                <Placeholder as="span" animation="glow">
-                                  <Placeholder xs={3} style={{ height: "24px" }} />
-                                </Placeholder>
-                              </th>
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {Array.from({ length: itemCount }).map((_, index) => (
-                            <tr key={index}>
-                              <td>
-                                <div className="d-flex flex-column gap-2">
-                                  <Placeholder as="span" animation="glow">
-                                    <Placeholder xs={6} style={{ height: "22px" }} />
-                                  </Placeholder>
-                                  <Placeholder as="span" animation="glow">
-                                    <Placeholder xs={4} style={{ height: "18px" }} />
-                                  </Placeholder>
-                                </div>
-                              </td>
-                              <td className={isMobile ? "text-end" : ""}>
-                                <div className="d-flex justify-content-end">
-                                  <Placeholder as="div" animation="glow">
-                                    <Placeholder xs={8} style={{ height: "40px", borderRadius: "20px" }} />
-                                  </Placeholder>
-                                </div>
-                              </td>
-                              {!isMobile && (
-                                <td>
-                                  <Placeholder as="span" animation="glow">
-                                    <Placeholder xs={3} style={{ height: "22px" }} />
-                                  </Placeholder>
-                                </td>
-                              )}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </Table>
+                        {
+                            type === 'cart' ?
+                                <Table responsive className="cart-table rounded-4">
+                                    <thead className="border-bottom">
+                                        <tr>
+                                            <th scope="col">
+                                                <Placeholder as="span" animation="glow">
+                                                    <Placeholder xs={4} style={{ height: "24px" }} />
+                                                </Placeholder>
+                                            </th>
+                                            <th scope="col" className={isMobile ? "text-end" : ""}>
+                                                <Placeholder as="span" animation="glow">
+                                                    <Placeholder xs={5} style={{ height: "24px" }} />
+                                                </Placeholder>
+                                            </th>
+                                            {!isMobile && (
+                                                <th scope="col">
+                                                    <Placeholder as="span" animation="glow">
+                                                        <Placeholder xs={3} style={{ height: "24px" }} />
+                                                    </Placeholder>
+                                                </th>
+                                            )}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {Array.from({ length: itemCount }).map((_, index) => (
+                                            <tr key={index}>
+                                                <td>
+                                                    <div className="d-flex flex-column gap-2">
+                                                        <Placeholder as="span" animation="glow">
+                                                            <Placeholder xs={6} style={{ height: "22px" }} />
+                                                        </Placeholder>
+                                                        <Placeholder as="span" animation="glow">
+                                                            <Placeholder xs={4} style={{ height: "18px" }} />
+                                                        </Placeholder>
+                                                    </div>
+                                                </td>
+                                                <td className={isMobile ? "text-end" : ""}>
+                                                    <div className="d-flex justify-content-end">
+                                                        <Placeholder as="div" animation="glow">
+                                                            <Placeholder xs={8} style={{ height: "40px", borderRadius: "20px" }} />
+                                                        </Placeholder>
+                                                    </div>
+                                                </td>
+                                                {!isMobile && (
+                                                    <td>
+                                                        <Placeholder as="span" animation="glow">
+                                                            <Placeholder xs={3} style={{ height: "22px" }} />
+                                                        </Placeholder>
+                                                    </td>
+                                                )}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
 
-                      : 
-                      <>
-                      
-                        {/* Event Details Card Skeleton */}
-                        <Card className="custom-dark-bg mb-4">
-                            <Card.Body className="p-4">
-                                <div className="d-flex align-items-center mb-3">
-                                    <Calendar {...sectionIconStyle} />
-                                    <Placeholder as="h5" animation="glow" className="mb-0">
-                                        <Placeholder xs={4} bg="secondary" />
-                                    </Placeholder>
-                                </div>
+                                :
+                                <>
 
-                                <Placeholder as="h3" animation="glow" className="mb-4">
-                                    <Placeholder xs={8} bg="secondary" />
-                                </Placeholder>
-
-                                <Row className="mb-4">
-                                    <Col xs={6}>
-                                        <div className="d-flex align-items-center">
-                                            <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Date</div>
-                                                <Placeholder animation="glow">
-                                                    <Placeholder xs={6} bg="secondary" />
+                                    {/* Event Details Card Skeleton */}
+                                    <Card className="custom-dark-bg mb-4">
+                                        <Card.Body className="p-4">
+                                            <div className="d-flex align-items-center mb-3">
+                                                <Calendar {...sectionIconStyle} />
+                                                <Placeholder as="h5" animation="glow" className="mb-0">
+                                                    <Placeholder xs={4} bg="secondary" />
                                                 </Placeholder>
                                             </div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6}>
-                                        <div className="d-flex align-items-center">
-                                            <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Time</div>
-                                                <Placeholder animation="glow">
+
+                                            <Placeholder as="h3" animation="glow" className="mb-4">
+                                                <Placeholder xs={8} bg="secondary" />
+                                            </Placeholder>
+
+                                            <Row className="mb-4">
+                                                <Col xs={6}>
+                                                    <div className="d-flex align-items-center">
+                                                        <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                                                        <div>
+                                                            <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Date</div>
+                                                            <Placeholder animation="glow">
+                                                                <Placeholder xs={6} bg="secondary" />
+                                                            </Placeholder>
+                                                        </div>
+                                                    </div>
+                                                </Col>
+                                                <Col xs={6}>
+                                                    <div className="d-flex align-items-center">
+                                                        <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                                                        <div>
+                                                            <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Time</div>
+                                                            <Placeholder animation="glow">
+                                                                <Placeholder xs={5} bg="secondary" />
+                                                            </Placeholder>
+                                                        </div>
+                                                    </div>
+                                                </Col>
+                                            </Row>
+
+                                            <div className="d-flex align-items-start">
+                                                <MapPin size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+                                                <div>
+                                                    <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Venue</div>
+                                                    <Placeholder animation="glow" className="mb-1">
+                                                        <Placeholder xs={7} bg="secondary" />
+                                                    </Placeholder>
+                                                    <Placeholder animation="glow">
+                                                        <Placeholder xs={9} bg="secondary" />
+                                                    </Placeholder>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </Card>
+
+                                    {/* Contact Information Card Skeleton */}
+                                    <Card className="custom-dark-bg">
+                                        <Card.Body className="p-4">
+                                            <div className="d-flex align-items-center mb-3">
+                                                <User {...sectionIconStyle} />
+                                                <Placeholder as="h5" animation="glow" className="mb-0">
                                                     <Placeholder xs={5} bg="secondary" />
                                                 </Placeholder>
                                             </div>
-                                        </div>
-                                    </Col>
-                                </Row>
 
-                                <div className="d-flex align-items-start">
-                                    <MapPin size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
-                                    <div>
-                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Venue</div>
-                                        <Placeholder animation="glow" className="mb-1">
-                                            <Placeholder xs={7} bg="secondary" />
-                                        </Placeholder>
-                                        <Placeholder animation="glow">
-                                            <Placeholder xs={9} bg="secondary" />
-                                        </Placeholder>
-                                    </div>
-                                </div>
-                            </Card.Body>
-                        </Card>
+                                            <div className="mb-3">
+                                                <div className="d-flex align-items-center">
+                                                    <User size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                                                    <div>
+                                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Full Name</div>
+                                                        <Placeholder animation="glow">
+                                                            <Placeholder xs={6} bg="secondary" />
+                                                        </Placeholder>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                        {/* Contact Information Card Skeleton */}
-                        <Card className="custom-dark-bg">
-                            <Card.Body className="p-4">
-                                <div className="d-flex align-items-center mb-3">
-                                    <User {...sectionIconStyle} />
-                                    <Placeholder as="h5" animation="glow" className="mb-0">
-                                        <Placeholder xs={5} bg="secondary" />
-                                    </Placeholder>
-                                </div>
+                                            <div className="mb-3">
+                                                <div className="d-flex align-items-center">
+                                                    <Mail size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                                                    <div>
+                                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Email Address</div>
+                                                        <Placeholder animation="glow">
+                                                            <Placeholder xs={8} bg="secondary" />
+                                                        </Placeholder>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                <div className="mb-3">
-                                    <div className="d-flex align-items-center">
-                                        <User size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                        <div>
-                                            <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Full Name</div>
-                                            <Placeholder animation="glow">
-                                                <Placeholder xs={6} bg="secondary" />
-                                            </Placeholder>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="mb-3">
-                                    <div className="d-flex align-items-center">
-                                        <Mail size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                        <div>
-                                            <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Email Address</div>
-                                            <Placeholder animation="glow">
-                                                <Placeholder xs={8} bg="secondary" />
-                                            </Placeholder>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div className="d-flex align-items-center">
-                                        <Phone size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                        <div>
-                                            <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Phone Number</div>
-                                            <Placeholder animation="glow">
-                                                <Placeholder xs={7} bg="secondary" />
-                                            </Placeholder>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                      </>
-                    }
+                                            <div>
+                                                <div className="d-flex align-items-center">
+                                                    <Phone size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                                                    <div>
+                                                        <div style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Phone Number</div>
+                                                        <Placeholder animation="glow">
+                                                            <Placeholder xs={7} bg="secondary" />
+                                                        </Placeholder>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </Card>
+                                </>
+                        }
                     </Col>
 
                     {/* Right Column */}

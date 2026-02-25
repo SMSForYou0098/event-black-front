@@ -6,7 +6,6 @@ const CartSteps = ({ id, showAttendee }) => {
     { title: "Cart", id: 1, path: "cart" },
     ...(showAttendee ? [{ title: "Attendee", id: 2, path: "attendee" }] : []),
     { title: "Checkout", id: showAttendee ? 3 : 2, path: "checkout" },
-    { title: "Summary", id: showAttendee ? 4 : 3, path: "summary" },
   ];
 
 
@@ -31,14 +30,15 @@ const CartSteps = ({ id, showAttendee }) => {
         <span
           className={`cart-pre-heading badge cart-pre-number border-radius rounded-circle me-1 ${index === activeStepIndex ? "bg-primary" : ""
             }`}
+          style={{ fontSize: '12px' }}
         >
           {step.number}
         </span>
-        <span className="cart-page-link" style={{ fontSize: '14px' }}>{step.title}</span>
+        <span className="cart-page-link" style={{ fontSize: '12px' }}>{step.title}</span>
       </li>
       {!isLast && (
         <li className="d-flex justify-content-center align-items-center">
-          <ChevronRightCircle size={20} />
+          <ChevronRightCircle size={16} />
         </li>
       )}
     </>

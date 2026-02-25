@@ -107,40 +107,57 @@ const DynamicAttendeeForm = ({
   // Field change handler
   const handleFieldChange = (fieldName, value) => {
     setAttendeeData((prev) => ({ ...prev, [fieldName]: value }));
+    // Clear error for this field as user types
+    setErrors((prev) => {
+      if (!prev[fieldName]) return prev;
+      const updated = { ...prev };
+      delete updated[fieldName];
+      return updated;
+    });
   };
 
-  // Basic validation function (keeps logic from your desired version)
-  const validateAttendeeData = (attData = {}, requiredFieldsList = []) => {
+  // Comprehensive validation: checks ALL fields from apiData + attendeeData keys
+  // Required fields → emptiness + format, Non-required fields → format only (if filled)
+  const validateAttendeeData = (attData = {}, requiredFieldsList = [], allFields = []) => {
     const newErrors = {};
-    requiredFieldsList.forEach((field) => {
+
+    // Gather all field names from apiData AND attendeeData keys (deduplicated)
+    const apiFieldNames = allFields.map((f) => f.field_name);
+    const dataKeys = Object.keys(attData).filter((k) => k !== 'missingFields' && k !== 'id');
+    const allFieldNames = [...new Set([...apiFieldNames, ...dataKeys])];
+
+    allFieldNames.forEach((field) => {
       const value = attData[field] ?? "";
-      if (value instanceof File) {
-        if (!value) newErrors[field] = `${field} is required`;
+      const isRequired = requiredFieldsList.includes(field);
+      const lower = field.toLowerCase();
+      const isEmailField = /email/i.test(field);
+      const isPhoneField = ["number", "phone number", "mobile number", "contact_number", "mo", "phone", "contact number"].includes(lower) || /phone|contact|mobile/i.test(field);
+
+      // Check if value is empty
+      const isEmpty = value instanceof File ? !value
+        : typeof value === "string" ? !value.trim()
+          : !value;
+
+      // Required field: must not be empty
+      if (isRequired && isEmpty) {
+        newErrors[field] = `${field} is required`;
         return;
       }
-      if (typeof value === "string" && !value.trim()) {
-        newErrors[field] = `${field} is required`;
-      }
-      // number-ish checks for commonly named fields
-      const lower = field.toLowerCase();
-      if (["number", "phone number", "mobile number", "contact_number", "mo"].includes(lower)) {
-        if (!/^\d{10}$/.test(String(value || ""))) newErrors[field] = `${field} must be a valid 10-digit number`;
-      }
-      if (/email/i.test(field)) {
-        if (typeof value !== "string" || !value.trim()) newErrors[field] = `${field} is required`;
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) newErrors[field] = `${field} must be a valid email address`;
-      }
-    });
 
-    // if no explicit required email field, still validate any email typed
-    if (!requiredFieldsList.includes("email")) {
-      const emailField = Object.keys(attData).find((f) => /email/i.test(f));
-      if (emailField && typeof attData[emailField] === "string" && attData[emailField].trim()) {
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attData[emailField])) {
-          newErrors[emailField] = `${emailField} must be a valid email address`;
+      // Format checks (only if field has a value)
+      if (!isEmpty) {
+        if (isEmailField && typeof value === "string") {
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            newErrors[field] = `${field} must be a valid email address`;
+          }
+        }
+        if (isPhoneField) {
+          if (!/^\d{10}$/.test(String(value || ""))) {
+            newErrors[field] = `${field} must be a valid 10-digit number`;
+          }
         }
       }
-    }
+    });
 
     return newErrors;
   };
@@ -164,7 +181,7 @@ const DynamicAttendeeForm = ({
   };
 
   const handleAddAttendee = async () => {
-    const newErrors = validateAttendeeData(attendeeData, requiredFields);
+    const newErrors = validateAttendeeData(attendeeData, requiredFields, apiData);
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -295,9 +312,12 @@ const DynamicAttendeeForm = ({
                 value={value}
                 onChange={onChange}
                 required={required}
+                isInvalid={!!errors[field_name]}
               />
+              {errors[field_name] && (
+                <Form.Text className="text-danger fw-bold d-block mt-1">{errors[field_name]}</Form.Text>
+              )}
             </Form.Group>
-            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
           </>
         );
 
@@ -420,9 +440,12 @@ const DynamicAttendeeForm = ({
                 value={value}
                 onChange={onChange}
                 required={required}
+                isInvalid={!!errors[field_name]}
               />
+              {errors[field_name] && (
+                <Form.Text className="text-danger fw-bold d-block mt-1">{errors[field_name]}</Form.Text>
+              )}
             </Form.Group>
-            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
           </>
         );
 
@@ -437,9 +460,12 @@ const DynamicAttendeeForm = ({
                 value={value}
                 onChange={onChange}
                 required={required}
+                isInvalid={!!errors[field_name]}
               />
+              {errors[field_name] && (
+                <Form.Text className="text-danger fw-bold d-block mt-1">{errors[field_name]}</Form.Text>
+              )}
             </Form.Group>
-            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
           </>
         );
 
@@ -454,13 +480,27 @@ const DynamicAttendeeForm = ({
                 value={value}
                 onChange={onChange}
                 required={required}
+                isInvalid={!!errors[field_name]}
               />
+              {errors[field_name] && (
+                <Form.Text className="text-danger fw-bold d-block mt-1">{errors[field_name]}</Form.Text>
+              )}
             </Form.Group>
-            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
           </>
         );
 
-      case "file":
+      case "file": {
+        // Determine image preview source
+        const getPreviewSrc = () => {
+          if (!value) return null;
+          // base64 string (from face detection or existing data)
+          if (typeof value === 'string' && (value.startsWith('data:image') || value.startsWith('http'))) return value;
+          // File or Blob object
+          if (value instanceof File || value instanceof Blob) return URL.createObjectURL(value);
+          return null;
+        };
+        const previewSrc = getPreviewSrc();
+
         return (
           <>
             <Form.Group>
@@ -470,12 +510,28 @@ const DynamicAttendeeForm = ({
                 type="file"
                 accept="image/*"
                 onChange={onChange}
-                required={required}
+                required={required && !value}
               />
+              {errors[field_name] && (
+                <Form.Text className="text-danger fw-bold d-block mt-1">{errors[field_name]}</Form.Text>
+              )}
             </Form.Group>
-            <Form.Text className="text-primary fw-bold">{errors[field_name] || ""}</Form.Text>
+
+            {/* Image preview */}
+            {previewSrc && (
+              <div className="mt-2 d-flex align-items-center gap-2">
+                <img
+                  src={previewSrc}
+                  alt="Preview"
+                  className="rounded-3 border border-secondary"
+                  style={{ width: 64, height: 64, objectFit: 'cover' }}
+                />
+                <small className="text-success fw-semibold">Image uploaded</small>
+              </div>
+            )}
           </>
         );
+      }
 
       default:
         return null;

@@ -541,7 +541,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
 
         {currentView === MODAL_VIEWS.OTP ? (
           <Form noValidate onSubmit={handleVerifyOtp}>
-            <div className="">
+            <div >
               <Form.Group controlId="otp" className="mb-3">
                 <Form.Label>Enter OTP</Form.Label>
                 <Form.Control

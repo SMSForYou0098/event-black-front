@@ -108,6 +108,26 @@ const BookingSummary = () => {
         if (sessionId) mutation.mutate(sessionId);
     }, [sessionId]);
 
+    // Handle back button interception to redirect to Cart page instead of Checkout
+    useEffect(() => {
+        if (!event_key) return;
+
+        const handleBackButton = (e) => {
+            // Prevent default back behavior
+            e.preventDefault();
+            // Redirect to cart page
+            router.replace(`/events/cart/${event_key}`);
+        };
+
+        // Push a state to history so we can trap the back action
+        window.history.pushState(null, null, window.location.href);
+        window.addEventListener('popstate', handleBackButton);
+
+        return () => {
+            window.removeEventListener('popstate', handleBackButton);
+        };
+    }, [event_key, router]);
+
     // useCallback hooks
     const handleOpen = useCallback(() => setShowAttendees(true), []);
     const handleClose = useCallback(() => setShowAttendees(false), []);
@@ -214,7 +234,7 @@ const BookingSummary = () => {
                 ticketData={fullBookingData}
                 showTicketDetails={true}
             />
-            <Container className="">
+            <Container >
                 <CartSteps id={'last'} />
                 <ETicketAlert />
                 <Row>

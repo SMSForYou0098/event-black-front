@@ -172,7 +172,7 @@ const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
   };
 
   return (
-    <div className="">
+    <div >
       <SEOHead
         title={seoTitle}
         description={seoDescription}
@@ -182,7 +182,7 @@ const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
         type="organization"
         structuredData={organizationSchema}
       />
-      <div className="">
+      <div >
         <CommonBannerSlider
           type="organization"
           banners={bannersRaw}

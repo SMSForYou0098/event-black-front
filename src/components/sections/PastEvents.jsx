@@ -9,7 +9,7 @@ import ContinueWatchCard from "../cards/ContinueWatchCard";
 // Utils
 import { api } from "@/lib/axiosInterceptor";
 
-const PastEvents = memo(({ type='events', viewSlider=true, hideViewAll=true }) => {
+const PastEvents = memo(({ type = 'events', viewSlider = true, hideViewAll = true }) => {
   const [title] = useState("Past Events");
 
   const {
@@ -63,40 +63,40 @@ const PastEvents = memo(({ type='events', viewSlider=true, hideViewAll=true }) =
     <Fragment>
       {
         viewSlider ?
-      <SectionSlider
-        title={title}
-        list={apiEvents}
-        className="continue-watching-block"
-        slidesPerView={6}
-        onViewAll='/events/past'
-        hideViewAll={hideViewAll}
-      >
-        {(item) => (
-          <ContinueWatchCard
-            imagePath={item?.thumbnail || item?.banner || item?.posterUrl}
-            progressValue={0}
-            title={item?.title}
-          link={item?.url}
+          <SectionSlider
+            title={title}
+            list={apiEvents}
+            className="continue-watching-block"
+            slidesPerView={6}
+            onViewAll='/events/past'
+            hideViewAll={hideViewAll}
+          >
+            {(item) => (
+              <ContinueWatchCard
+                imagePath={item?.thumbnail || item?.banner || item?.posterUrl}
+                progressValue={0}
+                title={item?.title}
+                link={item?.url}
 
-          />
-        )}
-      </SectionSlider>
-      : 
-      <SectionList  title={title}
-      list={apiEvents}
-      className=""
-      slidesPerView={6}
-      onViewAll='/events/past'
-      hideViewAll={hideViewAll}>
-      {(item) => (
-        <ContinueWatchCard
-          imagePath={item?.thumbnail || item?.banner || item?.posterUrl}
-          progressValue={0}
-          title={item?.title}
-        link={item?.url}
-        />
-      )}
-    </SectionList>
+              />
+            )}
+          </SectionSlider>
+          :
+          <SectionList title={title}
+            list={apiEvents}
+
+            slidesPerView={6}
+            onViewAll='/events/past'
+            hideViewAll={hideViewAll}>
+            {(item) => (
+              <ContinueWatchCard
+                imagePath={item?.thumbnail || item?.banner || item?.posterUrl}
+                progressValue={0}
+                title={item?.title}
+                link={item?.url}
+              />
+            )}
+          </SectionList>
       }
     </Fragment>
   );

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectCheckoutDataByKey, updateAttendees } from "@/store/customSlices/checkoutDataSlice";
 import { useMyContext } from "@/Context/MyContextProvider";
+import { validateAttendeeData, checkForDuplicateAttendees } from "../../../../components/CustomComponents/AttendeeStroreUtils";
 import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
 import DynamicAttendeeForm from "../../../../components/events/Attendees/DynamicAttendeeForm";
@@ -40,11 +41,13 @@ export const useEventFields = (eventId, options = {}) =>
 const AttendeePage = () => {
   const router = useRouter();
   const { categoryId, k, event_key } = router.query ?? {};
-  const { fetchCategoryData, isMobile } = useMyContext();
+  const { fetchCategoryData, isMobile, ErrorAlert } = useMyContext();
   const [categoryData, setCategoryData] = useState(null);
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [attendeeList, setAttendeesList] = useState([]);
   const [selectedAttendees, setSelectedAttendees] = useState([]);
+  const [errorMessages, setErrorMessages] = useState([]);
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const [event_id, setEventId] = useState(null);
 
   const dispatch = useDispatch();
@@ -131,9 +134,22 @@ const AttendeePage = () => {
     // some basic guard
     if (!attendeeList || attendeeList.length === 0) return;
     if (hasMissingFields) {
-      console.warn("Cannot save — some attendees have missing fields");
+      ErrorAlert("Please fill all required fields for each attendee before saving.");
       return;
     }
+
+    // Run shared validation (email format, phone format, missing values)
+    for (let i = 0; i < attendeeList.length; i++) {
+      const { valid, message } = validateAttendeeData(attendeeList[i]);
+      if (!valid) {
+        ErrorAlert(`Attendee ${i + 1}: ${message}`);
+        return;
+      }
+    }
+
+    // Check for duplicate attendees
+    const isDuplicate = checkForDuplicateAttendees(attendeeList, setErrorMessages, setShowErrorModal);
+    if (isDuplicate) return;
 
     // update redux first (so next page can read it)
     dispatch(
@@ -148,7 +164,7 @@ const AttendeePage = () => {
     router.push(`/events/checkout/${router.query.event_key}/?k=${k}`);
 
     // TODO: call API to persist attendees if you want
-  }, [attendeeList, hasMissingFields, dispatch, k, router]);
+  }, [attendeeList, hasMissingFields, dispatch, k, router, ErrorAlert]);
 
   // derive quantity safely from `data`
   // support both shapes: new slice may put selected info at `data` root,
@@ -165,7 +181,7 @@ const AttendeePage = () => {
     return q;
   }, [data]);
   return (
-    <div className="">
+    <div >
       <Container>
         <CartSteps id={2} showAttendee={true} />
         <Timer timestamp={data?.timestamp} navigateOnExpire={() => router.push(`/events/cart/${event_key}`)} />

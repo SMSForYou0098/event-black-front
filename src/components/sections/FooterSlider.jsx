@@ -39,7 +39,7 @@ const FooterSlider = ({ themeSchemeDirection = 'ltr' }) => {
   // Render the slider only if data fetching is successful and events exist
   return (
     <div className=''>
-      <div className="">
+      <div >
         <h4 className="my-4 mt-md-3 mt-sm-3">Our Events</h4>
       </div>
       {isSuccess && events.length > 0 ? (
@@ -58,7 +58,7 @@ const FooterSlider = ({ themeSchemeDirection = 'ltr' }) => {
           touchAngle={45}
           grabCursor={true}
           // Enable mousewheel control
-        //   mousewheel={true}
+          //   mousewheel={true}
           // Add space between slides for better touch experience
           spaceBetween={20}
           breakpoints={{

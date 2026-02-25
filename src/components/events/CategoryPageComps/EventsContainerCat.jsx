@@ -38,7 +38,7 @@ const EventsContainerCat = ({ events = [], loading = false, title }) => {
 
   return (
     <div>
-      <Row className="">
+      <Row >
         <Col xs={12}>
           {title && <h5 className="main-title text-capitalize mb-3">{title}</h5>}
         </Col>

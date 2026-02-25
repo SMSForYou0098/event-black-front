@@ -67,7 +67,7 @@ const AddressUpdateDrawer = ({ open, onClose, userData, onSuccess }) => {
             placement="bottom"
             style={{ height: 'auto', minHeight: '40vh' }}
         >
-            <div className="">
+            <div >
                 <div className="d-flex justify-content-between align-items-center mb-2">
                     <label className="text-light fw-bold">Address</label>
                     {!isEditing && (
@@ -75,7 +75,7 @@ const AddressUpdateDrawer = ({ open, onClose, userData, onSuccess }) => {
                             buttonText=""
                             icon={<PenLineIcon size={16} />}
                             HandleClick={() => setIsEditing(true)}
-                            className=""
+
                             size="sm"
                         />
                     )}

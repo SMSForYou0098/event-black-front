@@ -10,7 +10,7 @@ const ExpiredEvent = () => {
           style={{ background: "#fff5f5", border: "1px solid #f8d7da" }}
         >
           <h5 className="fw-bold mb-2 text-danger">Event Has Concluded</h5>
-          <div className="">
+          <div >
             This event has already taken place and is no longer available for
             booking. Check out our other upcoming events or browse similar
             events in your area.

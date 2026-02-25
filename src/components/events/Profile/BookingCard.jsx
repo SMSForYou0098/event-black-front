@@ -125,12 +125,12 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
       <div className={`${compact ? 'p-3' : 'p-2 p-sm-4'} rounded custom-dark-content-bg rounded-4 h-100`}>
         <Row className="g-3">
           {/* Image and Button Column */}
-          <Col xs="6" className="d-flex flex-column align-items-center gap-2">
+          <Col xs="4" >
             <Image
               src={bookingData?.thumbnail}
               alt={bookingData.ticket?.name}
-              width={imageDimensions.width}
-              height={imageDimensions.height}
+              width={'100%'}
+              // height={imageDimensions.height}
               className="rounded-3 flex-shrink-0"
               style={{ objectFit: 'cover' }}
               loading="lazy"
@@ -139,7 +139,7 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
           </Col>
 
           {/* Content Column */}
-          <Col xs="6" className="d-flex flex-column justify-content-start">
+          <Col xs="8" className="d-flex flex-column justify-content-start">
             <div className="d-flex align-items-center flex-wrap gap-1 gap-sm-2 mb-1">
               <TypeIcon type={bookingData.type} />
               <h6 className="mb-0 text-truncate" style={{ maxWidth: '100%' }}>

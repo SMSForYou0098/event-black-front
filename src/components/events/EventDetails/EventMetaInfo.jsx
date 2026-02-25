@@ -137,15 +137,15 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
   const handleBookNow = () => {
     if (eventStatus.disabled) return;
 
-    if (eventData?.booking_notice?.trim()) {
-      setShowOffcanvas(true);
-      return;
-    }
+    // if (eventData?.booking_notice?.trim()) {
+    //   setShowOffcanvas(true);
+    //   return;
+    // }
 
-    if (eventData?.online_ticket_terms || eventData?.offline_ticket_terms) {
-      setShowTermsDrawer(true);
-      return;
-    }
+    // if (eventData?.online_ticket_terms || eventData?.offline_ticket_terms) {
+    //   setShowTermsDrawer(true);
+    //   return;
+    // }
 
     handleContinue();
   };
@@ -178,7 +178,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         {/* Desktop Pricing + Book Button */}
         <div className="d-none d-sm-block">
           {!eventStatus.disabled && (
-            <div className="mt-4 mb-3 w-100 border-dashed rounded-3 p-3 d-inline-flex align-items-center justify-content-between gap-3 flex-wrap">
+            <div className="mt-4 mb-3 border-dashed rounded-3 p-3 d-inline-flex align-items-center justify-content-between gap-3 flex-wrap">
 
               {/* Pricing label */}
               <h6 className="m-0 d-flex gap-2 align-items-center flex-wrap text-nowrap">
@@ -215,7 +215,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
               <CustomBtn
                 size="sm"
                 className="fw-bold py-2 rounded-3"
-                wrapperClassName=""
+                wrapper
                 style={{ fontSize: "13px" }}
                 HandleClick={handleBookNow}
                 disabled={eventStatus.disabled}

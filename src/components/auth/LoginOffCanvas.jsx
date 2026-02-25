@@ -811,7 +811,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                 className="w-100"
                             />
 
-                            <div className="d-flex justify-content-between align-items-center sticky-mobile-footer">
+                            <div className="d-flex justify-content-between align-items-center ">
                                 <CustomBtn
                                     variant="link"
                                     HandleClick={handleBack}
@@ -910,13 +910,11 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             </Form.Control.Feedback>
                         </Form.Group>
 
-                        <div className="d-flex flex-column gap-3 mb-3 sticky-mobile-footer">
-                            <span style={{ fontSize: '14px' }} className="text-secondary mt-2 d-block">
-                                By continuing, you agree to accept our <Link href="/terms-and-conditions" className="text-decoration-underline text-primary">Terms & Conditions</Link> and <Link href="/privacy-policy" className="text-decoration-underline text-primary">Privacy Policy</Link>.
-                            </span>
+                        <span style={{ fontSize: '14px' }} className="text-white mt-2 mb-3 d-block">
+                            By continuing, you agree to accept our <Link href="/terms-and-conditions" className="text-decoration-underline text-primary">Terms & Conditions</Link> and <Link href="/privacy-policy" className="text-decoration-underline text-primary">Privacy Policy</Link>.
+                        </span>
 
-
-
+                        <div className="mt-auto ">
                             <CustomBtn
                                 type="submit"
                                 variant="primary"

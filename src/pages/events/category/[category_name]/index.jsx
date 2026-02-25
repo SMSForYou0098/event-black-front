@@ -105,7 +105,7 @@ const EventsByCategory = () => {
         <CategorySEO categoryData={categoryData} categorySlug={category_name} />
       )}
 
-      <div className="">
+      <div >
         <EventsByCat
           bannerData={bannerData}
           bannerLoading={bannersLoading}

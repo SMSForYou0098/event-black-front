@@ -213,7 +213,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     <Fragment>
       <section className="banner-container section-padding-bottom pb-0">
         <div className="movie-banner">
-          <div id="banner-detail-slider" style={{ height: "100%" }} className="">
+          <div id="banner-detail-slider" style={{ height: "100%" }} >
             <MobileOnly>
               {loading ? <BannerSkeleton themeSchemeDirection={themeSchemeDirection} /> : (
 
@@ -240,7 +240,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                     return (
                       <SwiperSlide key={banner.id || index}>
                         <div
-                          className=""
+
                           style={{
                             backgroundImage: backgroundStyle,
                             backgroundSize: 'cover',

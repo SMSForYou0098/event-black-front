@@ -87,7 +87,7 @@ export const TotalAmountHeader = ({
   >
     <div>
       <h6 className="mb-1 fw-bold">Total Amount</h6>
-      <small className="" style={{ fontSize: '14px' }}>
+      <small style={{ fontSize: '14px' }}>
         {summaryData?.quantity} ticket{summaryData?.quantity > 1 ? 's' : ''}
         {summaryData?.discount > 0 && (
           <span className="text-success ms-2">

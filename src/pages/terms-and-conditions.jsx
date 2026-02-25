@@ -10,7 +10,7 @@ const TermsConditions = () => {
       </h1>
 
       {/* Main Content */}
-      <section className="">
+      <section >
         <Container>
           <Row>
             <Col lg={12}>
@@ -370,7 +370,7 @@ const TermsConditions = () => {
                       <Row className="g-4">
                         <Col md={4}>
                           <div className="text-center">
-                            <Mail size={24} className="custom-text-secondary"/>
+                            <Mail size={24} className="custom-text-secondary" />
                             <h6 className="mb-2 custom-text-secondary">Email</h6>
                             <a href="mailto:contact@getyourticket.in" className="text-decoration-none" style={{ color: '#d1d5db' }}>
                               contact@getyourticket.in
@@ -379,7 +379,7 @@ const TermsConditions = () => {
                         </Col>
                         <Col md={4}>
                           <div className="text-center">
-                            <Mail size={24} className="mb-2 custom-text-secondary"  />
+                            <Mail size={24} className="mb-2 custom-text-secondary" />
                             <h6 className="mb-2 custom-text-secondary" >Support</h6>
                             <a href="mailto:support@getyourticket.in" className="text-decoration-none" style={{ color: '#d1d5db' }}>
                               support@getyourticket.in

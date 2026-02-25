@@ -713,8 +713,8 @@ const Index = React.memo(() => {
         <div className="bd-cheatsheet container-fluid bg-trasprent">
           <section id="components">
             <div className="iq-side-content sticky-xl-top">
-              <Card className="">
-                <Card.Body className="">
+              <Card >
+                <Card.Body >
                   <h4 className="fw-bold">Components</h4>
                 </Card.Body>
               </Card>
@@ -746,8 +746,8 @@ const Index = React.memo(() => {
           </section>
           <section id="forms">
             <div className="iq-side-content sticky-xl-top">
-              <Card className="">
-                <Card.Body className="">
+              <Card >
+                <Card.Body >
                   <h4 className="fw-bold">Forms</h4>
                 </Card.Body>
               </Card>
@@ -765,8 +765,8 @@ const Index = React.memo(() => {
           </section>
           <section id="content">
             <div className="iq-side-content sticky-xl-top">
-              <Card className="">
-                <Card.Body className="">
+              <Card >
+                <Card.Body >
                   <h4 className="fw-bold">Contents</h4>
                 </Card.Body>
               </Card>

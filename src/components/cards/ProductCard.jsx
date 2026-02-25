@@ -66,7 +66,7 @@ const ProductCard = memo((props) => {
                 {props?.product_name}
               </Link>
             </p>
-            <div className="">
+            <div >
               <span className="fs-6 price" >
                 {
                   !props?.noPrice &&

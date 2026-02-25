@@ -8,8 +8,8 @@ import CustomBtn from "../../../../utils/CustomBtn";
 import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
 import { CheckoutSummarySection } from "../../../../components/events/CheckoutComps/CheckoutSummarySection";
 import { OrderReviewSection } from "../../../../components/events/CheckoutComps/OrderReviewSection";
-import { useSelector } from "react-redux";
-import { selectCheckoutDataByKey } from "@/store/customSlices/checkoutDataSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { selectCheckoutDataByKey, clearCheckoutData } from "@/store/customSlices/checkoutDataSlice";
 import { api } from "@/lib/axiosInterceptor";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ErrorExtractor } from "@/utils/consts";
@@ -24,6 +24,7 @@ import TermsAccordion from "../../../../components/events/EventDetails/TermsAcco
 import AddressUpdateDrawer from "../../../../components/events/CheckoutComps/AddressUpdateDrawer";
 const CartPage = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { isMobile, ErrorAlert, successAlert, UserData, systemSetting } = useMyContext();
   const { event_key, k } = router.query;
   const [isLoading, setIsLoading] = useState(false);
@@ -60,7 +61,7 @@ const CartPage = () => {
   useHeaderSimple({
     title: event?.name || "Event Details",
   });
-  const attendeeRequired = checkoutData?.event?.category?.attendy_required === 1 || checkoutData?.event?.eventControls?.attendee_required === true;
+  const attendeeRequired = checkoutData?.event?.category?.attendy_required === true || checkoutData?.event?.attendee_required === true;
 
 
   useEffect(() => {
@@ -607,7 +608,8 @@ const CartPage = () => {
         return;
       }
 
-      router.push(
+      dispatch(clearCheckoutData({ key: k }));
+      router.replace(
         `/events/summary/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(sessionId)}`
       );
 
@@ -712,16 +714,20 @@ const CartPage = () => {
 
   // Event handler for the process button
   const handleProcess = () => {
-    // If terms exist, show terms drawer first
-    if (event?.online_ticket_terms || event?.offline_ticket_terms) {
+    const hasNotice = event?.booking_notice?.trim();
+    const hasTerms = event?.online_ticket_terms || event?.offline_ticket_terms;
+
+    // If there's a notice or terms, open the drawer (TermsAccordion handles the step flow)
+    if (hasNotice || hasTerms) {
       setShowTermsDrawer(true);
       return;
     }
-    // Otherwise proceed directly
+
+    // No notice or terms → proceed directly
     ProcessBooking();
   };
 
-  // Called after user agrees to terms
+  // Called after user completes the notice + terms flow
   const proceedAfterTerms = () => {
     setShowTermsDrawer(false);
     ProcessBooking();
@@ -765,7 +771,8 @@ const CartPage = () => {
         <Container>
           <CartSteps
             id={2}
-            showAttendee={checkoutData?.event?.category?.attendy_required === 1 || checkoutData?.event?.eventControls?.attendee_required === true}
+            showAttendee={attendeeRequired}
+          // showAttendee={categoryData?.attendy_required === true || event?.eventControls?.attendee_required === true}
           />
           <Timer
             timestamp={data?.timestamp}
@@ -812,8 +819,9 @@ const CartPage = () => {
             </Col>
           </Row>
 
-          {/* Terms and Conditions Drawer */}
+          {/* Booking Notice + Terms Drawer */}
           <TermsAccordion
+            bookingNotice={event?.booking_notice}
             onlineTerms={event?.online_ticket_terms}
             offlineTerms={event?.offline_ticket_terms}
             show={showTermsDrawer}

@@ -90,7 +90,7 @@ const EnhancedTicketsSection = ({ tickets }) => {
                   </div>
                 )}
 
-                <Card.Body className="">
+                <Card.Body >
                   {/* Header */}
                   <div className="d-flex justify-content-between align-items-start mb-3">
                     <div>
@@ -136,7 +136,7 @@ const EnhancedTicketsSection = ({ tickets }) => {
                     </div>
                     <ProgressBar
                       now={availabilityPercentage}
-                      className=""
+
                       style={{ height: "6px" }}
                       variant={
                         availabilityPercentage > 50
