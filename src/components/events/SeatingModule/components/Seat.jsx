@@ -63,10 +63,27 @@ const Seat = memo(({
     }, [isHold, isOwnHold, seat.radius]);
 
     const handleInteraction = useCallback((e) => {
-        if (isClickable) {
-            e.cancelBubble = true;
-            onClick(seat, sectionId, rowId);
+        if (!isClickable) return;
+
+        try {
+            const targetNode = e.target;
+            const stage = targetNode?.getStage?.();
+            const pointerPos = stage?.getPointerPosition?.();
+
+            // Extra safety on mobile: only allow click if this seat
+            // is actually the top-most shape under the pointer.
+            if (stage && pointerPos) {
+                const topShape = stage.getIntersection(pointerPos);
+                if (topShape && topShape !== targetNode) {
+                    return;
+                }
+            }
+        } catch (err) {
+            // If anything goes wrong in hit-testing, just fall back to normal behavior
         }
+
+        e.cancelBubble = true;
+        onClick(seat, sectionId, rowId);
     }, [isClickable, onClick, seat, sectionId, rowId]);
 
     const x = seat.x;
@@ -99,13 +116,6 @@ const Seat = memo(({
     const seatStroke = isAvailable || isSelected ? SEAT_COLORS.available : ((isHold && !isOwnHold) ? SEAT_COLORS.hold : 'transparent');
     const strokeWidth = isAvailable || isSelected || (isHold && !isOwnHold) ? 1 : 0;
 
-    // On mobile, expand hit area symmetrically. Scale inversely with zoom
-    // so seats remain tappable even when zoomed out.
-    const MIN_HIT_SIZE_PX = 36; // minimum finger-tappable size in screen pixels
-    const hitPadding = IS_MOBILE
-        ? Math.max((MIN_HIT_SIZE_PX / canvasScale - radius * 2) / 2, 4)
-        : 0;
-
     return (
         <Group x={x} y={y} opacity={seatOpacity}>
             <Rect
@@ -122,22 +132,10 @@ const Seat = memo(({
                 shadowOpacity={0.6}
                 onClick={handleInteraction}
                 onTap={handleInteraction}
-                listening={isClickable}
+                listening={true}
                 perfectDrawEnabled={false}
                 shadowForStrokeEnabled={false}
                 hitStrokeWidth={0}
-                hitFunc={IS_MOBILE ? (context, shape) => {
-                    const halfSize = radius + hitPadding;
-                    context.beginPath();
-                    context.rect(
-                        -halfSize,
-                        -halfSize,
-                        halfSize * 2,
-                        halfSize * 2
-                    );
-                    context.closePath();
-                    context.fillStrokeShape(shape);
-                } : undefined}
                 onMouseEnter={(e) => {
                     const container = e.target.getStage().container();
                     if (isClickable) {

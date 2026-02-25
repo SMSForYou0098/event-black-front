@@ -207,15 +207,6 @@ const BookingLayout = (props) => {
         stageInst.batchDraw();
     };
 
-    // Proceed to checkout
-    const handleProceedToCheckout = () => {
-        if (selectedSeats.length === 0) {
-            toast.warning('Please select at least one seat');
-            return;
-        }
-        setIsCheckoutModalVisible(true);
-    };
-
     // Handle booking submission
     const handleBooking = async (e) => {
         e.preventDefault();
@@ -288,10 +279,6 @@ const BookingLayout = (props) => {
         }
     };
 
-    // Handle extend time
-    const handleExtendTime = () => {
-        extendTimer(300); // Add 5 more minutes
-    };
 
     if (isLoading) {
         return (

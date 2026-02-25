@@ -13,6 +13,11 @@
   --user-drawer-item-bg: rgba(255, 255, 255, 0.05);
 }
 
+.btn-outline-danger{
+  color: var(--bs-white) !important;
+  border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;;
+}
+
 .modal-body-padding {
   padding: 1.2rem 0.7rem !important;
 }
@@ -335,12 +340,18 @@ canvas {
   ;
 }
 
-// Custom height for mobile screens
+// Custom height for mobile screens (applies to non-seating canvases only)
 @media (max-width: 576px) {
   canvas {
     height: 97% !important; // adjust as needed for your design
     width: 74% !important; // full width on mobile
     max-height: 60vh !important; // optional: responsive to viewport
+  }
+  // Seating module: let Konva control canvas size so hit-testing and layout match (no 74% override)
+  .seating-module-scope canvas {
+    width: unset !important;
+    height: unset !important;
+    max-height: none !important;
   }
 }
 

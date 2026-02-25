@@ -19,7 +19,7 @@ import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 import { Calendar, Pin, Ticket, Users, Check, User } from "lucide-react";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
-import BookingLayout from "../../../../components/events/SeatingModule/Bookinglayout";
+import BookingLayout from "../../../../components/events/SeatingModuleAdmin/Bookinglayout";
 import toast from "react-hot-toast";
 import RegistrationBooking from "../../../../components/events/RegistrationBooking/RegistrationBooking";
 import CustomHeader from "../../../../utils/ModalUtils/CustomModalHeader";

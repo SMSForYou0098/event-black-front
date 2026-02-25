@@ -120,8 +120,8 @@ const useBooking = (options = {}) => {
       const currentSeatsCount = currentSelectedSeats.quantity;
 
       const result = await Swal.fire({
-        title: 'Different Ticket Category',
-        html: `You have <strong>${currentSeatsCount} seat${currentSeatsCount > 1 ? 's' : ''}</strong> selected from <strong>${currentCategory}</strong> category.<br><br>Selecting a seat from <strong>${newCategory}</strong> category will clear your current selection.<br><br>Do you want to continue?`,
+        title: 'One category at a time',
+        html: `You can book seats from only <strong>one</strong> category. Switching to <strong>${newCategory}</strong> will remove your current <strong>${currentCategory}</strong> selection. Continue?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, Continue',

@@ -37,6 +37,11 @@ const BookingSeatCanvas = ({
     const initializedDims = useRef({ width: 0, height: 0 });
     const dragStartPos = useRef(null);
 
+    // Mobile single-finger panning (replaces Konva's draggable on mobile)
+    const singleTouchStart = useRef(null);
+    const lastSingleTouch = useRef(null);
+    const isMobilePanning = useRef(false);
+
     // Block browser double-tap zoom and pinch-zoom on the canvas container
     useEffect(() => {
         const container = containerRef.current;
@@ -243,7 +248,11 @@ const BookingSeatCanvas = ({
         const touch2 = e.evt.touches[1];
 
         if (touch1 && touch2) {
+            // Two-finger pinch-zoom
             wasPinching.current = true;
+            singleTouchStart.current = null;
+            isMobilePanning.current = false;
+
             const stageInstance = stageRef.current;
             if (stageInstance) {
                 stageInstance.stopDrag();
@@ -255,6 +264,11 @@ const BookingSeatCanvas = ({
 
             lastCenter.current = getCenter(p1, p2);
             lastDist.current = getDistance(p1, p2);
+        } else if (IS_MOBILE && touch1 && !touch2) {
+            // Single touch — record start for potential pan
+            singleTouchStart.current = { x: touch1.clientX, y: touch1.clientY };
+            lastSingleTouch.current = { x: touch1.clientX, y: touch1.clientY };
+            isMobilePanning.current = false;
         }
     }, [stageRef]);
 
@@ -263,6 +277,7 @@ const BookingSeatCanvas = ({
         const touch2 = e.evt.touches[1];
 
         if (touch1 && touch2) {
+            // Two-finger pinch-zoom (existing logic)
             e.evt.preventDefault();
 
             const stageInstance = stageRef.current;
@@ -313,6 +328,30 @@ const BookingSeatCanvas = ({
 
             lastCenter.current = newCenter;
             lastDist.current = newDist;
+        } else if (IS_MOBILE && touch1 && !touch2 && singleTouchStart.current) {
+            // Single-finger pan on mobile
+            const dx = touch1.clientX - singleTouchStart.current.x;
+            const dy = touch1.clientY - singleTouchStart.current.y;
+
+            // Only start panning after a distance threshold (so taps are not pans)
+            if (!isMobilePanning.current) {
+                if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+                    isMobilePanning.current = true;
+                } else {
+                    return;
+                }
+            }
+
+            // Apply delta since last move
+            const moveDx = touch1.clientX - lastSingleTouch.current.x;
+            const moveDy = touch1.clientY - lastSingleTouch.current.y;
+
+            setPosition(prev => ({
+                x: prev.x + moveDx,
+                y: prev.y + moveDy,
+            }));
+
+            lastSingleTouch.current = { x: touch1.clientX, y: touch1.clientY };
         }
     }, [scale, position, stageRef]);
 
@@ -320,7 +359,9 @@ const BookingSeatCanvas = ({
         lastCenter.current = null;
         lastDist.current = 0;
         dragStopped.current = false;
-        // wasPinching resets after a delay to absorb the dragEnd that fires
+        singleTouchStart.current = null;
+        lastSingleTouch.current = null;
+        isMobilePanning.current = false;
         setTimeout(() => { wasPinching.current = false; }, 50);
     }, []);
 
@@ -336,8 +377,8 @@ const BookingSeatCanvas = ({
         if (dragStartPos.current) {
             const dx = Math.abs(pos.x - dragStartPos.current.x);
             const dy = Math.abs(pos.y - dragStartPos.current.y);
-            if (dx < 2 && dy < 2) {
-                // Snap back — this was a tap, not a real drag
+            if (dx < 8 && dy < 8) {
+                // Snap back — this was a tap or micro-movement, not a real drag
                 e.target.position(dragStartPos.current);
                 dragStartPos.current = null;
                 return;
@@ -573,7 +614,7 @@ const BookingSeatCanvas = ({
                         scaleY={scale}
                         x={position.x}
                         y={position.y}
-                        draggable={true}
+                        draggable={!IS_MOBILE}
                         dragDistance={8}
                         tapDistance={10}
                         onWheel={handleWheel}
@@ -582,6 +623,7 @@ const BookingSeatCanvas = ({
                         onTouchStart={handleTouchStart}
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
+                        onClick={() => console.log('canvas clicked')}
                         style={{
                             opacity: isReady ? 1 : 0,
                             transition: 'opacity 0.3s ease',

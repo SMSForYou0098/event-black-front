@@ -9,7 +9,7 @@ const Row = memo(({ row, selectedSeatIds, onSeatClick, onSeatHover, onSeatLeave,
     const firstSeatY = row.seats[0]?.y ?? 50;
 
     return (
-        <Group>
+        <Group listening={false}>
             <Text
                 x={10}
                 y={firstSeatY - 5}
