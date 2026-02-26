@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper';
-import { ArrowBigDownDash, Printer, AlertCircle } from 'lucide-react';
+import { ArrowBigDownDash, Printer, AlertCircle, Ticket } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/axiosInterceptor';
 import { useMyContext } from "@/Context/MyContextProvider";
@@ -107,16 +107,14 @@ const TicketDrawer = ({
 
     // Drawer content - Notice before generating ticket
     const noticeContent = (
-        <div className="p-3">
-            <div className="d-flex align-items-center gap-2 mb-3">
-                <AlertCircle size={24} className="text-warning" />
-                <h6 className="mb-0 fw-bold">Important Information</h6>
-            </div>
+        <div className="p-3 pt-0">
 
             {ticketType?.type === 'individual' && (
-                <div className="alert alert-warning mb-3">
-                    <h6 className="alert-heading mb-2">Single Ticket</h6>
-                    <p className="mb-0">
+                <div className="alert alert-info mb-3">
+                    <p className="mb-0 text-success" style={{ fontSize: '12px' }}>
+                        No <Ticket size={12} /> physical ticket needed! Download your Ticket & enjoy unlimited fun.
+                    </p>
+                    <p className="mt-2" style={{ fontSize: '12px' }}>
                         If you select single ticket, each attendee receives a personal QR code for entry,
                         and group tickets won&apos;t work.
                     </p>
@@ -124,17 +122,17 @@ const TicketDrawer = ({
             )}
 
             {ticketType?.type === 'combine' && (
-                <div className="alert alert-info mb-3">
-                    <h6 className="alert-heading mb-2">Group Ticket</h6>
-                    <p className="mb-0">
+                <div className="alert alert-info mb-3" >
+                    <p className="mb-0 text-success" style={{ fontSize: '12px' }}>
+                        No <Ticket size={12} /> physical ticket needed! Download your Ticket & enjoy unlimited fun.
+                    </p>
+                    <p className="mt-2 text-white" style={{ fontSize: '12px' }}>
                         If you select group ticket, all attendees must arrive together and show the group ticket
                         at the venue for entry. Individual tickets will not work.
                     </p>
+
                 </div>
             )}
-            <div className="alert alert-info mb-3">
-            No physical ticket needed! Download your Ticket & enjoy unlimited fun.
-            </div>
             <div className="d-flex justify-content-center align-items-center gap-4 mt-3 mb-1">
                 <a
                     href="https://www.youtube.com/@Get-Your-Ticket"
@@ -279,6 +277,7 @@ const TicketDrawer = ({
             setShowOffcanvas={onClose}
             hideIndicator={true}
             style={isMobile ? { height: "85vh" } : {}}
+            bodyClassName="pt-0"
 
         >
             {showTicket ? ticketContent : noticeContent}

@@ -14,6 +14,7 @@ const CustomDrawer = ({
   placement,
   hideIndicator = false,
   className = '',
+  bodyClassName = '',
   style,
   ...props
 }) => {
@@ -99,7 +100,7 @@ const CustomDrawer = ({
       <Offcanvas.Header className="d-flex justify-content-center align-items-center pt-3 text-center">
         <Offcanvas.Title>{title}</Offcanvas.Title>
       </Offcanvas.Header>
-      <Offcanvas.Body>{children}</Offcanvas.Body>
+      <Offcanvas.Body className={bodyClassName}>{children}</Offcanvas.Body>
     </>
   );
 

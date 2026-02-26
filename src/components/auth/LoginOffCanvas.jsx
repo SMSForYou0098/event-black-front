@@ -8,6 +8,7 @@ import { signIn, logout } from "@/store/auth/authSlice";
 import { PasswordField } from "../../components/CustomComponents/CustomFormFields";
 import { ChevronLeft, LoaderCircle, Mail } from "lucide-react";
 import CustomBtn from "../../utils/CustomBtn";
+import CustomDrawer from "../../utils/CustomDrawer";
 import Link from "next/link";
 import { useMyContext } from "@/Context/MyContextProvider";
 import Logo from "../partials/Logo";
@@ -959,11 +960,18 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
 
     // Render as Modal for desktop or Offcanvas for mobile
     return isMobile ? (
-        <Offcanvas
-            show={show}
-            onHide={handleModalClose}
+        <CustomDrawer
+            showOffcanvas={show}
+            setShowOffcanvas={() => handleModalClose()}
             placement="bottom"
             className="auth-offcanvas modal-glass-bg"
+            hideIndicator={false}
+            title={
+                <div className="w-100 d-flex justify-content-center">
+                    <Logo height={107} width={240}
+                        mobileUrl={"/assets/images/logo/logo.webp"} />
+                </div>
+            }
             style={{
                 height: 'auto',
                 minHeight: '85vh',
@@ -971,18 +979,10 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                 borderTopRightRadius: '20px',
             }}
         >
-            <Offcanvas.Header className="border-0 pb-0">
-                <Offcanvas.Title className="w-100 text-center">
-                    <Logo height={107} width={240}
-                        mobileUrl={"/assets/images/logo/logo.webp"} />
-                    {/* <h4 className="mb-0 text-light">{getTitle()}</h4> */}
-                </Offcanvas.Title>
-            </Offcanvas.Header>
-
-            <Offcanvas.Body ref={offcanvasBodyRef} className="pt-0 pb-2 d-flex flex-column" style={{ overflowY: 'auto' }}>
+            <div ref={offcanvasBodyRef} className="pt-0 pb-2 d-flex flex-column" style={{ overflowY: 'auto' }}>
                 {renderContent()}
-            </Offcanvas.Body>
-        </Offcanvas>
+            </div>
+        </CustomDrawer>
     ) : (
         <Modal
             show={show}

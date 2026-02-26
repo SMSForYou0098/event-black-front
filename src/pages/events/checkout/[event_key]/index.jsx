@@ -608,10 +608,13 @@ const CartPage = () => {
         return;
       }
 
-      dispatch(clearCheckoutData({ key: k }));
       router.replace(
         `/events/summary/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(sessionId)}`
       );
+
+      setTimeout(() => {
+        dispatch(clearCheckoutData({ key: k }));
+      }, 5000);
 
     } catch (error) {
       console.error('Free booking handling error:', error);

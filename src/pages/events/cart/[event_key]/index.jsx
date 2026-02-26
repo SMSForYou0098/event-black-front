@@ -57,6 +57,17 @@ const CartPage = () => {
   // Cart drawer (mobile): show cart summary in drawer when tapping Proceed
   const [showCartDrawer, setShowCartDrawer] = useState(false);
 
+  const [isBelow991, setIsBelow991] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsBelow991(window.innerWidth <= 991);
+    };
+    handleResize(); // Initialization
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Check if event is daily type
 
   // Parse event date range to get min and max dates
@@ -585,7 +596,7 @@ const CartPage = () => {
                         parseInt(selectedTickets.quantity) === 0
                       }
                       HandleClick={() => {
-                        if (isMobile) setShowCartDrawer(false);
+                        if (isBelow991) setShowCartDrawer(false);
                         handleProcess();
                       }}
                       icon={attendeeRequired ? <Users size={20} /> : null}
@@ -602,14 +613,14 @@ const CartPage = () => {
             return (
               <>
                 {/* Desktop: sidebar column */}
-                {!isMobile && (
+                {!isBelow991 && (
                   <Col lg="4">
                     {cartSidebarBody}
                   </Col>
                 )}
 
                 {/* Mobile: cart drawer opened when footer "Proceed" is tapped */}
-                {isMobile && (
+                {isBelow991 && (
                   <CustomDrawer
                     showOffcanvas={showCartDrawer}
                     setShowOffcanvas={setShowCartDrawer}
