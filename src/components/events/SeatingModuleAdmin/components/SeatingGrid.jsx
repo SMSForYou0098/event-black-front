@@ -314,6 +314,25 @@ const SeatingGrid = ({
     [stage, sections]
   );
 
+  const boundsRef = useRef(bounds);
+  const viewportSizeRef = useRef(viewportSize);
+  boundsRef.current = bounds;
+  viewportSizeRef.current = viewportSize;
+
+  /** Clamp pan so the layout stays within the viewport (user cannot lose the layout off-screen). */
+  const clampPan = useCallback((panVal, z, b, v) => {
+    const w = b.width * z;
+    const h = b.height * z;
+    const minX = Math.min(0, v.width - w);
+    const maxX = Math.max(0, v.width - w);
+    const minY = Math.min(0, v.height - h);
+    const maxY = Math.max(0, v.height - h);
+    return {
+      x: Math.max(minX, Math.min(maxX, panVal.x)),
+      y: Math.max(minY, Math.min(maxY, panVal.y)),
+    };
+  }, []);
+
   const visibleSections = useMemo(() => {
     if (!sections?.length) return [];
     const pad = 50;
@@ -375,8 +394,9 @@ const SeatingGrid = ({
           const data = JSON.parse(raw);
           if (typeof data.zoom === 'number' && data.pan && typeof data.pan.x === 'number' && typeof data.pan.y === 'number') {
             const z = Math.max(0.2, Math.min(2, data.zoom));
+            const restored = clampPan({ x: data.pan.x, y: data.pan.y }, z, bounds, viewportSize);
             setZoom(z);
-            setPan({ x: data.pan.x, y: data.pan.y });
+            setPan(restored);
             userHasInteractedRef.current = true;
             return;
           }
@@ -392,8 +412,8 @@ const SeatingGrid = ({
     const px = (viewportSize.width - bounds.width * z) / 2;
     const py = pad;
     setZoom(z);
-    setPan({ x: px, y: py });
-  }, [bounds.width, bounds.height, viewportSize.width, viewportSize.height, totalSeats, storageKey]);
+    setPan(clampPan({ x: px, y: py }, z, bounds, viewportSize));
+  }, [bounds, viewportSize, totalSeats, storageKey, clampPan]);
 
   useEffect(() => {
     if (!storageKey || typeof window === 'undefined') return;
@@ -412,6 +432,15 @@ const SeatingGrid = ({
     };
   }, [storageKey, zoom, pan]);
 
+  useEffect(() => {
+    if (bounds.width <= 0 || bounds.height <= 0) return;
+    setPan((p) => {
+      const c = clampPan(p, zoom, bounds, viewportSize);
+      if (c.x === p.x && c.y === p.y) return p;
+      return c;
+    });
+  }, [zoom, viewportSize.width, viewportSize.height, bounds.width, bounds.height, clampPan]);
+
   const handleZoomIn = useCallback(() => {
     setZoom((z) => Math.min(2, z * 1.25));
   }, []);
@@ -427,12 +456,11 @@ const SeatingGrid = ({
     const fitScale = Math.min(scaleW, scaleH);
     const maxZoom = totalSeats <= 40 ? 1.4 : totalSeats <= 80 ? 1.2 : 1;
     const z = Math.max(0.15, Math.min(fitScale, maxZoom));
+    const px = (viewportSize.width - bounds.width * z) / 2;
+    const py = pad;
     setZoom(z);
-    setPan({
-      x: (viewportSize.width - bounds.width * z) / 2,
-      y: pad,
-    });
-  }, [bounds.width, bounds.height, viewportSize, totalSeats]);
+    setPan(clampPan({ x: px, y: py }, z, bounds, viewportSize));
+  }, [bounds, viewportSize, totalSeats, clampPan]);
 
   const handleZoomToPoint = useCallback(
     (layoutCenterX, layoutCenterY, zoomLevel) => {
@@ -440,10 +468,10 @@ const SeatingGrid = ({
       const px = viewportSize.width / 2 - layoutCenterX * z;
       const py = viewportSize.height / 2 - layoutCenterY * z;
       setZoom(z);
-      setPan({ x: px, y: py });
+      setPan(clampPan({ x: px, y: py }, z, bounds, viewportSize));
       userHasInteractedRef.current = true;
     },
-    [viewportSize]
+    [viewportSize, bounds, clampPan]
   );
 
   const handleZoomToSection = useCallback(
@@ -484,7 +512,10 @@ const SeatingGrid = ({
   const ZOOM_THRESHOLD_FOR_AUTO_ZOOM = 0.75;
   const SEAT_ZOOM_LEVEL = 1.15;
   const handleSeatClickWithZoom = useCallback(
-    (seat, sectionId, rowId) => {
+    async (seat, sectionId, rowId) => {
+      const result = onSeatClick(seat, sectionId, rowId);
+      const success = await Promise.resolve(result);
+      if (success === false) return;
       if (sections?.length && bounds.width > 0 && bounds.height > 0) {
         const sec = sections.find((s) => s.id === sectionId || String(s.id) === String(sectionId));
         if (sec) {
@@ -500,7 +531,6 @@ const SeatingGrid = ({
           }
         }
       }
-      onSeatClick(seat, sectionId, rowId);
     },
     [sections, bounds, onSeatClick, handleZoomToPoint]
   );
@@ -533,11 +563,11 @@ const SeatingGrid = ({
       const newPanX = px - (px - p.x) / z * newZoom;
       const newPanY = py - (py - p.y) / z * newZoom;
       setZoom(newZoom);
-      setPan({ x: newPanX, y: newPanY });
+      setPan(clampPan({ x: newPanX, y: newPanY }, newZoom, boundsRef.current, viewportSizeRef.current));
     };
     el.addEventListener('wheel', onWheel, { passive: false, capture: true });
     return () => el.removeEventListener('wheel', onWheel, { capture: true });
-  }, [sections?.length, containerReady]);
+  }, [sections?.length, containerReady, clampPan]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -581,8 +611,16 @@ const SeatingGrid = ({
       const pending = pendingPinchRef.current;
       if (!pending) return;
       pendingPinchRef.current = null;
+      const b = boundsRef.current;
+      const v = viewportSizeRef.current;
+      const clamped = clampPan(
+        { x: pending.panX, y: pending.panY },
+        pending.zoom,
+        b,
+        v
+      );
       setZoom(pending.zoom);
-      setPan({ x: pending.panX, y: pending.panY });
+      setPan(clamped);
     };
 
     const onTouchMove = (e) => {
@@ -628,7 +666,12 @@ const SeatingGrid = ({
           const dx = cx - lastPointer.current.x;
           const dy = cy - lastPointer.current.y;
           lastPointer.current = { x: cx, y: cy };
-          setPan((p) => ({ x: p.x + dx, y: p.y + dy }));
+          setPan((p) => {
+            const next = { x: p.x + dx, y: p.y + dy };
+            const container = containerRef.current;
+            const v = container ? (() => { const r = container.getBoundingClientRect(); return { width: Math.max(100, r.width), height: Math.max(100, r.height) }; })() : viewportSizeRef.current;
+            return clampPan(next, zoomRef.current, boundsRef.current, v);
+          });
         }
       }
     };
@@ -658,7 +701,7 @@ const SeatingGrid = ({
       el.removeEventListener('touchend', onTouchEnd);
       el.removeEventListener('touchcancel', onTouchEnd);
     };
-  }, [sections?.length, containerReady]);
+  }, [sections?.length, containerReady, clampPan]);
 
   useEffect(() => {
     const onMove = (e) => {
@@ -666,7 +709,12 @@ const SeatingGrid = ({
       const dx = e.clientX - lastPointer.current.x;
       const dy = e.clientY - lastPointer.current.y;
       lastPointer.current = { x: e.clientX, y: e.clientY };
-      setPan((p) => ({ x: p.x + dx, y: p.y + dy }));
+      setPan((p) => {
+        const next = { x: p.x + dx, y: p.y + dy };
+        const el = containerRef.current;
+        const v = el ? (() => { const r = el.getBoundingClientRect(); return { width: Math.max(100, r.width), height: Math.max(100, r.height) }; })() : viewportSizeRef.current;
+        return clampPan(next, zoomRef.current, boundsRef.current, v);
+      });
     };
     const onUp = () => setIsDragging(false);
     window.addEventListener('pointermove', onMove);
@@ -677,7 +725,7 @@ const SeatingGrid = ({
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointerleave', onUp);
     };
-  }, []);
+  }, [clampPan]);
 
   if (!sections || sections.length === 0) {
     return (
@@ -715,7 +763,7 @@ const SeatingGrid = ({
       transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="custom-dark-bg rounded-3 overflow-hidden position-relative user-select-none w-100"
       style={{
-        minHeight: IS_MOBILE ? 350 : 490,
+        minHeight: IS_MOBILE ? '65vh' : 490,
         cursor: isDragging ? 'grabbing' : 'grab',
         touchAction: 'none',
       }}
@@ -768,10 +816,9 @@ const SeatingGrid = ({
         className="d-flex flex-wrap gap-3 align-items-center p-2 px-2 rounded-3 small text-white user-select-none"
         style={{
           ...overlayStyle,
+          width: '240px',
           bottom: 10,
-          ...(IS_MOBILE
-            ? { left: 12 }
-            : { left: '50%', transform: 'translateX(-50%)' }),
+          left: '50%', transform: 'translateX(-50%)',
           background: 'rgba(0,0,0,0.65)',
           fontSize: '12px',
           backdropFilter: 'blur(6px)',
@@ -789,7 +836,7 @@ const SeatingGrid = ({
           <span className="rounded" style={{ width: 12, height: 12, ...SEAT_STYLES.booked }} />
           Booked
         </span>
-        {sections.length > 1 && (
+        {/* {sections.length > 1 && (
           <select
             className="form-select form-select-sm text-white border-secondary ms-2 small"
             style={{ width: 'auto', fontSize: '0.7rem', backgroundColor: 'transparent' }}
@@ -807,7 +854,7 @@ const SeatingGrid = ({
               <option key={s.id} value={s.id}>{s.name || s.id}</option>
             ))}
           </select>
-        )}
+        )} */}
       </div>
 
       {/* Zoom / Reset: floating bottom-right */}

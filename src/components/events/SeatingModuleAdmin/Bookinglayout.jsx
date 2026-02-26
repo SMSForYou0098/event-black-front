@@ -49,8 +49,9 @@ const BookingLayout = (props) => {
 
   selectedSeatsRef.current = selectedSeats;
 
-  // Same as SeatingModule/Bookinglayout: enforce per-ticket selection_limit (single-object selectedSeats)
-  const handleSeatClickWithLimit = (seat, sectionId, rowId) => {
+  // Same as SeatingModule/Bookinglayout: enforce per-ticket selection_limit (single-object selectedSeats).
+  // Returns false when selection is rejected (e.g. limit reached) so SeatingGrid only centers on success.
+  const handleSeatClickWithLimit = async (seat, sectionId, rowId) => {
     const current = selectedSeatsRef.current;
     const ticketId = seat.ticket?.id != null ? Number(seat.ticket.id) : null;
     const isAlreadySelected = (current?.seats || []).some((s) => s.seat_id === seat.id);
@@ -64,12 +65,13 @@ const BookingLayout = (props) => {
           const message = `You can only select up to ${limit} ticket(s) for ${ticketName}.`;
           ErrorAlert(message);
           toast.error(message);
-          return;
+          return false;
         }
       }
     }
 
-    handleSeatClick(seat, sectionId, rowId);
+    await handleSeatClick(seat, sectionId, rowId);
+    return true;
   };
 
   useEffect(() => {
