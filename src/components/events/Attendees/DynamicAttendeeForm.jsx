@@ -244,7 +244,7 @@ const DynamicAttendeeForm = ({
   // Updated renderField function
   const renderField = (field) => {
     const { field_name, lable, field_type, field_options = [], field_required } = field;
-    const required = field_required === 1;
+    const required = field_required === true;
     const value = attendeeData[field_name] ?? "";
     const lbl = required ? `${lable} <span class="text-primary">*</span>` : lable;
 
@@ -304,10 +304,11 @@ const DynamicAttendeeForm = ({
       case "email":
         return (
           <>
-            <Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
               <Form.Control
-                className="card-glassmorphism__input"
+                className={`card-glassmorphism__input ${errors[field_name] ? 'border-danger' : ''}`}
+                style={errors[field_name] ? { border: '1px solid #b51515' } : {}}
                 type={field_type}
                 value={value}
                 onChange={onChange}
@@ -315,7 +316,7 @@ const DynamicAttendeeForm = ({
                 isInvalid={!!errors[field_name]}
               />
               {errors[field_name] && (
-                <Form.Text className="text-danger fw-bold d-block mt-1">{errors[field_name]}</Form.Text>
+                <Form.Text className="fw-bold d-block mt-1" style={{ color: '#b51515' }}>{errors[field_name]}</Form.Text>
               )}
             </Form.Group>
           </>
@@ -328,10 +329,12 @@ const DynamicAttendeeForm = ({
             <Form.Group className="mb-3">
               <Form.Label className="text-white mb-2" dangerouslySetInnerHTML={{ __html: lbl }} />
               <Form.Select
-                className="card-glassmorphism__input"
+                className={`card-glassmorphism__input ${errors[field_name] ? 'border-danger' : ''}`}
+                style={errors[field_name] ? { border: '1px solid #b51515' } : {}}
                 value={value}
                 onChange={onChange}
                 required={required}
+                isInvalid={!!errors[field_name]}
               >
                 <option value="">Select {lable}</option>
                 {selectOptions.map((option, idx) => (
@@ -342,7 +345,7 @@ const DynamicAttendeeForm = ({
               </Form.Select>
             </Form.Group>
             {errors[field_name] && (
-              <Form.Text className="text-danger fw-bold d-block mb-2">
+              <Form.Text className="fw-bold d-block mb-2 mt-1" style={{ color: '#b51515' }}>
                 {errors[field_name]}
               </Form.Text>
             )}
@@ -359,7 +362,8 @@ const DynamicAttendeeForm = ({
                 {radioOptions.map((option, idx) => (
                   <div key={idx} className="form-check">
                     <input
-                      className="form-check-input p-2"
+                      className={`form-check-input p-2 ${errors[field_name] ? 'border-danger' : ''}`}
+                      style={errors[field_name] ? { border: '1px solid #b51515' } : {}}
                       type="radio"
                       id={`${field_name}-${idx}`}
                       name={field_name}
@@ -379,7 +383,7 @@ const DynamicAttendeeForm = ({
               </div>
             </Form.Group>
             {errors[field_name] && (
-              <Form.Text className="text-danger fw-bold d-block mb-2">
+              <Form.Text className="fw-bold d-block mb-2 mt-1" style={{ color: '#b51515' }}>
                 {errors[field_name]}
               </Form.Text>
             )}
@@ -396,7 +400,8 @@ const DynamicAttendeeForm = ({
                 {checkboxOptions.map((option, idx) => (
                   <div key={idx} className="form-check">
                     <input
-                      className="form-check-input"
+                      className={`form-check-input ${errors[field_name] ? 'border-danger' : ''}`}
+                      style={errors[field_name] ? { border: '1px solid #b51515' } : {}}
                       type="checkbox"
                       id={`${field_name}-${idx}`}
                       value={option}
@@ -421,7 +426,7 @@ const DynamicAttendeeForm = ({
               </div>
             </Form.Group>
             {errors[field_name] && (
-              <Form.Text className="text-danger fw-bold d-block mb-2">
+              <Form.Text className="fw-bold d-block mb-2 mt-1" style={{ color: '#b51515' }}>
                 {errors[field_name]}
               </Form.Text>
             )}
@@ -431,10 +436,11 @@ const DynamicAttendeeForm = ({
       case "textarea":
         return (
           <>
-            <Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
               <Form.Control
-                className="card-glassmorphism__input"
+                className={`card-glassmorphism__input ${errors[field_name] ? 'border-danger' : ''}`}
+                style={errors[field_name] ? { border: '1px solid #b51515' } : {}}
                 as="textarea"
                 rows={3}
                 value={value}
@@ -443,7 +449,7 @@ const DynamicAttendeeForm = ({
                 isInvalid={!!errors[field_name]}
               />
               {errors[field_name] && (
-                <Form.Text className="text-danger fw-bold d-block mt-1">{errors[field_name]}</Form.Text>
+                <Form.Text className="fw-bold d-block mt-1" style={{ color: '#b51515' }}>{errors[field_name]}</Form.Text>
               )}
             </Form.Group>
           </>
@@ -452,10 +458,11 @@ const DynamicAttendeeForm = ({
       case "number":
         return (
           <>
-            <Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
               <Form.Control
-                className="card-glassmorphism__input"
+                className={`card-glassmorphism__input ${errors[field_name] ? 'border-danger' : ''}`}
+                style={errors[field_name] ? { border: '1px solid #b51515' } : {}}
                 type="number"
                 value={value}
                 onChange={onChange}
@@ -463,7 +470,7 @@ const DynamicAttendeeForm = ({
                 isInvalid={!!errors[field_name]}
               />
               {errors[field_name] && (
-                <Form.Text className="text-danger fw-bold d-block mt-1">{errors[field_name]}</Form.Text>
+                <Form.Text className="fw-bold d-block mt-1" style={{ color: '#b51515' }}>{errors[field_name]}</Form.Text>
               )}
             </Form.Group>
           </>
@@ -472,10 +479,11 @@ const DynamicAttendeeForm = ({
       case "date":
         return (
           <>
-            <Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
               <Form.Control
-                className="card-glassmorphism__input"
+                className={`card-glassmorphism__input ${errors[field_name] ? 'border-danger' : ''}`}
+                style={errors[field_name] ? { border: '1px solid #b51515' } : {}}
                 type="date"
                 value={value}
                 onChange={onChange}
@@ -483,7 +491,7 @@ const DynamicAttendeeForm = ({
                 isInvalid={!!errors[field_name]}
               />
               {errors[field_name] && (
-                <Form.Text className="text-danger fw-bold d-block mt-1">{errors[field_name]}</Form.Text>
+                <Form.Text className="fw-bold d-block mt-1" style={{ color: '#b51515' }}>{errors[field_name]}</Form.Text>
               )}
             </Form.Group>
           </>
@@ -503,17 +511,19 @@ const DynamicAttendeeForm = ({
 
         return (
           <>
-            <Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label className="text-white" dangerouslySetInnerHTML={{ __html: lbl }} />
               <Form.Control
-                className="card-glassmorphism__input"
+                className={`card-glassmorphism__input ${errors[field_name] ? 'border-danger' : ''}`}
+                style={errors[field_name] ? { border: '1px solid #b51515' } : {}}
                 type="file"
                 accept="image/*"
                 onChange={onChange}
                 required={required && !value}
+                isInvalid={!!errors[field_name]}
               />
               {errors[field_name] && (
-                <Form.Text className="text-danger fw-bold d-block mt-1">{errors[field_name]}</Form.Text>
+                <Form.Text className="fw-bold d-block mt-1" style={{ color: '#b51515' }}>{errors[field_name]}</Form.Text>
               )}
             </Form.Group>
 

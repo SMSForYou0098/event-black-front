@@ -76,7 +76,7 @@ const CartPage = () => {
   // Lock seats mutation
   const lockSeatsMutation = useLockSeats({
     onSuccess: (data) => {
-      toast.success(data?.message)
+      // toast.success(data?.message)
     },
     onError: (error) => {
       console.error('Failed to lock seats:', error);

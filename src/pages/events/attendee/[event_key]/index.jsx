@@ -112,7 +112,7 @@ const AttendeePage = () => {
     if (!Array.isArray(activeApiData)) return [];
     try {
       return activeApiData
-        .filter((f) => f.field_required === 1)
+        .filter((f) => f.field_required === true)
         .map((f) => f.field_name);
     } catch {
       return [];
