@@ -24,31 +24,25 @@ export const CustomTextField = ({ label, value, onChange, required, validationMe
     );
 };
 
-export const PasswordField = ({ value, setPassword, handleKeyDown, className, autoFocus, idValue }) => {
+export const PasswordField = ({ value, setPassword, handleKeyDown, className, autoFocus, idValue, isInvalid }) => {
     const [showPassword, setShowPassword] = useState(false);
-    // Allow only '@' and '_'
-    const allowedRegex = /^[a-zA-Z0-9@_]*$/;
-
 
     const handleChange = (e) => {
-        const newValue = e.target.value;
-        if (newValue === "" || allowedRegex.test(newValue)) {
-    setPassword(newValue);
-  }
-        // Optionally, else block to show an error or ignore other characters
+        setPassword(e.target.value);
     };
 
     return (
         <InputGroup className="position-relative">
             <Form.Control
                 type={showPassword ? "text" : "password"}
-                id={idValue|| `password`}
+                id={idValue || `password`}
                 required
                 placeholder="Enter Password"
                 onKeyDown={handleKeyDown}
-                value={value}
+                value={value ?? ""}
                 onChange={handleChange}
-                className={`pe-5 ${className} card-glassmorphism__input`} // Ensures padding so text doesn't overlap the icon
+                isInvalid={isInvalid}
+                className={`pe-5 ${className ?? ''} card-glassmorphism__input`}
                 autoFocus={autoFocus}
             />
             <span
@@ -143,7 +137,7 @@ export const CustomCheckbox = ({ label, checked, onChange, required, validated, 
                 onChange={onChange}
                 required={required}
                 disabled={disabled}
-                style={{ cursor: disabled ? 'not-allowed' : 'pointer' , width: '1.5rem', height: '1.5rem' , transform: 'scale(1.3)'}}
+                style={{ cursor: disabled ? 'not-allowed' : 'pointer', width: '1.5rem', height: '1.5rem', transform: 'scale(1.3)' }}
                 isInvalid={validated && !checked}
             />
             <Form.Control.Feedback type="invalid">{validationMessage}</Form.Control.Feedback>

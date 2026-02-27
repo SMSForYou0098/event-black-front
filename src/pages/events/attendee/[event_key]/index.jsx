@@ -41,7 +41,7 @@ export const useEventFields = (eventId, options = {}) =>
 const AttendeePage = () => {
   const router = useRouter();
   const { categoryId, k, event_key } = router.query ?? {};
-  const { fetchCategoryData, isMobile, ErrorAlert } = useMyContext();
+  const { fetchCategoryData, isMobile, ErrorAlert, UserData } = useMyContext();
   const [categoryData, setCategoryData] = useState(null);
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [attendeeList, setAttendeesList] = useState([]);
@@ -131,6 +131,11 @@ const AttendeePage = () => {
   }, []);
 
   const handleSaveAttendees = useCallback(() => {
+    if (!UserData) {
+      ErrorAlert("Your login session has expired. Please log in again.");
+      router.push(`/events/cart/${event_key}`);
+      return false;
+    }
     // some basic guard
     if (!attendeeList || attendeeList.length === 0) return;
     if (hasMissingFields) {

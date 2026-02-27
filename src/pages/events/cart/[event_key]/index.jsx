@@ -7,6 +7,7 @@ import 'flatpickr/dist/flatpickr.min.css';
 import { useMyContext } from "@/Context/MyContextProvider";
 import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
 import { publicApi, api } from "@/lib/axiosInterceptor";
+import { store } from "@/store"; // needed to read fresh auth state after re-login
 import { useRouter } from "next/router";
 import BookingTickets from "../../../../utils/BookingUtils/BookingTickets";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
@@ -236,8 +237,27 @@ const CartPage = () => {
   const checkTicketStatus = async () => {
     setIsChecking(true);
     try {
+      // ⚠️ Read directly from Redux store — NOT from the closed-over `UserData`.
+      // After auto-logout + re-login, Redux state is updated synchronously, but
+      // the React component hasn't re-rendered yet, so `UserData` in the closure
+      // is still null. store.getState() always returns the latest value.
+      const freshUser = store.getState().auth.user;
+
+      if (!freshUser?.id) {
+        ErrorAlert("Please log in to continue.");
+        return false;
+      }
+
+      // Check for ticket ID in either property (.id or .itemId)
+      const ticketId = selectedTickets?.id || selectedTickets?.itemId;
+
+      if (!ticketId) {
+        ErrorAlert("Please select a ticket first.");
+        return false;
+      }
+
       const response = await api.get(
-        `/user-ticket-info/${UserData.id}/${selectedTickets.id}`
+        `/user-ticket-info/${freshUser.id}/${ticketId}`
       );
       if (!response.data.status) {
         ErrorAlert(response.data.message || "Booking limit reached");

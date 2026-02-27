@@ -776,7 +776,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             ) : currentView === MODAL_VIEWS.PASSWORD ? (
                 <Form noValidate onSubmit={handleVerifyPassword} className="d-flex flex-column flex-grow-1">
                     <div className="p-3 d-flex flex-column flex-grow-1">
-                        <Form.Group controlId="password" className="mb-3">
+                        <Form.Group className="mb-3">
                             <Form.Label>Password</Form.Label>
                             <PasswordField
                                 value={password}

@@ -14,6 +14,7 @@ export const initialState = {
   auth_session: null,
   isImpersonating: false,
   lastLogin: null,
+  lastActivity: null,   // tracks last user interaction for inactivity timeout
 };
 
 const api = process.env.NEXT_PUBLIC_API_PATH;
@@ -58,6 +59,7 @@ export const authSlice = createSlice({
       state.auth_session = action.payload.auth_session || null;
       state.isImpersonating = action.payload.isImpersonating || false;
       state.lastLogin = Date.now();
+      state.lastActivity = Date.now();
     },
 
     showAuthMessage: (state, action) => {
@@ -81,6 +83,7 @@ export const authSlice = createSlice({
       state.auth_session = null;
       state.isImpersonating = false;
       state.lastLogin = null;
+      state.lastActivity = null; // ✅ Reset inactivity tracker on manual logout
 
       // ✅ Clear localStorage
       localStorage.clear();
@@ -124,7 +127,12 @@ export const authSlice = createSlice({
     signInSuccess: (state, action) => {
       state.loading = false;
       state.token = action.payload;
-    }
+    },
+
+    // Called on every debounced user interaction to reset the inactivity timer
+    updateActivity: (state) => {
+      state.lastActivity = Date.now();
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -142,10 +150,11 @@ export const authSlice = createSlice({
         state.session_id = action.payload.session_key || null;
         state.auth_session = action.payload.user?.id?.toString() || null;
         state.lastLogin = Date.now();
+        state.lastActivity = Date.now();
 
-        // ✅ Store data to cookie for 7 days
-        setAuthToken(action.payload.token);
-        setUserData(action.payload.user);
+        // ✅ Store data to cookie for 2 days (must match authExpirationTransform in store/index.js)
+        setAuthToken(action.payload.token, 2);
+        setUserData(action.payload.user, 2);
       })
       .addCase(signIn.rejected, (state, action) => {
         state.message = action.payload;
@@ -164,7 +173,8 @@ export const {
   updateUser,
   updateUserAddress,
   validateTwoFector,
-  signInSuccess
+  signInSuccess,
+  updateActivity,
 } = authSlice.actions;
 
 export default authSlice.reducer;

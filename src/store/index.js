@@ -12,6 +12,7 @@ import {
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { createTransform } from 'redux-persist';
+import { getInactivityLimit } from '@/config/sessionConfig';
 
 import settingReducer from './setting/reducers';
 import streamitReducer from './streamit/reducers';
@@ -57,19 +58,20 @@ const checkoutDataTransform = createTransform(
     { whitelist: ['checkoutData'] }
 );
 
-// Transform to expire auth session after 24 hours
+// Transform to expire auth session based on last user activity
+// Timeout values come from sessionConfig.js (single source of truth)
 const authExpirationTransform = createTransform(
-    // inbound (before persisting)
-    (inboundState, key) => {
-        return inboundState;
-    },
-    // outbound (after rehydrating)
-    (outboundState, key) => {
-        if (key === 'auth' && outboundState.lastLogin) {
-            const twentyFourHours = 2 * 24 * 60 * 60 * 1000;
-            const now = Date.now();
-            if (now - outboundState.lastLogin > twentyFourHours) {
-                // Session expired
+    // inbound (before persisting) — no changes needed
+    (inboundState) => inboundState,
+    // outbound (after rehydrating) — check if session expired while app was closed
+    (outboundState) => {
+        if (outboundState?.lastActivity) {
+            const role = outboundState?.user?.role;
+            const limit = getInactivityLimit(role);
+            const elapsed = Date.now() - outboundState.lastActivity;
+
+            if (elapsed >= limit) {
+                // User was idle longer than their allowed timeout → wipe session
                 return {
                     ...outboundState,
                     token: null,
@@ -77,7 +79,8 @@ const authExpirationTransform = createTransform(
                     session_id: null,
                     auth_session: null,
                     isImpersonating: false,
-                    lastLogin: null
+                    lastLogin: null,
+                    lastActivity: null,
                 };
             }
         }

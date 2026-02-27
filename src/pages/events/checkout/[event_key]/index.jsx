@@ -263,6 +263,11 @@ const CartPage = () => {
       ErrorAlert("Checkout data is missing.");
       return false;
     }
+    if (!UserData) {
+      ErrorAlert("Your login session has expired. Please log in again.");
+      router.push(`/events/cart/${event_key}`);
+      return false;
+    }
     if (!UserData?.email) {
       return ErrorAlert('Please Complete Your Profile');
     }
