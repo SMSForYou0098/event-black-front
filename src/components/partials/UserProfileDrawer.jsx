@@ -20,8 +20,8 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
     const { isMobile } = useMyContext();
     const MenuItem = ({ icon: Icon, label, onClick, href, className = "" }) => (
         <div
-            className={`d-flex align-items-center justify-content-between px-3 py-2 rounded-3 mb-2 gray-bg cursor-pointer ${className}`}
-            style={{ fontSize: "0.9rem" }}
+            className={`d-flex align-items-center justify-content-between rounded-3 mb-2 gray-bg cursor-pointer ${className}`}
+            style={{ fontSize: "0.9rem", padding: "12px 10px" }}
             onClick={() => {
                 if (onClick) onClick();
                 if (href) router.push(href);
@@ -54,7 +54,7 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
                 <div className="flex-grow-1 overflow-auto px-3 pt-3">
 
                     {/* Profile Header */}
-                    <div className="d-flex align-items-center gap-3 mb-4">
+                    <div className="d-flex align-items-center gap-3 mb-2">
                         <AvatarImage
                             src={userData?.photo}
                             alt="Profile"
@@ -117,7 +117,6 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
                         }}
 
                         className="w-100 p-2"
-                        size='sm'
                     />
                 </div>
 

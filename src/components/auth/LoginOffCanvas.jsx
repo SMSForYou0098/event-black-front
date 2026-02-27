@@ -756,7 +756,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                 className="p-0 text-decoration-none"
                                 disabled={isLoading}
                                 buttonText={isLoading ? "Processing..." : "Back to Login"}
-                                icon={<ChevronLeft size={16} className="me-1" />}
+                                icon={<ChevronLeft size={16} />}
                                 iconPosition="left"
                                 size="sm"
                             />
@@ -820,7 +820,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                     className="p-0 text-decoration-none"
                                     disabled={isLoading}
                                     buttonText={isLoading ? "Processing..." : "Back to Login"}
-                                    icon={<ChevronLeft size={16} className="me-1" />}
+                                    icon={<ChevronLeft size={16} />}
                                     iconPosition="left"
                                     size="sm"
                                 />

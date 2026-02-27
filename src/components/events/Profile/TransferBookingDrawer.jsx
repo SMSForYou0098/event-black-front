@@ -369,6 +369,7 @@ const TransferBookingDrawer = ({
                         <Form.Control
                             ref={phoneInputRef}
                             type="tel"
+                            size='sm'
                             placeholder="Enter 10-digit number"
                             value={formData.phone}
                             onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value.replace(/\D/g, '') }))}

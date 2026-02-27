@@ -745,7 +745,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath }) => {
                   className="p-0"
                   disabled={isLoading}
                   buttonText={isLoading ? "Processing..." : "Back to Login"}
-                  icon={<ChevronLeft size={16} className="me-1" />}
+                  icon={<ChevronLeft size={16} />}
                   iconPosition="left"
                   size="sm"
                 />
