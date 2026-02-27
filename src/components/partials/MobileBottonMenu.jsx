@@ -96,6 +96,7 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
       "/events/offers": "offers",
       "/events/live": "live",
       "/profile": "profile",
+      "/bookings": "bookings",
     };
     return pathToButton[currentPath] || "home";
   }, [currentPath]);
@@ -107,6 +108,7 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     "/events/offers",
     "/events/live",
     "/profile",
+    "/bookings",
     "/event-details",
     "/about-us",
     "/blogs",
@@ -163,7 +165,7 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     //   animation: { scale: [1, 1.2, 1] },
     // },
     {
-      key: "Bookings",
+      key: "bookings",
       onClick: () => router.push("/bookings"),
       Icon: UserIcon,
       text: "Bookings",

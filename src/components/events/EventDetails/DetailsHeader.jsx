@@ -109,7 +109,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 eventData={eventData}
                 event_date={event_date}
             />
-            <Col lg="3" md="12" className="mb-4 mb-lg-0 pe-0">
+            <Col lg="2" md="12" className="mb-4 mb-lg-0">
                 {/* --- Single Event Image --- */}
                 <div
                     className="product-image-container d-flex flex-column justify-content-center align-items-center"
@@ -217,12 +217,12 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 </div>
                 {/* Category Label at bottom-left */}
             </Col>
-            <Col lg="9" md="12" className="ps-0">
+            <Col lg="9" md="12" className="">
                 {/* --- Main Event Info --- */}
                 <div className="d-flex justify-content-between">
                     <h5 className="text-primary fw-bold d-none d-sm-block text-capitalize">{eventData?.name}</h5>
                 </div>
-                <div className="d-flex gap-3 mb-2">
+                <div className="d-flex gap-3 mb-2 justify-content-center justify-content-sm-start">
                     {eventData?.event_type && (
                         <CustomBadge variant="warning" className="text-black">
                             <i className="fa-regular fa-calendar me-1"></i>
