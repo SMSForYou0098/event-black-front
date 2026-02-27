@@ -27,6 +27,38 @@ const dummyCrews = [
     }
 ];
 
+const CrewImage = ({ crew }) => {
+    const [imgError, setImgError] = useState(false);
+    const src = crew.photo || crew.image;
+
+    if (!src || imgError) {
+        // Fallback dummy image based on initials
+        return (
+            <div
+                className="d-flex align-items-center justify-content-center rounded-circle bg-secondary text-white fw-bold mb-3 mx-auto"
+                style={{ width: '100px', height: '100px', fontSize: '2rem' }}
+            >
+                {crew.name ? crew.name.charAt(0).toUpperCase() : '?'}
+            </div>
+        );
+    }
+
+    return (
+        <div className="crew-image mb-3 mx-auto" style={{ width: '100px', height: '100px' }}>
+            <img
+                src={src}
+                alt={crew.name}
+                className="img-fluid rounded-circle w-100 h-100"
+                loading='lazy'
+                onError={() => setImgError(true)}
+                style={{
+                    objectFit: 'cover'
+                }}
+            />
+        </div>
+    );
+};
+
 const EventCrew = ({ crews = dummyCrews }) => {
     const [showModal, setShowModal] = useState(false);
 
@@ -35,40 +67,6 @@ const EventCrew = ({ crews = dummyCrews }) => {
     const handleViewAll = (e) => {
         e.preventDefault();
         setShowModal(true);
-    };
-
-    const CrewImage = ({ crew }) => {
-        const [imgError, setImgError] = useState(false);
-        const src = crew.photo || crew.image;
-
-        if (!src || imgError) {
-            // Fallback dummy image based on initials
-            return (
-                <div
-                    className="d-flex align-items-center justify-content-center rounded-circle bg-secondary text-white fw-bold mb-3 mx-auto"
-                    style={{ width: '100px', height: '100px', fontSize: '2rem' }}
-                >
-                    {crew.name ? crew.name.charAt(0).toUpperCase() : '?'}
-                </div>
-            );
-        }
-
-        return (
-            <div className="crew-image mb-3 mx-auto" style={{ width: '100px', height: '100px' }}>
-                <Image
-                    src={src}
-                    alt={crew.name}
-                    className="img-fluid rounded-circle w-100 h-100"
-                    width={100}
-                    height={100}
-                    loading='lazy'
-                    onError={() => setImgError(true)}
-                    style={{
-                        objectFit: 'cover'
-                    }}
-                />
-            </div>
-        );
     };
 
     const renderCrewCard = (crew) => (

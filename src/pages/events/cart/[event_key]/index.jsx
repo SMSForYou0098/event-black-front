@@ -497,6 +497,15 @@ const CartPage = () => {
       value: selectedTickets?.quantity || 0,
       isHeader: false,
     },
+    // ...(selectedTickets?.seats?.length > 0
+    //   ? [
+    //     {
+    //       label: "Seats",
+    //       value: selectedTickets.seats.map((s) => s.seat_name).join(", "),
+    //       isHeader: false,
+    //     },
+    //   ]
+    //   : []),
     {
       label: "Total",
       value: `₹${selectedTickets?.subTotal || 0}`,
@@ -601,6 +610,13 @@ const CartPage = () => {
                         ))}
                       </tbody>
                     </Table>
+                    {selectedTickets?.seats?.length > 0 && (
+                      <div className="cart-info-box my-2 p-3 rounded-3 border-dashed-thin">
+                        <span className="text-white small">Seats:
+                          {selectedTickets.seats.map((s) => s.seat_name).join(", ")}
+                        </span>
+                      </div>
+                    )}
 
                     <div className="cart-info-box my-2 p-3 rounded-3 border-dashed-thin">
                       <span className="text-white small">

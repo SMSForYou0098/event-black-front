@@ -131,7 +131,7 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
                                 HandleClick={handleWriteReview}
                                 size="sm"
                                 className="d-flex align-items-center gap-2 w-100 w-lg-auto justify-content-center"
-                                buttonText='Write a Review'
+                                buttonText='Rate This'
                                 icon={<MessageSquarePlus size={18} />}
                             />
                         )}

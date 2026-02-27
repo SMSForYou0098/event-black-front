@@ -121,6 +121,25 @@ const TicketDrawer = ({
                 </div>
             )}
 
+            {ticketType?.type === 'single' && (
+                <div className="alert alert-info mb-3">
+                    {/* <p className="mb-0 text-success" style={{ fontSize: '12px' }}>
+                        No <Ticket size={12} /> physical ticket needed! Download your Ticket & enjoy unlimited fun.
+                    </p> */}
+                    <ul className="mt-2 ps-3" style={{ fontSize: "12px" }}>
+                        <li>
+                            To ensure a smooth and hassle-free entry, please scan your ticket before arriving at the venue.
+                        </li>
+                        <li>
+                            Kindly watch the video guide for step-by-step instructions on how to scan your ticket easily.
+                        </li>
+                        <li>
+                            Thank you, and we look forward to welcoming you!
+                        </li>
+                    </ul>
+                </div>
+            )}
+
             {ticketType?.type === 'combine' && (
                 <div className="alert alert-info mb-3" >
                     <p className="mb-0 text-success" style={{ fontSize: '12px' }}>
@@ -214,7 +233,7 @@ const TicketDrawer = ({
                                     ))}
                                 </Swiper>
                             )
-                        ) : ticketType?.type === 'combine' ? (
+                        ) : ticketType?.type === 'combine' || ticketType?.type === 'single' ? (
                             <div style={{ height: "auto" }}>
                                 <Col lg={12} md={12} xl={12}>
                                     <div>
@@ -272,7 +291,7 @@ const TicketDrawer = ({
 
     return (
         <CustomDrawer
-            title={ticketType?.type === 'individual' ? 'Individual Tickets' : 'Group Ticket'}
+            title={ticketType?.type === 'individual' ? 'Individual Tickets' : ticketType?.type === 'single' ? 'How To Get Entry !!!' : 'Group Ticket'}
             showOffcanvas={show}
             setShowOffcanvas={onClose}
             hideIndicator={true}

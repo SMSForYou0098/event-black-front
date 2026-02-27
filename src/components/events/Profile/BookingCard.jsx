@@ -193,9 +193,8 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
           </Col>
           <Col xs="6">
             {!bookingData.isApprovalPending && (
-              <Dropdown>
-                <Dropdown.Toggle
-                  as={Button}
+              bookingData.quantity === 1 ? (
+                <Button
                   variant="primary"
                   size="sm"
                   className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap w-100"
@@ -205,30 +204,48 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
                     lineHeight: 1.7,
                   }}
                   disabled={ticketType && ticketType.id === booking.id}
+                  onClick={() => handleDownloadSelect('single')}
                 >
                   Download
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu align="end" className="custom-dropdown-menu">
-                  <Dropdown.Item
-                    onClick={() => handleDownloadSelect('combine')}
+                </Button>
+              ) : (
+                <Dropdown>
+                  <Dropdown.Toggle
+                    as={Button}
+                    variant="primary"
+                    size="sm"
+                    className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap w-100"
+                    style={{
+                      background: 'var(--bs-primary)',
+                      border: 'none',
+                      lineHeight: 1.7,
+                    }}
                     disabled={ticketType && ticketType.id === booking.id}
-                    className="custom-dropdown-item"
                   >
-                    Group Ticket
-                  </Dropdown.Item>
+                    Download
+                  </Dropdown.Toggle>
 
-                  {hasIndividualOption && (
+                  <Dropdown.Menu align="end" className="custom-dropdown-menu">
                     <Dropdown.Item
-                      onClick={() => handleDownloadSelect('individual')}
+                      onClick={() => handleDownloadSelect('combine')}
                       disabled={ticketType && ticketType.id === booking.id}
                       className="custom-dropdown-item"
                     >
-                      Single Ticket
+                      Group Ticket
                     </Dropdown.Item>
-                  )}
-                </Dropdown.Menu>
-              </Dropdown>
+
+                    {hasIndividualOption && (
+                      <Dropdown.Item
+                        onClick={() => handleDownloadSelect('individual')}
+                        disabled={ticketType && ticketType.id === booking.id}
+                        className="custom-dropdown-item"
+                      >
+                        Single Ticket
+                      </Dropdown.Item>
+                    )}
+                  </Dropdown.Menu>
+                </Dropdown>
+              )
             )}
           </Col>
         </Row>

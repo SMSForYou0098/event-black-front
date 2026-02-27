@@ -509,7 +509,7 @@ const EventReviewsPage = () => {
                         onClick={handleWriteReview}
                     >
                         <MessageSquarePlus size={20} />
-                        Write a Review
+                        Rate This
                     </Button>
                 </div>
             )}

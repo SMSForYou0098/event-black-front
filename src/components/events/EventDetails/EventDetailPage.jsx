@@ -89,7 +89,7 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
 
           <DetailsHeader eventData={eventData} event_key={event_key} />
 
-          {/* Interest Button + Write a Review — mobile only */}
+          {/* Interest Button + Rate This — mobile only */}
           <div className="my-3 m-2 d-flex d-sm-none align-items-center gap-3 justify-content-between">
             <InterestButton
               eventId={eventData?.id}
@@ -107,7 +107,7 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
             />
           </div>
 
-          {/* Write a Review Modal */}
+          {/* Rate This Modal */}
           <ReviewForm
             show={showReviewForm}
             onHide={() => { setShowReviewForm(false); setEditingReview(null); }}

@@ -238,7 +238,7 @@ const HeaderDefault = memo(() => {
           <Container fluid className="navbar-inner">
             <div className="d-flex align-items-center justify-content-between w-100 landing-header">
               {/* <Logo size={150} /> */}
-              <Logo handleClick={() => router.push('/')} height={isMobile ? 45 : 65} width={isMobile ? 90 : 120} />
+              <Logo handleClick={() => router.push('/')} height={isMobile ? 76 * 0.5 : 40 * 0.65} width={isMobile ? 111 * 0.5 : 258 * 0.65} />
               {/* <L */}
               <div className="d-flex gap-3 gap-xl-0 align-items-center">
 

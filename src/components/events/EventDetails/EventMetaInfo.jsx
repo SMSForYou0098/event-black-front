@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Badge, Button, Col, Row, Alert } from "react-bootstrap";
-import { Star } from "lucide-react";
+import { Share2, Star } from "lucide-react";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useRouter } from "next/router";
 import BookingFooterLayout from "../../../utils/BookingFooterLayout";
@@ -16,7 +16,7 @@ import { useCreateReview, useUpdateReview } from "@/hooks/useReviews";
 import toast from "react-hot-toast";
 import TermsAccordion from "./TermsAccordion";
 
-const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
+const EventMetaInfo = ({ metaInfo, event_key, eventData, handleShare }) => {
   const { setShowHeaderBookBtn, isMobile, formatDateDDMMYYYY, UserData } = useMyContext();
   const bookBtnRef = useRef(null);
   const [showOffcanvas, setShowOffcanvas] = useState(false);
@@ -155,7 +155,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
       <div className="product-meta-wrapper mt-2">
 
         {/* Event Meta Info */}
-        <div className="event-meta-compact w-100 d-flex justify-content-between flex-wrap gap-3 mt-3">
+        <div className="event-meta-compact w-100 d-flex justify-content-between flex-wrap gap-3 ">
           {metaInfo?.map((info, i) => (
             <div
               key={i}
@@ -178,67 +178,83 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         {/* Desktop Pricing + Book Button */}
         <div className="d-none d-sm-block">
           {!eventStatus.disabled && (
-            <div className="mt-4 mb-3 border-dashed rounded-3 p-3 d-inline-flex align-items-center justify-content-between gap-3 flex-wrap">
+            <div className="rounded-3 p-3 d-inline-flex align-items-center justify-content-between gap-3 w-100 flex-wrap">
 
               {/* Pricing label */}
-              <h6 className="m-0 d-flex gap-2 align-items-center flex-wrap text-nowrap">
-                <span className="text-primary fw-bold">Pricing :</span>
-                <span>
-                  {(() => {
-                    let displayPrice = 0;
-                    let showSaleBadge = false;
+              <div className="d-flex gap-4">
 
-                    if (eventData?.on_sale && eventData?.lowest_sale_price) {
-                      displayPrice = Number(eventData.lowest_sale_price);
-                      showSaleBadge = true;
-                    } else if (eventData?.lowest_ticket_price) {
-                      displayPrice = Number(eventData.lowest_ticket_price);
-                    }
+                <h6 className="m-0 d-flex gap-2 align-items-center flex-wrap text-nowrap">
+                  <span className="text-primary fw-bold">Pricing :</span>
+                  <span>
+                    {(() => {
+                      let displayPrice = 0;
+                      let showSaleBadge = false;
 
-                    if (!displayPrice) return "Free";
+                      if (eventData?.on_sale && eventData?.lowest_sale_price) {
+                        displayPrice = Number(eventData.lowest_sale_price);
+                        showSaleBadge = true;
+                      } else if (eventData?.lowest_ticket_price) {
+                        displayPrice = Number(eventData.lowest_ticket_price);
+                      }
 
-                    return (
-                      <>
-                        ₹{displayPrice} Onwards
-                        {showSaleBadge && (
-                          <CustomBadge className="ms-2">
-                            On Sale
-                          </CustomBadge>
-                        )}
-                      </>
-                    );
-                  })()}
-                </span>
-              </h6>
+                      if (!displayPrice) return "Free";
 
-              {/* Book */}
-              <CustomBtn
-                size="sm"
-                className="fw-bold py-2 rounded-3"
-                wrapper
-                style={{ fontSize: "13px" }}
-                HandleClick={handleBookNow}
-                disabled={eventStatus.disabled}
-                buttonText={eventStatus.text}
-              />
+                      return (
+                        <>
+                          ₹{displayPrice} Onwards
+                          {showSaleBadge && (
+                            <CustomBadge className="ms-2">
+                              On Sale
+                            </CustomBadge>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </span>
+                </h6>
 
-              {/* Interested */}
-              <InterestButton
-                eventId={eventData?.id}
-                eventData={eventData}
-                onLoginRequired={handleLoginRequired}
-              />
+                {/* Book */}
+                <CustomBtn
+                  size="sm"
+                  className="fw-bold py-2 rounded-3"
+                  wrapper
+                  style={{ fontSize: "13px" }}
+                  HandleClick={handleBookNow}
+                  disabled={eventStatus.disabled}
+                  buttonText={eventStatus.text}
+                />
+              </div>
 
-              {/* Write a Review */}
-              <CustomBtn
-                HandleClick={handleWriteReview}
-                variant='outline-danger'
-                size="sm"
-                className="fw-bold py-2 rounded-3 d-flex align-items-center gap-2 justify-content-center"
-                style={{ fontSize: "13px" }}
-                buttonText="Write a Review"
-                icon={<Star size={16} />}
-              />
+              <div className='d-flex gap-2'>
+
+                {/* Interested */}
+                <InterestButton
+                  eventId={eventData?.id}
+                  eventData={eventData}
+                  onLoginRequired={handleLoginRequired}
+                />
+                {/* Rate This */}
+
+                <CustomBtn
+                  HandleClick={handleWriteReview}
+                  variant='outline-danger'
+                  size="sm"
+                  className="fw-bold py-2 rounded-3 d-flex align-items-center gap-2 justify-content-center"
+                  style={{ fontSize: "13px" }}
+                  buttonText="Rate This"
+                  icon={<Star size={16} />}
+                />
+                <CustomBtn
+                  HandleClick={handleShare}
+                  variant='outline-danger'
+                  size="sm"
+                  className="fw-bold py-2 rounded-3 d-flex align-items-center gap-2 justify-content-center"
+                  style={{ fontSize: "13px" }}
+                  buttonText="Share"
+                  icon={<Share2 size={16} />}
+                />
+              </div>
+
             </div>
           )}
 
@@ -345,7 +361,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData }) => {
         showTrigger={false}
       />
 
-      {/* Write a Review Modal */}
+      {/* Rate This Modal */}
       <ReviewForm
         show={showReviewForm}
         onHide={() => { setShowReviewForm(false); setEditingReview(null); }}

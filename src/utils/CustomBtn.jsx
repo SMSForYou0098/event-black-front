@@ -7,6 +7,7 @@ const CustomBtn = (props) => {
     style,
     HandleClick,
     buttonText,
+    parentStyle,
     disabled = false,
     type = "button",
     icon,
@@ -19,7 +20,7 @@ const CustomBtn = (props) => {
     iconPosition = 'right'  // new prop with default 'right'
   } = props;
   return (
-    <div className={wrapperClassName + ' button-primary d-flex align-items-center'}>
+    <div parentStyle={parentStyle} className={wrapperClassName + ' button-primary d-flex align-items-center'}>
       <Button style={style} variant={variant} size={size} type={type} className={`iq-button fw-bold rounded-3 ${className}`} onClick={HandleClick} disabled={disabled}>
         <span style={labelStyle} className="d-flex gap-2 align-items-center justify-content-center text-small">
           {iconPosition === 'left' && !loading && !hideIcon && (icon || <i className="fa-solid fa-play"></i>)}

@@ -993,7 +993,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         >
             <Modal.Header closeButton className="border-0 pb-0">
                 <Modal.Title className="w-100 text-center">
-                    <Logo height={107} width={240} />
+                    <Logo height={isMobile ? 76 * 0.5 : 40 * 0.65} width={isMobile ? 111 * 0.5 : 258 * 0.65} />
                     <h4 className="mb-0 text-light">{getTitle()}</h4>
                 </Modal.Title>
             </Modal.Header>

@@ -59,7 +59,7 @@ const ReviewForm = ({ show, onHide, review = null, onSubmit, isLoading = false }
         <Modal show={show} onHide={handleClose} centered>
             <Form onSubmit={handleSubmit}>
                 <CustomHeader
-                    title={isEditMode ? "Edit Review" : "Write a Review"}
+                    title={isEditMode ? "Edit Review" : "Rate This"}
                     closable
                     onClose={handleClose}
                 />

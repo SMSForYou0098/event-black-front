@@ -1,9 +1,10 @@
 import React, { useRef, useState } from 'react'
-import { Col, Row } from 'react-bootstrap';
+import { Badge, Col, Row } from 'react-bootstrap';
 import { useMyContext } from '@/Context/MyContextProvider';
 import { capitalize } from 'lodash';
+import CustomBadge from '../../../utils/ProfileUtils/getBadgeClass';
 import EventMetaInfo from './EventMetaInfo';
-import { Share, Share2 } from 'lucide-react';
+import { Instagram, Share, Share2 } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
 import { useRouter } from 'next/router';
 import ShareModal from './ShareModal';
@@ -19,6 +20,9 @@ const DetailsHeader = ({ eventData, event_key }) => {
     const event_time = `${convertTo12HourFormat(eventData?.start_time)} - ${convertTo12HourFormat(eventData?.end_time)}`;
     const event_date = formatDateRange(eventData?.date_range);
 
+    const instaUrl =
+        eventData?.eventMedia?.insta_url ||
+        "https://www.instagram.com/getyourticket.in";
     const metaInfo = [
         // {
         //     icon: "fa-regular fa-bookmark", // Category icon
@@ -105,10 +109,10 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 eventData={eventData}
                 event_date={event_date}
             />
-            <Col lg="3" md="12" className="mb-4 mb-lg-0">
+            <Col lg="3" md="12" className="mb-4 mb-lg-0 pe-0">
                 {/* --- Single Event Image --- */}
                 <div
-                    className="product-image-container d-flex justify-content-center align-items-center"
+                    className="product-image-container d-flex flex-column justify-content-center align-items-center"
                 >
                     <div className="position-relative d-inline-block">
                         <Image
@@ -120,81 +124,118 @@ const DetailsHeader = ({ eventData, event_key }) => {
                             priority
                             style={{ maxHeight: "400px", objectFit: "cover" }}
                         />
-                        {(eventData?.eventControls?.house_full || eventData?.eventControls?.is_sold_out) && (
-                            <Image
-                                src="/assets/images/hfull.webp"
-                                alt="Sold Out"
-                                width={70}
-                                height={70}
-                                className="position-absolute z-3"
+
+                        {/* SOLD OUT BADGE */}
+                        {(eventData?.eventControls?.house_full ||
+                            eventData?.eventControls?.is_sold_out) && (
+                                <Image
+                                    src="/assets/images/hfull.webp"
+                                    alt="Sold Out"
+                                    width={70}
+                                    height={70}
+                                    className="position-absolute z-3"
+                                    style={{
+                                        bottom: "-10px",
+                                        right: "-10px",
+                                        transform: "rotate(-15deg)",
+                                        pointerEvents: "none",
+                                        objectFit: "contain",
+                                    }}
+                                />
+                            )}
+
+                        {/* YOUTUBE PLAY BUTTON */}
+                        {eventData?.eventMedia?.youtube_url && (
+                            <div
+                                onClick={() =>
+                                    window.open(eventData?.eventMedia?.youtube_url, "_blank")
+                                }
                                 style={{
-                                    bottom: "-10px",
-                                    right: "-10px",
-                                    transform: "rotate(-15deg)",
-                                    pointerEvents: "none",
-                                    objectFit: "contain"
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: "50%",
+                                    transform: "translate(-50%, -50%)",
+                                    zIndex: 20,
+                                    cursor: "pointer",
                                 }}
-                            />
+                            >
+                                <div
+                                    className="d-flex align-items-center justify-content-center rounded-circle bg-dark bg-opacity-75"
+                                    style={{
+                                        width: "70px",
+                                        height: "70px",
+                                    }}
+                                >
+                                    <i
+                                        className="fa-solid fa-play text-white"
+                                        style={{ fontSize: "24px", marginLeft: "4px" }}
+                                    ></i>
+                                </div>
+                            </div>
                         )}
 
-                        {/* Share button at top-right */}
+                        {/* Instagram */}
+                        {/* Instagram */}
                         <div
                             style={{
                                 position: "absolute",
                                 top: "10px",
                                 right: "10px",
                                 zIndex: 10,
+                                display: "flex",
+                                gap: "8px",
                             }}
                         >
                             <CustomBtn
-                                icon={<Share2 />}
-                                className="p-1 m-0"
-                                HandleClick={handleShare}
+                                variant="dark"
+                                className="shadow-sm p-1 fw-semibold d-inline-flex align-items-center rounded-pill border-0"
+                                size="sm"
+                                style={{ fontSize: "12px" }}
+                                HandleClick={() => window.open(instaUrl, "_blank")}
+                                icon={<Instagram size={16} />}
+                                iconPosition="left"
+                                buttonText=""
                             />
                         </div>
-
-                        {/* Category Label at bottom-left */}
-                        {eventData?.Category?.title && (
-                            <div
-                                style={{
-                                    position: "absolute",
-                                    bottom: "10px",
-                                    left: "10px",
-                                    zIndex: 10,
-                                }}
-                            >
-                                <span className="badge bg-light text-dark shadow-sm px-2 py-1 rounded-pill fw-semibold border">
-                                    <i className="fa-regular fa-bookmark me-1"></i>
-                                    {eventData?.Category?.title}
-                                </span>
-                            </div>
-                        )}
-
-                        {/* Event Type Label at bottom-right */}
-                        {eventData?.event_type && (
-                            <div
-                                style={{
-                                    position: "absolute",
-                                    bottom: "10px",
-                                    right: "10px",
-                                    zIndex: 10,
-                                }}
-                            >
-                                <span className="badge bg-light text-dark shadow-sm px-2 py-1 rounded-pill fw-semibold border text-capitalize">
-                                    <i className="fa-regular fa-calendar me-1"></i>
-                                    {eventData?.event_type}
-                                </span>
-                            </div>
-                        )}
                     </div>
-                </div>
 
+                    {/* <div className="d-flex gap-3 mt-2 justify-content-between">
+                        {eventData?.event_type && (
+                            <Badge bg="warning" text="black" pill>
+                                <i className="fa-regular fa-calendar me-1"></i>
+                                {eventData?.event_type}
+                            </Badge>
+                        )}
+
+                        {eventData?.Category?.title && (
+                            <Badge className="custom-badge custom-dark-content-bg" text="black" pill>
+                                <i className="fa-regular fa-bookmark me-1"></i>
+                                {eventData?.Category?.title}
+                            </Badge>
+                        )}
+                    </div> */}
+                </div>
+                {/* Category Label at bottom-left */}
             </Col>
-            <Col lg="9" md="12" className="ps-lg-4">
+            <Col lg="9" md="12" className="ps-0">
                 {/* --- Main Event Info --- */}
                 <div className="d-flex justify-content-between">
                     <h5 className="text-primary fw-bold d-none d-sm-block text-capitalize">{eventData?.name}</h5>
+                </div>
+                <div className="d-flex gap-3 mb-2">
+                    {eventData?.event_type && (
+                        <CustomBadge variant="warning" className="text-black">
+                            <i className="fa-regular fa-calendar me-1"></i>
+                            {eventData?.event_type}
+                        </CustomBadge>
+                    )}
 
+                    {eventData?.Category?.title && (
+                        <CustomBadge variant="primary" className="text-white ">
+                            <i className="fa-regular fa-bookmark me-1"></i>
+                            {eventData?.Category?.title}
+                        </CustomBadge>
+                    )}
                 </div>
                 {/* <h5 className="text-secondary">{eventData?.tagline || 'tagline'}</h5> */}
 
@@ -225,7 +266,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 </div>
 
                 {/* Event Meta Information */}
-                <EventMetaInfo metaInfo={metaInfo} event_key={event_key} eventData={eventData} />
+                <EventMetaInfo metaInfo={metaInfo} event_key={event_key} eventData={eventData} handleShare={handleShare} />
                 {/* <OtherLocations eventData={eventData} /> */}
             </Col>
         </Row>
