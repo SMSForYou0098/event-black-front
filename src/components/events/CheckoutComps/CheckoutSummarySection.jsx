@@ -12,40 +12,40 @@ export const CheckoutSummarySection = ({
   setIsExpanded,
   summaryData
 }) => {
-  return(
-  <div className="modern-checkout-summary">
-    {/* <ETicketAlert /> */}
-    <MotionWrapper
-      variant="fadeInUp" 
-      delay={0.2} 
-      className="custom-dark-bg summary-card border rounded-3 shadow-sm overflow-hidden"
-    >
-      <div className="p-4">
-        <TotalAmountHeader
-          summaryData={summaryData}
-          // calculatedTotal={calculatedTotal}
-          isExpanded={isExpanded}
-          setIsExpanded={setIsExpanded}
-        />
+  return (
+    <div className="modern-checkout-summary">
+      {/* <ETicketAlert /> */}
+      <MotionWrapper
+        variant="fadeInUp"
+        delay={0.2}
+        className="custom-dark-bg summary-card border rounded-3 shadow-sm overflow-hidden"
+      >
+        <div className="p-4">
+          <TotalAmountHeader
+            summaryData={summaryData}
+            // calculatedTotal={calculatedTotal}
+            isExpanded={isExpanded}
+            setIsExpanded={setIsExpanded}
+          />
 
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              key="breakdown"
-              variants={ANIMATION_VARIANTS.expand}
-              initial="collapsed"
-              animate="expanded"
-              exit="collapsed"
-              className="mt-3 overflow-hidden"
-            >
-              <BreakdownTable summaryData={summaryData} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                key="breakdown"
+                variants={ANIMATION_VARIANTS.expand}
+                initial="collapsed"
+                animate="expanded"
+                exit="collapsed"
+                className="mt-3 overflow-hidden"
+              >
+                <BreakdownTable summaryData={summaryData} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
- 
-    </MotionWrapper>
-  </div>
-);
+
+      </MotionWrapper>
+    </div>
+  );
 }

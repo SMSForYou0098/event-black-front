@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { Container, Row, Col, Card, Dropdown } from 'react-bootstrap';
-import { Calendar, Clock, Mail, MapPin, User, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, Mail, MapPin, User, AlertCircle, SquareAsterisk } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
 import { CUSTOM_SECONDORY, PRIMARY } from '../../../../utils/consts';
 import { useRouter } from "next/router";
@@ -283,6 +283,15 @@ const BookingSummary = () => {
                                             <div>
                                                 <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Booking Date</div>
                                                 <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{formatDate(booking?.created_at) || 'N/A'}</div>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col xs={6}>
+                                        <div className="d-flex align-items-center">
+                                            <SquareAsterisk size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                                            <div>
+                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Seats</div>
+                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{booking?.seat_name}</div>
                                             </div>
                                         </div>
                                     </Col>

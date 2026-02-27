@@ -380,6 +380,11 @@ export const MyContextProvider = ({ children }) => {
     return slug.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
+  const toTitleCase = (str) => {
+    if (!str) return "";
+    return str.toLowerCase().replace(/\b\w/g, (s) => s.toUpperCase());
+  };
+
   const fetchEventCategories = async () => {
     const res = await commonapi.get("/category-title");
     const raw = res?.data?.categoryData ?? {};
@@ -441,6 +446,7 @@ export const MyContextProvider = ({ children }) => {
       truncateString,
       createSlug,
       convertSlugToTitle,
+      toTitleCase,
       fetchEventCategories,
       extractDetails,
       systemSetting,
@@ -483,6 +489,7 @@ export const MyContextProvider = ({ children }) => {
       truncateString,
       createSlug,
       convertSlugToTitle,
+      toTitleCase,
       fetchEventCategories,
       extractDetails,
       systemSetting,

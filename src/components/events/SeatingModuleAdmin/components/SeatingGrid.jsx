@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ZoomIn, ZoomOut, RotateCcw, LayoutGrid } from 'lucide-react';
 import { PRIMARY } from '@/utils/consts';
 import { IS_MOBILE } from '@/components/events/SeatingModule/components/constants';
+import { useMyContext } from '@/Context/MyContextProvider';
 
 /**
  * HTML/CSS seating chart using same coordinates as admin canvas (API: x, y, width, height, radius).
@@ -111,6 +112,7 @@ function GapPlaceholder({ seat, radius }) {
 }
 
 function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius }) {
+  const { toTitleCase } = useMyContext();
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipHover, setTooltipHover] = useState(false);
   const showDelayRef = useRef(null);
@@ -144,7 +146,10 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius }) {
   };
 
   const visible = showTooltip || tooltipHover;
-  const statusText = seat.status === 'booked' ? 'Booked' : isSelected ? 'Selected' : 'Available';
+
+  // const statusText = seat.status === 'booked' ? 'Booked' : isSelected ? 'Selected' : 'Available';
+  // const statusText = toTitleCase(seat.status);
+  const statusText = (seat.status);
 
   return (
     <div
@@ -401,7 +406,7 @@ const SeatingGrid = ({
             return;
           }
         }
-      } catch (_) {}
+      } catch (_) { }
     }
     const pad = 40;
     const scaleW = (viewportSize.width - pad * 2) / bounds.width;
@@ -425,7 +430,7 @@ const SeatingGrid = ({
           STORAGE_KEY_PREFIX + storageKey,
           JSON.stringify({ zoom, pan })
         );
-      } catch (_) {}
+      } catch (_) { }
     }, VIEW_PERSIST_DEBOUNCE_MS);
     return () => {
       if (viewPersistTimeoutRef.current) clearTimeout(viewPersistTimeoutRef.current);

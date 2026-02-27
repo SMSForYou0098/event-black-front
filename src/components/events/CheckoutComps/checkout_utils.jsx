@@ -272,7 +272,7 @@ export const parseUrlData = (data, ticket, edata) => {
 };
 
 export const TicketDataSummary = (props) => {
-  const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, currency, } = props;
+  const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, currency, summaryData } = props;
   // const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, netAmount, sale_price, currency, handleOpen, attendees, showAttBtn } = props;
 
   const { getCurrencySymbol } = useMyContext()
@@ -303,6 +303,15 @@ export const TicketDataSummary = (props) => {
           </div>
           <span className="text-white fw-bold fs-6">{quantity}</span>
         </div> */}
+        {
+          summaryData?.seats?.length > 0 &&
+          <div className="d-flex justify-content-between align-items-center mb-2" style={{ fontSize: '14px' }}>
+            <span>Seats</span>
+            <span className="text-white fw-bold">
+              {summaryData.seats.map(seat => seat.seat_name).join(', ')}
+            </span>
+          </div>
+        }
         {!hidePrices &&
           <>
             <div className="d-flex justify-content-between align-items-center mb-2" style={{ fontSize: '14px' }}>

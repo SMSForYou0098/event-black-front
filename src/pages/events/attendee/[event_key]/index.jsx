@@ -140,7 +140,7 @@ const AttendeePage = () => {
 
     // Run shared validation (email format, phone format, missing values)
     for (let i = 0; i < attendeeList.length; i++) {
-      const { valid, message } = validateAttendeeData(attendeeList[i]);
+      const { valid, message } = validateAttendeeData(attendeeList[i], activeApiData);
       if (!valid) {
         ErrorAlert(`Attendee ${i + 1}: ${message}`);
         return;
@@ -215,6 +215,7 @@ const AttendeePage = () => {
               price={data?.data?.price}
               quantity={quantity}
               hidePrices={true}
+              summaryData={data}
             />
             {isMobile ? (
               <MobileTwoButtonFooter

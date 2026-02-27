@@ -37,7 +37,7 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
             hideIndicator={true}
 
         >
-            <div className="d-flex flex-column h-100">
+            <div className="d-flex flex-column h-100 overflow-y-auto pb-4">
 
                 {/* Profile Header */}
                 <div className="d-flex align-items-center gap-3 mb-4 px-2">
@@ -94,9 +94,6 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
                         label="Privacy Policy"
                         href="/privacy-policy"
                     />
-                </div>
-
-                <div className="mt-auto pb-3">
                     <CustomBtn
                         variant="primary"
                         buttonText="Logout"
@@ -109,6 +106,9 @@ const UserProfileDrawer = ({ show, onHide, userData, onLogout }) => {
                         className="w-100"
                     />
                 </div>
+
+                {/* <div className="mt-auto pb-3">
+                </div> */}
 
             </div>
         </CustomDrawer>

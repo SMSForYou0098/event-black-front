@@ -45,6 +45,7 @@ export const OrderReviewSection = (props) => {
           subTotal={subTotal}
           processingFee={processingFee}
           total={total}
+          summaryData={summaryData}
         />
 
         <div className="d-block d-sm-none">

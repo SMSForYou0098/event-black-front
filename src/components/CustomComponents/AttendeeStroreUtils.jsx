@@ -7,7 +7,7 @@ const getFieldType = (key) => {
 };
 export const checkForDuplicateAttendees = (attendees, setErrorMessages, setShowErrorModal) => {
     if (!attendees || !Array.isArray(attendees)) return false;
-    
+
     const duplicates = {};
     const errorMessages = [];
 
@@ -78,22 +78,54 @@ export const sanitizeData = (attendees) => {
         return sanitizedAttendee;
     });
 };
-export const validateAttendeeData = (attendee) => {
-    for (const [key, value] of Object.entries(attendee)) {
-        if (value === null || value === undefined || value === '') {
-            return { valid: false, message: `Missing value for ${key}` };
+export const validateAttendeeData = (attendee, apiData = []) => {
+    // If apiData is provided, validate based on field configuration (required-ness and format)
+    if (apiData && Array.isArray(apiData) && apiData.length > 0) {
+        for (const field of apiData) {
+            const fieldName = field.field_name;
+            const isRequired = field.field_required === true;
+            const value = attendee[fieldName];
+
+            // 1. Mandatory check for required fields
+            if (isRequired && (value === null || value === undefined || value === '')) {
+                return { valid: false, message: `${field.lable || fieldName} is required` };
+            }
+
+            // 2. Format validation (only if value exists)
+            if (value !== null && value !== undefined && value !== '') {
+                const fieldType = getFieldType(fieldName);
+
+                // Email validation
+                if (fieldType === "email" && !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
+                    return { valid: false, message: `Invalid email format for ${field.lable || fieldName}` };
+                }
+
+                // Phone number validation
+                if (fieldType === "phone" && !/^\d{10}$/.test(String(value))) {
+                    return { valid: false, message: `Invalid phone number format for ${field.lable || fieldName}` };
+                }
+            }
         }
+    } else {
+        // Fallback/Legacy behavior: Validate format for all keys that have values
+        for (const [key, value] of Object.entries(attendee)) {
+            // Skip helper keys
+            if (key === 'id' || key === 'missingFields') continue;
 
-        const fieldType = getFieldType(key);
+            // Only validate format if there is a value; don't enforce required-ness without config
+            if (value !== null && value !== undefined && value !== '') {
+                const fieldType = getFieldType(key);
 
-        // Email validation
-        if (fieldType === "email" && !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
-            return { valid: false, message: `Invalid email format for ${key}` };
-        }
+                // Email validation
+                if (fieldType === "email" && !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
+                    return { valid: false, message: `Invalid email format for ${key}` };
+                }
 
-        // Phone number validation (example: 10-digit number)
-        if (fieldType === "phone" && !/^\d{10}$/.test(value)) {
-            return { valid: false, message: `Invalid phone number format for ${key}` };
+                // Phone number validation
+                if (fieldType === "phone" && !/^\d{10}$/.test(String(value))) {
+                    return { valid: false, message: `Invalid phone number format for ${key}` };
+                }
+            }
         }
     }
     return { valid: true };

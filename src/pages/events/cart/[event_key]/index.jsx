@@ -80,7 +80,7 @@ const CartPage = () => {
     },
     onError: (error) => {
       console.error('Failed to lock seats:', error);
-      ErrorAlert(error?.message || 'Failed to lock seats. Please try again.');
+      ErrorAlert(error?.response?.data?.message || error?.message || 'Failed to lock seats. Please try again.');
     },
   });
 
