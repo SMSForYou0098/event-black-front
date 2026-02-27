@@ -45,9 +45,11 @@ const CrewImage = ({ crew }) => {
 
     return (
         <div className="crew-image mb-3 mx-auto" style={{ width: '100px', height: '100px' }}>
-            <img
+            <Image
                 src={src}
                 alt={crew.name}
+                width={100}
+                height={100}
                 className="img-fluid rounded-circle w-100 h-100"
                 loading='lazy'
                 onError={() => setImgError(true)}

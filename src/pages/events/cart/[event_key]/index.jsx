@@ -610,19 +610,16 @@ const CartPage = () => {
                         ))}
                       </tbody>
                     </Table>
-                    {selectedTickets?.seats?.length > 0 && (
-                      <div className="cart-info-box my-2 p-3 rounded-3 border-dashed-thin">
-                        <span className="text-white small">Seats:
-                          {selectedTickets.seats.map((s) => s.seat_name).join(", ")}
+                    <Alert style={{ fontSize: "12px" }} className="p-1 rounded-3 border-dashed-thin d-flex justify-content-between flex-wrap gap-2">
+                      {selectedTickets?.seats?.length > 0 && (
+                        <span className="text-white small">
+                          <strong>Seats:</strong> {selectedTickets.seats.map((s) => s.seat_name).join(", ")}
                         </span>
-                      </div>
-                    )}
-
-                    <div className="cart-info-box my-2 p-3 rounded-3 border-dashed-thin">
+                      )}
                       <span className="text-white small">
                         * Base price only — fees & taxes added at checkout.
                       </span>
-                    </div>
+                    </Alert>
 
                     {/* Checkout button — same for desktop column and mobile drawer */}
                     <CustomBtn
@@ -663,7 +660,7 @@ const CartPage = () => {
                     title="Cart Overview"
                     placement="bottom"
                     className="bg-dark text-white"
-                    style={{ height: "auto", minHeight: "50vh" }}
+                    style={{ height: "auto", minHeight: "80vh" }}
                   >
                     {cartSidebarBody}
                   </CustomDrawer>

@@ -62,7 +62,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
                             fontWeight: 600,
                         }}
                     >
-                        click here
+                        View Map
                     </a>
                 </>
             ),
