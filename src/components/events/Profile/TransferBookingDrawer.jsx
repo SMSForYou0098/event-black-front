@@ -6,50 +6,42 @@ import CustomBtn from '@/utils/CustomBtn';
 import { getUserByPhone, createTransferUser, transferBooking, verifyTransferOtp } from '@/services/transferService';
 import { useMyContext } from '@/Context/MyContextProvider';
 
-// Step Indicator Component
-const StepIndicator = ({ currentStep, totalSteps = 3 }) => {
-    const steps = [
-        { num: 1, label: 'Find User' },
-        { num: 2, label: 'Verify' },
-        { num: 3, label: 'Transfer' }
-    ];
-
-    return (
-        <div className="d-flex justify-content-between align-items-center mb-4 pb-3" style={{ borderBottom: '1px solid var(--bs-border-color)' }}>
-            {steps.map((step, index) => (
-                <React.Fragment key={step.num}>
-                    <div className="d-flex flex-column align-items-center">
-                        <div
-                            className={`rounded-circle d-flex align-items-center justify-content-center mb-1 ${currentStep >= step.num
-                                ? 'bg-primary text-white'
-                                : 'bg-secondary bg-opacity-25 text-muted'
-                                }`}
-                            style={{
-                                width: 32,
-                                height: 32,
-                                fontSize: '0.85rem',
-                                fontWeight: 600,
-                                transition: 'all 0.3s ease'
-                            }}
-                        >
-                            {currentStep > step.num ? <CheckCircle size={16} /> : step.num}
-                        </div>
-                        <small className={`text-center ${currentStep >= step.num ? 'text-primary fw-medium' : 'text-muted'}`}
-                            style={{ fontSize: '0.7rem' }}>
-                            {step.label}
-                        </small>
+// Step Indicator Component – accepts dynamic steps (3 or 4)
+const StepIndicator = ({ steps, currentStep }) => (
+    <div className="d-flex justify-content-between align-items-center mb-4 pb-3" style={{ borderBottom: '1px solid var(--bs-border-color)' }}>
+        {steps.map((step, index) => (
+            <React.Fragment key={step.num}>
+                <div className="d-flex flex-column align-items-center">
+                    <div
+                        className={`rounded-circle d-flex align-items-center justify-content-center mb-1 ${currentStep >= step.num
+                            ? 'bg-primary text-white'
+                            : 'bg-secondary bg-opacity-25 text-muted'
+                            }`}
+                        style={{
+                            width: 32,
+                            height: 32,
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            transition: 'all 0.3s ease'
+                        }}
+                    >
+                        {currentStep > step.num ? <CheckCircle size={16} /> : step.num}
                     </div>
-                    {index < steps.length - 1 && (
-                        <div
-                            className={`flex-grow-1 mx-2 ${currentStep > step.num ? 'bg-primary' : 'bg-secondary bg-opacity-25'}`}
-                            style={{ height: 2, marginTop: -12, transition: 'all 0.3s ease' }}
-                        />
-                    )}
-                </React.Fragment>
-            ))}
-        </div>
-    );
-};
+                    <small className={`text-center ${currentStep >= step.num ? 'text-primary fw-medium' : 'text-muted'}`}
+                        style={{ fontSize: '0.7rem' }}>
+                        {step.label}
+                    </small>
+                </div>
+                {index < steps.length - 1 && (
+                    <div
+                        className={`flex-grow-1 mx-2 ${currentStep > step.num ? 'bg-primary' : 'bg-secondary bg-opacity-25'}`}
+                        style={{ height: 2, marginTop: -12, transition: 'all 0.3s ease' }}
+                    />
+                )}
+            </React.Fragment>
+        ))}
+    </div>
+);
 
 // User Info Card Component
 const UserInfoCard = ({ user, phoneNumber, isNew = false, variant = 'success' }) => (
@@ -118,17 +110,39 @@ const TransferBookingDrawer = ({
     const [isTransferring, setIsTransferring] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [alertCountdown, setAlertCountdown] = useState(0);
+    const [createUserStepCompleted, setCreateUserStepCompleted] = useState(false);
 
     // Get max quantity from booking
     const maxQuantity = booking?.bookings?.length || 1;
 
-    // Calculate current step
-    const currentStep = useMemo(() => {
-        if (otpVerified) return 3;
-        if (otpSent || (userFound !== null && !eventData.otpRequired)) return 2;
-        if (userFound !== null) return 2;
-        return 1;
-    }, [userFound, otpSent, otpVerified, eventData.otpRequired]);
+    // Always show Find User, Verify, Transfer. Add Create User step only when new user (user not found).
+    const { steps, currentStep } = useMemo(() => {
+        const baseSteps = userFound === false
+            ? [
+                { num: 1, label: 'Find User' },
+                { num: 2, label: 'Create User' },
+                { num: 3, label: 'Verify' },
+                { num: 4, label: 'Transfer' }
+            ]
+            : [
+                { num: 1, label: 'Find User' },
+                { num: 2, label: 'Verify' },
+                { num: 3, label: 'Transfer' }
+            ];
+
+        let current = 1;
+        if (userFound === null) current = 1;
+        else if (userFound === false) {
+            if (!createUserStepCompleted) current = 2;
+            else if (!otpVerified) current = 3;
+            else current = 4;
+        } else {
+            if (!otpVerified) current = 2;
+            else current = 3;
+        }
+        return { steps: baseSteps, currentStep: current };
+    }, [userFound, createUserStepCompleted, otpVerified]);
 
     // Ref for phone input
     const phoneInputRef = useRef(null);
@@ -140,6 +154,27 @@ const TransferBookingDrawer = ({
             otpInputRef.current.focus();
         }
     }, [otpSent]);
+
+    // Start countdown when error or success is set
+    useEffect(() => {
+        if (error || success) setAlertCountdown(3);
+    }, [error, success]);
+
+    // Countdown interval: decrement every second, clear alert at 0
+    useEffect(() => {
+        if (!(error || success) || alertCountdown <= 0) return;
+        const id = setInterval(() => {
+            setAlertCountdown((prev) => {
+                if (prev <= 1) {
+                    setError('');
+                    setSuccess('');
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(id);
+    }, [error, success, alertCountdown]);
 
     // Reset form
     const resetForm = useCallback(() => {
@@ -153,6 +188,8 @@ const TransferBookingDrawer = ({
         setQuantity(1);
         setError('');
         setSuccess('');
+        setAlertCountdown(0);
+        setCreateUserStepCompleted(false);
     }, []);
 
     // Handle drawer close
@@ -160,6 +197,17 @@ const TransferBookingDrawer = ({
         resetForm();
         onHide();
     }, [resetForm, onHide]);
+
+    useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => setSuccess(''), 3000);
+            return () => clearTimeout(timer);
+        }
+        if (error) {
+            const timer = setTimeout(() => setError(''), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [success, error]);
 
     // Search user by phone
     const handleSearchUser = useCallback(async () => {
@@ -177,6 +225,7 @@ const TransferBookingDrawer = ({
             const response = await getUserByPhone(formData.phone);
             if (response.status && response.user) {
                 setUserFound(true);
+                setSuccess('Verified! Select quantity and transfer.');
                 setTargetUser(response.user);
             } else {
                 setUserFound(false);
@@ -310,7 +359,7 @@ const TransferBookingDrawer = ({
             const transferResponse = await transferBooking(transferPayload);
 
             if (transferResponse.status) {
-                successAlert(transferResponse.message || 'Booking transferred successfully!');
+                successAlert('', transferResponse.message || 'Ticket transferred successfully!');
                 handleClose();
                 onTransferSuccess?.();
             } else {
@@ -337,239 +386,186 @@ const TransferBookingDrawer = ({
             hideIndicator={true}
         >
             <div className="">
-                {/* Step Indicator */}
-                <StepIndicator currentStep={currentStep} />
+                <StepIndicator steps={steps} currentStep={currentStep} />
 
-                {/* Booking Info Header */}
-                {/* <div className="d-flex align-items-center gap-2 mb-3 p-2 rounded-2" >
-                    <Ticket size={18} className="text-primary" />
-                    <div className="flex-grow-1">
-                        <span className="fw-medium" style={{ fontSize: '0.85rem' }}>{maxQuantity} ticket(s) • {eventData.eventName}</span>
-                    </div>
-                </div> */}
-
-                <div className="mb-4">
-                    {/* <Form.Label className="d-flex justify-content-between align-items-center mb-2">
-                                <span className="small text-muted">Number of Tickets to Transfer</span>
-                                <Badge bg="info">{quantity} of {maxQuantity}</Badge>
-                            </Form.Label> */}
-
-                    {maxQuantity > 1 ? (
-                        <div className="d-flex align-items-center justify-content-center gap-3">
-                            <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                                disabled={quantity <= 1}
-                                style={{ width: 50, height: 50 }}
-                            >
-                                −
-                            </Button>
-                            <input
-                                type="number"
-                                min={1}
-                                max={maxQuantity}
-                                value={quantity}
-                                onChange={(e) => setQuantity(Math.min(Math.max(1, parseInt(e.target.value) || 1), maxQuantity))}
-                                className="text-center"
-                                style={{ fontSize: '1rem', fontWeight: 600 }}
-                            />
-                            <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                onClick={() => setQuantity(q => Math.min(maxQuantity, q + 1))}
-                                disabled={quantity >= maxQuantity}
-                                style={{ width: 50, height: 50 }}
-                            >
-                                +
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="p-3 rounded-2 text-center">
-                            <span className="fw-semibold">1 Ticket</span>
-                        </div>
-                    )}
-                </div>
-
-
-
-                {/* Step 1: Phone Number Input */}
-
-                <div className="mb-3">
-                    <Form.Label className="small text-muted mb-2 d-flex align-items-center gap-1">
-                        <Phone size={14} />
-                        Recipient's Phone Number
-                    </Form.Label>
-                    <InputGroup size="sm" className='card-glassmorphism__input rounded-3'>
-                        <InputGroup.Text className="card-glassmorphism__input-prefix">+91</InputGroup.Text>
-                        <Form.Control
-                            ref={phoneInputRef}
-                            type="tel"
-                            size='sm'
-                            placeholder="Enter 10-digit number"
-                            value={formData.phone}
-                            onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value.replace(/\D/g, '') }))}
-                            maxLength={10}
-                            disabled={isSearching || userFound !== null}
-                            className=""
-                        />
-                        {/* <Button
-                            variant={formData.phone.length === 10 && userFound === null ? 'primary' : 'outline-secondary'}
-                            onClick={handleSearchUser}
-                            disabled={isSearching || formData.phone.length < 10 || userFound !== null}
-                            style={{ minWidth: 50 }}
-                        >
-                            {isSearching ? (
-                                <Spinner size="sm" animation="border" />
-                            ) : (
-                                <Search size={20} />
-                            )}
-                        </Button> */}
-                    </InputGroup>
-                    {formData.phone.length > 0 && formData.phone.length < 10 && (
-                        <Form.Text className="text-muted">
-                            {10 - formData.phone.length} more digits needed
-                        </Form.Text>
-                    )}
-                </div>
-                {/* Error/Success Messages */}
+                {/* Alerts – global */}
                 {error && (
                     <Alert dismissible variant="primary" className="py-2 mb-3 d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
                         <AlertCircle size={16} />
-                        {error}
+                        <span>
+                            {error}
+                            <span className="ms-2 small text-muted">(Closes in {alertCountdown}s)</span>
+                        </span>
                     </Alert>
                 )}
                 {success && (
-                    <Alert closeButton dismissible variant="success" className="py-2 mb-3 d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
+                    <Alert variant="success" className="py-2 mb-3 d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
                         <CheckCircle size={16} />
-                        {success}
+                        <span>
+                            {success}
+                            <span className="ms-2 small text-muted">(Closes in {alertCountdown}s)</span>
+                        </span>
                     </Alert>
                 )}
 
-                {/* User Found Display */}
-                {userFound === true && targetUser && !otpSent && !otpVerified && (
+                {/* Step 1: Find User – phone only */}
+                {currentStep === 1 && (
                     <div className="animate__animated animate__fadeIn">
-                        <UserInfoCard user={targetUser} phoneNumber={formData.phone} variant="success" />
-                        <CustomBtn
-                            variant="primary"
-                            buttonText={isSendingOtp ? 'Processing...' : (eventData.otpRequired ? 'Send Verification OTP' : 'Verify & Continue')}
-                            icon={isSendingOtp ? null : <Send size={18} />}
-                            HandleClick={handleSendOtp}
-                            disabled={isSendingOtp}
-                            className="w-100 mb-2"
-                        />
-                    </div>
-                )}
-
-                {/* User Not Found - Create Form */}
-                {userFound === false && !otpSent && !otpVerified && (
-                    <div className="animate__animated animate__fadeIn">
-                        <div
-                            className="mb-3">
-                            <div className="d-flex align-items-center gap-2 mb-3">
-                                <AlertCircle size={18} className="text-warning" />
-                                <span className="fw-medium">New user - Enter details</span>
-                            </div>
-
-                            <Form.Group className="mb-3">
-                                <Form.Label className="small text-muted mb-1">
-                                    Full Name <span className="text-danger">*</span>
-                                </Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Enter recipient's name"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                                    size="sm"
-                                />
-                            </Form.Group>
-
-                            <Form.Group>
-                                <Form.Label className="small text-muted mb-1">
-                                    Email <span className="text-muted">(Optional)</span>
-                                </Form.Label>
-                                <Form.Control
-                                    type="email"
-                                    placeholder="Enter email address"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                                    size="sm"
-                                />
-                            </Form.Group>
-                        </div>
-
-                        <CustomBtn
-                            variant="primary"
-                            buttonText={isSendingOtp ? 'Processing...' : (eventData.otpRequired ? 'Send Verification OTP' : 'Verify & Continue')}
-                            icon={isSendingOtp ? null : <Send size={18} />}
-                            HandleClick={handleSendOtp}
-                            disabled={isSendingOtp || !formData.name.trim()}
-                            className="w-100 mb-2"
-                        />
-                    </div>
-                )}
-
-                {/* OTP Input */}
-                {otpSent && !otpVerified && (
-                    <div className="animate__animated animate__fadeIn">
-                        <UserInfoCard
-                            user={targetUser || { name: formData.name }}
-                            phoneNumber={formData.phone}
-                            isNew={userFound === false}
-                            variant="info"
-                        />
-
-                        <div
-                            className="rounded-3 p-3 mb-3 text-center"
-                            style={{
-                                background: 'var(--bs-info-bg-subtle)',
-                                border: '1px solid var(--bs-info-border-subtle)'
-                            }}
-                        >
-                            <KeyRound size={24} className="text-info mb-2" />
-                            <p className="mb-3 small">
-                                Enter the 6-digit OTP sent to <strong>{formData.phone}</strong>
-                            </p>
-
+                        <Form.Label className="small text-muted mb-2 d-flex align-items-center gap-1">
+                            <Phone size={14} />
+                            Recipient&apos;s Phone Number
+                        </Form.Label>
+                        <InputGroup size="sm" className="card-glassmorphism__input rounded-3">
+                            <InputGroup.Text className="card-glassmorphism__input-prefix">+91</InputGroup.Text>
                             <Form.Control
-                                ref={otpInputRef}
-                                type="text"
-                                placeholder="• • • • • •"
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                                maxLength={6}
-                                className="text-center mb-3"
-                                style={{
-                                    fontSize: '1.5rem',
-                                    letterSpacing: '0.5em',
-                                    fontWeight: 600
-                                }}
+                                ref={phoneInputRef}
+                                type="tel"
+                                size="sm"
+                                placeholder="Enter 10-digit number"
+                                value={formData.phone}
+                                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value.replace(/\D/g, '') }))}
+                                maxLength={10}
+                                disabled={isSearching || userFound !== null}
                             />
-
-                            <CustomBtn
-                                variant="primary"
-                                buttonText={isVerifyingOtp ? 'Verifying...' : 'Verify OTP'}
-                                icon={isVerifyingOtp ? null : <CheckCircle size={18} />}
-                                HandleClick={handleVerifyOtp}
-                                disabled={isVerifyingOtp || otp.length !== 6}
-                                className="w-100"
-                            />
-                        </div>
+                        </InputGroup>
+                        {formData.phone.length > 0 && formData.phone.length < 10 && (
+                            <Form.Text className="text-muted">{10 - formData.phone.length} more digits needed</Form.Text>
+                        )}
                     </div>
                 )}
 
-                {/* Transfer Ready */}
-                {otpVerified && (
+                {/* Step 2 (new user only): Create User – name & email, then Continue */}
+                {userFound === false && currentStep === 2 && (
                     <div className="animate__animated animate__fadeIn">
-                        <UserInfoCard
-                            user={targetUser || { name: formData.name }}
-                            phoneNumber={formData.phone}
-                            isNew={userFound === false}
-                            variant="success"
+                        <div className="d-flex align-items-center gap-2 mb-3">
+                            <AlertCircle size={18} className="text-warning" />
+                            <span className="fw-medium">New user – Enter details</span>
+                        </div>
+                        <Form.Group className="mb-3">
+                            <Form.Label className="small text-muted mb-1">Full Name <span className="text-danger">*</span></Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="Enter recipient's name"
+                                value={formData.name}
+                                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                                size="sm"
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label className="small text-muted mb-1">Email <span className="text-muted">(Optional)</span></Form.Label>
+                            <Form.Control
+                                type="email"
+                                placeholder="Enter email address"
+                                value={formData.email}
+                                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                                size="sm"
+                            />
+                        </Form.Group>
+                        <CustomBtn
+                            variant="primary"
+                            buttonText="Continue"
+                            icon={<ArrowRight size={18} />}
+                            HandleClick={() => setCreateUserStepCompleted(true)}
+                            disabled={!formData.name.trim()}
+                            className="w-100"
                         />
+                    </div>
+                )}
 
+                {/* Verify step: existing user (step 2) or new user after create (step 3) – user card + Send OTP or OTP input */}
+                {((userFound === true && currentStep === 2) || (userFound === false && currentStep === 3)) && (
+                    <div className="animate__animated animate__fadeIn">
+                        {!otpSent ? (
+                            <>
+                                <UserInfoCard
+                                    user={targetUser || { name: formData.name }}
+                                    phoneNumber={formData.phone}
+                                    isNew={userFound === false}
+                                    variant={userFound === true ? 'success' : 'info'}
+                                />
+                                <CustomBtn
+                                    variant="primary"
+                                    buttonText={isSendingOtp ? 'Processing...' : (eventData.otpRequired ? 'Send Verification OTP' : 'Verify & Continue')}
+                                    icon={isSendingOtp ? null : <Send size={18} />}
+                                    HandleClick={handleSendOtp}
+                                    disabled={isSendingOtp}
+                                    className="w-100"
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <UserInfoCard
+                                    user={targetUser || { name: formData.name }}
+                                    phoneNumber={formData.phone}
+                                    isNew={userFound === false}
+                                    variant="info"
+                                />
+                                <div
+                                    className="rounded-3 p-3 mb-3 text-center"
+                                    style={{ background: 'var(--bs-info-bg-subtle)', border: '1px solid var(--bs-info-border-subtle)' }}
+                                >
+                                    <KeyRound size={24} className="text-info mb-2" />
+                                    <p className="mb-3 small">Enter the 6-digit OTP sent to <strong>{formData.phone}</strong></p>
+                                    <Form.Control
+                                        ref={otpInputRef}
+                                        type="text"
+                                        placeholder="• • • • • •"
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                                        maxLength={6}
+                                        className="text-center mb-3"
+                                        style={{ fontSize: '1.5rem', letterSpacing: '0.5em', fontWeight: 600 }}
+                                    />
+                                    <CustomBtn
+                                        variant="primary"
+                                        buttonText={isVerifyingOtp ? 'Verifying...' : 'Verify OTP'}
+                                        icon={isVerifyingOtp ? null : <CheckCircle size={18} />}
+                                        HandleClick={handleVerifyOtp}
+                                        disabled={isVerifyingOtp || otp.length !== 6}
+                                        className="w-100"
+                                    />
+                                </div>
+                            </>
+                        )}
+                    </div>
+                )}
 
-
+                {/* Transfer step (last): quantity + Transfer button */}
+                {currentStep === steps.length && steps.length > 1 && (
+                    <div className="animate__animated animate__fadeIn">
+                        <Form.Label className="small text-muted mb-2 d-flex align-items-center justify-content-between">
+                            <span>Number of tickets to transfer</span>
+                            {maxQuantity > 1 && <Badge bg="info">{quantity} of {maxQuantity}</Badge>}
+                        </Form.Label>
+                        {maxQuantity > 1 ? (
+                            <div className="d-flex align-items-center justify-content-center gap-3 mb-3">
+                                <Button
+                                    variant="outline-secondary"
+                                    size="sm"
+                                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                                    disabled={quantity <= 1}
+                                    style={{ width: 50, height: 50 }}
+                                >−</Button>
+                                <input
+                                    type="number"
+                                    min={1}
+                                    max={maxQuantity}
+                                    value={quantity}
+                                    onChange={(e) => setQuantity(Math.min(Math.max(1, parseInt(e.target.value) || 1), maxQuantity))}
+                                    className="text-center"
+                                    style={{ fontSize: '1rem', fontWeight: 600 }}
+                                />
+                                <Button
+                                    variant="outline-secondary"
+                                    size="sm"
+                                    onClick={() => setQuantity(q => Math.min(maxQuantity, q + 1))}
+                                    disabled={quantity >= maxQuantity}
+                                    style={{ width: 50, height: 50 }}
+                                >+</Button>
+                            </div>
+                        ) : (
+                            <div className="p-3 rounded-2 text-center mb-3"><span className="fw-semibold">1 Ticket</span></div>
+                        )}
                         <CustomBtn
                             variant="primary"
                             buttonText={isTransferring ? 'Transferring...' : `Transfer ${quantity} Ticket${quantity > 1 ? 's' : ''}`}
@@ -581,7 +577,6 @@ const TransferBookingDrawer = ({
                     </div>
                 )}
 
-                {/* Reset Button */}
                 {userFound !== null && (
                     <Button
                         variant="link"
