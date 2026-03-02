@@ -15,25 +15,14 @@ const TicketErrorDisplay = ({
 
     return (
         <Card
-            className="text-center py-5 px-4 border-0 shadow-lg"
-            style={{
-                background: "linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(20, 20, 20, 0.98) 100%)",
-                borderRadius: "1rem",
-                maxWidth: "500px",
-                margin: "0 auto"
-            }}
+            className="text-center py-5 px-4 border-0 shadow-lg mx-auto bg-dark rounded-4"
+            style={{ maxWidth: "500px" }}
         >
             <Card.Body>
                 {/* Error Icon */}
                 <div
-                    className="mx-auto mb-4 d-flex align-items-center justify-content-center"
-                    style={{
-                        width: "80px",
-                        height: "80px",
-                        borderRadius: "50%",
-                        background: "rgba(220, 53, 69, 0.15)",
-                        border: "2px solid rgba(220, 53, 69, 0.3)"
-                    }}
+                    className="mx-auto mb-4 d-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 border border-danger border-opacity-25"
+                    style={{ width: "80px", height: "80px" }}
                 >
                     <AlertCircle size={40} className="text-danger" />
                 </div>
@@ -42,18 +31,12 @@ const TicketErrorDisplay = ({
                 <h4 className="mb-3 text-white fw-bold">Oops! Unable to Load Ticket</h4>
 
                 {/* Error Message */}
-                <p className="text-secondary mb-4" style={{ fontSize: "1rem" }}>
+                <p className="text-secondary mb-4 fs-6">
                     {errorMessage}
                 </p>
 
                 {/* Divider */}
-                <div
-                    className="my-4"
-                    style={{
-                        height: "1px",
-                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)"
-                    }}
-                />
+                <hr className="my-4 border-secondary opacity-25" />
 
                 {/* Helper Text */}
                 <p className="text-muted small mb-4">
@@ -86,7 +69,7 @@ const TicketErrorDisplay = ({
 
                     {showHomeLink && (
                         <CustomBtn
-                            variant="outline-secondary"
+                            variant="outline-warning"
                             HandleClick={() => router.push("/")}
                             buttonText="Go to Home"
                             icon={<Home size={18} />}
@@ -98,7 +81,7 @@ const TicketErrorDisplay = ({
 
                 {/* Contact Support */}
                 <p className="text-muted small mt-4 mb-0">
-                    Need help? <Link href="/contact" className="text-primary">Contact Support</Link>
+                    Need help? <Link href="/contact" className="text-primary text-decoration-none">Contact Support</Link>
                 </p>
             </Card.Body>
         </Card>

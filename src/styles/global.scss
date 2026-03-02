@@ -13,9 +13,10 @@
   --user-drawer-item-bg: rgba(255, 255, 255, 0.05);
 }
 
-.btn-outline-danger{
+.btn-outline-danger {
   color: var(--bs-white) !important;
-  border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;;
+  border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
+  ;
 }
 
 .modal-body-padding {
@@ -347,6 +348,7 @@ canvas {
     width: 74% !important; // full width on mobile
     max-height: 60vh !important; // optional: responsive to viewport
   }
+
   // Seating module: let Konva control canvas size so hit-testing and layout match (no 74% override)
   .seating-module-scope canvas {
     width: unset !important;
@@ -423,12 +425,12 @@ canvas {
   left: 0;
   right: 0;
   padding: 15px;
-  background: rgba(30, 30, 30, 0.3);
-  backdrop-filter: blur(15px) saturate(180%);
-  -webkit-backdrop-filter: blur(15px) saturate(180%);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 15, 15, 0.45);
+  backdrop-filter: blur(24px) saturate(200%) brightness(0.85);
+  -webkit-backdrop-filter: blur(24px) saturate(200%) brightness(0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 1000;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.25);
   will-change: transform;
   transform: translateZ(0);
 }

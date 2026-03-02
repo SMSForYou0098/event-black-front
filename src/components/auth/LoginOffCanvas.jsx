@@ -8,6 +8,7 @@ import { signIn, logout } from "@/store/auth/authSlice";
 import { PasswordField } from "../../components/CustomComponents/CustomFormFields";
 import { ChevronLeft, LoaderCircle, Mail } from "lucide-react";
 import CustomBtn from "../../utils/CustomBtn";
+import MobileTwoButtonFooter from "../../utils/MobileTwoButtonFooter";
 import CustomDrawer from "../../utils/CustomDrawer";
 import Link from "next/link";
 import { useMyContext } from "@/Context/MyContextProvider";
@@ -589,29 +590,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             </Form.Control.Feedback>
                         </Form.Group>
 
-                        <div className="d-flex justify-content-between align-items-center ">
-                            <CustomBtn
-                                type="button"
-                                variant="default"
-                                className="btn-tertiary"
-                                HandleClick={handleBack}
-                                buttonText="Back"
-                                disabled={isLoading}
-                                hideIcon={true}
-                            // className="w-100"
-                            />
-                            <CustomBtn
-                                type="submit"
-                                variant="primary"
-                                disabled={isLoading}
-                                icon={isLoading ? <LoaderCircle className="spin" /> : null}
-                                buttonText={isLoading ? "Verifying..." : "Verify OTP"}
-                                className="w-100"
-                            />
-                        </div>
-
-
-                        <div className="text-center pb-3">
+                        <div className="text-center pb-3 mt-auto">
                             <p className="my-3">OTP sent to your mobile number and email</p>
                             {timerVisible && otpSent ? (
                                 <p className="text-muted">
@@ -629,6 +608,32 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                 />
                             )}
                         </div>
+
+                        <div className="pb-5 mb-5"></div>
+                        <MobileTwoButtonFooter
+                            className=""
+                            leftButton={
+                                <CustomBtn
+                                    type="button"
+                                    variant="default"
+                                    className="btn-tertiary "
+                                    HandleClick={handleBack}
+                                    buttonText="Back"
+                                    disabled={isLoading}
+                                    hideIcon={true}
+                                />
+                            }
+                            rightButton={
+                                <CustomBtn
+                                    type="submit"
+                                    variant="primary"
+                                    disabled={isLoading}
+                                    icon={isLoading ? <LoaderCircle className="spin" /> : null}
+                                    buttonText={isLoading ? "Verifying..." : "Verify OTP"}
+                                    wrapperClassName="justify-content-end"
+                                />
+                            }
+                        />
                     </div>
                 </Form>
             ) : currentView === MODAL_VIEWS.SIGN_UP ? (
@@ -748,29 +753,34 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                 {validationErrors.terms}
                             </Form.Control.Feedback>
                         </div>
-                        <div className="d-flex justify-content-between align-items-center sticky-mobile-footer">
-                            <CustomBtn
-                                variant="link"
-                                HandleClick={handleBack}
-                                type="button"
-                                className="p-0 text-decoration-none"
-                                disabled={isLoading}
-                                buttonText={isLoading ? "Processing..." : "Back to Login"}
-                                icon={<ChevronLeft size={16} />}
-                                iconPosition="left"
-                                size="sm"
-                            />
-
-                            <CustomBtn
-                                type="submit"
-                                variant="primary"
-                                disabled={isLoading}
-                                icon={isLoading ? <LoaderCircle className="spin" /> : null}
-                                buttonText={isLoading ? "Creating Account..." : "Sign Up"}
-                                className="w-100"
-                                size='sm'
-                            />
-                        </div>
+                        <div className="mb-5"></div>
+                        <MobileTwoButtonFooter
+                            leftButton={
+                                <CustomBtn
+                                    variant="outline-primary"
+                                    HandleClick={handleBack}
+                                    type="button"
+                                    className=" text-decoration-none "
+                                    disabled={isLoading}
+                                    buttonText={isLoading ? "Processing..." : "Back to Login"}
+                                    icon={<ChevronLeft size={16} />}
+                                    iconPosition="left"
+                                    wrapperClassName="justify-content-start"
+                                    size="sm"
+                                />
+                            }
+                            rightButton={
+                                <CustomBtn
+                                    type="submit"
+                                    variant="primary"
+                                    disabled={isLoading}
+                                    icon={isLoading ? <LoaderCircle className="spin" /> : null}
+                                    buttonText={isLoading ? "Creating Account..." : "Sign Up"}
+                                    wrapperClassName="justify-content-end"
+                                    size='sm'
+                                />
+                            }
+                        />
                     </div>
                 </Form>
             ) : currentView === MODAL_VIEWS.PASSWORD ? (
@@ -801,48 +811,51 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             </Form.Control.Feedback>
                         </Form.Group>
 
-                        <div className="d-flex flex-column gap-2 pb-3 mt-auto">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
                             <CustomBtn
-                                type="submit"
-                                variant="primary"
+                                variant="link"
+                                HandleClick={handleBack}
+                                type="button"
+                                className="p-0 text-decoration-none"
                                 disabled={isLoading}
-                                icon={isLoading ? <LoaderCircle className="spin" /> : null}
-                                buttonText={isLoading ? "Verifying..." : "Login"}
+                                buttonText={isLoading ? "Processing..." : "Back to Login"}
+                                icon={<ChevronLeft size={16} />}
+                                iconPosition="left"
                                 size="sm"
-                                className="w-100"
                             />
 
-                            <div className="d-flex justify-content-between align-items-center ">
-                                <CustomBtn
-                                    variant="link"
-                                    HandleClick={handleBack}
-                                    type="button"
-                                    className="p-0 text-decoration-none"
-                                    disabled={isLoading}
-                                    buttonText={isLoading ? "Processing..." : "Back to Login"}
-                                    icon={<ChevronLeft size={16} />}
-                                    iconPosition="left"
-                                    size="sm"
-                                />
-
-                                <CustomBtn
-                                    variant="link"
-                                    HandleClick={() => {
-                                        handleModalClose();
-                                        const emailParam = credential
-                                            ? `?email=${encodeURIComponent(credential)}`
-                                            : "";
-                                        router.push(`/auth/lost-password${emailParam}`);
-                                    }}
-                                    type="button"
-                                    className="p-0 text-muted"
-                                    disabled={isLoading}
-                                    size="sm"
-                                    buttonText="Forgot Password?"
-                                    hideIcon
-                                />
-                            </div>
+                            <CustomBtn
+                                variant="link"
+                                HandleClick={() => {
+                                    handleModalClose();
+                                    const emailParam = credential
+                                        ? `?email=${encodeURIComponent(credential)}`
+                                        : "";
+                                    router.push(`/auth/lost-password${emailParam}`);
+                                }}
+                                type="button"
+                                className="p-0 text-muted"
+                                disabled={isLoading}
+                                size="sm"
+                                buttonText="Forgot Password?"
+                                hideIcon
+                            />
                         </div>
+
+                        <div className="pb-5 mb-5"></div>
+                        <MobileTwoButtonFooter
+                            rightButton={
+                                <CustomBtn
+                                    type="submit"
+                                    variant="primary"
+                                    disabled={isLoading}
+                                    icon={isLoading ? <LoaderCircle className="spin" /> : null}
+                                    buttonText={isLoading ? "Verifying..." : "Login"}
+                                    size="sm"
+                                    className="w-100"
+                                />
+                            }
+                        />
                     </div>
                 </Form>
             ) : (
@@ -915,17 +928,20 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             By continuing, you agree to accept our <Link href="/terms-and-conditions" className="text-decoration-underline text-primary">Terms & Conditions</Link> and <Link href="/privacy-policy" className="text-decoration-underline text-primary">Privacy Policy</Link>.
                         </span>
 
-                        <div className="mt-auto ">
-                            <CustomBtn
-                                type="submit"
-                                variant="primary"
-                                disabled={isLoading}
-                                icon={isLoading ? <LoaderCircle className="spin" /> : null}
-                                buttonText={isLoading ? "Processing..." : "Continue"}
-                                size="sm"
-                                className="w-100"
-                            />
-                        </div>
+                        <div className="pb-5 mb-5"></div>
+                        <MobileTwoButtonFooter
+                            rightButton={
+                                <CustomBtn
+                                    type="submit"
+                                    variant="primary"
+                                    disabled={isLoading}
+                                    icon={isLoading ? <LoaderCircle className="spin" /> : null}
+                                    buttonText={isLoading ? "Processing..." : "Continue"}
+                                    size="sm"
+                                    className="w-100"
+                                />
+                            }
+                        />
                     </div>
                 </Form>
 
@@ -964,20 +980,14 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             showOffcanvas={show}
             setShowOffcanvas={() => handleModalClose()}
             placement="bottom"
-            className="auth-offcanvas modal-glass-bg"
+            className="modal-glass-bg"
             hideIndicator={false}
             title={
                 <div className="w-100 d-flex justify-content-center">
-                    <Logo height={107} width={240}
-                        mobileUrl={"/assets/images/logo/logo.webp"} />
+                    <Logo height={isMobile ? 76 * 0.5 : 40 * 0.65} width={isMobile ? 111 * 0.5 : 258 * 0.65} />
                 </div>
             }
-            style={{
-                height: 'auto',
-                minHeight: '85vh',
-                borderTopLeftRadius: '20px',
-                borderTopRightRadius: '20px',
-            }}
+
         >
             <div ref={offcanvasBodyRef} className="pt-0 pb-2 d-flex flex-column" style={{ overflowY: 'auto' }}>
                 {renderContent()}

@@ -9,6 +9,7 @@ import { useMyContext } from "@/Context/MyContextProvider";
 import TicketCanvasView from '../events/Tickets/TicketCanvasView';
 import CustomBtn from '../../utils/CustomBtn';
 import CustomDrawer from '../../utils/CustomDrawer';
+import MobileTwoButtonFooter from '../../utils/MobileTwoButtonFooter';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -256,36 +257,28 @@ const TicketDrawer = ({
             )}
 
             {/* Sticky Footer */}
-            <div className="position-fixed bottom-0 start-0 w-100 bg-black border-top border-secondary p-3 z-3">
-                {/* Footer info */}
-                <div className="text-center text-secondary small mb-3">
-                    {/* <p className="mb-0">No physical ticket needed! Download your Ticket & enjoy unlimited fun.</p> */}
-                </div>
-                {/* Download/Print Buttons */}
-                <Row className="d-flex justify-content-center">
-                    <Col xs={12} sm={6} className="d-flex justify-content-center gap-2">
-                        <CustomBtn
-                            buttonText="Download"
-                            icon={<ArrowBigDownDash size={14} />}
-                            loading={!isCanvasReady}
-                            className="flex-grow-1 btn-sm"
-                            HandleClick={handleDownload}
-                            disabled={!isCanvasReady}
-                        />
-
-                        {showPrintButton && (
-                            <CustomBtn
-                                buttonText="Print"
-                                icon={<Printer size={18} />}
-                                variant="secondary"
-                                className="flex-grow-1"
-                                HandleClick={handlePrint}
-                                disabled={!isCanvasReady}
-                            />
-                        )}
-                    </Col>
-                </Row>
-            </div>
+            <MobileTwoButtonFooter
+                leftButton={
+                    <CustomBtn
+                        buttonText="Download"
+                        icon={<ArrowBigDownDash size={14} />}
+                        loading={!isCanvasReady}
+                        className="w-100 btn-sm"
+                        HandleClick={handleDownload}
+                        disabled={!isCanvasReady}
+                    />
+                }
+                rightButton={showPrintButton ? (
+                    <CustomBtn
+                        buttonText="Print"
+                        icon={<Printer size={18} />}
+                        variant="secondary"
+                        className="w-100 btn-sm"
+                        HandleClick={handlePrint}
+                        disabled={!isCanvasReady}
+                    />
+                ) : null}
+            />
         </div>
     );
 

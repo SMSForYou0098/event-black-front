@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Container, Row, Col, Card, Dropdown } from 'react-bootstrap';
+import { Container, Row, Col, Card, Dropdown, Button } from 'react-bootstrap';
 import { Calendar, Clock, Mail, MapPin, User, AlertCircle, SquareAsterisk } from 'lucide-react';
 import CartSteps from '../../../../utils/BookingUtils/CartSteps';
 import { CUSTOM_SECONDORY, PRIMARY } from '../../../../utils/consts';
@@ -148,6 +148,7 @@ const BookingSummary = () => {
     // For display purposes (user info, dates etc), use first individual booking
     const booking = isMaster ? mutation.data?.bookings?.bookings?.[0] || {} : mutation.data?.bookings || {};
 
+    const seat_name = isMaster ? mutation.data?.bookings?.bookings?.map((booking) => booking.seat_name).join(", ") : mutation.data?.bookings?.seat_name;
     // For TicketModal, transform the booking data to ensure each individual booking
     // has the token needed for QR code display
     // NOTE: Individual tickets use their own 'token' for QR, group tickets use 'order_id'
@@ -291,7 +292,7 @@ const BookingSummary = () => {
                                             <SquareAsterisk size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
                                             <div>
                                                 <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Seats</div>
-                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{booking?.seat_name}</div>
+                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{seat_name}</div>
                                             </div>
                                         </div>
                                     </Col>
@@ -353,15 +354,6 @@ const BookingSummary = () => {
                                             </div>
                                         </div>
                                     </Col>
-                                    {/* <Col xs={6}>
-                                        <div className="d-flex align-items-start">
-                                            <Mail size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Email</div>
-                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{user?.email || 'N/A'}</div>
-                                            </div>
-                                        </div>
-                                    </Col> */}
 
                                 </Row>
 
@@ -382,25 +374,36 @@ const BookingSummary = () => {
                             <BookingFooterLayout
                                 center={<div className='d-flex gap-2 justify-content-center align-items-center d-sm-none'>
                                     {!isApprovalRequired && (
-                                        <Dropdown>
-                                            <Dropdown.Toggle
+                                        quantity === 1 ? (
+                                            <Button
                                                 variant="primary"
                                                 size="sm"
                                                 className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                                                onClick={() => handleTicketPreview('single', booking?.id)}
                                             >
                                                 <i className="fa-solid fa-download"></i> Download
-                                            </Dropdown.Toggle>
-                                            <Dropdown.Menu align="end" className="custom-dropdown-menu">
-                                                <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
-                                                    Group Ticket
-                                                </Dropdown.Item>
-                                                {isMaster && (
-                                                    <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
-                                                        Single Ticket
+                                            </Button>
+                                        ) : (
+                                            <Dropdown>
+                                                <Dropdown.Toggle
+                                                    variant="primary"
+                                                    size="sm"
+                                                    className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                                                >
+                                                    <i className="fa-solid fa-download"></i> Download
+                                                </Dropdown.Toggle>
+                                                <Dropdown.Menu align="end" className="custom-dropdown-menu">
+                                                    <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
+                                                        Group Ticket
                                                     </Dropdown.Item>
-                                                )}
-                                            </Dropdown.Menu>
-                                        </Dropdown>
+                                                    {isMaster && (
+                                                        <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
+                                                            Single Ticket
+                                                        </Dropdown.Item>
+                                                    )}
+                                                </Dropdown.Menu>
+                                            </Dropdown>
+                                        )
                                     )}
                                     {attendees?.length !== 0 && (
                                         <CustomBtn
@@ -419,25 +422,36 @@ const BookingSummary = () => {
                             className=" d-none d-sm-flex gap-2 justify-content-center align-items-center"
                         >
                             {!isApprovalRequired && (
-                                <Dropdown>
-                                    <Dropdown.Toggle
+                                quantity === 1 ? (
+                                    <Button
                                         variant="primary"
                                         size="sm"
                                         className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                                        onClick={() => handleTicketPreview('single', booking?.id)}
                                     >
                                         <i className="fa-solid fa-download"></i> Download
-                                    </Dropdown.Toggle>
-                                    <Dropdown.Menu align="end" className="custom-dropdown-menu">
-                                        <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
-                                            Group Ticket
-                                        </Dropdown.Item>
-                                        {isMaster && (
-                                            <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
-                                                Single Ticket
+                                    </Button>
+                                ) : (
+                                    <Dropdown>
+                                        <Dropdown.Toggle
+                                            variant="primary"
+                                            size="sm"
+                                            className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                                        >
+                                            <i className="fa-solid fa-download"></i> Download
+                                        </Dropdown.Toggle>
+                                        <Dropdown.Menu align="end" className="custom-dropdown-menu">
+                                            <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
+                                                Group Ticket
                                             </Dropdown.Item>
-                                        )}
-                                    </Dropdown.Menu>
-                                </Dropdown>
+                                            {isMaster && (
+                                                <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
+                                                    Single Ticket
+                                                </Dropdown.Item>
+                                            )}
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                )
                             )}
                             {attendees?.length !== 0 && (
                                 <CustomBtn

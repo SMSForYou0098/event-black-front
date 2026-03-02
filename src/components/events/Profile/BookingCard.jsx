@@ -70,6 +70,26 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
     });
   };
 
+  const formatBookingDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatBookingTime = (dateStr) => {
+    if (!dateStr) return "N/A";
+    const date = new Date(dateStr);
+    return date.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   const bookingData = useMemo(() => {
     const normalizeBooking = booking?.bookings ? booking.bookings[0] : booking;
     const approvalStatus = booking?.approval_status || booking?.bookings?.[0]?.approval_status;
@@ -156,12 +176,19 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
             </div>
 
             <small className="text-muted d-block mt-1">
-              <Calendar size={14} className='text-warning me-1' />
-              <span className="text-break">{formatDateRange(bookingData?.date_range)}</span>
+              <Calendar size={14} className="text-warning me-1" />
+              Booking Date:
+              <span className="text-break ms-1">
+                {formatBookingDate(bookingData?.created_at)}
+              </span>
             </small>
+
             <small className="text-muted d-block mt-1">
-              <Calendar size={14} className='text-warning me-1' /> Booked On:
-              <span className="text-break">{formatDate(bookingData?.created_at)}</span>
+              <Calendar size={14} className="text-warning me-1" />
+              Booking Time:
+              <span className="text-break ms-1">
+                {formatBookingTime(bookingData?.created_at)}
+              </span>
             </small>
 
             <small className="text-muted d-block mt-1">

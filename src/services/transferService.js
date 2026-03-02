@@ -13,7 +13,8 @@ export const getUserByPhone = async (phoneNumber) => {
         // Return standardized error response
         return {
             status: false,
-            message: error.response?.data?.message || 'User not found'
+            message: error.response?.data?.message || 'User not found',
+            errors: error.response?.data?.errors
         };
     }
 };
@@ -30,7 +31,8 @@ export const createTransferUser = async (userData) => {
     } catch (error) {
         return {
             status: false,
-            message: error.response?.data?.message || 'Failed to create user'
+            message: error.response?.data?.message || 'Failed to create user',
+            errors: error.response?.data?.errors
         };
     }
 };
@@ -47,7 +49,8 @@ export const transferBooking = async (payload) => {
     } catch (error) {
         return {
             status: false,
-            message: error.response?.data?.message || 'Failed to transfer booking'
+            message: error.response?.data?.message || 'Failed to transfer booking',
+            errors: error.response?.data?.errors
         };
     }
 };
@@ -64,7 +67,8 @@ export const verifyTransferOtp = async (payload) => {
     } catch (error) {
         return {
             status: false,
-            message: error.response?.data?.message || 'Failed to verify OTP'
+            message: error.response?.data?.message || 'Failed to verify OTP',
+            errors: error.response?.data?.errors
         };
     }
 };

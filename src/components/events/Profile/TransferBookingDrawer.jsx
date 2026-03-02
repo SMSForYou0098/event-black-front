@@ -92,7 +92,7 @@ const TransferBookingDrawer = ({
     }, [booking]);
 
     // Form data state (consolidated)
-    const [formData, setFormData] = useState({ phone: '', name: '', email: '' });
+    const [formData, setFormData] = useState({ phone: '', confirmPhone: '', name: '', email: '' });
     const [isSearching, setIsSearching] = useState(false);
     const [userFound, setUserFound] = useState(null);
     const [targetUser, setTargetUser] = useState(null);
@@ -178,7 +178,7 @@ const TransferBookingDrawer = ({
 
     // Reset form
     const resetForm = useCallback(() => {
-        setFormData({ phone: '', name: '', email: '' });
+        setFormData({ phone: '', confirmPhone: '', name: '', email: '' });
         setUserFound(null);
         setTargetUser(null);
         setOtp('');
@@ -216,6 +216,11 @@ const TransferBookingDrawer = ({
             return;
         }
 
+        if (formData.phone.trim() !== formData.confirmPhone.trim()) {
+            setError('Phone numbers do not match');
+            return;
+        }
+
         setIsSearching(true);
         setError('');
         setUserFound(null);
@@ -237,14 +242,20 @@ const TransferBookingDrawer = ({
         } finally {
             setIsSearching(false);
         }
-    }, [formData.phone]);
+    }, [formData.phone, formData.confirmPhone]);
 
     // Auto-search when phone number reaches 10 digits
     useEffect(() => {
-        if (formData.phone.length === 10 && userFound === null && !isSearching) {
+        if (
+            formData.phone.length === 10 &&
+            formData.confirmPhone.length === 10 &&
+            formData.phone === formData.confirmPhone &&
+            userFound === null &&
+            !isSearching
+        ) {
             handleSearchUser();
         }
-    }, [formData.phone, userFound, isSearching, handleSearchUser]);
+    }, [formData.phone, formData.confirmPhone, userFound, isSearching, handleSearchUser]);
 
     // Send OTP
     const handleSendOtp = useCallback(async () => {
@@ -288,7 +299,14 @@ const TransferBookingDrawer = ({
                     setSuccess('OTP sent to ' + formData.phone);
                 }
             } else {
-                setError(response.message || 'Failed to verify user');
+                let errorMessage = response.message || 'Failed to verify user';
+                if (response.errors && typeof response.errors === 'object') {
+                    const specificErrors = Object.values(response.errors).flat();
+                    if (specificErrors.length > 0) {
+                        errorMessage = specificErrors.join(' ');
+                    }
+                }
+                setError(errorMessage);
             }
         } catch (err) {
             setError('An error occurred. Please try again.');
@@ -325,7 +343,14 @@ const TransferBookingDrawer = ({
                     }));
                 }
             } else {
-                setError(verifyResponse.message || 'Invalid OTP. Please try again.');
+                let errorMessage = verifyResponse.message || 'Invalid OTP. Please try again.';
+                if (verifyResponse.errors && typeof verifyResponse.errors === 'object') {
+                    const specificErrors = Object.values(verifyResponse.errors).flat();
+                    if (specificErrors.length > 0) {
+                        errorMessage = specificErrors.join(' ');
+                    }
+                }
+                setError(errorMessage);
             }
         } catch (err) {
             setError('Failed to verify OTP');
@@ -363,7 +388,15 @@ const TransferBookingDrawer = ({
                 handleClose();
                 onTransferSuccess?.();
             } else {
-                setError(transferResponse.message || 'Failed to transfer booking');
+                // If there's an errors object, extract the specific messages
+                let errorMessage = transferResponse.message || 'Failed to transfer booking';
+                if (transferResponse.errors && typeof transferResponse.errors === 'object') {
+                    const specificErrors = Object.values(transferResponse.errors).flat();
+                    if (specificErrors.length > 0) {
+                        errorMessage = specificErrors.join(' ');
+                    }
+                }
+                setError(errorMessage);
             }
         } catch (err) {
             console.error('Transfer error:', err);
@@ -385,7 +418,7 @@ const TransferBookingDrawer = ({
             setShowOffcanvas={handleClose}
             hideIndicator={true}
         >
-            <div className="">
+            <div className="p-3">
                 <StepIndicator steps={steps} currentStep={currentStep} />
 
                 {/* Alerts – global */}
@@ -394,7 +427,7 @@ const TransferBookingDrawer = ({
                         <AlertCircle size={16} />
                         <span>
                             {error}
-                            <span className="ms-2 small text-muted">(Closes in {alertCountdown}s)</span>
+                            <span className="ms-2 small text-muted"></span>
                         </span>
                     </Alert>
                 )}
@@ -403,19 +436,19 @@ const TransferBookingDrawer = ({
                         <CheckCircle size={16} />
                         <span>
                             {success}
-                            <span className="ms-2 small text-muted">(Closes in {alertCountdown}s)</span>
+                            <span className="ms-2 small text-muted"></span>
                         </span>
                     </Alert>
                 )}
 
                 {/* Step 1: Find User – phone only */}
                 {currentStep === 1 && (
-                    <div className="animate__animated animate__fadeIn">
+                    <div className="animate__animated animate__fadeIn mb-4">
                         <Form.Label className="small text-muted mb-2 d-flex align-items-center gap-1">
                             <Phone size={14} />
                             Recipient&apos;s Phone Number
                         </Form.Label>
-                        <InputGroup size="sm" className="card-glassmorphism__input rounded-3">
+                        <InputGroup size="sm" className="card-glassmorphism__input rounded-3 mb-3">
                             <InputGroup.Text className="card-glassmorphism__input-prefix">+91</InputGroup.Text>
                             <Form.Control
                                 ref={phoneInputRef}
@@ -428,8 +461,32 @@ const TransferBookingDrawer = ({
                                 disabled={isSearching || userFound !== null}
                             />
                         </InputGroup>
+
+                        <Form.Label className="small text-muted mb-2 d-flex align-items-center gap-1">
+                            <Phone size={14} />
+                            Confirm Recipient&apos;s Phone Number
+                        </Form.Label>
+                        <InputGroup size="sm" className="card-glassmorphism__input rounded-3">
+                            <InputGroup.Text className="card-glassmorphism__input-prefix">+91</InputGroup.Text>
+                            <Form.Control
+                                type="tel"
+                                size="sm"
+                                placeholder="Re-enter 10-digit number"
+                                value={formData.confirmPhone}
+                                onChange={(e) => setFormData(prev => ({ ...prev, confirmPhone: e.target.value.replace(/\D/g, '') }))}
+                                maxLength={10}
+                                disabled={isSearching || userFound !== null}
+                            />
+                        </InputGroup>
+                        {formData.phone.trim().length === 10 && formData.confirmPhone.trim().length === 10 && formData.phone.trim() !== formData.confirmPhone.trim() && (
+                            <Form.Text className="text-danger d-block mt-2">
+                                <AlertCircle size={12} className="me-1" />
+                                Phone numbers do not match
+                            </Form.Text>
+                        )}
+
                         {formData.phone.length > 0 && formData.phone.length < 10 && (
-                            <Form.Text className="text-muted">{10 - formData.phone.length} more digits needed</Form.Text>
+                            <Form.Text className="text-muted d-block mt-2">{10 - formData.phone.length} more digits needed</Form.Text>
                         )}
                     </div>
                 )}
@@ -439,7 +496,7 @@ const TransferBookingDrawer = ({
                     <div className="animate__animated animate__fadeIn">
                         <div className="d-flex align-items-center gap-2 mb-3">
                             <AlertCircle size={18} className="text-warning" />
-                            <span className="fw-medium">New user – Enter details</span>
+                            <span className="fw-medium">New user</span>
                         </div>
                         <Form.Group className="mb-3">
                             <Form.Label className="small text-muted mb-1">Full Name <span className="text-danger">*</span></Form.Label>
@@ -534,8 +591,13 @@ const TransferBookingDrawer = ({
                 {currentStep === steps.length && steps.length > 1 && (
                     <div className="animate__animated animate__fadeIn">
                         <Form.Label className="small text-muted mb-2 d-flex align-items-center justify-content-between">
-                            <span>Number of tickets to transfer</span>
-                            {maxQuantity > 1 && <Badge bg="info">{quantity} of {maxQuantity}</Badge>}
+                            <span></span>
+                            {maxQuantity > 1 &&
+                                <span>
+
+                                    <Badge bg="info">{quantity} of {maxQuantity}</Badge>
+                                    tickets
+                                </span>}
                         </Form.Label>
                         {maxQuantity > 1 ? (
                             <div className="d-flex align-items-center justify-content-center gap-3 mb-3">
@@ -564,7 +626,7 @@ const TransferBookingDrawer = ({
                                 >+</Button>
                             </div>
                         ) : (
-                            <div className="p-3 rounded-2 text-center mb-3"><span className="fw-semibold">1 Ticket</span></div>
+                            <div className="p-3 rounded-2 text-center mb-3"><span className="fw-semibold">1 Ticket transfer</span></div>
                         )}
                         <CustomBtn
                             variant="primary"

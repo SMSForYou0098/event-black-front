@@ -3,8 +3,8 @@ import { Offcanvas } from 'react-bootstrap';
 import { useMediaQuery } from 'react-responsive';
 
 const DRAG_CLOSE_THRESHOLD = 60;
-const DRAG_RESISTANCE = 1.05; // minimal resistance for Instagram-like feel
-const DRAG_HANDLE_HEIGHT = 32; // invisible hit area at top (matches CSS ::before indicator zone)
+const DRAG_RESISTANCE = 1.05;
+const DRAG_HANDLE_HEIGHT = 32;
 
 const CustomDrawer = ({
   title,
@@ -66,14 +66,10 @@ const CustomDrawer = ({
     }
   }, [isDragging, isBottomDrawer, closeDrawer]);
 
-  // Document-level listeners so drag continues if finger moves outside handle
   useEffect(() => {
     if (!isDragging) return;
     const opts = { passive: false };
-    const onMove = (e) => {
-      e.preventDefault();
-      handlePointerMove(e);
-    };
+    const onMove = (e) => { e.preventDefault(); handlePointerMove(e); };
     const onUp = () => handlePointerUp();
     document.addEventListener('touchmove', onMove, opts);
     document.addEventListener('touchend', onUp);
@@ -87,7 +83,6 @@ const CustomDrawer = ({
     };
   }, [isDragging, handlePointerMove, handlePointerUp]);
 
-  // Reset drag when drawer closes
   useEffect(() => {
     if (!showOffcanvas) {
       setDragY(0);
@@ -100,7 +95,20 @@ const CustomDrawer = ({
       <Offcanvas.Header className="d-flex justify-content-center align-items-center pt-3 text-center">
         <Offcanvas.Title>{title}</Offcanvas.Title>
       </Offcanvas.Header>
-      <Offcanvas.Body className={bodyClassName}>{children}</Offcanvas.Body>
+
+      {/* ✅ Key fix: body uses flex-column so children can use flex:1 + scroll */}
+      <Offcanvas.Body
+        className={`${bodyClassName} p-2`}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',   // body itself does NOT scroll
+          flex: 1,
+          minHeight: 0,
+        }}
+      >
+        {children}
+      </Offcanvas.Body>
     </>
   );
 
@@ -108,7 +116,7 @@ const CustomDrawer = ({
     <Offcanvas
       show={showOffcanvas}
       onHide={() => setShowOffcanvas(false)}
-      className={`${hideIndicator ? 'hide-indicator' : ''} ${className}`.trim()}
+      className={`${hideIndicator === true ? 'hide-indicator' : ''} ${className}`.trim()}
       placement={resolvedPlacement}
       style={style}
       {...props}
@@ -121,9 +129,10 @@ const CustomDrawer = ({
             transition: isDragging ? 'none' : 'transform 0.25s ease-out',
             touchAction: 'none',
             minHeight: '100%',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          {/* Invisible drag strip: uses existing CSS ::before indicator; no duplicate handle */}
           <div
             role="button"
             tabIndex={0}

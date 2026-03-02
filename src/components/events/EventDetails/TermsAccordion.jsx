@@ -118,7 +118,7 @@ const TermsAccordion = ({
                         <MobileTwoButtonFooter
                             rightButton={
                                 <CustomBtn
-                                    wrapperClassName="w-100"
+                                    className="w-100"
                                     buttonText="Continue"
                                     HandleClick={handleContinueFromNotice}
                                 />
