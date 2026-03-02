@@ -3,6 +3,7 @@ import { Button } from "react-bootstrap";
 import { Ticket, ChevronUp, CheckCircle, AlertCircle } from "lucide-react";
 import CustomDrawer from "../../../utils/CustomDrawer";
 import CustomBtn from "../../../utils/CustomBtn";
+import MobileTwoButtonFooter from "../../../utils/MobileTwoButtonFooter";
 
 const TermsAccordion = ({
     onlineTerms,
@@ -114,18 +115,15 @@ const TermsAccordion = ({
                             />
                         </div>
 
-                        <div
-                            className="position-fixed bottom-0 start-0 end-0 p-3 bg-dark border-top border-secondary-subtle"
-                            style={{ zIndex: 1060 }}
-                        >
-                            <div className="">
+                        <MobileTwoButtonFooter
+                            rightButton={
                                 <CustomBtn
                                     wrapperClassName="w-100"
                                     buttonText="Continue"
                                     HandleClick={handleContinueFromNotice}
                                 />
-                            </div>
-                        </div>
+                            }
+                        />
                     </>
                 )}
 
@@ -157,19 +155,18 @@ const TermsAccordion = ({
 
                         {/* Agree Section */}
                         {onAgree && (
-                            <div
-                                className="terms-agree-section position-fixed bottom-0 start-0 end-0 p-3 bg-dark border-top"
-                                style={{ zIndex: 1060 }}
-                            >
-                                <CustomBtn
-                                    disabled={false}
-                                    HandleClick={handleAgree}
-                                    icon={<CheckCircle size={20} />}
-                                    buttonText="I Agree & Continue"
-                                    className="w-100"
-                                    loading={loading}
-                                />
-                            </div>
+                            <MobileTwoButtonFooter
+                                rightButton={
+                                    <CustomBtn
+                                        disabled={false}
+                                        HandleClick={handleAgree}
+                                        icon={<CheckCircle size={20} />}
+                                        buttonText="I Agree & Continue"
+                                        className="w-100"
+                                        loading={loading}
+                                    />
+                                }
+                            />
                         )}
                     </>
                 )}

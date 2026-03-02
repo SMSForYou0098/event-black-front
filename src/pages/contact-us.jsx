@@ -29,7 +29,8 @@ const ContactPage = memo(() => {
   });
   const [validated, setValidated] = useState(false);
   const screenshotRef = useRef();
-  const {systemSetting} = useMyContext();
+  const [errors, setErrors] = useState({});
+  const { systemSetting, ErrorAlert, successAlert } = useMyContext();
   // 1. Fetching subject options with TanStack Query
   const { data: subjectOptions, isPending: loadingOptions } = useQuery({
     queryKey: ['contactPageSubjects'],
@@ -48,15 +49,20 @@ const ContactPage = memo(() => {
   // 2. Handling form submission with TanStack Query
   const mutation = useMutation({
     mutationFn: (formData) => {
-      return publicApi.post(`/contac-store`, formData, {
+      return publicApi.post(`/contact-us`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
     },
     onSuccess: () => {
+      successAlert("Success", "Your message has been sent successfully!");
       setForm({ name: "", phone: "", email: "", query: "", message: "", screenshot: null });
       if (screenshotRef.current) screenshotRef.current.value = "";
       setValidated(false);
     },
+    onError: (error) => {
+      const errorMsg = error?.response?.data?.message || "Failed to send message. Please try again.";
+      ErrorAlert(errorMsg);
+    }
   });
 
   // Handlers
@@ -75,15 +81,52 @@ const ContactPage = memo(() => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const formEl = event.currentTarget;
-    if (formEl.checkValidity() === false) {
-      event.stopPropagation();
+    const newErrors = {};
+
+    // Name validation
+    if (!form.name.trim()) {
+      newErrors.name = "Full name is required";
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!form.email) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(form.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    // Phone validation
+    const phoneRegex = /^\d+$/;
+    if (!form.phone) {
+      newErrors.phone = "Phone number is required";
+    } else if (!phoneRegex.test(form.phone)) {
+      newErrors.phone = "Phone number must contain only digits";
+    } else if (form.phone.length < 10) {
+      newErrors.phone = "Phone number must be at least 10 digits";
+    }
+
+    // Subject validation
+    if (!form.query) {
+      newErrors.query = "Please select a subject";
+    }
+
+    // Message validation
+    if (!form.message.trim()) {
+      newErrors.message = "Message is required";
+    } else if (form.message.trim().length < 10) {
+      newErrors.message = "Message must be at least 10 characters long";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       setValidated(true);
       return;
     }
+
+    setErrors({});
     const formData = new FormData();
-    // Use a different key for 'name' if your API expects first_name, last_name
-    formData.append('name', form.name); 
+    formData.append('name', form.name);
     formData.append('phone', form.phone);
     formData.append('email', form.email);
     formData.append('query', form.query);
@@ -110,92 +153,98 @@ const ContactPage = memo(() => {
               <Form noValidate validated={validated} onSubmit={handleSubmit} className="mb-5 mb-lg-0">
                 <Row>
                   <Col md="6" className="mb-4 mb-lg-5">
-                    <input type="text" className="form-control font-size-14" placeholder="Full Name*" required name="name" value={form.name} onChange={handleChange} />
+                    <input type="text" className={`form-control font-size-14 ${errors.name ? 'is-invalid' : ''}`} placeholder="Full Name*" required name="name" value={form.name} onChange={handleChange} />
+                    {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                   </Col>
                   <Col md="6" className="mb-4 mb-lg-5">
-                    <input type="tel" className="form-control font-size-14" placeholder="Phone Number*" required name="phone" value={form.phone} onChange={handleChange} />
+                    <input type="tel" className={`form-control font-size-14 ${errors.phone ? 'is-invalid' : ''}`} placeholder="Phone Number*" required name="phone" value={form.phone} onChange={handleChange} />
+                    {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
                   </Col>
                   <Col md="6" className="mb-4 mb-lg-5">
-                    <input type="email" className="form-control font-size-14" placeholder="Your Email*" required name="email" value={form.email} onChange={handleChange} />
+                    <input type="email" className={`form-control font-size-14 ${errors.email ? 'is-invalid' : ''}`} placeholder="Your Email*" required name="email" value={form.email} onChange={handleChange} />
+                    {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                   </Col>
                   <Col md="6" className="mb-4 mb-lg-5">
-  <Select
-    options={subjectOptions}
-    onChange={handleSubjectChange}
-    placeholder={loadingOptions ? "Loading..." : "Select a Subject*"}
-    isDisabled={loadingOptions}
-    required
-    theme={theme => ({
-      ...theme,
-      colors: {
-        ...theme.colors,
-        neutral0: "#141314",      // control background
-        neutral80: "#ffffff",     // input text color
-        neutral20: "#141314",     // control border color removed (same as background)
-        neutral30: "#141314",     // control focused border removed
-        neutral40: "#000000",     // indicator color
-        neutral50: "#888888",     // placeholder color
-        primary25: "#000000",     // option hover background
-        primary: "#000000",       // selected or active color
-      }
-    })}
-    styles={{
-      control: (base, state) => ({
-        ...base,
-        height: '45px',
-        backgroundColor: "#141314",
-        borderColor: "#141314",   // no visible border for control
-        boxShadow: "none",
-        color: "#141314",
-      }),
-      menu: (base) => ({
-        ...base,
-        backgroundColor: "#141314",
-        color: "#ffffff",
-        border: "1px solid #989eac",  // border applied only on dropdown menu
-        borderRadius: '4px',
-        marginTop: 0,
-      }),
-      option: (base, state) => ({
-        ...base,
-        backgroundColor: state.isFocused
-          ? "#000000"
-          : state.isSelected
-            ? "#000000"
-            : "#141314",
-        color: "#ffffff",
-      }),
-      placeholder: (base) => ({
-        ...base,
-        color: "#888888",
-      }),
-      singleValue: (base) => ({
-        ...base,
-        color: "#ffffff",
-      }),
-      input: (base) => ({
-        ...base,
-        color: "#ffffff",
-      }),
-    }}
-  />
-</Col>
+                    <Select
+                      options={subjectOptions}
+                      onChange={handleSubjectChange}
+                      placeholder={loadingOptions ? "Loading..." : "Select a Subject*"}
+                      isDisabled={loadingOptions}
+                      required
+                      className={errors.query ? 'is-invalid' : ''}
+                      theme={theme => ({
+                        ...theme,
+                        colors: {
+                          ...theme.colors,
+                          neutral0: "#141314",      // control background
+                          neutral80: "#ffffff",     // input text color
+                          neutral20: "#141314",     // control border color removed (same as background)
+                          neutral30: "#141314",     // control focused border removed
+                          neutral40: "#000000",     // indicator color
+                          neutral50: "#888888",     // placeholder color
+                          primary25: "#000000",     // option hover background
+                          primary: "#000000",       // selected or active color
+                        }
+                      })}
+                      styles={{
+                        control: (base, state) => ({
+                          ...base,
+                          height: '45px',
+                          backgroundColor: "#141314",
+                          borderColor: errors.query ? "#dc3545" : "#141314",   // no visible border for control
+                          boxShadow: "none",
+                          color: "#141314",
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          backgroundColor: "#141314",
+                          color: "#ffffff",
+                          border: "1px solid #989eac",  // border applied only on dropdown menu
+                          borderRadius: '4px',
+                          marginTop: 0,
+                        }),
+                        option: (base, state) => ({
+                          ...base,
+                          backgroundColor: state.isFocused
+                            ? "#000000"
+                            : state.isSelected
+                              ? "#000000"
+                              : "#141314",
+                          color: "#ffffff",
+                        }),
+                        placeholder: (base) => ({
+                          ...base,
+                          color: "#888888",
+                        }),
+                        singleValue: (base) => ({
+                          ...base,
+                          color: "#ffffff",
+                        }),
+                        input: (base) => ({
+                          ...base,
+                          color: "#ffffff",
+                        }),
+                      }}
+                    />
+                    {errors.query && <div className="invalid-feedback d-block">{errors.query}</div>}
+                  </Col>
 
                   <Col md="12" className="mb-4 mb-lg-5">
-                    <textarea className="form-control font-size-14" rows={5} placeholder="Your Message*" required name="message" value={form.message} onChange={handleChange}></textarea>
+                    <textarea className={`form-control font-size-14 ${errors.message ? 'is-invalid' : ''}`} rows={5} placeholder="Your Message*" required name="message" value={form.message} onChange={handleChange}></textarea>
+                    {errors.message && <div className="invalid-feedback">{errors.message}</div>}
                   </Col>
-                   <Col md="12" className="mb-4 mb-lg-5">
+                  <Col md="12" className="mb-4 mb-lg-5">
                     <label className="form-label">Attach Screenshot (Optional)</label>
                     <input type="file" className="form-control font-size-14" name="screenshot" accept="image/*" onChange={handleChange} ref={screenshotRef} />
                   </Col>
                   <Col>
                     {/* Success and Error Alerts */}
                     {mutation.isSuccess && <Alert variant="success">Your message has been sent successfully!</Alert>}
-                    {mutation.isError && <Alert variant="danger">Failed to send message. Please try again.</Alert>}
+                    {mutation.isError && <Alert variant="danger">{mutation.error?.response?.data?.message || "Failed to send message. Please try again."}</Alert>}
 
                     <div className="iq-button">
                       <Button type="submit" className="btn" disabled={mutation.isPending}>
-                        {mutation.isPending ? <><Spinner as="span" animation="border" size="sm"/> Sending...</> : 'Send Message'}
+                        {mutation.isPending ? <><Spinner as="span" animation="border" size="sm" /> Sending...</> : 'Send Message'}
                       </Button>
                     </div>
                   </Col>
@@ -203,7 +252,7 @@ const ContactPage = memo(() => {
               </Form>
             </Col>
             <Col lg="1" className="d-none d-lg-block"></Col>
-            
+
           </Row>
         </Container>
       </div>

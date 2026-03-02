@@ -589,7 +589,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             </Form.Control.Feedback>
                         </Form.Group>
 
-                        <div className="d-flex justify-content-between align-items-center sticky-mobile-footer">
+                        <div className="d-flex justify-content-between align-items-center ">
                             <CustomBtn
                                 type="button"
                                 variant="default"

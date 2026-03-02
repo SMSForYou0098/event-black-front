@@ -24,6 +24,7 @@ import BookingLayout from "../../../../components/events/SeatingModuleAdmin/Book
 import toast from "react-hot-toast";
 import RegistrationBooking from "../../../../components/events/RegistrationBooking/RegistrationBooking";
 import CustomHeader from "../../../../utils/ModalUtils/CustomModalHeader";
+import MobileTwoButtonFooter from "../../../../utils/MobileTwoButtonFooter";
 const CartPage = () => {
   const { event_key, section: sectionParam, row: rowParam } = useRouter().query;
 
@@ -423,8 +424,8 @@ const CartPage = () => {
     return <BookingSummarySkeleton type={"cart"} />;
   }
 
-  const CardContainer = ({ children, className = "" }) => (
-    <div className={`custom-dark-bg p-2 rounded-3 mb-4 ${className}`}>
+  const CardContainer = ({ children, className = "", style = {} }) => (
+    <div className={`custom-dark-bg p-2 rounded-3 mb-4 ${className}`} style={style}>
       {children}
     </div>
   );
@@ -617,29 +618,58 @@ const CartPage = () => {
                         </span>
                       )}
                       <span className="text-white small">
-                        * Base price only — fees & taxes added at checkout.
+                        Base price only — fees & taxes added at checkout.
                       </span>
                     </Alert>
+                  </div>
 
-                    {/* Checkout button — same for desktop column and mobile drawer */}
-                    <CustomBtn
-                      disabled={
-                        eventStatus.disabled ||
-                        !selectedTickets?.quantity ||
-                        parseInt(selectedTickets.quantity) === 0
-                      }
-                      HandleClick={() => {
-                        if (isBelow991) setShowCartDrawer(false);
-                        handleProcess();
-                      }}
-                      icon={attendeeRequired ? <Users size={20} /> : null}
-                      buttonText={<span>{buttonText}</span>}
-                      className="cart-proceed-btn mt-2"
-                      style={{ width: "100%" }}
-                      loading={isChecking || lockSeatsMutation.isPending}
-                    />
+                  {/* Checkout button — same for desktop column and mobile drawer */}
+                  <div className="mt-2 text-center">
+                    {isBelow991 ? (
+                      <MobileTwoButtonFooter
+                        rightButton={
+                          <CustomBtn
+                            disabled={
+                              eventStatus.disabled ||
+                              !selectedTickets?.quantity ||
+                              parseInt(selectedTickets.quantity) === 0
+                            }
+                            HandleClick={() => {
+                              if (isBelow991) setShowCartDrawer(false);
+                              handleProcess();
+                            }}
+                            icon={attendeeRequired ? <Users size={20} /> : null}
+                            buttonText={<span>{buttonText}</span>}
+                            className=""
+                            size='sm'
+                            style={{ width: "100%" }}
+                            loading={isChecking || lockSeatsMutation.isPending}
+                          />
+                        }
+                      />
+                    ) : (
+                      <CustomBtn
+                        disabled={
+                          eventStatus.disabled ||
+                          !selectedTickets?.quantity ||
+                          parseInt(selectedTickets.quantity) === 0
+                        }
+                        HandleClick={() => {
+                          if (isBelow991) setShowCartDrawer(false);
+                          handleProcess();
+                        }}
+                        icon={attendeeRequired ? <Users size={20} /> : null}
+                        buttonText={<span>{buttonText}</span>}
+                        className="cart-proceed-btn"
+                        style={{ width: "100%" }}
+                        loading={isChecking || lockSeatsMutation.isPending}
+                      />
+                    )}
                   </div>
                 </CardContainer>
+
+                {/* Spacer for mobile to prevent overlapping with sticky footer */}
+                {isBelow991 && <div className="pb-5 mb-4"></div>}
               </>
             );
 
@@ -660,7 +690,7 @@ const CartPage = () => {
                     title="Cart Overview"
                     placement="bottom"
                     className="bg-dark text-white"
-                    style={{ height: "auto", minHeight: "80vh" }}
+                    style={{ height: "auto" }}
                   >
                     {cartSidebarBody}
                   </CustomDrawer>

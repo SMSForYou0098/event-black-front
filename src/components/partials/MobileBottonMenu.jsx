@@ -4,6 +4,7 @@ import { HomeIcon, LayoutDashboard, MenuIcon, Telescope, TicketIcon, UserIcon } 
 import { Button, Col, Container, Nav, Offcanvas, Row } from "react-bootstrap";
 import CustomMenu from "../CustomComponents/CustomMenu";
 import { useMyContext } from "@/Context/MyContextProvider";
+import LoginModal from "../auth/LoginOffCanvas";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -74,8 +75,9 @@ export const AnimatedButton = ({ onClick, Icon, text, animation, isActive }) => 
  * MobileBottomMenu component
  */
 const MobileBottomMenu = ({ hideMenu = false }) => {
-  const { UserData } = useMyContext();
+  const { UserData, isLoggedIn } = useMyContext();
   const [show, setShow] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const router = useRouter();
 
   // Normalize path helper
@@ -166,7 +168,13 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     // },
     {
       key: "bookings",
-      onClick: () => router.push("/bookings"),
+      onClick: () => {
+        if (isLoggedIn) {
+          router.push("/bookings");
+        } else {
+          setShowLoginModal(true);
+        }
+      },
       Icon: UserIcon,
       text: "Bookings",
       animation: { scale: [1, 1.2, 1] },
@@ -175,6 +183,11 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
 
   return (
     <>
+      <LoginModal
+        show={showLoginModal}
+        onHide={() => setShowLoginModal(false)}
+        redirectPath="/bookings"
+      />
       <Offcanvas
         show={show}
         onHide={handleClose}

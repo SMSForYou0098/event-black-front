@@ -54,10 +54,10 @@ const StepIndicator = ({ currentStep, totalSteps = 3 }) => {
 // User Info Card Component
 const UserInfoCard = ({ user, phoneNumber, isNew = false, variant = 'success' }) => (
     <div
-        className="rounded-3 p-3 mb-3 gray-bg"
+        className="rounded-3 p-1 mb-3 gray-bg"
 
     >
-        <div className="d-flex align-items-center gap-2 mb-2">
+        <div className="d-flex align-items-center gap-2 p-2">
             <div
                 className={`rounded-circle bg-${variant} bg-opacity-25 d-flex align-items-center justify-content-center`}
                 style={{ width: 40, height: 40 }}
@@ -72,12 +72,12 @@ const UserInfoCard = ({ user, phoneNumber, isNew = false, variant = 'success' })
                 <Badge bg="warning" className="text-dark">New User</Badge>
             )}
         </div>
-        {user?.email && (
+        {/* {user?.email && (
             <div className="d-flex align-items-center gap-2 text-muted small">
                 <Mail size={14} />
                 <span>{user.email}</span>
             </div>
-        )}
+        )} */}
     </div>
 );
 
@@ -326,45 +326,81 @@ const TransferBookingDrawer = ({
 
     return (
         <CustomDrawer
-            title="Transfer Booking"
+            title={
+                <div className="d-flex align-items-center gap-2">
+                    <Ticket size={18} className="text-primary" />
+                    <span className="fw-medium" style={{ fontSize: '0.85rem' }}>{maxQuantity} ticket(s) • {eventData.eventName}</span>
+                </div>
+            }
             showOffcanvas={show}
             setShowOffcanvas={handleClose}
             hideIndicator={true}
         >
-            <div className="p-3">
+            <div className="">
                 {/* Step Indicator */}
                 <StepIndicator currentStep={currentStep} />
 
                 {/* Booking Info Header */}
-                <div className="d-flex align-items-center gap-2 mb-3 p-2 rounded-2" >
+                {/* <div className="d-flex align-items-center gap-2 mb-3 p-2 rounded-2" >
                     <Ticket size={18} className="text-primary" />
                     <div className="flex-grow-1">
-                        <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>Transferring</small>
                         <span className="fw-medium" style={{ fontSize: '0.85rem' }}>{maxQuantity} ticket(s) • {eventData.eventName}</span>
                     </div>
+                </div> */}
+
+                <div className="mb-4">
+                    {/* <Form.Label className="d-flex justify-content-between align-items-center mb-2">
+                                <span className="small text-muted">Number of Tickets to Transfer</span>
+                                <Badge bg="info">{quantity} of {maxQuantity}</Badge>
+                            </Form.Label> */}
+
+                    {maxQuantity > 1 ? (
+                        <div className="d-flex align-items-center justify-content-center gap-3">
+                            <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                                disabled={quantity <= 1}
+                                style={{ width: 50, height: 50 }}
+                            >
+                                −
+                            </Button>
+                            <input
+                                type="number"
+                                min={1}
+                                max={maxQuantity}
+                                value={quantity}
+                                onChange={(e) => setQuantity(Math.min(Math.max(1, parseInt(e.target.value) || 1), maxQuantity))}
+                                className="text-center"
+                                style={{ fontSize: '1rem', fontWeight: 600 }}
+                            />
+                            <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                onClick={() => setQuantity(q => Math.min(maxQuantity, q + 1))}
+                                disabled={quantity >= maxQuantity}
+                                style={{ width: 50, height: 50 }}
+                            >
+                                +
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="p-3 rounded-2 text-center">
+                            <span className="fw-semibold">1 Ticket</span>
+                        </div>
+                    )}
                 </div>
 
-                {/* Error/Success Messages */}
-                {error && (
-                    <Alert variant="danger" className="py-2 mb-3 d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
-                        <AlertCircle size={16} />
-                        {error}
-                    </Alert>
-                )}
-                {success && (
-                    <Alert variant="success" className="py-2 mb-3 d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
-                        <CheckCircle size={16} />
-                        {success}
-                    </Alert>
-                )}
+
 
                 {/* Step 1: Phone Number Input */}
+
                 <div className="mb-3">
                     <Form.Label className="small text-muted mb-2 d-flex align-items-center gap-1">
                         <Phone size={14} />
                         Recipient's Phone Number
                     </Form.Label>
-                    <InputGroup size="lg" className='card-glassmorphism__input rounded-3'>
+                    <InputGroup size="sm" className='card-glassmorphism__input rounded-3'>
                         <InputGroup.Text className="card-glassmorphism__input-prefix">+91</InputGroup.Text>
                         <Form.Control
                             ref={phoneInputRef}
@@ -375,8 +411,7 @@ const TransferBookingDrawer = ({
                             onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value.replace(/\D/g, '') }))}
                             maxLength={10}
                             disabled={isSearching || userFound !== null}
-                            className="gray-bg"
-                            style={{ fontSize: '1.1rem', letterSpacing: '0.05em' }}
+                            className=""
                         />
                         {/* <Button
                             variant={formData.phone.length === 10 && userFound === null ? 'primary' : 'outline-secondary'}
@@ -397,6 +432,19 @@ const TransferBookingDrawer = ({
                         </Form.Text>
                     )}
                 </div>
+                {/* Error/Success Messages */}
+                {error && (
+                    <Alert dismissible variant="primary" className="py-2 mb-3 d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
+                        <AlertCircle size={16} />
+                        {error}
+                    </Alert>
+                )}
+                {success && (
+                    <Alert closeButton dismissible variant="success" className="py-2 mb-3 d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
+                        <CheckCircle size={16} />
+                        {success}
+                    </Alert>
+                )}
 
                 {/* User Found Display */}
                 {userFound === true && targetUser && !otpSent && !otpVerified && (
@@ -417,12 +465,7 @@ const TransferBookingDrawer = ({
                 {userFound === false && !otpSent && !otpVerified && (
                     <div className="animate__animated animate__fadeIn">
                         <div
-                            className="rounded-3 p-3 mb-3"
-                            style={{
-                                background: 'var(--bs-warning-bg-subtle)',
-                                border: '1px solid var(--bs-warning-border-subtle)'
-                            }}
-                        >
+                            className="mb-3">
                             <div className="d-flex align-items-center gap-2 mb-3">
                                 <AlertCircle size={18} className="text-warning" />
                                 <span className="fw-medium">New user - Enter details</span>
@@ -437,7 +480,7 @@ const TransferBookingDrawer = ({
                                     placeholder="Enter recipient's name"
                                     value={formData.name}
                                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                                    size="lg"
+                                    size="sm"
                                 />
                             </Form.Group>
 
@@ -450,7 +493,7 @@ const TransferBookingDrawer = ({
                                     placeholder="Enter email address"
                                     value={formData.email}
                                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                                    size="lg"
+                                    size="sm"
                                 />
                             </Form.Group>
                         </div>
@@ -525,48 +568,7 @@ const TransferBookingDrawer = ({
                             variant="success"
                         />
 
-                        <div className="mb-4">
-                            <Form.Label className="d-flex justify-content-between align-items-center mb-2">
-                                <span className="small text-muted">Number of Tickets to Transfer</span>
-                                <Badge bg="info">{quantity} of {maxQuantity}</Badge>
-                            </Form.Label>
 
-                            {maxQuantity > 1 ? (
-                                <div className="d-flex align-items-center gap-3">
-                                    <Button
-                                        variant="outline-secondary"
-                                        size="lg"
-                                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                                        disabled={quantity <= 1}
-                                        style={{ width: 50, height: 50 }}
-                                    >
-                                        −
-                                    </Button>
-                                    <Form.Control
-                                        type="number"
-                                        min={1}
-                                        max={maxQuantity}
-                                        value={quantity}
-                                        onChange={(e) => setQuantity(Math.min(Math.max(1, parseInt(e.target.value) || 1), maxQuantity))}
-                                        className="text-center"
-                                        style={{ fontSize: '1.3rem', fontWeight: 600 }}
-                                    />
-                                    <Button
-                                        variant="outline-secondary"
-                                        size="lg"
-                                        onClick={() => setQuantity(q => Math.min(maxQuantity, q + 1))}
-                                        disabled={quantity >= maxQuantity}
-                                        style={{ width: 50, height: 50 }}
-                                    >
-                                        +
-                                    </Button>
-                                </div>
-                            ) : (
-                                <div className="p-3 rounded-2 text-center">
-                                    <span className="fw-semibold">1 Ticket</span>
-                                </div>
-                            )}
-                        </div>
 
                         <CustomBtn
                             variant="primary"
