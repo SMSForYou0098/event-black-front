@@ -2,8 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { Card, Form, Button, Spinner, InputGroup, Row, Col, Modal, Badge } from 'react-bootstrap';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
-import Flatpickr from 'react-flatpickr';
-import 'flatpickr/dist/flatpickr.min.css';
+import CustomDateRangePicker from '@/components/CustomComponents/CustomDateRangePicker';
 import { SearchIcon, X, Filter } from 'lucide-react';
 import { getUserBookingsPaginated } from '@/services/events';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -15,15 +14,7 @@ import CustomBtn from '../../../utils/CustomBtn';
 // Constants
 const DEBOUNCE_DELAY = 300;
 const PER_PAGE = 15;
-const FLATPICKR_OPTIONS = {
-  mode: 'range',
-  dateFormat: 'Y-m-d',
-  allowInput: true,
-  rangeSeparator: ' to ',
-  disableMobile: true,
-  placeholder: 'Select date range',
-  static: true,
-};
+
 
 const BookingsTab = () => {
   const { UserData } = useMyContext();
@@ -78,6 +69,7 @@ const BookingsTab = () => {
         search: debouncedSearch,
         startDate: formattedDateRange.startDate,
         endDate: formattedDateRange.endDate,
+        date:`${formattedDateRange.startDate}, ${formattedDateRange.endDate}`
       }),
     getNextPageParam: (lastPage) => {
       // Check if there's a next page
@@ -207,7 +199,7 @@ const BookingsTab = () => {
               </Badge>
             )}
             {dateRange.length === 2 && (
-              <Badge bg="light" text="dark" className="d-flex align-items-center gap-2 border fw-normal">
+              <Badge bg="dark" text="light" className="d-flex align-items-center gap-2 border fw-normal">
                 Date: {formatDateDisplay(dateRange[0])} - {formatDateDisplay(dateRange[1])}
                 <X
                   size={14}
@@ -336,13 +328,10 @@ const BookingsTab = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              {/* <Form.Label>Date Range</Form.Label> */}
-              <Flatpickr
+              <CustomDateRangePicker
                 value={tempDateRange}
-                options={{ ...FLATPICKR_OPTIONS, static: true }}
                 placeholder="Select date range"
                 onChange={handleTempDateRangeChange}
-                className="form-control w-100"
               />
             </Form.Group>
           </Form>

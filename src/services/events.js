@@ -39,7 +39,8 @@ export const getUserBookingsPaginated = async ({
     perPage = 15,
     search = '',
     startDate = '',
-    endDate = ''
+    endDate = '',
+    date
 }) => {
     const params = new URLSearchParams({
         page: page.toString(),
@@ -56,6 +57,9 @@ export const getUserBookingsPaginated = async ({
 
     if (endDate) {
         params.append('end_date', endDate);
+    }
+    if (date) {
+        params.append('date', date);
     }
 
     const response = await api.get(`/user-bookings/${userId}?${params.toString()}`);

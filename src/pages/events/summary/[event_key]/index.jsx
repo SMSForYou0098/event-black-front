@@ -287,15 +287,19 @@ const BookingSummary = () => {
                                             </div>
                                         </div>
                                     </Col>
-                                    <Col xs={6}>
-                                        <div className="d-flex align-items-center">
-                                            <SquareAsterisk size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Seats</div>
-                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{seat_name}</div>
-                                            </div>
-                                        </div>
-                                    </Col>
+                                    {
+                                        seat_name && (
+                                            <Col xs={6}>
+                                                <div className="d-flex align-items-center">
+                                                    <SquareAsterisk size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                                                    <div>
+                                                        <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Seats</div>
+                                                        <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{seat_name}</div>
+                                                    </div>
+                                                </div>
+                                            </Col>
+                                        )
+                                    }
                                     {
                                         booking?.booking_date && (
                                             <Col xs={6}>

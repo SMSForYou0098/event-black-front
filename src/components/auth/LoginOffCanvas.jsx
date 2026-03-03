@@ -401,31 +401,33 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         verifyUserMutation.mutate(credential);
     };
 
-    const handleVerifyOtp = async (event) => {
+    const handleVerifyOtp = async (event, otpValue) => {
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
+
+        const currentOtp = otpValue || otp;
 
         setTouched({ otp: true });
 
         const errors = {};
         let isValid = true;
 
-        if (!otp.trim()) {
+        if (!currentOtp.trim()) {
             errors.otp = "OTP is required";
             isValid = false;
-        } else if (otp.length !== 6) {
+        } else if (currentOtp.length !== 6) {
             errors.otp = "OTP must be 6 digits";
             isValid = false;
         }
 
         setValidationErrors(errors);
 
-        if (!isValid) return;
+        if (!isValid || isLoading) return;
 
         setServerError("");
-        const loginData = { otp, number: credential };
+        const loginData = { otp: currentOtp, number: credential };
         verifyOtpMutation.mutate(loginData);
     };
 
@@ -576,8 +578,12 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                 className="card-glassmorphism__input"
                                 placeholder="Enter 6-digit OTP"
                                 onChange={(e) => {
-                                    setOTP(e.target.value.replace(/\D/g, "").slice(0, 6));
+                                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                                    setOTP(value);
                                     setTouched(prev => ({ ...prev, otp: true }));
+                                    if (value.length === 6) {
+                                        handleVerifyOtp(null, value);
+                                    }
                                 }}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter") handleVerifyOtp(e);
@@ -984,7 +990,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             hideIndicator={false}
             title={
                 <div className="w-100 d-flex justify-content-center">
-                    <Logo height={isMobile ? 76 * 0.5 : 40 * 0.65} width={isMobile ? 111 * 0.5 : 258 * 0.65} />
+                    <Logo height={isMobile ? 76 * 0.5 : 76} width={isMobile ? 111 * 0.5 : 189} />
                 </div>
             }
 
@@ -1003,8 +1009,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         >
             <Modal.Header closeButton className="border-0 pb-0">
                 <Modal.Title className="w-100 text-center">
-                    <Logo height={isMobile ? 76 * 0.5 : 40 * 0.65} width={isMobile ? 111 * 0.5 : 258 * 0.65} />
-                    <h4 className="mb-0 text-light">{getTitle()}</h4>
+                    <Logo height={isMobile ? 76 * 0.5 : 76} width={isMobile ? 111 * 0.5 : 189} />
+                    <h6 className="mb-0 text-light">{getTitle()}</h6>
                 </Modal.Title>
             </Modal.Header>
 
