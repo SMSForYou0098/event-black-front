@@ -189,72 +189,75 @@ const TicketDrawer = ({
 
     // Drawer content - Ticket display after user confirms
     const ticketContent = (
-        <div className="p-3 pb-5 position-relative" style={{ minHeight: '100%' }}>
-            {/* Loading state */}
-            {!isImageReady && (
-                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '750px' }}>
-                    <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
+        <div className="d-flex flex-column" style={{ flex: 1, minHeight: 0 }}>
+            {/* Scrollable content area */}
+            <div className="flex-grow-1 overflow-auto p-3" style={{ minHeight: 0, paddingBottom: '90px' }}>
+                {/* Loading state */}
+                {!isImageReady && (
+                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '750px' }}>
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Ticket Canvas */}
-            {isImageReady && (
-                <Row className="mb-5">
-                    <Col lg="12">
-                        {ticketType?.type === 'individual' ? (
-                            ticketData?.bookings?.length > 0 && (
-                                <Swiper
-                                    modules={[Navigation, Pagination]}
-                                    spaceBetween={10}
-                                    slidesPerView={1}
-                                    navigation
-                                    pagination={{ clickable: true }}
-                                    onSlideChange={(swiper) => setActiveSlideIndex(swiper.activeIndex)}
-                                    className="ticket-swiper"
-                                >
-                                    {ticketData.bookings.map((item, index) => (
-                                        <SwiperSlide className="card-slide" key={index}>
-                                            <Col lg={12} md={12} xl={12}>
-                                                <div>
-                                                    <TicketCanvasView
-                                                        ref={(el) => { swiperCanvasRefs.current[index] = el; }}
-                                                        showDetails={showTicketDetails}
-                                                        ticketData={item}
-                                                        ticketNumber={index + 1}
-                                                        ticketLabel="(I)"
-                                                        onReady={() => setIsCanvasReady(true)}
-                                                        preloadedImage={cachedBgImage}
-                                                    />
-                                                </div>
-                                                <p className="text-center text-secondary mt-2">{index + 1} (I)</p>
-                                            </Col>
-                                        </SwiperSlide>
-                                    ))}
-                                </Swiper>
-                            )
-                        ) : ticketType?.type === 'combine' || ticketType?.type === 'single' ? (
-                            <div style={{ height: "auto" }}>
-                                <Col lg={12} md={12} xl={12}>
-                                    <div>
-                                        <TicketCanvasView
-                                            ref={singleCanvasRef}
-                                            showDetails={showTicketDetails}
-                                            ticketData={ticketData}
-                                            ticketNumber={1}
-                                            ticketLabel="(G)"
-                                            onReady={() => setIsCanvasReady(true)}
-                                            preloadedImage={cachedBgImage}
-                                        />
-                                    </div>
-                                    <p className="text-center text-secondary">(G)</p>
-                                </Col>
-                            </div>
-                        ) : null}
-                    </Col>
-                </Row>
-            )}
+                {/* Ticket Canvas */}
+                {isImageReady && (
+                    <Row>
+                        <Col lg="12">
+                            {ticketType?.type === 'individual' ? (
+                                ticketData?.bookings?.length > 0 && (
+                                    <Swiper
+                                        modules={[Navigation, Pagination]}
+                                        spaceBetween={10}
+                                        slidesPerView={1}
+                                        navigation
+                                        pagination={{ clickable: true }}
+                                        onSlideChange={(swiper) => setActiveSlideIndex(swiper.activeIndex)}
+                                        className="ticket-swiper"
+                                    >
+                                        {ticketData.bookings.map((item, index) => (
+                                            <SwiperSlide className="card-slide" key={index}>
+                                                <Col lg={12} md={12} xl={12}>
+                                                    <div>
+                                                        <TicketCanvasView
+                                                            ref={(el) => { swiperCanvasRefs.current[index] = el; }}
+                                                            showDetails={showTicketDetails}
+                                                            ticketData={item}
+                                                            ticketNumber={index + 1}
+                                                            ticketLabel="(I)"
+                                                            onReady={() => setIsCanvasReady(true)}
+                                                            preloadedImage={cachedBgImage}
+                                                        />
+                                                    </div>
+                                                    <p className="text-center text-secondary mt-2">{index + 1} (I)</p>
+                                                </Col>
+                                            </SwiperSlide>
+                                        ))}
+                                    </Swiper>
+                                )
+                            ) : ticketType?.type === 'combine' || ticketType?.type === 'single' ? (
+                                <div style={{ height: "auto" }}>
+                                    <Col lg={12} md={12} xl={12}>
+                                        <div>
+                                            <TicketCanvasView
+                                                ref={singleCanvasRef}
+                                                showDetails={showTicketDetails}
+                                                ticketData={ticketData}
+                                                ticketNumber={1}
+                                                ticketLabel="(G)"
+                                                onReady={() => setIsCanvasReady(true)}
+                                                preloadedImage={cachedBgImage}
+                                            />
+                                        </div>
+                                        <p className="text-center text-secondary">(G)</p>
+                                    </Col>
+                                </div>
+                            ) : null}
+                        </Col>
+                    </Row>
+                )}
+            </div>
 
             {/* Sticky Footer */}
             <MobileTwoButtonFooter

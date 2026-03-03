@@ -40,7 +40,6 @@ export const getUserBookingsPaginated = async ({
     search = '',
     startDate = '',
     endDate = '',
-    date
 }) => {
     const params = new URLSearchParams({
         page: page.toString(),
@@ -51,15 +50,16 @@ export const getUserBookingsPaginated = async ({
         params.append('search', search.trim());
     }
 
-    if (startDate) {
+    if (startDate && endDate && startDate === endDate) {
+        // If same day selected, only pass start_date
         params.append('start_date', startDate);
-    }
-
-    if (endDate) {
-        params.append('end_date', endDate);
-    }
-    if (date) {
-        params.append('date', date);
+    } else {
+        if (startDate) {
+            params.append('start_date', startDate);
+        }
+        if (endDate) {
+            params.append('end_date', endDate);
+        }
     }
 
     const response = await api.get(`/user-bookings/${userId}?${params.toString()}`);

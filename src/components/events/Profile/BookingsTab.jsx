@@ -10,6 +10,7 @@ import { useMyContext } from '@/Context/MyContextProvider';
 import BookingCard from './BookingCard';
 import GlassCard from './../../../utils/ProfileUtils/GlassCard';
 import CustomBtn from '../../../utils/CustomBtn';
+import { MobileOnly, TabletAndDesktop, DesktopOnly } from "@/utils/ResponsiveRenderer";
 
 // Constants
 const DEBOUNCE_DELAY = 300;
@@ -40,7 +41,11 @@ const BookingsTab = () => {
     const formatDate = (date) => {
       if (!date) return '';
       const d = new Date(date);
-      return d.toISOString().split('T')[0]; // YYYY-MM-DD
+      // Use local timezone instead of UTC (toISOString) to avoid off-by-one day issue
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`; // YYYY-MM-DD
     };
 
     return {
@@ -69,7 +74,6 @@ const BookingsTab = () => {
         search: debouncedSearch,
         startDate: formattedDateRange.startDate,
         endDate: formattedDateRange.endDate,
-        date:`${formattedDateRange.startDate}, ${formattedDateRange.endDate}`
       }),
     getNextPageParam: (lastPage) => {
       // Check if there's a next page
@@ -174,44 +178,86 @@ const BookingsTab = () => {
       <div>
         <div className="d-flex justify-content-between align-items-center">
           <h6 className="mb-0">My Bookings</h6>
-          <CustomBtn
-            variant="primary"
-            size="sm"
-            HandleClick={handleOpenFilters}
-            className="d-flex align-items-center gap-2"
-            icon={<Filter size={16} />}
-            btnText=""
-          />
+
+          <div className='d-flex align-items-center gap-2'>
+            {(searchTerm || dateRange.length > 0) && (
+
+              <div className="d-flex flex-wrap gap-2">
+                <TabletAndDesktop >
+                  <div className='d-flex gap-2'>
+
+                    {searchTerm && (
+                      <Badge bg="dark" text="light" className="d-flex align-items-center gap-2 border fw-normal">
+                        Search: {searchTerm}
+                        <X
+                          size={14}
+                          className="cursor-pointer text-muted hover-text-dark"
+                          onClick={clearSearchTerm}
+                          style={{ cursor: 'pointer' }}
+                        />
+                      </Badge>
+                    )}
+                    {dateRange && dateRange.length === 2 && (
+                      <Badge bg="dark" text="light" className="d-flex align-items-center gap-2 border fw-normal">
+                        Date: {formatDateDisplay(dateRange[0]) === formatDateDisplay(dateRange[1])
+                          ? formatDateDisplay(dateRange[0])
+                          : `${formatDateDisplay(dateRange[0])} - ${formatDateDisplay(dateRange[1])}`}
+                        <X
+                          size={14}
+                          className="cursor-pointer text-muted hover-text-dark"
+                          onClick={clearDateRange}
+                          style={{ cursor: 'pointer' }}
+                        />
+                      </Badge>
+                    )}
+                  </div>
+                </TabletAndDesktop>
+              </div>
+            )}
+            <CustomBtn
+              variant="primary"
+              size="sm"
+              HandleClick={handleOpenFilters}
+              className="d-flex align-items-center gap-2"
+              icon={<Filter size={16} />}
+              btnText=""
+            />
+          </div>
         </div>
 
         {/* Active Filters Display */}
-        {(searchTerm || dateRange.length > 0) && (
-          <div className="d-flex flex-wrap gap-2 mt-2">
-            {searchTerm && (
-              <Badge bg="light" text="dark" className="d-flex align-items-center gap-2 border fw-normal">
-                Search: {searchTerm}
-                <X
-                  size={14}
-                  className="cursor-pointer text-muted hover-text-dark"
-                  onClick={clearSearchTerm}
-                  style={{ cursor: 'pointer' }}
-                />
-              </Badge>
-            )}
-            {dateRange.length === 2 && (
-              <Badge bg="dark" text="light" className="d-flex align-items-center gap-2 border fw-normal">
-                Date: {formatDateDisplay(dateRange[0])} - {formatDateDisplay(dateRange[1])}
-                <X
-                  size={14}
-                  className="cursor-pointer text-muted hover-text-dark"
-                  onClick={clearDateRange}
-                  style={{ cursor: 'pointer' }}
-                />
-              </Badge>
-            )}
-          </div>
-        )}
-      </div>
+        <MobileOnly >
+
+          {(searchTerm || dateRange.length > 0) && (
+            <div className="d-flex justify-content-center align-items-center gap-2 mt-2">
+              {searchTerm && (
+                <Badge bg="dark" text="light" className="d-flex align-items-center gap-2 border fw-normal">
+                  Search: {searchTerm}
+                  <X
+                    size={14}
+                    className="cursor-pointer text-muted hover-text-dark"
+                    onClick={clearSearchTerm}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </Badge>
+              )}
+              {dateRange && dateRange.length === 2 && (
+                <Badge bg="dark" text="light" className="d-flex align-items-center gap-2 border fw-normal">
+                  Date: {formatDateDisplay(dateRange[0]) === formatDateDisplay(dateRange[1])
+                    ? formatDateDisplay(dateRange[0])
+                    : `${formatDateDisplay(dateRange[0])} - ${formatDateDisplay(dateRange[1])}`}
+                  <X
+                    size={14}
+                    className="cursor-pointer text-muted hover-text-dark"
+                    onClick={clearDateRange}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </Badge>
+              )}
+            </div>
+          )}
+        </MobileOnly >
+      </div >
     ),
     [searchTerm, dateRange, handleOpenFilters, clearSearchTerm, clearDateRange]
   );
