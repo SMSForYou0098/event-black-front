@@ -563,17 +563,21 @@ const DynamicAttendeeForm = ({
           </h5>
           <div className="d-flex gap-2 align-items-center">
             <CustomBtn
-              variant="outline-secondary"
+              variant="secondary"
               className="d-flex align-items-center justify-content-center  btn-sm w-25"
               HandleClick={Back}
               icon={<i className="fa-solid fa-arrow-left"></i>}
             />
-            <CustomBtn
-              variant="outline-primary"
-              className="d-flex align-items-center justify-content-center  btn-sm w-25"
-              HandleClick={() => setShowAddAttendeeModal(true)}
-              icon={<Users2Icon size={16} />}
-            />
+            {
+              attendeeList?.length < quantity && (
+                <CustomBtn
+                  variant="outline-primary"
+                  className="d-flex align-items-center justify-content-center  btn-sm w-25"
+                  HandleClick={() => setShowAddAttendeeModal(true)}
+                  icon={<Users2Icon size={16} />}
+                />
+              )
+            }
           </div>
         </Card.Header>
         <Card.Body className="custom-dark-bg">

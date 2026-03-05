@@ -108,93 +108,95 @@ const TicketDrawer = ({
 
     // Drawer content - Notice before generating ticket
     const noticeContent = (
-        <div className="p-3 pt-0">
+        <div className="d-flex flex-column h-100" style={{ flex: 1, minHeight: 0 }}>
+            {/* Scrollable area for alerts and links */}
+            <div className="flex-grow-1 overflow-auto p-3 pt-0">
+                {ticketType?.type === 'individual' && (
+                    <div className="alert alert-info mb-3">
+                        <p className="mb-0 text-success" style={{ fontSize: '12px' }}>
+                            No <Ticket size={12} /> physical ticket needed! Download your Ticket & enjoy unlimited fun.
+                        </p>
+                        <p className="mt-2" style={{ fontSize: '12px' }}>
+                            If you select single ticket, each attendee receives a personal QR code for entry,
+                            and group tickets won&apos;t work.
+                        </p>
+                    </div>
+                )}
 
-            {ticketType?.type === 'individual' && (
-                <div className="alert alert-info mb-3">
-                    <p className="mb-0 text-success" style={{ fontSize: '12px' }}>
-                        No <Ticket size={12} /> physical ticket needed! Download your Ticket & enjoy unlimited fun.
-                    </p>
-                    <p className="mt-2" style={{ fontSize: '12px' }}>
-                        If you select single ticket, each attendee receives a personal QR code for entry,
-                        and group tickets won&apos;t work.
-                    </p>
+                {ticketType?.type === 'single' && (
+                    <div className="alert alert-info mb-3">
+                        <ul className="mt-2 ps-3" style={{ fontSize: "12px" }}>
+                            <li>
+                                To ensure a smooth and hassle-free entry, please scan your ticket before arriving at the venue.
+                            </li>
+                            <li>
+                                Kindly watch the video guide for step-by-step instructions on how to scan your ticket easily.
+                            </li>
+                            <li>
+                                Thank you, and we look forward to welcoming you!
+                            </li>
+                        </ul>
+                    </div>
+                )}
+
+                {ticketType?.type === 'combine' && (
+                    <div className="alert alert-info mb-3" >
+                        <p className="mb-0 text-success" style={{ fontSize: '12px' }}>
+                            No <Ticket size={12} /> physical ticket needed! Download your Ticket & enjoy unlimited fun.
+                        </p>
+                        <p className="mt-2 text-white" style={{ fontSize: '12px' }}>
+                            If you select group ticket, all attendees must arrive together and show the group ticket
+                            at the venue for entry. Individual tickets will not work.
+                        </p>
+                    </div>
+                )}
+
+                <div className="d-flex justify-content-center align-items-center gap-4 mt-3 mb-1">
+                    <a
+                        href="https://www.youtube.com/@Get-Your-Ticket"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-decoration-none text-white d-flex align-items-center"
+                        style={{ gap: 6, marginRight: 10 }}
+                    >
+                        <TbBrandYoutubeFilled style={{ fontSize: 20 }} />
+                        <span className="small fw-semibold">YouTube</span>
+                    </a>
+                    <a
+                        href="https://www.instagram.com/getyourticket.in"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-decoration-none text-white d-flex align-items-center"
+                        style={{ gap: 6 }}
+                    >
+                        <TbBrandInstagramFilled style={{ fontSize: 20 }} />
+                        <span className="small fw-semibold">Instagram</span>
+                    </a>
                 </div>
-            )}
-
-            {ticketType?.type === 'single' && (
-                <div className="alert alert-info mb-3">
-                    {/* <p className="mb-0 text-success" style={{ fontSize: '12px' }}>
-                        No <Ticket size={12} /> physical ticket needed! Download your Ticket & enjoy unlimited fun.
-                    </p> */}
-                    <ul className="mt-2 ps-3" style={{ fontSize: "12px" }}>
-                        <li>
-                            To ensure a smooth and hassle-free entry, please scan your ticket before arriving at the venue.
-                        </li>
-                        <li>
-                            Kindly watch the video guide for step-by-step instructions on how to scan your ticket easily.
-                        </li>
-                        <li>
-                            Thank you, and we look forward to welcoming you!
-                        </li>
-                    </ul>
-                </div>
-            )}
-
-            {ticketType?.type === 'combine' && (
-                <div className="alert alert-info mb-3" >
-                    <p className="mb-0 text-success" style={{ fontSize: '12px' }}>
-                        No <Ticket size={12} /> physical ticket needed! Download your Ticket & enjoy unlimited fun.
-                    </p>
-                    <p className="mt-2 text-white" style={{ fontSize: '12px' }}>
-                        If you select group ticket, all attendees must arrive together and show the group ticket
-                        at the venue for entry. Individual tickets will not work.
-                    </p>
-
-                </div>
-            )}
-            <div className="d-flex justify-content-center align-items-center gap-4 mt-3 mb-1">
-                <a
-                    href="https://www.youtube.com/@Get-Your-Ticket"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-decoration-none text-white d-flex align-items-center"
-                    style={{ gap: 6, marginRight: 10 }}
-                >
-                    <TbBrandYoutubeFilled style={{ fontSize: 20 }} />
-                    <span className="small fw-semibold">YouTube</span>
-                </a>
-                <a
-                    href="https://www.instagram.com/getyourticket.in"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-decoration-none text-white d-flex align-items-center"
-                    style={{ gap: 6 }}
-                >
-                    <TbBrandInstagramFilled style={{ fontSize: 20 }} />
-                    <span className="small fw-semibold">Instagram</span>
-                </a>
             </div>
 
-            <CustomBtn
-                buttonText="Generate Ticket"
-                variant="primary"
-                className="w-100 mt-3"
-                wrapperClassName="w-100"
-                HandleClick={handleGenerateTicket}
-                loading={!isImageReady}
-            />
+            {/* Fixed footer for the button */}
+            <div className="p-3 bg-dark border-top">
+                <CustomBtn
+                    buttonText="Generate Ticket"
+                    variant="primary"
+                    className="w-100"
+                    wrapperClassName="w-100"
+                    HandleClick={handleGenerateTicket}
+                    loading={!isImageReady}
+                />
+            </div>
         </div>
     );
 
     // Drawer content - Ticket display after user confirms
     const ticketContent = (
-        <div className="d-flex flex-column" style={{ flex: 1, minHeight: 0 }}>
+        <div className="d-flex flex-column h-100" style={{ flex: 1, minHeight: 0 }}>
             {/* Scrollable content area */}
-            <div className="flex-grow-1 overflow-auto p-3" style={{ minHeight: 0, paddingBottom: '90px' }}>
+            <div className="flex-grow-1 overflow-auto p-3" style={{ minHeight: 0 }}>
                 {/* Loading state */}
                 {!isImageReady && (
-                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '750px' }}>
+                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
                         <div className="spinner-border text-primary" role="status">
                             <span className="visually-hidden">Loading...</span>
                         </div>
@@ -250,7 +252,7 @@ const TicketDrawer = ({
                                                 preloadedImage={cachedBgImage}
                                             />
                                         </div>
-                                        <p className="text-center text-secondary">(G)</p>
+                                        <p className="text-center text-secondary mt-2">(G)</p>
                                     </Col>
                                 </div>
                             ) : null}
@@ -260,28 +262,32 @@ const TicketDrawer = ({
             </div>
 
             {/* Sticky Footer */}
-            <MobileTwoButtonFooter
-                leftButton={
-                    <CustomBtn
-                        buttonText="Download"
-                        icon={<ArrowBigDownDash size={14} />}
-                        loading={!isCanvasReady}
-                        className="w-100 btn-sm"
-                        HandleClick={handleDownload}
-                        disabled={!isCanvasReady}
-                    />
-                }
-                rightButton={showPrintButton ? (
-                    <CustomBtn
-                        buttonText="Print"
-                        icon={<Printer size={18} />}
-                        variant="secondary"
-                        className="w-100 btn-sm"
-                        HandleClick={handlePrint}
-                        disabled={!isCanvasReady}
-                    />
-                ) : null}
-            />
+            <div className="bg-dark border-top">
+                <MobileTwoButtonFooter
+                    leftButton={
+                        <CustomBtn
+                            buttonText="Download"
+                            icon={<ArrowBigDownDash size={14} />}
+                            loading={!isCanvasReady}
+                            className="w-100 btn-sm"
+                            HandleClick={handleDownload}
+                            disabled={!isCanvasReady}
+                            size="sm"
+                        />
+                    }
+                    rightButton={showPrintButton ? (
+                        <CustomBtn
+                            buttonText="Print"
+                            icon={<Printer size={18} />}
+                            variant="secondary"
+                            className="w-100 btn-sm"
+                            size="sm"
+                            HandleClick={handlePrint}
+                            disabled={!isCanvasReady}
+                        />
+                    ) : null}
+                />
+            </div>
         </div>
     );
 
@@ -291,9 +297,8 @@ const TicketDrawer = ({
             showOffcanvas={show}
             setShowOffcanvas={onClose}
             hideIndicator={true}
-            style={isMobile ? { height: "85vh" } : {}}
+            style={isMobile ? { height: "90vh" } : { height: "100vh" }}
             bodyClassName="pt-0"
-
         >
             {showTicket ? ticketContent : noticeContent}
         </CustomDrawer>

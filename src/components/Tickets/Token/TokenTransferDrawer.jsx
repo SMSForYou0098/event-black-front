@@ -1,97 +1,31 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { Form, Button, Spinner, Alert, InputGroup, Badge } from 'react-bootstrap';
-import { Search, User, Mail, Phone, ArrowRight, CheckCircle, AlertCircle, KeyRound, RotateCcw, Ticket, Send } from 'lucide-react';
+import { Form, Button, Alert, InputGroup, Badge } from 'react-bootstrap';
+import { User, Phone, ArrowRight, CheckCircle, AlertCircle, KeyRound, RotateCcw, Ticket, Send } from 'lucide-react';
 import CustomDrawer from '@/utils/CustomDrawer';
 import CustomBtn from '@/utils/CustomBtn';
 import { getUserByPhone, createTransferUser, transferBooking, verifyTransferOtp } from '@/services/transferService';
 import { useMyContext } from '@/Context/MyContextProvider';
+import { StepIndicator, UserInfoCard } from '../../events/Profile/TransferBookingDrawer';
 
-// Step Indicator Component – accepts dynamic steps (3 or 4)
-export const StepIndicator = ({ steps, currentStep }) => (
-    <div className="d-flex justify-content-between align-items-center mb-4 pb-3" style={{ borderBottom: '1px solid var(--bs-border-color)' }}>
-        {steps.map((step, index) => (
-            <React.Fragment key={step.num}>
-                <div className="d-flex flex-column align-items-center">
-                    <div
-                        className={`rounded-circle d-flex align-items-center justify-content-center mb-1 ${currentStep >= step.num
-                            ? 'bg-primary text-white'
-                            : 'bg-secondary bg-opacity-25 text-muted'
-                            }`}
-                        style={{
-                            width: 32,
-                            height: 32,
-                            fontSize: '0.85rem',
-                            fontWeight: 600,
-                            transition: 'all 0.3s ease'
-                        }}
-                    >
-                        {currentStep > step.num ? <CheckCircle size={16} /> : step.num}
-                    </div>
-                    <small className={`text-center ${currentStep >= step.num ? 'text-primary fw-medium' : 'text-muted'}`}
-                        style={{ fontSize: '0.7rem' }}>
-                        {step.label}
-                    </small>
-                </div>
-                {index < steps.length - 1 && (
-                    <div
-                        className={`flex-grow-1 mx-2 ${currentStep > step.num ? 'bg-primary' : 'bg-secondary bg-opacity-25'}`}
-                        style={{ height: 2, marginTop: -12, transition: 'all 0.3s ease' }}
-                    />
-                )}
-            </React.Fragment>
-        ))}
-    </div>
-);
 
-// User Info Card Component
-export const UserInfoCard = ({ user, phoneNumber, isNew = false, variant = 'success' }) => (
-    <div
-        className="rounded-3 p-1 mb-3 gray-bg"
-
-    >
-        <div className="d-flex align-items-center gap-2 p-2">
-            <div
-                className={`rounded-circle bg-${variant} bg-opacity-25 d-flex align-items-center justify-content-center`}
-                style={{ width: 40, height: 40 }}
-            >
-                <User size={20} className={`text-${variant}`} />
-            </div>
-            <div className="flex-grow-1">
-                <div className="fw-semibold">{user?.name || 'Unknown'}</div>
-                <small className="text-muted">{phoneNumber}</small>
-            </div>
-            {isNew && (
-                <Badge bg="warning" className="text-dark">New User</Badge>
-            )}
-        </div>
-        {/* {user?.email && (
-            <div className="d-flex align-items-center gap-2 text-muted small">
-                <Mail size={14} />
-                <span>{user.email}</span>
-            </div>
-        )} */}
-    </div>
-);
-
-const TransferBookingDrawer = ({
+const TokenTransferDrawer = ({
     show,
     onHide,
-    booking,
+    ticketData,
+    token, // master token from URL, used as booking_id
     onTransferSuccess
 }) => {
     const { UserData, successAlert } = useMyContext();
 
-    // Get event_id and OTP settings from booking
     const eventData = useMemo(() => {
-        const normalizeBooking = booking?.bookings ? booking.bookings[0] : booking;
         return {
-            eventId: normalizeBooking?.event?.id || normalizeBooking?.event_id,
-            otpRequired: normalizeBooking?.event?.event_controls?.ticket_transfer_otp ?? true,
-            eventName: normalizeBooking?.event?.name || 'Event'
+            eventId: ticketData?.event?.id,
+            otpRequired: ticketData?.controls?.ticket_transfer_otp ?? true,
+            eventName: ticketData?.event?.name || 'Event'
         };
-    }, [booking]);
+    }, [ticketData]);
 
-    // Form data state (consolidated)
+    // Form data state
     const [formData, setFormData] = useState({ phone: '', confirmPhone: '', name: '', email: '' });
     const [isSearching, setIsSearching] = useState(false);
     const [userFound, setUserFound] = useState(null);
@@ -113,10 +47,8 @@ const TransferBookingDrawer = ({
     const [alertCountdown, setAlertCountdown] = useState(0);
     const [createUserStepCompleted, setCreateUserStepCompleted] = useState(false);
 
-    // Get max quantity from booking
-    const maxQuantity = booking?.bookings?.length || 1;
+    const maxQuantity = ticketData?.data?.length || 1;
 
-    // Always show Find User, Verify, Transfer. Add Create User step only when new user (user not found).
     const { steps, currentStep } = useMemo(() => {
         const baseSteps = userFound === false
             ? [
@@ -144,23 +76,19 @@ const TransferBookingDrawer = ({
         return { steps: baseSteps, currentStep: current };
     }, [userFound, createUserStepCompleted, otpVerified]);
 
-    // Ref for phone input
     const phoneInputRef = useRef(null);
     const otpInputRef = useRef(null);
 
-    // Focus OTP input when OTP sent
     useEffect(() => {
         if (otpSent && otpInputRef.current) {
             otpInputRef.current.focus();
         }
     }, [otpSent]);
 
-    // Start countdown when error or success is set
     useEffect(() => {
         if (error || success) setAlertCountdown(3);
     }, [error, success]);
 
-    // Countdown interval: decrement every second, clear alert at 0
     useEffect(() => {
         if (!(error || success) || alertCountdown <= 0) return;
         const id = setInterval(() => {
@@ -176,7 +104,6 @@ const TransferBookingDrawer = ({
         return () => clearInterval(id);
     }, [error, success, alertCountdown]);
 
-    // Reset form
     const resetForm = useCallback(() => {
         setFormData({ phone: '', confirmPhone: '', name: '', email: '' });
         setUserFound(null);
@@ -192,7 +119,6 @@ const TransferBookingDrawer = ({
         setCreateUserStepCompleted(false);
     }, []);
 
-    // Handle drawer close
     const handleClose = useCallback(() => {
         resetForm();
         onHide();
@@ -209,7 +135,6 @@ const TransferBookingDrawer = ({
         }
     }, [success, error]);
 
-    // Search user by phone
     const handleSearchUser = useCallback(async () => {
         if (!formData.phone || formData.phone.length < 10) {
             setError('Please enter a valid 10-digit phone number');
@@ -244,7 +169,6 @@ const TransferBookingDrawer = ({
         }
     }, [formData.phone, formData.confirmPhone]);
 
-    // Auto-search when phone number reaches 10 digits
     useEffect(() => {
         if (
             formData.phone.length === 10 &&
@@ -257,7 +181,6 @@ const TransferBookingDrawer = ({
         }
     }, [formData.phone, formData.confirmPhone, userFound, isSearching, handleSearchUser]);
 
-    // Send OTP
     const handleSendOtp = useCallback(async () => {
         if (userFound === false && !formData.name.trim()) {
             setError('Please enter the recipient\'s name');
@@ -315,7 +238,6 @@ const TransferBookingDrawer = ({
         }
     }, [formData, eventData, userFound, targetUser]);
 
-    // Handle OTP verification
     const handleVerifyOtp = useCallback(async () => {
         if (!otp || otp.length !== 6) {
             setError('Please enter a valid 6-digit OTP');
@@ -359,7 +281,6 @@ const TransferBookingDrawer = ({
         }
     }, [otp, formData.phone, eventData.eventId]);
 
-    // Handle transfer
     const handleTransfer = useCallback(async () => {
         if (!otpVerified) {
             setError('Please complete verification first');
@@ -372,8 +293,8 @@ const TransferBookingDrawer = ({
 
         try {
             const transferPayload = {
-                is_master: booking?.bookings?.length > 1 ? true : false,
-                booking_id: booking?.id,
+                is_master: ticketData?.data?.length > 1 ? true : false,
+                booking_id: ticketData?.id,
                 transfer_from: UserData?.id,
                 transfer_to: targetUser?.id,
                 hash_key: transferHashKey,
@@ -388,7 +309,6 @@ const TransferBookingDrawer = ({
                 handleClose();
                 onTransferSuccess?.();
             } else {
-                // If there's an errors object, extract the specific messages
                 let errorMessage = transferResponse.message || 'Failed to transfer booking';
                 if (transferResponse.errors && typeof transferResponse.errors === 'object') {
                     const specificErrors = Object.values(transferResponse.errors).flat();
@@ -404,7 +324,7 @@ const TransferBookingDrawer = ({
         } finally {
             setIsTransferring(false);
         }
-    }, [otpVerified, booking, UserData, targetUser, quantity, handleClose, transferHashKey, eventData.eventId, successAlert]);
+    }, [otpVerified, ticketData, token, UserData, targetUser, quantity, handleClose, transferHashKey, eventData.eventId, successAlert, onTransferSuccess]);
 
     return (
         <CustomDrawer
@@ -421,27 +341,20 @@ const TransferBookingDrawer = ({
             <div className="p-3">
                 <StepIndicator steps={steps} currentStep={currentStep} />
 
-                {/* Alerts – global */}
                 {error && (
                     <Alert dismissible variant="primary" className="py-2 mb-3 d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
                         <AlertCircle size={16} />
-                        <span>
-                            {error}
-                            <span className="ms-2 small text-muted"></span>
-                        </span>
+                        <span>{error}</span>
                     </Alert>
                 )}
                 {success && (
                     <Alert variant="success" className="py-2 mb-3 d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
                         <CheckCircle size={16} />
-                        <span>
-                            {success}
-                            <span className="ms-2 small text-muted"></span>
-                        </span>
+                        <span>{success}</span>
                     </Alert>
                 )}
 
-                {/* Step 1: Find User – phone only */}
+                {/* Step 1: Find User */}
                 {currentStep === 1 && (
                     <div className="animate__animated animate__fadeIn mb-4">
                         <Form.Label className="small text-muted mb-2 d-flex align-items-center gap-1">
@@ -484,14 +397,13 @@ const TransferBookingDrawer = ({
                                 Phone numbers do not match
                             </Form.Text>
                         )}
-
                         {formData.phone.length > 0 && formData.phone.length < 10 && (
                             <Form.Text className="text-muted d-block mt-2">{10 - formData.phone.length} more digits needed</Form.Text>
                         )}
                     </div>
                 )}
 
-                {/* Step 2 (new user only): Create User – name & email, then Continue */}
+                {/* Step 2 (new user only): Create User */}
                 {userFound === false && currentStep === 2 && (
                     <div className="animate__animated animate__fadeIn">
                         <div className="d-flex align-items-center gap-2 mb-3">
@@ -529,7 +441,7 @@ const TransferBookingDrawer = ({
                     </div>
                 )}
 
-                {/* Verify step: existing user (step 2) or new user after create (step 3) – user card + Send OTP or OTP input */}
+                {/* Verify step */}
                 {((userFound === true && currentStep === 2) || (userFound === false && currentStep === 3)) && (
                     <div className="animate__animated animate__fadeIn">
                         {!otpSent ? (
@@ -587,14 +499,13 @@ const TransferBookingDrawer = ({
                     </div>
                 )}
 
-                {/* Transfer step (last): quantity + Transfer button */}
+                {/* Transfer step */}
                 {currentStep === steps.length && steps.length > 1 && (
                     <div className="animate__animated animate__fadeIn">
                         <Form.Label className="small text-muted mb-2 d-flex align-items-center justify-content-between">
                             <span></span>
                             {maxQuantity > 1 &&
                                 <span>
-
                                     <Badge bg="info">{quantity} of {maxQuantity}</Badge>
                                     tickets
                                 </span>}
@@ -655,4 +566,4 @@ const TransferBookingDrawer = ({
     );
 };
 
-export default TransferBookingDrawer;
+export default TokenTransferDrawer;

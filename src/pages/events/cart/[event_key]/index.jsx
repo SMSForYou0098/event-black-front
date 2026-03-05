@@ -4,6 +4,8 @@ import Flatpickr from "react-flatpickr";
 import 'flatpickr/dist/flatpickr.min.css';
 
 // Components
+import { LargeAndDesktop } from "@/utils/ResponsiveRenderer";
+
 import { useMyContext } from "@/Context/MyContextProvider";
 import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
 import { publicApi, api } from "@/lib/axiosInterceptor";
@@ -425,14 +427,14 @@ const CartPage = () => {
   }
 
   const CardContainer = ({ children, className = "", style = {} }) => (
-    <div className={`custom-dark-bg p-2 rounded-3 mb-4 ${className}`} style={style}>
+    <div className={`custom-dark-bg p-2 rounded-3 mb-2 ${className}`} style={style}>
       {children}
     </div>
   );
 
   // Reusable Card Header Component
-  const CardHeader = ({ icon: Icon, title, iconColor = "text-warning" }) => (
-    <h5 className="mb-3 fw-500 text-light d-flex align-items-center gap-2" style={{ fontSize: '18px' }}>
+  const CardHeader = ({ icon: Icon, title, iconColor = "text-warning", className }) => (
+    <h5 className={`mb-3 fw-500 text-light d-flex align-items-center gap-2 ${className}`} style={{ fontSize: '18px' }}>
       <Icon size={20} className={iconColor} /> {title}
     </h5>
   );
@@ -592,11 +594,15 @@ const CartPage = () => {
                 </CardContainer>
 
                 <CardContainer className="cart_totals">
-                  <CardHeader
-                    icon={Ticket}
-                    title="Cart Overview"
-                    iconColor="text-warning"
-                  />
+                  <LargeAndDesktop>
+
+                    <CardHeader
+                      icon={Ticket}
+                      title="Cart Overview"
+                      iconColor="text-warning"
+                      className=''
+                    />
+                  </LargeAndDesktop>
 
                   <div className="css_prefix-woocommerce-cart-box table-responsive">
                     <Table className="table mb-0">
@@ -805,34 +811,36 @@ const CartPage = () => {
           </Modal>
         )}
 
-        <LoginModal
-          show={showLoginModal}
-          onHide={() => setShowLoginModal(false)}
-          eventKey={event_key}
-          onSuccess={async () => {
-            // After successful login, run the ticket check and proceed
-            setShowLoginModal(false);
-            const allowed = await checkTicketStatus();
-            if (allowed) {
-              if (seatingModule && selectedTickets?.seats && selectedTickets.seats.length > 0) {
-                try {
-                  const seatIds = selectedTickets.seats.map(seat => seat.seat_id);
-                  await lockSeatsMutation.mutateAsync({
-                    event_id: event?.id,
-                    seats: seatIds,
-                    user_id: UserData?.id,
-                  });
+        {!UserData && (
+          <LoginModal
+            show={showLoginModal}
+            onHide={() => setShowLoginModal(false)}
+            eventKey={event_key}
+            onSuccess={async () => {
+              // After successful login, run the ticket check and proceed
+              setShowLoginModal(false);
+              const allowed = await checkTicketStatus();
+              if (allowed) {
+                if (seatingModule && selectedTickets?.seats && selectedTickets.seats.length > 0) {
+                  try {
+                    const seatIds = selectedTickets.seats.map(seat => seat.seat_id);
+                    await lockSeatsMutation.mutateAsync({
+                      event_id: event?.id,
+                      seats: seatIds,
+                      user_id: UserData?.id,
+                    });
+                    router.push(path);
+                  } catch (error) {
+                    return;
+                  }
+                } else {
                   router.push(path);
-                } catch (error) {
-                  return;
                 }
-              } else {
-                router.push(path);
               }
-            }
-          }}
-          is_address_required={event?.eventControls?.use_preprinted_cards}
-        />
+            }}
+            is_address_required={event?.eventControls?.use_preprinted_cards}
+          />
+        )}
 
         {/* Registration Modal - auto-opens for Registration category */}
         <RegistrationBooking

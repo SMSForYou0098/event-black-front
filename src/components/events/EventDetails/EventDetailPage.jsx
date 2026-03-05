@@ -77,12 +77,14 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
     <Fragment>
       <EventSEO eventData={eventData} event_key={event_key} />
 
-      <LoginModal
-        show={showLoginModal}
-        onHide={() => setShowLoginModal(false)}
-        eventKey={event_key}
-        redirectPath={window.location.pathname}
-      />
+      {!UserData && (
+        <LoginModal
+          show={showLoginModal}
+          onHide={() => setShowLoginModal(false)}
+          eventKey={event_key}
+          redirectPath={window.location.pathname}
+        />
+      )}
 
       <div className="section-padding-top product-detail py-0 py-sm-4">
         <Container>

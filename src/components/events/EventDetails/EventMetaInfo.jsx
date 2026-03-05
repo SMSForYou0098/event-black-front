@@ -283,11 +283,13 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData, handleShare }) => {
 
 
       {/* Login Modal */}
-      <LoginModal
-        show={showLoginModal}
-        onHide={() => setShowLoginModal(false)}
-        eventKey={event_key}
-      />
+      {!UserData && (
+        <LoginModal
+          show={showLoginModal}
+          onHide={() => setShowLoginModal(false)}
+          eventKey={event_key}
+        />
+      )}
 
       {/* Postponed Notice */}
       {isPostponed && expectedDate && (

@@ -228,7 +228,9 @@ const HeaderDefault = memo(() => {
 
   return (
     <Fragment>
-      <LoginModal show={showLoginModal} onHide={() => setShowLoginModal(false)} redirectPath={window.location.pathname} />
+      {!UserData && (
+        <LoginModal show={showLoginModal} onHide={() => setShowLoginModal(false)} redirectPath={window.location.pathname} />
+      )}
       <GlobalSearch show={searchShow} handleShow={handleToggleClick} />
       <header className="header-center-home header-default header-sticky sticky">
         <Navbar

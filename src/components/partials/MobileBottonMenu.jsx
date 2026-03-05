@@ -183,11 +183,13 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
 
   return (
     <>
-      <LoginModal
-        show={showLoginModal}
-        onHide={() => setShowLoginModal(false)}
-        redirectPath="/bookings"
-      />
+      {!UserData && (
+        <LoginModal
+          show={showLoginModal}
+          onHide={() => setShowLoginModal(false)}
+          redirectPath="/bookings"
+        />
+      )}
       <Offcanvas
         show={show}
         onHide={handleClose}

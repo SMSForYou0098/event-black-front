@@ -4,13 +4,13 @@ import React from 'react';
  * ResponsiveRenderer - A utility component for conditional rendering based on Bootstrap breakpoints
  */
 
-const ResponsiveRenderer = ({ 
-  children, 
-  show, 
-  hide, 
-  showOnly, 
-  hideOnly, 
-  customClass = '' 
+const ResponsiveRenderer = ({
+  children,
+  show,
+  hide,
+  showOnly,
+  hideOnly,
+  customClass = ''
 }) => {
   const getBootstrapClasses = () => {
     const classes = [];
@@ -34,7 +34,7 @@ const ResponsiveRenderer = ({
     // Handle 'showOnly' prop - show only on specific breakpoint
     if (showOnly) {
       classes.push('d-none'); // Hide by default
-      
+
       if (showOnly === 'xs') {
         // For mobile only: show on xs, hide from sm and up
         classes.push('d-block d-sm-none');
@@ -56,11 +56,11 @@ const ResponsiveRenderer = ({
     if (hideOnly) {
       classes.push('d-block'); // Show by default
       classes.push(`d-${hideOnly}-none`); // Hide on specific breakpoint
-      
+
       const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
       const hideOnlyIndex = breakpoints.indexOf(hideOnly);
       const nextBreakpoint = breakpoints[hideOnlyIndex + 1];
-      
+
       if (nextBreakpoint) {
         classes.push(`d-${nextBreakpoint}-block`); // Show again after the hidden breakpoint
       }
@@ -105,25 +105,31 @@ export const TabletAndDesktop = ({ children, customClass = '' }) => (
   </div>
 );
 
+export const LargeAndDesktop = ({ children, customClass = '' }) => (
+  <div className={`d-none d-lg-block ${customClass}`.trim()}>
+    {children}
+  </div>
+);
+
 // Advanced responsive component with multiple breakpoint support
-export const AdvancedResponsive = ({ 
-  children, 
-  xs = 'block', 
-  sm, 
-  md, 
-  lg, 
-  xl, 
+export const AdvancedResponsive = ({
+  children,
+  xs = 'block',
+  sm,
+  md,
+  lg,
+  xl,
   xxl,
   customClass = ''
 }) => {
   const classes = ['d-' + xs];
-  
+
   if (sm) classes.push(`d-sm-${sm}`);
   if (md) classes.push(`d-md-${md}`);
   if (lg) classes.push(`d-lg-${lg}`);
   if (xl) classes.push(`d-xl-${xl}`);
   if (xxl) classes.push(`d-xxl-${xxl}`);
-  
+
   return (
     <div className={`${classes.join(' ')} ${customClass}`.trim()}>
       {children}

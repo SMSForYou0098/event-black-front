@@ -1,36 +1,23 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useRouter } from "next/router";
-import { Button, Container, Modal, Card, Row, Col } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import Swal from "sweetalert2";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
 import moment from "moment";
 import { useQuery } from "@tanstack/react-query";
 import imgLoader from "../../../assets/event/stock/loader111.gif";
-import {
-  CalendarRange,
-  Clock,
-  Mail,
-  MapPin,
-  Phone,
-  Ticket,
-  User,
-  UserRound,
-  Download,
-  AlertCircle,
-} from "lucide-react";
 import Image from "next/image";
 import { useMyContext } from "@/Context/MyContextProvider";
-import TicketCanvasView from "@/components/events/Tickets/TicketCanvasView";
 import { publicApi } from "@/lib/axiosInterceptor";
-import { ArrowBigDownDash } from "lucide-react";
-import CustomBtn from "@/utils/CustomBtn";
-import MobileTwoButtonFooter from "@/utils/MobileTwoButtonFooter";
 import TicketErrorDisplay from "@/components/errors/TicketErrorDisplay";
-import CustomDrawer from "../../../utils/CustomDrawer";
+
+// Extracted Components
+import TicketInfoCard from "@/components/Tickets/Token/TicketInfoCard";
+import TermsAndConditionsCard from "@/components/Tickets/Token/TermsAndConditionsCard";
+import DesktopActionButtons from "@/components/Tickets/Token/DesktopActionButtons";
+import MobileActionButtons from "@/components/Tickets/Token/MobileActionButtons";
+import TicketCanvasDrawer from "@/components/Tickets/Token/TicketCanvasDrawer";
+import LoginOffCanvas from "@/components/auth/LoginOffCanvas";
+import TokenTransferDrawer from "@/components/Tickets/Token/TokenTransferDrawer";
 
 // API fetch functions
 const fetchToken = async (orderId) => {
@@ -76,7 +63,7 @@ const formatDateRange = (dateRange) => {
 };
 
 const UserCard = () => {
-  const { ErrorAlert, systemSetting, isMobile } = useMyContext();
+  const { ErrorAlert, systemSetting, isMobile, UserData } = useMyContext();
   const router = useRouter();
   const { token: orderId } = router.query;
 
@@ -84,6 +71,8 @@ const UserCard = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const [drawerType, setDrawerType] = useState(null); // 'combine', 'single', 'download' (individual)
   const [showTicketInDrawer, setShowTicketInDrawer] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showTransferDrawer, setShowTransferDrawer] = useState(false);
 
   // Image states
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -216,6 +205,14 @@ const UserCard = () => {
     setShowTicketInDrawer(true);
   };
 
+  const handleTransferClick = () => {
+    if (!UserData) {
+      setShowLoginModal(true);
+    } else {
+      setShowTransferDrawer(true);
+    }
+  };
+
   if (!router.isReady) {
     return null;
   }
@@ -225,11 +222,12 @@ const UserCard = () => {
       style={{
         minHeight: "100vh",
         padding: "2rem 1rem",
-        paddingBottom: "2rem",
+        paddingBottom: "2.5rem",
       }}
       className="pb-md-4 pb-5"
     >
       <Container>
+
         {isLoading ? (
           <div
             className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-75"
@@ -245,186 +243,43 @@ const UserCard = () => {
           </div>
         ) : ticketData ? (
           <>
+
+            {/* Logo */}
             {systemSetting?.footer_logo && (
-              <div className="text-center mb-3">
+              <div className="text-center mb-4">
                 <Image
-                  src={systemSetting?.footer_logo || ''}
+                  src={systemSetting?.footer_logo || ""}
                   alt="Logo"
                   width={200}
                   height={60}
                   className="mh-100"
-                  style={{ maxHeight: 60, width: 'auto', objectFit: "contain" }}
+                  style={{ maxHeight: 60, width: "auto", objectFit: "contain" }}
                   unoptimized
                 />
               </div>
             )}
 
-            <Card className="mb-4 shadow-sm" style={{ border: "none" }}>
-              <Card.Body>
-                <Row className="g-3 g-md-4">
-                  {/* Event Details */}
-                  <Col xs={12} md={4} className="border-end-md pe-md-3">
-                    <div className="mb-2">
-                      <CalendarRange className="me-2" size={14} />
-                      Event Name:{" "}
-                      <strong>{ticketData?.event?.name || "N/A"}</strong>
-                    </div>
-                    <div className="mb-2">
-                      <Ticket className="me-2" size={14} />
-                      Ticket Type:{" "}
-                      <strong>{ticketData?.ticket?.name || "N/A"}</strong>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div className="d-flex align-items-center">
-                        <CalendarRange size={12} className="me-1" />
-                        <span style={{ fontSize: '0.875rem' }}>Date:</span>{" "}
-                        <span style={{ fontSize: '0.875rem' }}>{formattedDate}</span>
-                      </div>
-                      <div className="d-flex align-items-center">
-                        <Clock size={12} className="me-1" />
-                        <span className="me-1" style={{ fontSize: '0.875rem' }}>Entry:</span>
-                        <span style={{ fontSize: '0.875rem' }}>{ticketData?.event?.entry_time || "N/A"}</span>
-                      </div>
-                      <div className="d-flex align-items-center">
-                        <Clock size={12} className="me-1" />
-                        <span className="me-1" style={{ fontSize: '0.875rem' }}>Start:</span>
-                        <span style={{ fontSize: '0.875rem' }}>{ticketData?.event?.start_time || "N/A"}</span>
-                      </div>
-                    </div>
-                  </Col>
+            {/* Ticket Information Card */}
+            <TicketInfoCard
+              ticketData={ticketData}
+              ticketCount={ticketCount}
+              formattedDate={formattedDate}
+            />
 
-                  {/* Location */}
-                  <Col xs={12} md={4} className="border-end-md px-md-3">
-                    <h6 className="mb-3 fw-semibold d-flex align-items-center">
-                      <MapPin className="me-2" size={18} /> Location
-                      <span style={{ fontWeight: '400', marginLeft: "1rem" }}>{ticketData?.event?.address || "N/A"}</span>
-                    </h6>
-                  </Col>
-
-                  {/* Order Summary */}
-                  <Col xs={12} md={4} className="ps-md-3">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <div>
-                        <strong>Qty:</strong>{" "}
-                        {ticketCount}
-                      </div>
-                      <div>
-                        <strong>Price per ticket:</strong>{" "}
-                        {ticketData?.ticket?.price > 0
-                          ? `${ticketData?.ticket?.currency} ${ticketData?.ticket?.price}`
-                          : "Free"}
-                      </div>
-                      <div>
-                        <strong style={{ fontSize: "1.1rem" }}>
-                          Total:{" "}
-                          {ticketData?.ticket?.amount > 0
-                            ? `${ticketData?.ticket?.currency || "INR"} ${ticketData?.ticket?.amount}`
-                            : "Free"}
-                        </strong>
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-
-                {/* User Information */}
-                {ticketData?.user && (
-                  <div className=" pt-4 border-top">
-                    <div className="text-center">
-                      <h6 className="mb-4 fw-semibold d-flex justify-content-center align-items-center">
-                        <UserRound className="me-2" size={18} /> Booked By
-                      </h6>
-                    </div>
-                    <div className="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-3 w-100">
-                      <div className="d-flex flex-wrap gap-3">
-                        <div className="d-flex align-items-center">
-                          <User size={16} />
-                          <span className="ms-2 fw-medium">{ticketData.user?.name || "N/A"}</span>
-                        </div>
-                        <div className="d-flex align-items-center">
-                          <Phone size={16} />
-                          <span className="ms-2 fw-medium">{ticketData.user?.number || "N/A"}</span>
-                        </div>
-                      </div>
-                      <div className="d-flex align-items-center mt-2 mt-lg-0">
-                        <Mail size={16} />
-                        <span className="ms-2 fw-medium">{ticketData.user?.email || "N/A"}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </Card.Body>
-            </Card>
-
-            {/* Desktop Combine and Download Buttons - Hidden on mobile */}
-            <div className="text-center mb-4 d-none d-md-block">
-              {ticketCount > 1 ? (
-                <>
-                  {disableCombineButton && (
-                    <Button
-                      variant="success"
-                      onClick={() => handleDownloadClick('combine')}
-                      size="lg"
-                      className="me-3"
-                      disabled={!imageLoaded && cardImageUrl}
-                    >
-                      <Ticket size={20} className="me-2" />
-                      Group Ticket
-                    </Button>
-                  )}
-                  <Button
-                    variant="primary"
-                    onClick={() => handleDownloadClick('download')}
-                    size="lg"
-                    disabled={!imageLoaded && cardImageUrl}
-                  >
-                    <Download size={20} className="me-2" />
-                    Single Ticket
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  variant="primary"
-                  onClick={() => handleDownloadClick('single')}
-                  size="lg"
-                  disabled={!imageLoaded && cardImageUrl}
-                >
-                  <Download size={20} className="me-2" />
-                  Download Ticket
-                </Button>
-              )}
-            </div>
+            {/* Desktop Buttons */}
+            <DesktopActionButtons
+              ticketData={ticketData}
+              ticketCount={ticketCount}
+              disableCombineButton={disableCombineButton}
+              imageLoaded={imageLoaded}
+              cardImageUrl={cardImageUrl}
+              handleDownloadClick={handleDownloadClick}
+              handleTransferClick={handleTransferClick}
+            />
 
             {/* Terms & Conditions */}
-            {(ticketData?.event?.online_ticket_terms || ticketData?.event?.offline_ticket_terms) && (
-              <Card className="mt-5 shadow-sm">
-                <Card.Body style={{ overflowY: "auto" }}>
-                  <h5 className="mb-4">Terms & Conditions</h5>
+            <TermsAndConditionsCard ticketData={ticketData} />
 
-                  {ticketData?.event?.online_ticket_terms && (
-                    <div className="mb-4">
-                      <h6 className="fw-bold mb-2">Online Ticket Terms</h6>
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: ticketData.event.online_ticket_terms,
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {ticketData?.event?.offline_ticket_terms && (
-                    <div>
-                      <h6 className="fw-bold mb-2">Offline Ticket Terms</h6>
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: ticketData.event.offline_ticket_terms,
-                        }}
-                      />
-                    </div>
-                  )}
-
-                </Card.Body>
-              </Card>
-            )}
           </>
         ) : (
           <TicketErrorDisplay
@@ -432,263 +287,63 @@ const UserCard = () => {
           />
         )}
 
-        {/* Fixed Footer Combine and Download Buttons - Visible only on mobile (< md) */}
-        {ticketData && (
-          <div className="d-md-none">
-
-            <MobileTwoButtonFooter
-
-              leftButton={
-                ticketCount > 1 && disableCombineButton ? (
-                  <Button
-                    variant="success"
-                    onClick={() => handleDownloadClick('combine')}
-                    className="w-100"
-                    size="lg"
-                    disabled={!imageLoaded && cardImageUrl}
-                  >
-                    <Ticket size={20} className="me-2" />
-                    Combined
-                  </Button>
-                ) : ticketCount === 1 ? (
-                  <Button
-                    variant="primary"
-                    onClick={() => handleDownloadClick('single')}
-                    className="w-100"
-                    size="lg"
-                    disabled={!imageLoaded && cardImageUrl}
-                  >
-                    <Download size={20} className="me-2" />
-                    Download Ticket
-                  </Button>
-                ) : null
-              }
-              rightButton={
-                ticketCount > 1 ? (
-                  <Button
-                    variant="primary"
-                    onClick={() => handleDownloadClick('download')}
-                    className="w-100"
-                    size="lg"
-                    disabled={!imageLoaded && cardImageUrl}
-                  >
-                    <Download size={20} className="me-2" />
-                    Individual
-                  </Button>
-                ) : null
-              }
-            />
-          </div>
-        )}
-
         {/* Drawer/CustomDrawer for Combine/Download actions */}
-        <CustomDrawer
-          showOffcanvas={showDrawer}
-          setShowOffcanvas={(val) => {
-            setShowDrawer(val);
-            if (!val) setShowTicketInDrawer(false);
+        <TicketCanvasDrawer
+          showDrawer={showDrawer}
+          setShowDrawer={setShowDrawer}
+          setShowTicketInDrawer={setShowTicketInDrawer}
+          drawerType={drawerType}
+          showTicketInDrawer={showTicketInDrawer}
+          handleGenerateTicket={handleGenerateTicket}
+          imageLoaded={imageLoaded}
+          singleCanvasRef={singleCanvasRef}
+          cardImageUrl={cardImageUrl}
+          setIsCanvasReady={setIsCanvasReady}
+          ticketData={ticketData}
+          orderId={orderId}
+          swiperCanvasRefs={swiperCanvasRefs}
+          setActiveSlideIndex={setActiveSlideIndex}
+          activeSlideIndex={activeSlideIndex}
+          isCanvasReady={isCanvasReady}
+          isMobile={isMobile}
+        />
+
+        {/* Fixed Footer Combine and Download Buttons - Visible only on mobile (< md) */}
+        <MobileActionButtons
+          ticketData={ticketData}
+          ticketCount={ticketCount}
+          disableCombineButton={disableCombineButton}
+          imageLoaded={imageLoaded}
+          cardImageUrl={cardImageUrl}
+          handleDownloadClick={handleDownloadClick}
+          handleTransferClick={handleTransferClick}
+        />
+
+        {/* Transfer Modals */}
+        <LoginOffCanvas
+          show={showLoginModal}
+          onHide={() => setShowLoginModal(false)}
+          redirectPath={router.asPath}
+          onSuccess={() => {
+            setShowLoginModal(false);
+            setShowTransferDrawer(true);
           }}
-          hideIndicator={isMobile ? false : true}
-          title={drawerType === 'combine' ? 'Group Ticket' : drawerType === 'single' ? '' : 'Individual Tickets'}
-          style={{ height: showTicketInDrawer ? '90vh' : 'auto' }}
-          bodyClassName="position-relative"
-        >
-          <div className={`text-center d-flex flex-column ${showTicketInDrawer ? 'h-100' : ''}`} style={{ paddingBottom: !showTicketInDrawer ? '80px' : '0' }}>
-            {!showTicketInDrawer ? (
-              <>
-                <div className="p-3">
-                  <div className="d-flex align-items-center gap-2 mb-3">
-                    <AlertCircle size={24} className="text-warning" />
-                    <h6 className="mb-0 fw-bold">Important Information</h6>
-                  </div>
+        />
 
-                  {drawerType === 'combine' && (
-                    <div className="alert alert-info mb-3 text-start">
-                      <h6 className="alert-heading mb-2">Group Ticket</h6>
-                      <p className="mb-0">
-                        If you select group ticket, all attendees must arrive together and show the group ticket
-                        at the venue for entry. Individual tickets will not work.
-                      </p>
-                    </div>
-                  )}
-
-                  {drawerType === 'single' && (
-                    <div className="alert alert-success mb-3 text-start">
-                      {/* <h6 className="alert-heading mb-2">Your Ticket</h6> */}
-                      <p className="mb-0">
-                        Your ticket is ready to download. Use the QR code at the entry gate for quick access.
-                      </p>
-                    </div>
-                  )}
-
-                  {drawerType === 'download' && (
-                    <div className="alert alert-warning mb-3 text-start">
-                      <h6 className="alert-heading mb-2">Single Ticket</h6>
-                      <p className="mb-0">
-                        If you select single ticket, each attendee receives a personal QR code for entry,
-                        and group tickets won't work.
-                      </p>
-                    </div>
-                  )}
-                </div>
-                {/* Fixed Generate Ticket Button at Bottom */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: '1rem',
-                    background: 'linear-gradient(transparent, rgba(0,0,0,0.9))',
-                    borderTop: '1px solid rgba(255,255,255,0.1)'
-                  }}
-                >
-                  <CustomBtn
-                    buttonText="Generate Ticket"
-                    variant="primary"
-                    className="w-100"
-                    wrapperClassName="w-100"
-                    HandleClick={handleGenerateTicket}
-                  />
-                </div>
-              </>
-            ) : (
-              // Ticket Display in Drawer
-              <div className="d-flex flex-column h-100">
-                <div className="flex-grow-1 d-flex align-items-center justify-content-center p-2 bg-black rounded" style={{ overflow: 'auto', marginBottom: '80px' }}>
-                  {drawerType === 'combine' || drawerType === 'single' ? (
-                    <div className="text-center w-100">
-                      {imageLoaded ? (
-                        <div className="d-flex flex-column align-items-center">
-                          <TicketCanvasView
-                            ref={singleCanvasRef}
-                            showDetails={true}
-                            preloadedImage={cardImageUrl}
-                            ticketNumber={drawerType === 'single' ? 1 : undefined}
-                            onReady={() => setIsCanvasReady(true)}
-                            ticketData={{
-                              ticket: {
-                                name: ticketData?.ticket?.name || "Event Ticket",
-                                price: ticketData?.ticket?.price,
-                                currency: ticketData?.ticket?.currency,
-                                background_image: cardImageUrl,
-                                event: {
-                                  name: ticketData?.event?.name,
-                                  date_range: ticketData?.event?.date_range,
-                                  start_time: ticketData?.event?.start_time,
-                                  entry_time: ticketData?.event?.entry_time,
-                                  address: ticketData?.event?.address || "Venue not specified",
-                                }
-                              },
-                              user: {
-                                name: ticketData?.user?.name || "Guest",
-                                number: ticketData?.user?.number || "N/A",
-                              },
-                              order_id: drawerType === 'single' && ticketData?.data?.[0]?.token ? ticketData.data[0].token : orderId,
-                              booking_type: ticketData?.booking_type,
-                              booking_date: ticketData?.data?.[0]?.booking_date,
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <div className="text-center py-5">
-                          <Image src={imgLoader} alt="Loading..." width={100} height={100} unoptimized />
-                          <p className="text-white mt-2">Loading image...</p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    ticketData?.data?.length > 0 && (
-                      <Swiper
-                        modules={[Navigation, Pagination]}
-                        spaceBetween={20}
-                        slidesPerView={1}
-                        navigation
-                        pagination={{ clickable: true }}
-                        style={{ paddingBottom: "40px" }}
-                        onSlideChange={(swiper) => setActiveSlideIndex(swiper.activeIndex)}
-                      >
-                        {ticketData?.data?.map((item, index) => (
-                          <SwiperSlide key={item.token}>
-                            <div className="text-center w-100 d-flex justify-content-center" id={`ticket-${item.token}`}>
-                              {imageLoaded ? (
-                                <TicketCanvasView
-                                  ref={(el) => { swiperCanvasRefs.current[index] = el; }}
-                                  showDetails={true}
-                                  preloadedImage={cardImageUrl}
-                                  ticketNumber={index + 1}
-                                  onReady={() => setIsCanvasReady(true)}
-                                  ticketData={{
-                                    ticket: {
-                                      name: ticketData?.ticket?.name || "Event Ticket",
-                                      price: ticketData?.ticket?.price,
-                                      currency: ticketData?.ticket?.currency,
-                                      background_image: cardImageUrl,
-                                      event: {
-                                        name: ticketData?.event?.name,
-                                        date_range: ticketData?.event?.date_range,
-                                        start_time: ticketData?.event?.start_time,
-                                        entry_time: ticketData?.event?.entry_time,
-                                        address: ticketData?.event?.address || "Venue not specified",
-                                      }
-                                    },
-                                    user: {
-                                      name: ticketData?.user?.name || "Guest",
-                                      number: ticketData?.user?.number || "N/A",
-                                    },
-                                    attendee: item?.attendee || null,
-                                    order_id: item.token,
-                                    booking_type: ticketData?.booking_type || "individual",
-                                    booking_date: item?.booking_date,
-                                  }}
-                                />
-                              ) : (
-                                <div className="text-center py-5">
-                                  <Image src={imgLoader} alt="Loading..." width={100} height={100} unoptimized />
-                                  <p className="text-white mt-2">Loading image...</p>
-                                </div>
-                              )}
-                            </div>
-                          </SwiperSlide>
-                        ))}
-                      </Swiper>
-                    )
-                  )}
-                </div>
-
-                {/* Fixed Download Button at Bottom */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: '1rem',
-                    background: 'linear-gradient(transparent, rgba(0,0,0,0.9))',
-                    borderTop: '1px solid rgba(255,255,255,0.1)'
-                  }}
-                >
-                  <CustomBtn
-                    buttonText={"Download"}
-                    icon={<ArrowBigDownDash size={18} />}
-                    loading={!isCanvasReady}
-                    className="w-100"
-                    HandleClick={() => {
-                      if (drawerType === 'combine' || drawerType === 'single') {
-                        singleCanvasRef.current?.download();
-                      } else {
-                        swiperCanvasRefs.current[activeSlideIndex]?.download();
-                      }
-                    }}
-                    disabled={!isCanvasReady}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </CustomDrawer>
+        {showTransferDrawer && ticketData && (
+          <TokenTransferDrawer
+            show={showTransferDrawer}
+            onHide={() => setShowTransferDrawer(false)}
+            ticketData={ticketData}
+            token={orderId}
+            onTransferSuccess={() => {
+              // Refetch data when transfer succeeds or reload the page
+              router.reload();
+            }}
+          />
+        )}
       </Container>
-    </div >
+    </div>
   );
 };
 

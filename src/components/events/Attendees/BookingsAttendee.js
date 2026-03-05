@@ -11,10 +11,32 @@ const formatFieldName = (name) => {
 
 const AttendeeCard = ({ attendee, index, apiData, handleOpenModal, handleDeleteAttendee, ShowAction }) => (
     <Card
-        className={`rounded-3 shadow-sm custom-dark-content-bg ${attendee?.missingFields?.length > 0 ? 'border-primary' : 'border-dashed-thin'}`}
+        className={`position-relative rounded-3 shadow-sm custom-dark-content-bg ${attendee?.missingFields?.length > 0 ? 'border-primary' : 'border-dashed-thin'}`}
         style={{ minWidth: '280px', borderWidth: '2px', backgroundColor: '#212529' }}
     >
         <Card.Body className="py-3 border-0">
+            {ShowAction && (
+                <div className="position-absolute top-0 end-0 p-3 d-flex gap-2">
+                    <Button
+                        variant="info"
+                        size="sm"
+                        className="rounded-3 d-flex align-items-center justify-content-center p-1"
+                        onClick={() => handleOpenModal(index)}
+                        title="Edit Attendee"
+                    >
+                        <EditIcon size={16} />
+                    </Button>
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        className="rounded-3 d-flex align-items-center justify-content-center p-1"
+                        onClick={() => handleDeleteAttendee(index)}
+                        title="Delete Attendee"
+                    >
+                        <DeleteIcon size={16} />
+                    </Button>
+                </div>
+            )}
             <Row className="align-items-center">
                 {/* Profile Image - Left Side */}
                 <Col xs="auto">
@@ -173,32 +195,6 @@ const AttendeeCard = ({ attendee, index, apiData, handleOpenModal, handleDeleteA
                         })} */}
                     </div>
                 </Col>
-
-                {/* Action Buttons - Right Side */}
-                {ShowAction && (
-                    <Col xs="12">
-                        <div className="d-flex gap-2 justify-content-end">
-                            <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                className="rounded-3 d-flex align-items-center justify-content-center p-1"
-                                onClick={() => handleOpenModal(index)}
-                                title="Edit Attendee"
-                            >
-                                <EditIcon size={16} />
-                            </Button>
-                            <Button
-                                variant="outline-primary"
-                                size="sm"
-                                className="rounded-3 d-flex align-items-center justify-content-center p-1"
-                                onClick={() => handleDeleteAttendee(index)}
-                                title="Delete Attendee"
-                            >
-                                <DeleteIcon size={16} />
-                            </Button>
-                        </div>
-                    </Col>
-                )}
             </Row>
 
             {/* Missing Fields Warning */}

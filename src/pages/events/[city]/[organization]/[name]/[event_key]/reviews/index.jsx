@@ -178,12 +178,14 @@ const EventReviewsPage = () => {
 
     return (
         <div className="reviews-page bg-black min-vh-100 pb-5">
-            <LoginModal
-                show={showLoginModal}
-                onHide={() => setShowLoginModal(false)}
-                eventKey={event_key}
-                redirectPath={router.asPath}
-            />
+            {!UserData && (
+                <LoginModal
+                    show={showLoginModal}
+                    onHide={() => setShowLoginModal(false)}
+                    eventKey={event_key}
+                    redirectPath={router.asPath}
+                />
+            )}
 
             <Container className="px-0 px-md-3 pt-3 pt-md-4">
                 {/* Back Button & Title */}
