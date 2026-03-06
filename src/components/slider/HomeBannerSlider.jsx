@@ -13,6 +13,8 @@ import { api } from "@/lib/axiosInterceptor";
 import BannerSkeleton from "../../utils/SkeletonUtils/BannerSkeleton"
 import CustomBtn from "@/utils/CustomBtn";
 import { useRouter } from "next/router";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 export const getBanners = async () => {
   const response = await api.get('/banner-list/main');
@@ -61,7 +63,7 @@ export const toAbsolute = (url) => {
   return `${base.replace(/\/$/, '')}/${url.replace(/^\//, '')}`;
 };
 
-const HomeBannerSlider = memo(({type='main'}) => {
+const HomeBannerSlider = memo(({ type = 'main' }) => {
   const themeSchemeDirection = useSelector(theme_scheme_direction);
   const [toggler, setToggler] = useState(false);
   const { isMobile, createSlug } = useMyContext();
@@ -81,9 +83,10 @@ const HomeBannerSlider = memo(({type='main'}) => {
     return (
       <section className="banner-container section-padding-bottom">
         <div className="d-flex justify-content-center align-items-center" style={{ height: '450px' }}>
-          <p className="text-danger">Could not load banners.</p>
+          <p className="text-danger">{getErrorMessage(banners === undefined ? null : banners, "Could not load banners.")}</p>
         </div>
       </section>
+
     );
   }
 
@@ -96,7 +99,7 @@ const HomeBannerSlider = memo(({type='main'}) => {
     slidesPerView: 1.2,
     modules: [Navigation],
     loop: true,
-    centeredSlides: true,   
+    centeredSlides: true,
     className: "swiper-banner-container"
   };
   return (
@@ -126,8 +129,8 @@ const HomeBannerSlider = memo(({type='main'}) => {
 
                 return (
                   <SwiperSlide key={banner.id || index}>
-                    <div className="movie-banner-image" style={{backgroundImage : backgroundStyle , backgroundSize: 'cover', backgroundPosition: 'center', height: '450px', position: 'relative' }}>
-                     <div className="shows-content h-100">
+                    <div className="movie-banner-image" style={{ backgroundImage: backgroundStyle, backgroundSize: 'cover', backgroundPosition: 'center', height: '450px', position: 'relative' }}>
+                      <div className="shows-content h-100">
                         <Row className="row align-items-center h-100">
                           <Col lg="7" md="12">
                             {/* NOTE: The API doesn't provide title/description, so static content is used as a template. */}
@@ -161,14 +164,14 @@ const HomeBannerSlider = memo(({type='main'}) => {
                                 {banner?.description}
                               </p>
                             </div>
-                            <CustomBtn 
+                            <CustomBtn
                               buttonText={banner?.button_text || 'Explore Now'}
-                              HandleClick={() => {router.push(banner.redirectUrl || `/events/category/${createSlug(banner?.category).toLowerCase()}` ||'/tv-shows/detail')}}
+                              HandleClick={() => { router.push(banner.redirectUrl || `/events/category/${createSlug(banner?.category).toLowerCase()}` || '/tv-shows/detail') }}
                               customClass="mt-4 btn-sm"
                             />
                           </Col>
                           <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
-                            <div onClick={() => setToggler(!toggler)} className="video-open playbtn" style={{cursor: 'pointer'}}>
+                            <div onClick={() => setToggler(!toggler)} className="video-open playbtn" style={{ cursor: 'pointer' }}>
                               <svg
                                 version="1.1"
                                 xmlns="http://www.w3.org/2000/svg"

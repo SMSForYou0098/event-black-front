@@ -6,7 +6,9 @@ import { CustomTooltip } from '../../../utils/CustomTooltip';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/errorUtils';
 import Image from 'next/image';
+
 import { Calendar } from 'lucide-react';
 
 const ShareModal = ({ show, onHide, url, title, eventData, event_date }) => {
@@ -35,8 +37,9 @@ const ShareModal = ({ show, onHide, url, title, eventData, event_date }) => {
                     toast.success('Link copied to clipboard!');
                     setTimeout(() => setIsCopied(false), 2000);
                 } catch (err) {
-                    toast.error('Failed to copy link');
+                    toast.error(getErrorMessage(err, 'Failed to copy link'));
                 }
+
                 document.body.removeChild(textArea);
             }
         }
@@ -57,8 +60,9 @@ const ShareModal = ({ show, onHide, url, title, eventData, event_date }) => {
                 });
             } catch (err) {
                 console.log('Share error:', err);
-                toast.error('Share cancelled or failed');
+                toast.error(getErrorMessage(err, 'Share cancelled or failed'));
             }
+
         } else {
             toast.error('Native sharing not supported');
         }

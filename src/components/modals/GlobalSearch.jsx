@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Modal, Form, Badge, Image, ListGroup, InputGroup, Button, Card, Row, Col } from 'react-bootstrap';
 import { Search, X, Clock, TrendingUp, Calendar, MapPin, Tag } from 'lucide-react';
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 const GlobalSearch = ({ show, handleShow }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -95,9 +97,11 @@ const GlobalSearch = ({ show, handleShow }) => {
       setSearchResults(response.data?.data || []);
       setSelectedIndex(0);
     } catch (error) {
-      console.error('Search error:', error);
+      console.error('Search error:', getErrorMessage(error));
       setSearchResults([]);
     } finally {
+
+
       setIsLoading(false);
     }
   }, []);

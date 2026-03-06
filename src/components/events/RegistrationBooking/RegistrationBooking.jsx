@@ -8,6 +8,8 @@ import { useMyContext } from "@/Context/MyContextProvider";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { signIn } from "@/store/auth/authSlice";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 /**
  * RegistrationBooking Component
@@ -222,12 +224,9 @@ const RegistrationBooking = ({
             }
         },
         onError: (error) => {
-            setOtpError(
-                error.response?.data?.error ||
-                error.response?.data?.message ||
-                "Something went wrong"
-            );
+            setOtpError(getErrorMessage(error, "Something went wrong"));
         },
+
     });
 
     // Verify user mutation (sends OTP)
@@ -246,11 +245,9 @@ const RegistrationBooking = ({
             }
         },
         onError: (error) => {
-            setOtpError(
-                error.response?.data?.message ||
-                "Failed to send OTP. Please try again."
-            );
+            setOtpError(getErrorMessage(error, "Failed to send OTP. Please try again."));
         },
+
     });
 
     // Verify OTP mutation
@@ -269,8 +266,9 @@ const RegistrationBooking = ({
             await handleContinueToCheckout(true);
         },
         onError: (error) => {
-            setOtpError(error.message || "Invalid OTP. Please try again.");
+            setOtpError(getErrorMessage(error, "Invalid OTP. Please try again."));
         },
+
     });
 
     // Common function to store registration and proceed to checkout
@@ -323,8 +321,9 @@ const RegistrationBooking = ({
             }
         } catch (error) {
             console.error("Error storing registration:", error);
-            setOtpError("Registration failed. Please try again.");
+            setOtpError(getErrorMessage(error, "Registration failed. Please try again."));
         }
+
     };
 
     // Removed fetchEventFields useEffect as it is replaced by useQuery

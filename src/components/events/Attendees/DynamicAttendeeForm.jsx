@@ -16,6 +16,8 @@ import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { selectCheckoutDataByKey, updateAttendees } from "@/store/customSlices/checkoutDataSlice";
 import CustomBtn from "../../../utils/CustomBtn";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 const DynamicAttendeeForm = ({
   apiData = [],
@@ -81,9 +83,10 @@ const DynamicAttendeeForm = ({
     },
     onError: (err) => {
       console.error("Failed to fetch existing attendees", err);
-      ErrorAlert(err?.response?.data?.message || "Failed to fetch existing attendees");
+      ErrorAlert(getErrorMessage(err, "Failed to fetch existing attendees"));
     }
   });
+
 
   useEffect(() => {
     if (attendeesFromRedux.length === 0 && fetchedAttendees.length > 0) {

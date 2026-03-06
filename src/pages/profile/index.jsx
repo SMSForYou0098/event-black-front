@@ -6,7 +6,9 @@ import { api } from "@/lib/axiosInterceptor";
 import { useDispatch } from 'react-redux';
 import { updateUser } from '../../store/auth/authSlice';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/utils/errorUtils';
 import ProfileHeader from '../../components/events/Profile/ProfileHeader';
+
 import UserProfileModal from '../../components/events/Profile/UserProfileModal';
 import SupportOptions from '../../components/events/Profile/SupportOptions';
 
@@ -66,8 +68,9 @@ const UserProfile = () => {
       toast.success("Profile updated");
       handleCloseEdit();
     },
-    onError: () => toast.error("Update failed"),
+    onError: (err) => toast.error(getErrorMessage(err, "Update failed")),
   });
+
 
   const [formValues, setFormValues] = useState({
     name: "",
@@ -127,7 +130,8 @@ const UserProfile = () => {
   }, [apiProfile, dispatch]);
 
   if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Error: {String(error?.message || error)}</p>;
+  if (isError) return <p>Error: {getErrorMessage(error)}</p>;
+
 
   return (
     <div>

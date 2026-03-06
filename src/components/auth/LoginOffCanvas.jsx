@@ -13,6 +13,7 @@ import CustomDrawer from "../../utils/CustomDrawer";
 import Link from "next/link";
 import { useMyContext } from "@/Context/MyContextProvider";
 import Logo from "../partials/Logo";
+import { getErrorMessage } from "@/utils/errorUtils";
 
 const MODAL_VIEWS = {
     SIGN_IN: "SIGN_IN",
@@ -112,11 +113,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                 setNumber(credential);
                 setEmail("");
             }
-            setServerError(
-                error.response?.data?.error ||
-                error.response?.data?.message ||
-                "Something went wrong"
-            );
+            setServerError(getErrorMessage(error, "Something went wrong"));
             if (error?.response?.data?.meta === 404) {
                 setCurrentView(MODAL_VIEWS.SIGN_UP);
             }
@@ -135,11 +132,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             }
         },
         onError: (error) => {
-            setServerError(
-                error.response?.data?.error ||
-                error.response?.data?.message ||
-                "Something went wrong"
-            );
+            setServerError(getErrorMessage(error, "Something went wrong"));
         },
     });
 
@@ -160,7 +153,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             }
         },
         onError: (error) => {
-            setServerError(error.message || "An error occurred");
+            setServerError(getErrorMessage(error, "An error occurred"));
             setAttempts((prev) => prev + 1);
             if (attempts >= 2) {
                 dispatch(logout());
@@ -186,7 +179,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             }
         },
         onError: (error) => {
-            setServerError(error.message || "An error occurred");
+            setServerError(getErrorMessage(error, "An error occurred"));
             setAttempts((prev) => prev + 1);
             if (attempts >= 2) {
                 dispatch(logout());

@@ -8,6 +8,9 @@ import BannerSkeleton from "../../../utils/SkeletonUtils/BannerSkeleton"
 import { useSelector } from "react-redux";
 import { theme_scheme_direction } from "../../../store/setting/selectors";
 import CustomBtn from "@/utils/CustomBtn";
+import { api } from "@/lib/axiosInterceptor";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 export const getBanners = async () => {
   const response = await api.get('/banner-list/main');
@@ -57,7 +60,8 @@ export const toAbsolute = (url) => {
 };
 
 
-const CategoryBanners = ({banners=[], loading=false}) => {
+const CategoryBanners = ({ banners = [], loading = false, error = null }) => {
+
   const themeSchemeDirection = useSelector(theme_scheme_direction);
   const [toggler, setToggler] = useState(false);
 
@@ -66,12 +70,13 @@ const CategoryBanners = ({banners=[], loading=false}) => {
     return <BannerSkeleton themeSchemeDirection={themeSchemeDirection} />;
   }
 
-  if ( !banners || banners.length === 0) {
+  if (!banners || banners.length === 0) {
     return (
       <section className="banner-container section-padding-bottom">
         <div className="d-flex justify-content-center align-items-center" style={{ height: '450px' }}>
-          <p className="text-danger">Could not load banners.</p>
+          <p className="text-danger">{error ? getErrorMessage(error) : "Could not load banners."}</p>
         </div>
+
       </section>
     );
   }
@@ -114,8 +119,8 @@ const CategoryBanners = ({banners=[], loading=false}) => {
 
                 return (
                   <SwiperSlide key={banner.id || index}>
-                    <div className="movie-banner-image" style={{backgroundImage : backgroundStyle , backgroundSize: 'cover', backgroundPosition: 'center', height: '450px', position: 'relative' }}>
-                     <div className="shows-content h-100">
+                    <div className="movie-banner-image" style={{ backgroundImage: backgroundStyle, backgroundSize: 'cover', backgroundPosition: 'center', height: '450px', position: 'relative' }}>
+                      <div className="shows-content h-100">
                         <Row className="row align-items-center h-100">
                           <Col lg="7" md="12">
                             {/* NOTE: The API doesn't provide title/description, so static content is used as a template. */}
@@ -149,14 +154,14 @@ const CategoryBanners = ({banners=[], loading=false}) => {
                                 {banner?.description}
                               </p>
                             </div>
-                            <CustomBtn 
+                            <CustomBtn
                               buttonText={banner?.button_text || 'Explore Now'}
-                              HandleClick={() => {router.push(banner.redirectUrl || `/events/category/${createSlug(banner?.category).toLowerCase()}` ||'/tv-shows/detail')}}
+                              HandleClick={() => { router.push(banner.redirectUrl || `/events/category/${createSlug(banner?.category).toLowerCase()}` || '/tv-shows/detail') }}
                               customClass="mt-4 btn-sm"
                             />
                           </Col>
                           <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
-                            <div onClick={() => setToggler(!toggler)} className="video-open playbtn" style={{cursor: 'pointer'}}>
+                            <div onClick={() => setToggler(!toggler)} className="video-open playbtn" style={{ cursor: 'pointer' }}>
                               <svg
                                 version="1.1"
                                 xmlns="http://www.w3.org/2000/svg"

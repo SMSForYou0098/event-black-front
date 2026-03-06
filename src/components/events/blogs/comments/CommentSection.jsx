@@ -5,6 +5,8 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
 import { publicApi, api } from "@/lib/axiosInterceptor";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 // import CommentsSectionSkeleton from '../skeletons/CommentsSectionSkeleton';
 import { Heart, MessageCircle, Trash } from 'lucide-react';
@@ -73,7 +75,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
       );
     } catch (error) {
       console.error('Failed to toggle like:', error);
-      ErrorAlert('Error', 'Could not update like status.', 'error');
+      ErrorAlert('Error', getErrorMessage(error, 'Could not update like status.'), 'error');
     }
   };
 
@@ -93,7 +95,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
         refreshComments();
       } catch (error) {
         console.error("Delete failed:", error);
-        Swal.fire("Error", "Failed to delete the comment.", "error");
+        ErrorAlert("Error", getErrorMessage(error, "Failed to delete the comment."), "error");
       }
     }
   };

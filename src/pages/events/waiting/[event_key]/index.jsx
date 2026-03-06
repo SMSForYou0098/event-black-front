@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import { useMyContext } from '@/Context/MyContextProvider';
 import { CheckCircle, XCircle, Clock } from 'lucide-react';
 import Image from 'next/image';
+import { getErrorMessage } from '@/utils/errorUtils';
+
 
 // Rotating messages to display while waiting
 const WAITING_MESSAGES = [
@@ -95,11 +97,11 @@ const PaymentWaiting = () => {
                         } else if (data.status === 'failed') {
                             // Clear timeout since we got a response
                             if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
                             setStatus('failed');
-                            setErrorMessage(data.message || 'Payment failed. Please try again.');
+                            setErrorMessage(getErrorMessage(data, 'Payment failed. Please try again.'));
                             eventSource.close();
                         }
+
                     } catch (parseError) {
                         console.error('Error parsing SSE data:', parseError);
                     }

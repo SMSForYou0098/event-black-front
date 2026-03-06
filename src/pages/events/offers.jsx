@@ -4,6 +4,8 @@ import { api } from "@/lib/axiosInterceptor";
 import ProductCard from "@/components/cards/ProductCard";
 import { useMyContext } from "../../Context/MyContextProvider";
 import SectionList from "../../components/slider/SectionList";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 // Make this accept params (even if you keep them static for now)
 export const fetchGlobalSearch = async (searchQuery, categoryFilter) => {
@@ -34,7 +36,8 @@ const OffersPage = () => {
   });
 
   if (isLoading) return <div>Loading offers...</div>;
-  if (isError) return <div>Error: {error?.message || "Something went wrong"}</div>;
+  if (isError) return <div>Error: {getErrorMessage(error)}</div>;
+
 
   const items = data?.data || [];
 

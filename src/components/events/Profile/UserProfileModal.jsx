@@ -7,6 +7,8 @@ import { CustomHeader } from "../../../utils/ModalUtils/CustomModalHeader";
 import { api } from "@/lib/axiosInterceptor";
 import toast from "react-hot-toast";
 import { useMyContext } from "@/Context/MyContextProvider";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 const MODAL_VIEWS = {
   EDIT_FORM: "edit_form",
@@ -118,10 +120,10 @@ const UserProfileModal = ({
         setOtpSent(true);
         setCountdown(30);
       } else {
-        toast.error(response.data.message || "Failed to send OTP");
+        toast.error(getErrorMessage({ response: { data: response.data } }, "Failed to send OTP"));
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to send OTP");
+      toast.error(getErrorMessage(error, "Failed to send OTP"));
     } finally {
       setOtpLoading(false);
     }
@@ -145,12 +147,12 @@ const UserProfileModal = ({
         const sessionId = response.data.session_id;
         handleEditSubmit({ preventDefault: () => { } }, sessionId);
       } else {
-        setErrors((prev) => ({ ...prev, otp: response.data.message || "Invalid OTP" }));
+        setErrors((prev) => ({ ...prev, otp: getErrorMessage({ response: { data: response.data } }, "Invalid OTP") }));
       }
     } catch (error) {
       setErrors((prev) => ({
         ...prev,
-        otp: error?.response?.data?.message || "OTP verification failed",
+        otp: getErrorMessage(error, "OTP verification failed"),
       }));
     } finally {
       setVerifyLoading(false);

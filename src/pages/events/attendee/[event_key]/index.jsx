@@ -16,6 +16,8 @@ import Timer from "../../../../utils/BookingUtils/Timer";
 import MobileTwoButtonFooter from "../../../../utils/MobileTwoButtonFooter";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axiosInterceptor";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 export const useEventFields = (eventId, options = {}) =>
   useQuery({
@@ -90,7 +92,8 @@ const AttendeePage = () => {
         if (!mounted) return;
         setCategoryData(CData?.customFieldsData ?? []);
       } catch (err) {
-        console.error("Failed to fetch category data", err);
+        console.error("Failed to fetch category data", getErrorMessage(err));
+
         if (mounted) setCategoryData([]);
       } finally {
         if (mounted) setLoadingCategory(false);

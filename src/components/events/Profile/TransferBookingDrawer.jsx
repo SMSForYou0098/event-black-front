@@ -5,6 +5,8 @@ import CustomDrawer from '@/utils/CustomDrawer';
 import CustomBtn from '@/utils/CustomBtn';
 import { getUserByPhone, createTransferUser, transferBooking, verifyTransferOtp } from '@/services/transferService';
 import { useMyContext } from '@/Context/MyContextProvider';
+import { getErrorMessage } from '@/utils/errorUtils';
+
 
 // Step Indicator Component – accepts dynamic steps (3 or 4)
 export const StepIndicator = ({ steps, currentStep }) => (
@@ -237,7 +239,7 @@ const TransferBookingDrawer = ({
                 setTargetUser(null);
             }
         } catch (err) {
-            setError('Failed to search user');
+            setError(getErrorMessage(err, 'Failed to search user'));
             setUserFound(false);
         } finally {
             setIsSearching(false);
@@ -299,17 +301,10 @@ const TransferBookingDrawer = ({
                     setSuccess('OTP sent to ' + formData.phone);
                 }
             } else {
-                let errorMessage = response.message || 'Failed to verify user';
-                if (response.errors && typeof response.errors === 'object') {
-                    const specificErrors = Object.values(response.errors).flat();
-                    if (specificErrors.length > 0) {
-                        errorMessage = specificErrors.join(' ');
-                    }
-                }
-                setError(errorMessage);
+                setError(getErrorMessage({ response: { data: response } }, 'Failed to verify user'));
             }
         } catch (err) {
-            setError('An error occurred. Please try again.');
+            setError(getErrorMessage(err, 'An error occurred. Please try again.'));
         } finally {
             setIsSendingOtp(false);
         }
@@ -343,17 +338,10 @@ const TransferBookingDrawer = ({
                     }));
                 }
             } else {
-                let errorMessage = verifyResponse.message || 'Invalid OTP. Please try again.';
-                if (verifyResponse.errors && typeof verifyResponse.errors === 'object') {
-                    const specificErrors = Object.values(verifyResponse.errors).flat();
-                    if (specificErrors.length > 0) {
-                        errorMessage = specificErrors.join(' ');
-                    }
-                }
-                setError(errorMessage);
+                setError(getErrorMessage({ response: { data: verifyResponse } }, 'Invalid OTP. Please try again.'));
             }
         } catch (err) {
-            setError('Failed to verify OTP');
+            setError(getErrorMessage(err, 'Failed to verify OTP'));
         } finally {
             setIsVerifyingOtp(false);
         }
@@ -388,19 +376,11 @@ const TransferBookingDrawer = ({
                 handleClose();
                 onTransferSuccess?.();
             } else {
-                // If there's an errors object, extract the specific messages
-                let errorMessage = transferResponse.message || 'Failed to transfer booking';
-                if (transferResponse.errors && typeof transferResponse.errors === 'object') {
-                    const specificErrors = Object.values(transferResponse.errors).flat();
-                    if (specificErrors.length > 0) {
-                        errorMessage = specificErrors.join(' ');
-                    }
-                }
-                setError(errorMessage);
+                setError(getErrorMessage({ response: { data: transferResponse } }, 'Failed to transfer booking'));
             }
         } catch (err) {
             console.error('Transfer error:', err);
-            setError('An error occurred during transfer');
+            setError(getErrorMessage(err, 'An error occurred during transfer'));
         } finally {
             setIsTransferring(false);
         }

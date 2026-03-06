@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axiosInterceptor";
 import { CategorySEO } from "../../../../components/events/SEO";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 import EventsByCat from "../../../../components/events/CategoryPageComps/EventsByCat";
 
 const fetchCategoryEvents = async (category_name) => {
@@ -87,8 +89,9 @@ const EventsByCategory = () => {
   if (eventsError) {
     return (
       <div className="mt-5 pt-5">
-        Error fetching category data: {eventsErrorObj?.message || "Unknown error"}
+        Error fetching category data: {getErrorMessage(eventsErrorObj, "Unknown error")}
       </div>
+
     );
   }
 
@@ -109,10 +112,13 @@ const EventsByCategory = () => {
         <EventsByCat
           bannerData={bannerData}
           bannerLoading={bannersLoading}
+          bannerError={bannersErrorObj}
           eventsData={categoryData?.events}
           eventLoading={eventsLoading}
+          eventError={eventsErrorObj}
           title={categoryData?.category}
         />
+
       </div>
     </>
   );

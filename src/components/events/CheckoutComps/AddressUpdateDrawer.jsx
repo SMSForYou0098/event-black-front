@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import CustomDrawer from '../../../utils/CustomDrawer';
 import { Form, Spinner, Modal } from 'react-bootstrap';
 import CustomBtn from '../../../utils/CustomBtn';
+import { getErrorMessage } from '../../../utils/errorUtils';
 import { api } from '@/lib/axiosInterceptor';
 import { useMyContext } from '@/Context/MyContextProvider';
 
 import { useDispatch } from 'react-redux';
 import { updateUserAddress } from '@/store/auth/authSlice';
 
-import { PenLine, PenLineIcon, X } from 'lucide-react';
+import { PenLine, X } from 'lucide-react';
+
 import { useMediaQuery } from 'react-responsive';
 
 const AddressUpdateDrawer = ({ open, onClose, userData, onSuccess }) => {
@@ -29,8 +31,9 @@ const AddressUpdateDrawer = ({ open, onClose, userData, onSuccess }) => {
     }, [userData]);
 
     const handleAction = async () => {
-        // If not editing, just proceed
+        // If not editing, just proceed by confirming current address
         if (!isEditing) {
+            onSuccess?.(address);
             onClose();
             return;
         }
@@ -48,18 +51,18 @@ const AddressUpdateDrawer = ({ open, onClose, userData, onSuccess }) => {
             if (res.data.status) {
                 successAlert(res.data.message || "Address updated successfully");
                 dispatch(updateUserAddress(address)); // Update Redux state
-                onSuccess(address);
+                onSuccess?.(address);
                 onClose();
             } else {
-                ErrorAlert(res.data.message || "Failed to update address");
+                ErrorAlert(getErrorMessage(res.data, "Failed to update address"));
             }
         } catch (error) {
-            // console.error("Address update failed", error);
-            ErrorAlert(error?.response?.data?.message || "Something went wrong");
+            ErrorAlert(getErrorMessage(error, "Something went wrong"));
         } finally {
             setLoading(false);
         }
     };
+
 
     const renderFormContent = () => (
         <div>
@@ -68,11 +71,12 @@ const AddressUpdateDrawer = ({ open, onClose, userData, onSuccess }) => {
                 {!isEditing && (
                     <CustomBtn
                         buttonText=""
-                        icon={<PenLineIcon size={16} />}
+                        icon={<PenLine size={16} />}
                         HandleClick={() => setIsEditing(true)}
                         size="sm"
                     />
                 )}
+
             </div>
 
             <Form.Group className="mb-4">

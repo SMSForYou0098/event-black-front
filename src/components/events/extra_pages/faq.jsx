@@ -7,6 +7,8 @@ import { Col, Container, Row, Spinner } from "react-bootstrap";
 
 // Custom Hook
 import { useBreadcrumb } from "@/utilities/usePage";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 const FAQPage = memo(() => {
   // State to manage which accordion item is currently open
@@ -50,9 +52,9 @@ const FAQPage = memo(() => {
     const uniqueCategories = new Map();
     faqs.forEach(faq => {
       if (faq.category_data && !uniqueCategories.has(faq.category_data.id)) {
-        uniqueCategories.set(faq.category_data.id, { 
-          id: faq.category_data.id, 
-          title: faq.category_data.title 
+        uniqueCategories.set(faq.category_data.id, {
+          id: faq.category_data.id,
+          title: faq.category_data.title
         });
       }
     });
@@ -85,8 +87,9 @@ const FAQPage = memo(() => {
           <Row>
             <Col lg="12" sm="12">
               <div className="text-center text-danger">
-                Error: {error.message}
+                Error: {getErrorMessage(error, "Failed to fetch FAQs")}
               </div>
+
             </Col>
           </Row>
         </Container>
@@ -118,7 +121,7 @@ const FAQPage = memo(() => {
                         onClick={() => toggleAccordion(faqItem.id)}
                       >
                         <div className="iq-accordian-title">
-                          <div className="iq-icon-right"   style={{ backgroundColor: "var(--bs-body-bg)" }}>
+                          <div className="iq-icon-right" style={{ backgroundColor: "var(--bs-body-bg)" }}>
                             <i aria-hidden="true" className="fa fa-minus active bd"></i>
                             <i aria-hidden="true" className="fa fa-plus inactive"></i>
                           </div>

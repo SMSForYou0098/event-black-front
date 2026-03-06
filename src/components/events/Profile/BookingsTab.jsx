@@ -11,6 +11,8 @@ import BookingCard from './BookingCard';
 import GlassCard from './../../../utils/ProfileUtils/GlassCard';
 import CustomBtn from '../../../utils/CustomBtn';
 import { MobileOnly, TabletAndDesktop, DesktopOnly } from "@/utils/ResponsiveRenderer";
+import { getErrorMessage } from '@/utils/errorUtils';
+
 
 // Constants
 const DEBOUNCE_DELAY = 300;
@@ -284,8 +286,9 @@ const BookingsTab = () => {
         <Card.Header>{searchControls}</Card.Header>
         <Card.Body className="px-2 px-sm-4">
           <div className="text-center text-danger py-4">
-            <p>Error loading bookings: {error?.message || 'Unknown error'}</p>
+            <p>Error loading bookings: {getErrorMessage(error, 'Unknown error')}</p>
             <Button variant="outline-primary" size="sm" onClick={() => refetch()}>
+
               Retry
             </Button>
           </div>

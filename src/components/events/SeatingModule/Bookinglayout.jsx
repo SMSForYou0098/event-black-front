@@ -8,6 +8,8 @@ import { Clock, Loader } from 'lucide-react';
 import BookingSeatCanvas from './components/BookingSeatCanvasWrapper';
 import EventSeatsListener from './EventSeatsListener';
 import { useMyContext } from '@/Context/MyContextProvider';
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 const BookingLayout = (props) => {
     const { layoutId, eventId, setSelectedTkts, event, cartItems } = props;
@@ -162,7 +164,8 @@ const BookingLayout = (props) => {
                 if (!isMounted) return;
 
                 console.error('Error fetching layout:', error);
-                toast.error('Failed to load seating layout');
+                toast.error(getErrorMessage(error, 'Failed to load seating layout'));
+
             } finally {
                 if (isMounted) {
                     setIsLoading(false);
@@ -273,8 +276,9 @@ const BookingLayout = (props) => {
 
         } catch (error) {
             console.error('Booking error:', error);
-            toast.error('Failed to complete booking. Please try again.');
+            toast.error(getErrorMessage(error, 'Failed to complete booking. Please try again.'));
         } finally {
+
             setIsProcessing(false);
         }
     };

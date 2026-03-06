@@ -1,5 +1,5 @@
-// Next.js API route for Server-Sent Events payment status stream
 // This is a mock/test implementation - integrate with your actual payment verification logic
+import { getErrorMessage } from '@/utils/errorUtils';
 
 export default function handler(req, res) {
     const { session_id } = req.query;
@@ -38,7 +38,8 @@ export default function handler(req, res) {
 
         } catch (error) {
             console.error('SSE error:', error);
-            res.write(`data: ${JSON.stringify({ status: 'failed', message: 'Error checking payment status' })}\n\n`);
+            const errorMessage = getErrorMessage(error, 'Error checking payment status');
+            res.write(`data: ${JSON.stringify({ status: 'failed', message: errorMessage })}\n\n`);
             clearInterval(checkInterval);
             res.end();
         }

@@ -17,7 +17,9 @@ import { useCreateReview, useUpdateReview } from "@/hooks/useReviews";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { Star } from "lucide-react";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "@/utils/errorUtils";
 import TermsAccordion from "./TermsAccordion";
+
 
 const EventDetailPage = memo(({ eventData, event_key }) => {
   // --- Data Processing ---
@@ -67,7 +69,7 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
       setShowReviewForm(false);
       setEditingReview(null);
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Failed to submit review');
+      toast.error(getErrorMessage(err, 'Failed to submit review'));
     }
   };
 

@@ -5,7 +5,9 @@ import { useToggleInterest, useMyInterests } from "@/hooks/useInterest";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "@/utils/errorUtils";
 import CustomBtn from "../../utils/CustomBtn";
+
 
 /**
  * InterestButton Component (BookMyShow-style)
@@ -68,8 +70,9 @@ const InterestButton = ({ eventId, eventData, onLoginRequired, className = "" })
             setInterestCount((prev) =>
                 !isInterested ? prev + 1 : Math.max(0, prev - 1)
             );
-            toast.error(err?.response?.data?.message || "Failed to update interest");
+            toast.error(getErrorMessage(err, "Failed to update interest"));
         }
+
     };
 
     const isLoading = toggleMutation.isPending;

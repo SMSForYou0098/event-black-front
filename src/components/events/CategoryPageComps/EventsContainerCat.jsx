@@ -6,8 +6,11 @@ import SkeletonLoader from '../../../utils/SkeletonUtils/SkeletonLoader'
 import { Ticket } from "lucide-react";
 import CustomBtn from "../../../utils/CustomBtn";
 import { useRouter } from "next/router";
+import { getErrorMessage } from "@/utils/errorUtils";
 
-const EventsContainerCat = ({ events = [], loading = false, title }) => {
+
+const EventsContainerCat = ({ events = [], loading = false, error = null, title }) => {
+
   const { createSlug } = useMyContext();
   if (loading) {
     return <SkeletonLoader />
@@ -19,10 +22,11 @@ const EventsContainerCat = ({ events = [], loading = false, title }) => {
         <Row className="justify-content-center">
           <Col md={6}>
             <Ticket className="text-warning" />
-            <h4 className="fw-semibold text-secondary">No Active Events</h4>
+            <h4 className="fw-semibold text-secondary">{error ? "Error Loading Events" : "No Active Events"}</h4>
             <p className="text-muted mt-2">
-              There are currently no active events. Please check back later or try refreshing.
+              {error ? getErrorMessage(error) : "There are currently no active events. Please check back later or try refreshing."}
             </p>
+
             <CustomBtn
               variant="primary"
               disabled={loading}

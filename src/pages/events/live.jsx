@@ -5,6 +5,8 @@ import ProductCard from "@/components/cards/ProductCard";
 import { useMyContext } from "../../Context/MyContextProvider";
 import SectionList from "../../components/slider/SectionList";
 import { fetchGlobalSearch } from "./offers";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 const OffersPage = () => {
 
@@ -25,7 +27,8 @@ const OffersPage = () => {
   });
 
   if (isLoading) return <div>Loading offers...</div>;
-  if (isError) return <div>Error: {error?.message || "Something went wrong"}</div>;
+  if (isError) return <div>Error: {getErrorMessage(error)}</div>;
+
 
   const items = data?.data || [];
 

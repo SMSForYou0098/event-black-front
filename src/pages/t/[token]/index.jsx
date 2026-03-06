@@ -9,6 +9,8 @@ import Image from "next/image";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { publicApi } from "@/lib/axiosInterceptor";
 import TicketErrorDisplay from "@/components/errors/TicketErrorDisplay";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 // Extracted Components
 import TicketInfoCard from "@/components/Tickets/Token/TicketInfoCard";
@@ -28,10 +30,9 @@ const fetchToken = async (orderId) => {
     }
     return data; // Return full response including 'token' and 'group'
   } catch (error) {
-    // Extract message from axios error response
-    const message = error.response?.data?.message || error.message || "Invalid Request";
-    throw new Error(message);
+    throw new Error(getErrorMessage(error, "Invalid Request"));
   }
+
 };
 
 const fetchGanCard = async (token) => {
@@ -166,7 +167,8 @@ const UserCard = () => {
   // Computed values
   const isLoading = isTokenLoading || isTicketLoading;
   const hasError = isTokenError || isTicketError;
-  const errorMessage = tokenError?.message || ticketError?.message || "No ticket data available";
+  const errorMessage = getErrorMessage(tokenError || ticketError, "No ticket data available");
+
 
   const ticketCount = useMemo(() => ticketData?.data?.length || 0, [ticketData]);
 

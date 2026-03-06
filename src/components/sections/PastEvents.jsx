@@ -8,6 +8,8 @@ import ContinueWatchCard from "../cards/ContinueWatchCard";
 
 // Utils
 import { api } from "@/lib/axiosInterceptor";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 
 const PastEvents = memo(({ type = 'events', viewSlider = true, hideViewAll = true }) => {
   const [title] = useState("Past Events");
@@ -45,11 +47,10 @@ const PastEvents = memo(({ type = 'events', viewSlider = true, hideViewAll = tru
   if (isLoading) {
     return <div>Loading past events...</div>;
   }
-
   if (isError) {
     return (
       <div className="text-danger">
-        Failed to load past events: {error?.message || "Unknown error"}
+        Failed to load past events: {getErrorMessage(error)}
       </div>
     );
   }

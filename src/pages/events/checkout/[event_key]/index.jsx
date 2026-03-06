@@ -12,7 +12,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { selectCheckoutDataByKey, clearCheckoutData } from "@/store/customSlices/checkoutDataSlice";
 import { api } from "@/lib/axiosInterceptor";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ErrorExtractor } from "@/utils/consts";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 import { checkForDuplicateAttendees, sanitizeInput, validateAttendeeData } from "../../../../components/CustomComponents/AttendeeStroreUtils";
 import Swal from "sweetalert2";
 import Timer from "../../../../utils/BookingUtils/Timer";
@@ -97,7 +98,7 @@ const CartPage = () => {
     },
 
     onError: (err) => {
-      ErrorAlert(ErrorExtractor(err));
+      ErrorAlert(getErrorMessage(err, 'Failed to apply promo code'));
     },
   });
 
@@ -666,37 +667,18 @@ const CartPage = () => {
 
   // Handle booking errors
   const handleBookingError = (error) => {
-    // ✅ NEW: Specific error handling with retry option
-    let errorMessage = 'An error occurred while processing your booking.';
-    let shouldRetry = false;
+    // ✅ Use centralized utility for consistent error messaging
+    const errorMessage = getErrorMessage(error, 'An error occurred while processing your booking.');
 
-    // No response: either network error or API returned 200 with status: false (business rule error)
-    if (!error.response) {
-      errorMessage = error?.message || 'Network error. Please check your internet connection and try again.';
-      // Only suggest retry for real network failures, not for API messages (e.g. "You can only select up to 2 tickets")
-      const isLikelyNetworkError = !error?.message || error.message.includes('Network') || error.message === 'Payment initiation failed';
-      shouldRetry = isLikelyNetworkError;
-    }
     // Server errors (5xx)
-    else if (error.response.status >= 500) {
-      errorMessage = 'Server error. Please try again in a moment.';
-      shouldRetry = true;
-    }
-    // Client errors (4xx)
-    else if (error.response.status >= 400) {
-      errorMessage = error.response.data?.message ||
-        error.response.data?.error ||
-        'Invalid booking request. Please check your details.';
+    const isServerError = error.response?.status >= 500;
+    // Network errors
+    const isNetworkError = !error.response || error.message?.includes('Network') || error.message === 'Payment initiation failed';
 
-      // Specific error codes
-      if (error.response.status === 409) {
-        errorMessage = 'Tickets are no longer available. Please try a different ticket.';
-      } else if (error.response.status === 401) {
-        errorMessage = 'Session expired. Please refresh and try again.';
-      }
-    }
+    const shouldRetry = isServerError || isNetworkError;
 
     setError(errorMessage);
+
 
     // 🔧 Offer retry for recoverable errors
     if (shouldRetry) {

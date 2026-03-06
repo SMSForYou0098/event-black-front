@@ -14,7 +14,9 @@ import { MobileOnly, TabletAndDesktop } from "@/utils/ResponsiveRenderer";
 import ReviewForm from "../../reviews/ReviewForm";
 import { useCreateReview, useUpdateReview } from "@/hooks/useReviews";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "@/utils/errorUtils";
 import TermsAccordion from "./TermsAccordion";
+
 
 const EventMetaInfo = ({ metaInfo, event_key, eventData, handleShare }) => {
   const { setShowHeaderBookBtn, isMobile, formatDateDDMMYYYY, UserData } = useMyContext();
@@ -59,7 +61,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData, handleShare }) => {
       setShowReviewForm(false);
       setEditingReview(null);
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Failed to submit review');
+      toast.error(getErrorMessage(err, 'Failed to submit review'));
     }
   };
 

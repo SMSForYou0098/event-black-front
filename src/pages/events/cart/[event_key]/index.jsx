@@ -27,6 +27,8 @@ import toast from "react-hot-toast";
 import RegistrationBooking from "../../../../components/events/RegistrationBooking/RegistrationBooking";
 import CustomHeader from "../../../../utils/ModalUtils/CustomModalHeader";
 import MobileTwoButtonFooter from "../../../../utils/MobileTwoButtonFooter";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 const CartPage = () => {
   const { event_key, section: sectionParam, row: rowParam } = useRouter().query;
 
@@ -84,7 +86,7 @@ const CartPage = () => {
     },
     onError: (error) => {
       console.error('Failed to lock seats:', error);
-      ErrorAlert(error?.response?.data?.message || error?.message || 'Failed to lock seats. Please try again.');
+      ErrorAlert(getErrorMessage(error, 'Failed to lock seats. Please try again.'));
     },
   });
 
@@ -269,7 +271,7 @@ const CartPage = () => {
       return true; // allowed
     } catch (error) {
       console.error("Error checking ticket status:", error);
-      ErrorAlert(error || "Unable to check ticket status. Please try again.");
+      ErrorAlert(getErrorMessage(error, "Unable to check ticket status. Please try again."));
       return false;
     } finally {
       setIsChecking(false);

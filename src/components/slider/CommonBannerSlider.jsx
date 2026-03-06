@@ -9,6 +9,8 @@ import FsLightbox from "fslightbox-react";
 import { useQuery } from "@tanstack/react-query";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { api } from "@/lib/axiosInterceptor";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 import BannerSkeleton from "../../utils/SkeletonUtils/BannerSkeleton";
 import CustomBtn from "@/utils/CustomBtn";
 import { useRouter } from "next/router";
@@ -63,15 +65,17 @@ export const toAbsolute = (url) => {
  * - banners: [] (used when type !== 'main')
  * - loading: boolean (used when type !== 'main')
  */
-const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loading: propLoading = false }) => {
+const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loading: propLoading = false, error: propError = null }) => {
+
   const themeSchemeDirection = useSelector(theme_scheme_direction);
   const [toggler, setToggler] = useState(false);
   const { createSlug } = useMyContext();
   const router = useRouter();
   const [currentMediaUrl, setCurrentMediaUrl] = useState(''); // NEW: Track current media URL
   // Only call API when type is 'main'
-  const { data: apiBanners, isLoading: apiLoading, isError } = useQuery({
+  const { data: apiBanners, isLoading: apiLoading, isError, error: apiError } = useQuery({
     queryKey: ['banners'],
+
     queryFn: getBanners,
     enabled: type === 'main',
     cacheTime: 1000 * 60 * 30, // 30 min
@@ -101,15 +105,17 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
   // show skeleton while load
 
   // show error message on network error (only for main type)
-  if (isError && type === 'main') {
+  // show error message on network error
+  if ((isError || propError) && (type === 'main' || propError)) {
     return (
       <section className="banner-container section-padding-bottom">
         <div className="d-flex justify-content-center align-items-center" style={{ height: '450px' }}>
-          <p className="text-danger">Could not load banners.</p>
+          <p className="text-danger">Error loading banners: {getErrorMessage(apiError || propError)}</p>
         </div>
       </section>
     );
   }
+
 
 
   const handleBannerNavigation = (banner) => {

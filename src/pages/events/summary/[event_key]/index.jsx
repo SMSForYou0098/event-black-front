@@ -10,6 +10,8 @@ import ReactDOMServer from "react-dom/server";
 import { AttendeesOffcanvas, ETicketAlert, TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
 import { api } from "@/lib/axiosInterceptor"
 import { useMyContext } from "@/Context/MyContextProvider";
+import { getErrorMessage } from "@/utils/errorUtils";
+
 import BookingSummarySkeleton from '../../../../utils/SkeletonUtils/BookingSummarySkeleton';
 import { FaWhatsapp, FaSms } from "react-icons/fa";
 import { MdEmail, } from "react-icons/md";
@@ -98,8 +100,9 @@ const BookingSummary = () => {
                     }
                 });
             } else {
-                ErrorAlert(err?.response?.data?.message || err?.response?.data?.error || err?.message || "An error occurred");
+                ErrorAlert(getErrorMessage(err, "An error occurred"));
             }
+
         },
     });
 
