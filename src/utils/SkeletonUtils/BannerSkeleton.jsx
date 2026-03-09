@@ -29,11 +29,11 @@ const BannerSkeleton = memo(() => {
               <SwiperSlide key={index}>
                 <div className="movie-banner-image position-relative">
                   <Placeholder animation="glow">
-                    <Placeholder 
-                      xs={12} 
-                      style={{ height: '150px' }} 
-                      bg="dark" 
-                      className="w-100 d-block" 
+                    <Placeholder
+                      xs={12}
+                      style={{ height: '150px' }}
+                      bg="dark"
+                      className="w-100 d-block"
                     />
                   </Placeholder>
                 </div>
@@ -50,10 +50,10 @@ const BannerSkeleton = memo(() => {
                     </Col>
                     <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
                       <Placeholder animation="glow" className="d-flex justify-content-center">
-                        <Placeholder 
-                          xs={1} 
-                          bg="secondary" 
-                          style={{ height: '80px', width: '80px', borderRadius: '50%' }} 
+                        <Placeholder
+                          xs={1}
+                          bg="secondary"
+                          style={{ height: '80px', width: '80px', borderRadius: '50%' }}
                         />
                       </Placeholder>
                     </Col>

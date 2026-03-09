@@ -620,6 +620,17 @@ const CartPage = () => {
                   </div>
 
                   {/* Checkout button — same for desktop column and mobile drawer */}
+                </CardContainer>
+                <CardContainer>
+                  {eventDetails.map((detail, index) => (
+                    <DetailItem
+                      key={detail.label}
+                      icon={detail.icon}
+                      label={detail.label}
+                      value={detail.value}
+                      isLast={index === eventDetails.length - 1}
+                    />
+                  ))}
                   <div className="mt-2 text-center">
                     {isBelow991 ? (
                       <MobileTwoButtonFooter
@@ -663,17 +674,6 @@ const CartPage = () => {
                     )}
                   </div>
                 </CardContainer>
-                <CardContainer>
-                  {eventDetails.map((detail, index) => (
-                    <DetailItem
-                      key={detail.label}
-                      icon={detail.icon}
-                      label={detail.label}
-                      value={detail.value}
-                      isLast={index === eventDetails.length - 1}
-                    />
-                  ))}
-                </CardContainer>
 
 
                 {/* Spacer for mobile to prevent overlapping with sticky footer */}
@@ -695,7 +695,14 @@ const CartPage = () => {
                   <CustomDrawer
                     showOffcanvas={showCartDrawer}
                     setShowOffcanvas={setShowCartDrawer}
-                    title="Cart Overview"
+                    title={<>
+                      <CardHeader
+                        icon={Ticket}
+                        title="Cart Overview"
+                        iconColor="text-warning"
+                        className=''
+                      />
+                    </>}
                     placement="bottom"
                     className="bg-dark text-white"
                     style={{ height: "auto" }}

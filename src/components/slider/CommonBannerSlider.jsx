@@ -12,10 +12,22 @@ import { api } from "@/lib/axiosInterceptor";
 import { getErrorMessage } from "@/utils/errorUtils";
 
 import BannerSkeleton from "../../utils/SkeletonUtils/BannerSkeleton";
-import CustomBtn from "@/utils/CustomBtn";
+import CustomBtn from "../../utils/CustomBtn";
 import { useRouter } from "next/router";
 import CommonMobileSlider from "./CommonMobileSlider"
-import { MobileOnly, DesktopOnly } from "@/utils/ResponsiveRenderer";
+import { MobileOnly, DesktopOnly } from "../../utils/ResponsiveRenderer";
+
+const desktopSwiperConfig = {
+  navigation: {
+    prevEl: ".swiper-banner-button-prev",
+    nextEl: ".swiper-banner-button-next",
+  },
+  slidesPerView: 1.2,
+  modules: [Navigation],
+  loop: true,
+  centeredSlides: true,
+  className: "swiper-banner-container"
+};
 
 /* --------- Helpers ---------- */
 export const getBanners = async () => {
@@ -202,19 +214,6 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
     }
   };
 
-  const desktopSwiperConfig = {
-    dir: String(themeSchemeDirection),
-    navigation: {
-      prevEl: ".swiper-banner-button-prev",
-      nextEl: ".swiper-banner-button-next",
-    },
-    slidesPerView: 1.2,
-    modules: [Navigation],
-    loop: true,
-    centeredSlides: true,
-    className: "swiper-banner-container"
-  };
-
   return (
     <Fragment>
       <section className="banner-container section-padding-bottom pb-0">
@@ -235,7 +234,12 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
 
             <DesktopOnly>
               {loading ? <BannerSkeleton themeSchemeDirection={themeSchemeDirection} /> : (
-                <Swiper style={{ maxHeight: "450px" }} key={`desktop-${String(themeSchemeDirection)}`} {...desktopSwiperConfig}>
+                <Swiper
+                  style={{ maxHeight: "450px" }}
+                  key={`desktop-${String(themeSchemeDirection)}`}
+                  dir={String(themeSchemeDirection)}
+                  {...desktopSwiperConfig}
+                >
                   {bannersToRender.map((banner, index) => {
                     // Direct usage - no extraction needed
                     const imageUrl = banner.images || ''; // fallback to empty string if null

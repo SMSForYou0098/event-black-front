@@ -133,7 +133,7 @@ const TermsAccordion = ({
                         <div style={{ paddingBottom: onAgree ? "80px" : "0" }}>
                             {onlineTerms && (
                                 <div className={offlineTerms ? "mb-4" : ""}>
-                                    <h6 className="fw-bold mb-3 text-primary">Online Ticket Terms</h6>
+                                    {/* <h6 className="fw-bold mb-3 text-primary">Ticket Terms</h6> */}
                                     <div
                                         className="description-content"
                                         style={{ whiteSpace: "pre-line", lineHeight: "1.6" }}
@@ -141,7 +141,7 @@ const TermsAccordion = ({
                                     />
                                 </div>
                             )}
-                            {offlineTerms && (
+                            {/* {offlineTerms && (
                                 <div>
                                     <h6 className="fw-bold mb-3 text-primary">Offline Ticket Terms</h6>
                                     <div
@@ -150,7 +150,7 @@ const TermsAccordion = ({
                                         dangerouslySetInnerHTML={{ __html: offlineTerms }}
                                     />
                                 </div>
-                            )}
+                            )} */}
                         </div>
 
                         {/* Agree Section */}

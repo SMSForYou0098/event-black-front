@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper";
 import Image from 'next/image';
 
-const CommonMobileSlider = ({ banners = [], themeSchemeDirection, handleBannerNavigation }) => {
+const CommonMobileSlider = memo(({ banners = [], themeSchemeDirection, handleBannerNavigation }) => {
   return (
     <Swiper
       key={`mobile-${String(themeSchemeDirection)}`}
@@ -21,17 +21,17 @@ const CommonMobileSlider = ({ banners = [], themeSchemeDirection, handleBannerNa
 
         return (
           <SwiperSlide className="slide m-0 p-0 home-slider" key={banner.id || index}>
-            <div 
-              onClick={() => handleBannerNavigation(banner)} 
+            <div
+              onClick={() => handleBannerNavigation(banner)}
               className="card-link d-block"
               style={{ cursor: 'pointer' }}
             >
-              <Image 
-                height={606} 
-                width={1906} 
-                src={imgSrc} 
-                alt={banner?.title || "banner"} 
-                className="img-fluid w-100" 
+              <Image
+                height={606}
+                width={1906}
+                src={imgSrc}
+                alt={banner?.title || "banner"}
+                className="img-fluid w-100"
               />
             </div>
           </SwiperSlide>
@@ -52,6 +52,7 @@ const CommonMobileSlider = ({ banners = [], themeSchemeDirection, handleBannerNa
       </div>
     </Swiper>
   )
-}
+})
 
+CommonMobileSlider.displayName = 'CommonMobileSlider';
 export default CommonMobileSlider

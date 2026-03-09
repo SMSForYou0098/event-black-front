@@ -93,7 +93,7 @@ const CartPage = () => {
         // optional: refresh any queries relying on checkout/pricing
         // queryClient.invalidateQueries(['checkout', checkoutKey]);
       } else {
-        ErrorAlert(resp?.message || 'Failed to apply promo code');
+        ErrorAlert(getErrorMessage(resp, 'Failed to apply promo code'));
       }
     },
 
@@ -581,9 +581,8 @@ const CartPage = () => {
         throw new Error('Failed to save session data');
       }
       // Handle Razorpay
-      // console.log('status after condition:', response.data.callback_url);
       if (response.data.callback_url) {
-        handleRazorpayPayment(response.data, systemSetting);
+        handleRazorpayPayment(response.data, systemSetting, sessionId);
         return;  // ✅ Exit after initiating Razorpay
       }
 
@@ -598,7 +597,7 @@ const CartPage = () => {
 
     } else {
       // API returned 200 with status: false (e.g. "You can only select up to 2 tickets at a time.")
-      const apiMessage = response?.data?.message || 'Payment initiation failed';
+      const apiMessage = getErrorMessage(response?.data, 'Payment initiation failed');
       throw new Error(apiMessage);
     }
   };
@@ -629,7 +628,7 @@ const CartPage = () => {
   };
 
   // Handle Razorpay payment
-  const handleRazorpayPayment = (orderData, systemSetting) => {
+  const handleRazorpayPayment = (orderData, systemSetting, sessionId) => {
     const options = {
       key: orderData.key,
       amount: orderData.amount,
@@ -647,7 +646,7 @@ const CartPage = () => {
         color: '#000',
       },
       handler: function (response) {
-        verifyPaymentAndRedirect(response);
+        verifyPaymentAndRedirect(response, sessionId);
       },
       modal: {
         ondismiss: function () {
@@ -663,6 +662,16 @@ const CartPage = () => {
 
     const rzp = new window.Razorpay(options);
     rzp.open();
+  };
+
+  // Verify payment and redirect to waiting page
+  const verifyPaymentAndRedirect = (rzpResponse, sessionId) => {
+    if (sessionId) {
+      router.push(`/events/waiting/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(sessionId)}`);
+    } else {
+      console.error('❌ Session ID missing for redirection');
+      ErrorAlert('Something went wrong. Please check your bookings.');
+    }
   };
 
   // Handle booking errors
