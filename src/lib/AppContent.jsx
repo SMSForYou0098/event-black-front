@@ -9,6 +9,7 @@ import { SEOHead } from '@/utils/seo/seo';
 import toast from 'react-hot-toast';
 import { getInactivityLimit, ACTIVITY_DEBOUNCE_MS } from '@/config/sessionConfig';
 import { store } from '@/store';
+import { setAuthToken, removeAuthToken } from '@/utils/cookieUtils';
 
 function AppContent({ children }) {
   const { userRole, api, systemSetting } = useMyContext();
@@ -100,6 +101,16 @@ function AppContent({ children }) {
       activityEvents.forEach(event => document.removeEventListener(event, onActivity));
     };
   }, [userData?.role, handleLogout, dispatch, lastActivity]);
+
+  // ─── Sync Redux token → cookie (so middleware can read it) ────────────────
+  const authToken = useSelector((state) => state.auth.token);
+  useEffect(() => {
+    if (authToken) {
+      setAuthToken(authToken, 2); // keep in sync with signIn.fulfilled (2 days)
+    } else {
+      removeAuthToken();
+    }
+  }, [authToken]);
 
   // ─── Initial app setup (runs once) ────────────────────────────────────────
   useEffect(() => {

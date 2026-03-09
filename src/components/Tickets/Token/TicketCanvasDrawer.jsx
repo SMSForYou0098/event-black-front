@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { Row, Col } from "react-bootstrap";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper";
 import "swiper/css";
@@ -94,112 +95,111 @@ const TicketCanvasDrawer = ({
                 ) : (
                     // Ticket Display in Drawer
                     <>
-                        <div className="flex-grow-1 overflow-auto p-3 bg-black">
-                            <div className="d-flex align-items-center justify-content-center h-100">
-                                {drawerType === "combine" || drawerType === "single" ? (
-                                    <div className="text-center w-100">
-                                        {imageLoaded ? (
-                                            <div className="d-flex flex-column align-items-center">
-                                                <TicketCanvasView
-                                                    ref={singleCanvasRef}
-                                                    showDetails={true}
-                                                    preloadedImage={cardImageUrl}
-                                                    ticketNumber={drawerType === "single" ? 1 : undefined}
-                                                    onReady={() => setIsCanvasReady(true)}
-                                                    ticketData={{
-                                                        ticket: {
-                                                            name: ticketData?.ticket?.name || "Event Ticket",
-                                                            price: ticketData?.ticket?.price,
-                                                            currency: ticketData?.ticket?.currency,
-                                                            background_image: cardImageUrl,
-                                                            event: {
-                                                                name: ticketData?.event?.name,
-                                                                date_range: ticketData?.event?.date_range,
-                                                                start_time: ticketData?.event?.start_time,
-                                                                entry_time: ticketData?.event?.entry_time,
-                                                                address: ticketData?.event?.address || "Venue not specified",
+                        <div className="flex-grow-1 overflow-auto p-3 bg-black" style={{ minHeight: 0 }}>
+                            {/* Loading state handled by imageLoaded */}
+                            {!imageLoaded && (
+                                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+                                    <div className="spinner-border text-primary" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {imageLoaded && (
+                                <Row className="justify-content-center">
+                                    <Col lg={12}>
+                                        {drawerType === "combine" || drawerType === "single" ? (
+                                            <div className="text-center w-100">
+                                                <div className="d-flex flex-column align-items-center">
+                                                    <TicketCanvasView
+                                                        ref={singleCanvasRef}
+                                                        showDetails={true}
+                                                        preloadedImage={cardImageUrl}
+                                                        ticketNumber={drawerType === "single" ? 1 : undefined}
+                                                        onReady={() => setIsCanvasReady(true)}
+                                                        ticketData={{
+                                                            ticket: {
+                                                                name: ticketData?.ticket?.name || "Event Ticket",
+                                                                price: ticketData?.ticket?.price,
+                                                                currency: ticketData?.ticket?.currency,
+                                                                background_image: cardImageUrl,
+                                                                event: {
+                                                                    name: ticketData?.event?.name,
+                                                                    date_range: ticketData?.event?.date_range,
+                                                                    start_time: ticketData?.event?.start_time,
+                                                                    entry_time: ticketData?.event?.entry_time,
+                                                                    address: ticketData?.event?.address || "Venue not specified",
+                                                                },
                                                             },
-                                                        },
-                                                        user: {
-                                                            name: ticketData?.user?.name || "Guest",
-                                                            number: ticketData?.user?.number || "N/A",
-                                                        },
-                                                        order_id:
-                                                            drawerType === "single" && ticketData?.data?.[0]?.token
-                                                                ? ticketData.data[0].token
-                                                                : orderId,
-                                                        booking_type: ticketData?.booking_type,
-                                                        booking_date: ticketData?.data?.[0]?.booking_date,
-                                                    }}
-                                                />
+                                                            user: {
+                                                                name: ticketData?.user?.name || "Guest",
+                                                                number: ticketData?.user?.number || "N/A",
+                                                            },
+                                                            order_id:
+                                                                drawerType === "single" && ticketData?.data?.[0]?.token
+                                                                    ? ticketData.data[0].token
+                                                                    : orderId,
+                                                            booking_type: ticketData?.booking_type,
+                                                            booking_date: ticketData?.data?.[0]?.booking_date,
+                                                        }}
+                                                    />
+                                                </div>
                                             </div>
                                         ) : (
-                                            <div className="text-center py-5">
-                                                <Image src={imgLoader} alt="Loading..." width={100} height={100} unoptimized />
-                                                <p className="text-white mt-2">Loading image...</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    ticketData?.data?.length > 0 && (
-                                        <Swiper
-                                            modules={[Navigation, Pagination]}
-                                            spaceBetween={20}
-                                            slidesPerView={1}
-                                            navigation
-                                            pagination={{ clickable: true }}
-                                            onSlideChange={(swiper) => setActiveSlideIndex(swiper.activeIndex)}
-                                            className="w-100 py-4"
-                                        >
-                                            {ticketData?.data?.map((item, index) => (
-                                                <SwiperSlide key={item.token}>
-                                                    <div className="text-center w-100 d-flex justify-content-center">
-                                                        {imageLoaded ? (
-                                                            <TicketCanvasView
-                                                                ref={(el) => {
-                                                                    swiperCanvasRefs.current[index] = el;
-                                                                }}
-                                                                showDetails={true}
-                                                                preloadedImage={cardImageUrl}
-                                                                ticketNumber={index + 1}
-                                                                onReady={() => setIsCanvasReady(true)}
-                                                                ticketData={{
-                                                                    ticket: {
-                                                                        name: ticketData?.ticket?.name || "Event Ticket",
-                                                                        price: ticketData?.ticket?.price,
-                                                                        currency: ticketData?.ticket?.currency,
-                                                                        background_image: cardImageUrl,
-                                                                        event: {
-                                                                            name: ticketData?.event?.name,
-                                                                            date_range: ticketData?.event?.date_range,
-                                                                            start_time: ticketData?.event?.start_time,
-                                                                            entry_time: ticketData?.event?.entry_time,
-                                                                            address: ticketData?.event?.address || "Venue not specified",
+                                            ticketData?.data?.length > 0 && (
+                                                <Swiper
+                                                    modules={[Navigation, Pagination]}
+                                                    spaceBetween={20}
+                                                    slidesPerView={1}
+                                                    navigation
+                                                    pagination={{ clickable: true }}
+                                                    onSlideChange={(swiper) => setActiveSlideIndex(swiper.activeIndex)}
+                                                    className="w-100 py-4"
+                                                >
+                                                    {ticketData?.data?.map((item, index) => (
+                                                        <SwiperSlide key={item.token}>
+                                                            <div className="text-center w-100 d-flex justify-content-center">
+                                                                <TicketCanvasView
+                                                                    ref={(el) => {
+                                                                        swiperCanvasRefs.current[index] = el;
+                                                                    }}
+                                                                    showDetails={true}
+                                                                    preloadedImage={cardImageUrl}
+                                                                    ticketNumber={index + 1}
+                                                                    onReady={() => setIsCanvasReady(true)}
+                                                                    ticketData={{
+                                                                        ticket: {
+                                                                            name: ticketData?.ticket?.name || "Event Ticket",
+                                                                            price: ticketData?.ticket?.price,
+                                                                            currency: ticketData?.ticket?.currency,
+                                                                            background_image: cardImageUrl,
+                                                                            event: {
+                                                                                name: ticketData?.event?.name,
+                                                                                date_range: ticketData?.event?.date_range,
+                                                                                start_time: ticketData?.event?.start_time,
+                                                                                entry_time: ticketData?.event?.entry_time,
+                                                                                address: ticketData?.event?.address || "Venue not specified",
+                                                                            },
                                                                         },
-                                                                    },
-                                                                    user: {
-                                                                        name: ticketData?.user?.name || "Guest",
-                                                                        number: ticketData?.user?.number || "N/A",
-                                                                    },
-                                                                    attendee: item?.attendee || null,
-                                                                    order_id: item.token,
-                                                                    booking_type: ticketData?.booking_type || "individual",
-                                                                    booking_date: item?.booking_date,
-                                                                }}
-                                                            />
-                                                        ) : (
-                                                            <div className="text-center py-5">
-                                                                <Image src={imgLoader} alt="Loading..." width={100} height={100} unoptimized />
-                                                                <p className="text-white mt-2">Loading image...</p>
+                                                                        user: {
+                                                                            name: ticketData?.user?.name || "Guest",
+                                                                            number: ticketData?.user?.number || "N/A",
+                                                                        },
+                                                                        attendee: item?.attendee || null,
+                                                                        order_id: item.token,
+                                                                        booking_type: ticketData?.booking_type || "individual",
+                                                                        booking_date: item?.booking_date,
+                                                                    }}
+                                                                />
                                                             </div>
-                                                        )}
-                                                    </div>
-                                                </SwiperSlide>
-                                            ))}
-                                        </Swiper>
-                                    )
-                                )}
-                            </div>
+                                                        </SwiperSlide>
+                                                    ))}
+                                                </Swiper>
+                                            )
+                                        )}
+                                    </Col>
+                                </Row>
+                            )}
                         </div>
 
                         {/* Fixed Footer */}

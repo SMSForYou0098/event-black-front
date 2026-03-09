@@ -583,18 +583,6 @@ const CartPage = () => {
           {(() => {
             const cartSidebarBody = (
               <>
-                <CardContainer>
-                  {eventDetails.map((detail, index) => (
-                    <DetailItem
-                      key={detail.label}
-                      icon={detail.icon}
-                      label={detail.label}
-                      value={detail.value}
-                      isLast={index === eventDetails.length - 1}
-                    />
-                  ))}
-                </CardContainer>
-
                 <CardContainer className="cart_totals">
                   <LargeAndDesktop>
 
@@ -675,6 +663,18 @@ const CartPage = () => {
                     )}
                   </div>
                 </CardContainer>
+                <CardContainer>
+                  {eventDetails.map((detail, index) => (
+                    <DetailItem
+                      key={detail.label}
+                      icon={detail.icon}
+                      label={detail.label}
+                      value={detail.value}
+                      isLast={index === eventDetails.length - 1}
+                    />
+                  ))}
+                </CardContainer>
+
 
                 {/* Spacer for mobile to prevent overlapping with sticky footer */}
                 {isBelow991 && <div className="pb-5 mb-4"></div>}

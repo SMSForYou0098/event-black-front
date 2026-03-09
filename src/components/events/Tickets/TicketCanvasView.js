@@ -72,6 +72,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
     const eventType = event?.event_type || '';
     // Handle booking_type - can be at parent level or in booking item
     const bookingType = ticketData?.booking_type || firstBooking?.booking_type || 'Online';
+    const gate = ticketData?.booking_gate || event?.gate || ticketData?.gate || '';
 
     // State
     const [qrDataUrl, setQrDataUrl] = useState(null);
@@ -79,7 +80,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
 
     const textColor = '#000';
     const CANVAS_WIDTH = 300;
-    const CANVAS_HEIGHT = 600;
+    const CANVAS_HEIGHT = 750;
 
     // Expose methods to parent via ref
     useImperativeHandle(ref, () => ({
@@ -271,38 +272,14 @@ const TicketCanvasView = forwardRef((props, ref) => {
                         currentY += 30;
                     }
 
-                    // Time Column
-                    const timeLabel = new fabric.Text('Time', {
-                        left: 40,
-                        top: currentY,
-                        fontSize: 14,
-                        fontFamily: 'Arial',
-                        fill: textColor,
-                        selectable: false,
-                        evented: false,
-                        fontWeight: 'normal',
-                    });
-                    canvas.add(timeLabel);
+                    // Date Column (FIRST)
+                    const dateStartX = 40;
 
-                    const timeValue = new fabric.Text(time, {
-                        left: 40,
-                        top: currentY + 20,
-                        fontSize: 14,
-                        fontFamily: 'Arial',
-                        fill: textColor,
-                        selectable: false,
-                        evented: false,
-                        fontWeight: 'bold',
-                    });
-                    canvas.add(timeValue);
-
-                    // Date Column
-                    const dateStartX = 180;
-                    const dateLabel = new fabric.Text('Date', {
+                    const dateLabel = new fabric.Text('📅 Date', {
                         left: dateStartX,
                         top: currentY,
                         fontSize: 14,
-                        fontFamily: 'Arial',
+                        fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
                         fill: textColor,
                         selectable: false,
                         evented: false,
@@ -319,10 +296,40 @@ const TicketCanvasView = forwardRef((props, ref) => {
                         selectable: false,
                         evented: false,
                         fontWeight: 'bold',
-                        width: CANVAS_WIDTH - dateStartX - 15,
+                        width: 120,
                         lineHeight: 1.4,
                     });
                     canvas.add(dateValue);
+
+
+                    // Time Column (SECOND)
+                    const timeStartX = 180;
+
+                    const timeLabel = new fabric.Text('⏰ Time', {
+                        left: timeStartX,
+                        top: currentY,
+                        fontSize: 14,
+                        fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
+                        fill: textColor,
+                        selectable: false,
+                        evented: false,
+                        fontWeight: 'normal',
+                    });
+                    canvas.add(timeLabel);
+
+                    const timeValue = new fabric.Text(time, {
+                        left: timeStartX,
+                        top: currentY + 20,
+                        fontSize: 14,
+                        fontFamily: 'Arial',
+                        fill: textColor,
+                        selectable: false,
+                        evented: false,
+                        fontWeight: 'bold',
+                    });
+                    canvas.add(timeValue);
+
+                    // here
 
                     // Calculate height based on the taller element
                     const timeHeight = 20 + (timeValue.height || 20);
@@ -330,17 +337,52 @@ const TicketCanvasView = forwardRef((props, ref) => {
                     const maxHeight = Math.max(timeHeight, dateHeight);
                     currentY += maxHeight + 10;
 
+                    // Gate Section (Centered)
+                    if (gate) {
+                        // const gateLabel = new fabric.Text('🏟 Gate', {
+                        //     left: CANVAS_WIDTH / 2,
+                        //     top: currentY,
+                        //     fontSize: 14,
+                        //     fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
+                        //     fill: textColor,
+                        //     selectable: false,
+                        //     evented: false,
+                        //     fontWeight: 'normal',
+                        //     originX: 'center'
+                        // });
+                        // canvas.add(gateLabel);
+
+                        const gateValue = new fabric.Text(`🏟 ${gate.toString()}`, {
+                            left: CANVAS_WIDTH / 2,
+                            top: currentY + 20,
+                            fontSize: 14,
+                            fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
+                            fill: textColor,
+                            selectable: false,
+                            evented: false,
+                            fontWeight: 'bold',
+                            originX: 'center'
+                        });
+                        canvas.add(gateValue);
+                        currentY += 90;
+                    } else {
+                        currentY += 120;
+                    }
+
                     // Venue/Address - wrapped to multiple lines for readability
-                    const venueLabel = new fabric.Text('Location', {
-                        left: 15,
+                    const venueLabel = new fabric.Text('📍 Address', {
+                        left: canvas.getWidth() / 2,
                         top: currentY,
                         fontSize: 18,
-                        fontFamily: 'Arial',
+                        fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
                         fill: textColor,
                         fontWeight: 'bold',
+                        originX: 'center',   // centers horizontally
+                        textAlign: 'center',
                         selectable: false,
                         evented: false,
                     });
+
                     canvas.add(venueLabel);
                     currentY += 30;
 
@@ -380,7 +422,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
                 fabricCanvasRef.current = null;
             }
         };
-    }, [imageUrl, qrDataUrl, showDetails, ticketName, userName, number, address, date, time, title, ticketNumber, bookingType, OrderId, centerText, loadFabricImage, textColor, onReady, onError, props.ticketLabel]);
+    }, [imageUrl, qrDataUrl, showDetails, ticketName, userName, number, address, date, time, title, ticketNumber, bookingType, OrderId, centerText, loadFabricImage, textColor, onReady, onError, props.ticketLabel, gate]);
 
     // Download functionality
     const downloadCanvas = () => {
@@ -442,10 +484,8 @@ const TicketCanvasView = forwardRef((props, ref) => {
     };
 
     return (
-        <div className="ticket-canvas-view">
-            <div style={{ display: 'flex', justifyContent: 'center', width: '100%', minHeight: '300px' }}>
-                <canvas ref={canvasRef} />
-            </div>
+        <div style={{ display: 'flex', justifyContent: 'center', width: '100%', minHeight: '550px' }}>
+            <canvas ref={canvasRef} />
         </div>
     );
 });

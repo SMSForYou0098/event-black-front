@@ -15,10 +15,11 @@ export const setCookie = (name, value, options = {}) => {
     days = 7,
     path = '/',
     secure = process.env.NODE_ENV === 'production',
-    sameSite = 'strict'
+    sameSite = 'Lax'
   } = options;
   
-  let cookieString = `${name}=${encodeURIComponent(value)}`;
+  // JWT tokens are base64url-safe; avoid encodeURIComponent which can bloat them
+  let cookieString = `${name}=${value}`;
   
   // Set expiration
   if (days) {
@@ -31,10 +32,10 @@ export const setCookie = (name, value, options = {}) => {
   cookieString += `; path=${path}`;
   
   if (secure) {
-    cookieString += '; secure';
+    cookieString += '; Secure';
   }
   
-  cookieString += `; samesite=${sameSite}`;
+  cookieString += `; SameSite=${sameSite}`;
   
   document.cookie = cookieString;
 };
@@ -56,7 +57,7 @@ export const getCookie = (name) => {
       cookie = cookie.substring(1, cookie.length);
     }
     if (cookie.indexOf(nameEQ) === 0) {
-      return decodeURIComponent(cookie.substring(nameEQ.length, cookie.length));
+      return cookie.substring(nameEQ.length, cookie.length);
     }
   }
   return null;

@@ -75,7 +75,7 @@ function isPrivateRoute(pathname) {
     pathname.startsWith('/events/summary') ||
     pathname === '/dashboard' ||
     pathname === '/profile' ||
-    // pathname === '/bookings' ||
+    pathname.startsWith('/bookings') ||
     pathname.startsWith('/admin')
   );
 }
@@ -102,7 +102,7 @@ export const config = {
     '/events/summary/:path*',
     '/dashboard/:path*',
     '/profile/:path*',
-    // '/bookings',
+    '/bookings/:path*',
     '/admin/:path*'
   ],
 };

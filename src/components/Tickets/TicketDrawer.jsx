@@ -293,10 +293,10 @@ const TicketDrawer = ({
 
     return (
         <CustomDrawer
-            title={ticketType?.type === 'individual' ? 'Individual Tickets' : ticketType?.type === 'single' ? 'How To Get Entry !!!' : 'Group Ticket'}
+            title={ticketType?.type === 'individual' ? 'Single Tickets' : ticketType?.type === 'single' ? 'How To Get Entry !!!' : 'Group Ticket'}
             showOffcanvas={show}
             setShowOffcanvas={onClose}
-            hideIndicator={true}
+            hideIndicator={isMobile ? false : true}
             style={isMobile ? { height: "90vh" } : { height: "100vh" }}
             bodyClassName="pt-0"
         >
