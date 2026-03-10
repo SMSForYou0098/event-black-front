@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Col, Row } from "react-bootstrap";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper";
+import { Youtube } from "lucide-react";
 import { useSelector } from "react-redux";
 import { theme_scheme_direction } from "../../store/setting/selectors";
 import FsLightbox from "fslightbox-react";
@@ -16,6 +17,7 @@ import CustomBtn from "../../utils/CustomBtn";
 import { useRouter } from "next/router";
 import CommonMobileSlider from "./CommonMobileSlider"
 import { MobileOnly, DesktopOnly } from "../../utils/ResponsiveRenderer";
+import { BsYoutube } from "react-icons/bs";
 
 const desktopSwiperConfig = {
   navigation: {
@@ -204,11 +206,12 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
   const handleMediaClick = (banner) => {
     if (!banner?.media_url) return;
 
-    if (banner?.display_in_popup) {
-      // Open in lightbox
-      setCurrentMediaUrl(banner.media_url);
-      setToggler(!toggler);
-    } else {
+    // if (banner?.display_in_popup) {
+    //   // Open in lightbox
+    //   setCurrentMediaUrl(banner.media_url);
+    //   setToggler(!toggler);
+    // }
+    if (banner?.media_url) {
       // Open in new tab
       window.open(banner.media_url, '_blank', 'noopener,noreferrer');
     }
@@ -228,6 +231,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                   createSlug={createSlug}
                   type={type}
                   handleBannerNavigation={handleBannerNavigation}
+                  handleMediaClick={handleMediaClick}
                 />
               )}
             </MobileOnly>
@@ -250,18 +254,19 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                     return (
                       <SwiperSlide key={banner.id || index}>
                         <div
-
+                          onClick={() => handleBannerNavigation(banner)}
                           style={{
                             backgroundImage: backgroundStyle,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             height: '100%',
-                            position: 'relative'
+                            position: 'relative',
+                            cursor: 'pointer'
                           }}
                         >
                           <div className="shows-content h-100">
-                            <Row className="row align-items-center h-100">
-                              <Col lg="7" md="12">
+                            <Row className="row align-items-center justify-content-center h-100">
+                              {/* <Col lg="7" md="12">
                                 <h3 className="  letter-spacing-1 line-count-1 text-uppercase RightAnimate-two" data-animation-in="fadeInLeft" data-delay-in="0.6">
                                   {banner?.title}
                                 </h3>
@@ -276,22 +281,22 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                                   HandleClick={() => handleBannerNavigation(banner)}
                                   customClass="mt-4 btn-sm"
                                 />
-                              </Col>
-                              {/* {hasMedia && (
-            <Col lg="5" md="12" className="trailor-video iq-slider d-none d-lg-block">
-              <div
-                onClick={() => handleMediaClick(banner)}   // ← use your function here
-                className="video-open playbtn"
-                style={{ cursor: 'pointer' }}
-              >
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="80px" height="80px" viewBox="0 0 213.7 213.7">
-                  <polygon className="triangle" fill="none" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" points="73.5,62.5 148.5,105.8 73.5,149.1 " />
-                  <circle className="circle" fill="none" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" cx="106.8" cy="106.8" r="103.3" />
-                </svg>
-                <span className="w-trailor text-uppercase">Watch Trailer</span>
-              </div>
-            </Col>
-          )} */}
+                              </Col> */}
+                              {hasMedia && (
+                                <Col lg="12" md="12" className="trailor-video iq-slider d-none d-lg-flex justify-content-center">
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleMediaClick(banner);
+                                    }}
+                                    className="video-open playbtn"
+                                    style={{ cursor: 'pointer' }}
+                                  >
+                                    <BsYoutube size={80} color="#b51515" strokeWidth={1} />
+                                    {/* <span className="w-trailor text-uppercase">Watch Trailer</span> */}
+                                  </div>
+                                </Col>
+                              )}
                             </Row>
                           </div>
                         </div>
@@ -312,13 +317,10 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
         </div>
       </section>
 
-      {
-        currentMediaUrl &&
-        <FsLightbox
-          toggler={toggler}
-          sources={currentMediaUrl ? [currentMediaUrl] : ["/assets/images/video/trailer.mp4"]}
-        />
-      }
+      {/* <FsLightbox
+        toggler={toggler}
+        sources={currentMediaUrl ? [currentMediaUrl] : ["/assets/images/video/trailer.mp4"]}
+      /> */}
     </Fragment>
   );
 });

@@ -2,8 +2,9 @@ import React, { memo } from 'react'
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper";
 import Image from 'next/image';
+import { BsYoutube } from "react-icons/bs";
 
-const CommonMobileSlider = memo(({ banners = [], themeSchemeDirection, handleBannerNavigation }) => {
+const CommonMobileSlider = memo(({ banners = [], themeSchemeDirection, handleBannerNavigation, handleMediaClick }) => {
   return (
     <Swiper
       key={`mobile-${String(themeSchemeDirection)}`}
@@ -18,12 +19,13 @@ const CommonMobileSlider = memo(({ banners = [], themeSchemeDirection, handleBan
     >
       {banners.map((banner, index) => {
         const imgSrc = banner.sm_image?.trim() || banner.images?.trim() || "/assets/images/fallback-banner.jpg";
+        const hasMedia = Boolean(banner?.media_url);
 
         return (
           <SwiperSlide className="slide m-0 p-0 home-slider" key={banner.id || index}>
             <div
               onClick={() => handleBannerNavigation(banner)}
-              className="card-link d-block"
+              className="card-link d-block position-relative"
               style={{ cursor: 'pointer' }}
             >
               <Image
@@ -33,6 +35,20 @@ const CommonMobileSlider = memo(({ banners = [], themeSchemeDirection, handleBan
                 alt={banner?.title || "banner"}
                 className="img-fluid w-100"
               />
+              {hasMedia && (
+                <div
+                  className="position-absolute top-50 start-50 translate-middle"
+                  style={{ zIndex: 10 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleMediaClick(banner);
+                  }}
+                >
+                  <div className="video-open playbtn" style={{ cursor: 'pointer' }}>
+                    <BsYoutube size={60} color="#b51515" />
+                  </div>
+                </div>
+              )}
             </div>
           </SwiperSlide>
         );

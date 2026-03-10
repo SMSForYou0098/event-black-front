@@ -595,6 +595,11 @@ const CartPage = () => {
                   </LargeAndDesktop>
 
                   <div className="css_prefix-woocommerce-cart-box table-responsive">
+                    {selectedTickets?.seats?.length > 0 && (
+                      <span className="text-white small">
+                        <strong>Seats:</strong> {selectedTickets.seats.map((s) => s.seat_name).join(", ")}
+                      </span>
+                    )}
                     <Table className="table mb-0">
                       <tbody>
                         {cartData.map((row) => (
@@ -608,11 +613,6 @@ const CartPage = () => {
                       </tbody>
                     </Table>
                     <Alert style={{ fontSize: "12px" }} className="p-1 rounded-3 border-dashed-thin d-flex justify-content-between flex-wrap gap-2">
-                      {selectedTickets?.seats?.length > 0 && (
-                        <span className="text-white small">
-                          <strong>Seats:</strong> {selectedTickets.seats.map((s) => s.seat_name).join(", ")}
-                        </span>
-                      )}
                       <span className="text-white small">
                         Base price only — fees & taxes added at checkout.
                       </span>
@@ -820,36 +820,36 @@ const CartPage = () => {
           </Modal>
         )}
 
-        {!UserData && (
-          <LoginModal
-            show={showLoginModal}
-            onHide={() => setShowLoginModal(false)}
-            eventKey={event_key}
-            onSuccess={async () => {
-              // After successful login, run the ticket check and proceed
-              setShowLoginModal(false);
-              const allowed = await checkTicketStatus();
-              if (allowed) {
-                if (seatingModule && selectedTickets?.seats && selectedTickets.seats.length > 0) {
-                  try {
-                    const seatIds = selectedTickets.seats.map(seat => seat.seat_id);
-                    await lockSeatsMutation.mutateAsync({
-                      event_id: event?.id,
-                      seats: seatIds,
-                      user_id: UserData?.id,
-                    });
-                    router.push(path);
-                  } catch (error) {
-                    return;
-                  }
-                } else {
+        {/* {!UserData && ( */}
+        <LoginModal
+          show={showLoginModal}
+          onHide={() => setShowLoginModal(false)}
+          eventKey={event_key}
+          onSuccess={async () => {
+            // After successful login, run the ticket check and proceed
+            setShowLoginModal(false);
+            const allowed = await checkTicketStatus();
+            if (allowed) {
+              if (seatingModule && selectedTickets?.seats && selectedTickets.seats.length > 0) {
+                try {
+                  const seatIds = selectedTickets.seats.map(seat => seat.seat_id);
+                  await lockSeatsMutation.mutateAsync({
+                    event_id: event?.id,
+                    seats: seatIds,
+                    user_id: UserData?.id,
+                  });
                   router.push(path);
+                } catch (error) {
+                  return;
                 }
+              } else {
+                router.push(path);
               }
-            }}
-            is_address_required={event?.eventControls?.use_preprinted_cards}
-          />
-        )}
+            }
+          }}
+          is_address_required={event?.eventControls?.use_preprinted_cards}
+        />
+        {/* )} */}
 
         {/* Registration Modal - auto-opens for Registration category */}
         <RegistrationBooking

@@ -11,16 +11,35 @@ import { Container, Row, Col, Form, Button, Alert, Spinner } from "react-bootstr
 
 // next components
 import Link from "next/link";
-import Image from "next/image";
 
 // custom hook
 import { publicApi } from "@/lib/axiosInterceptor";
+import { Headphones, Phone, Megaphone, Users, MapPin } from "lucide-react";
 
 // Mock context for providing API URL and token
+const CONTACT_INFO = {
+  supportEmail: "support@getyourticker.in",
+  adsEmail: "adds@getyourticker.in",
+  inquiriesEmail: "contact@getyourticker.in",
+  phone1: process.env.NEXT_PUBLIC_SUPPORT_CALL_PHONE1 || "8000308888",
+  phone2: process.env.NEXT_PUBLIC_SUPPORT_CALL_PHONE2 || "8000306666",
+  workingHours: "11:00 AM - 6:00 PM",
+
+  address: {
+    title: "401-402, Blue Cystals",
+    line1: " VV Nagar",
+    line2: "Anand, Gujarat 388120"
+  },
+  mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3684.886884154925!2d72.92939439999999!3d22.545909700000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e4d1c5d587853%3A0x743303d6fea6e85f!2sGetyourticket.in!5e0!3m2!1sen!2sin!4v1773140637244!5m2!1sen!2sin"
+};
+
+
+
 const ContactPage = memo(() => {
 
   const [form, setForm] = useState({
     name: "",
+    lastName: "",
     phone: "",
     email: "",
     query: "", // This will store the subject ID
@@ -126,7 +145,7 @@ const ContactPage = memo(() => {
 
     setErrors({});
     const formData = new FormData();
-    formData.append('name', form.name);
+    formData.append('name', `${form.name} ${form.lastName}`);
     formData.append('phone', form.phone);
     formData.append('email', form.email);
     formData.append('query', form.query);
@@ -139,32 +158,106 @@ const ContactPage = memo(() => {
 
   return (
     <Fragment>
+      <div className="section-padding">
+        <Container>
+          <Row className="g-4">
+            <Col lg="3" md="6">
+              <div className="custom-dark-content-bg p-4 rounded-4 border h-100">
+                <div className="bg-dark d-flex align-items-center justify-content-center rounded-3 mb-4 shadow-sm" style={{ width: '50px', height: '50px' }}>
+                  <Headphones size={24} className="text-white" />
+                </div>
+                <h5 className="fw-500 mb-3">Help & support</h5>
+                <p className="text-muted small mb-4">
+                  Need quick, reliable support? Our team is always ready to help you.
+                </p>
+                <Link href={`mailto:${CONTACT_INFO.supportEmail}`} className="text-primary text-decoration-none small fw-500">
+                  {CONTACT_INFO.supportEmail}
+                </Link>
+              </div>
+            </Col>
+            <Col lg="3" md="6">
+              <div className="custom-dark-content-bg p-4 rounded-4 border h-100">
+                <div className="bg-dark d-flex align-items-center justify-content-center rounded-3 mb-4 shadow-sm" style={{ width: '50px', height: '50px' }}>
+                  <Phone size={24} className="text-white" />
+                </div>
+                <h5 className="fw-500 mb-3">Call Us</h5>
+                <p className="text-muted small mb-3">
+                  Speak directly to one of our team members for assistance.
+                </p>
+                <div className="d-flex flex-column gap-2 mb-3">
+                  <Link href={`tel:${CONTACT_INFO.phone1}`} className="text-white text-decoration-none small fw-500">
+                    {CONTACT_INFO.phone1}
+                  </Link>
+                  <Link href={`tel:${CONTACT_INFO.phone2}`} className="text-white text-decoration-none small fw-500">
+                    {CONTACT_INFO.phone2}
+                  </Link>
+                </div>
+                <div className="mt-auto">
+                  <span className="text-muted extra-small d-block">Support Hours:</span>
+                  <span className="text-white small fw-500">{CONTACT_INFO.workingHours}</span>
+                </div>
+              </div>
+            </Col>
+            <Col lg="3" md="6">
+              <div className="custom-dark-content-bg p-4 rounded-4 border h-100">
+                <div className="bg-dark d-flex align-items-center justify-content-center rounded-3 mb-4 shadow-sm" style={{ width: '50px', height: '50px' }}>
+                  <Megaphone size={24} className="text-white" />
+                </div>
+                <h5 className="fw-500 mb-3">Advertising</h5>
+                <p className="text-muted small mb-4">
+                  Looking to advertise with us? contact our advertising team
+                </p>
+                <Link href={`mailto:${CONTACT_INFO.adsEmail}`} className="text-primary text-decoration-none small fw-500">
+                  {CONTACT_INFO.adsEmail}
+                </Link>
+              </div>
+            </Col>
+            <Col lg="3" md="6">
+              <div className="custom-dark-content-bg p-4 rounded-4 border h-100">
+                <div className="bg-dark d-flex align-items-center justify-content-center rounded-3 mb-4 shadow-sm" style={{ width: '50px', height: '50px' }}>
+                  <Users size={24} className="text-white" />
+                </div>
+                <h5 className="fw-500 mb-3">Press Inquiries</h5>
+                <p className="text-muted small mb-4">
+                  For media inquiries or products our press team is here to help.
+                </p>
+                <Link href={`mailto:${CONTACT_INFO.inquiriesEmail}`} className="text-primary text-decoration-none small fw-500">
+                  {CONTACT_INFO.inquiriesEmail}
+                </Link>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </div>
       <div>
         <Container>
           <Row>
             <Col lg="8">
-              <div className="title-box">
-                <h2>Contact With Us</h2>
-                <p className="mb-0">
-                  To learn more about how GYT can help you, contact us.
+              <div className="title-box mb-5">
+                <h3 className="fw-bold mb-3">Start the conversation</h3>
+                <p className="text-muted">
+                  Fill out the contact form, and one of our team members will be in touch shortly
                 </p>
               </div>
               {/* Form now uses React state and handlers */}
               <Form noValidate validated={validated} onSubmit={handleSubmit} className="mb-5 mb-lg-0">
                 <Row>
-                  <Col md="6" className="mb-4 mb-lg-5">
-                    <input type="text" className={`form-control font-size-14 ${errors.name ? 'is-invalid' : ''}`} placeholder="Full Name*" required name="name" value={form.name} onChange={handleChange} />
+                  <Col md="6" className="mb-4">
+                    <input type="text" className={`form-control border-0 custom-dark-input py-3 px-4 rounded-3 ${errors.name ? 'is-invalid' : ''}`} placeholder="Your Name*" required name="name" value={form.name} onChange={handleChange} />
                     {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                   </Col>
-                  <Col md="6" className="mb-4 mb-lg-5">
-                    <input type="tel" className={`form-control font-size-14 ${errors.phone ? 'is-invalid' : ''}`} placeholder="Phone Number*" required name="phone" value={form.phone} onChange={handleChange} />
-                    {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
+                  <Col md="6" className="mb-4">
+                    <input type="text" className={`form-control border-0 custom-dark-input py-3 px-4 rounded-3`} placeholder="Last Name*" required name="lastName" value={form.lastName} onChange={handleChange} />
                   </Col>
-                  <Col md="6" className="mb-4 mb-lg-5">
-                    <input type="email" className={`form-control font-size-14 ${errors.email ? 'is-invalid' : ''}`} placeholder="Your Email*" required name="email" value={form.email} onChange={handleChange} />
+                  <Col md="6" className="mb-4">
+                    <input type="email" className={`form-control border-0 custom-dark-input py-3 px-4 rounded-3 ${errors.email ? 'is-invalid' : ''}`} placeholder="Your Email*" required name="email" value={form.email} onChange={handleChange} />
                     {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                   </Col>
-                  <Col md="6" className="mb-4 mb-lg-5">
+                  <Col md="6" className="mb-4">
+                    <input type="tel" className={`form-control border-0 custom-dark-input py-3 px-4 rounded-3 ${errors.phone ? 'is-invalid' : ''}`} placeholder="Phone Number*" required name="phone" value={form.phone} onChange={handleChange} />
+                    {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
+                  </Col>
+                  <Col md="12" className="mb-4">
                     <Select
                       options={subjectOptions}
                       onChange={handleSubjectChange}
@@ -176,12 +269,12 @@ const ContactPage = memo(() => {
                         ...theme,
                         colors: {
                           ...theme.colors,
-                          neutral0: "#141314",      // control background
+                          neutral0: "#101010",      // control background
                           neutral80: "#ffffff",     // input text color
-                          neutral20: "#141314",     // control border color removed (same as background)
-                          neutral30: "#141314",     // control focused border removed
+                          neutral20: "#101010",     // control border color removed (same as background)
+                          neutral30: "#101010",     // control focused border removed
                           neutral40: "#000000",     // indicator color
-                          neutral50: "#888888",     // placeholder color
+                          neutral50: "#666666",     // placeholder color
                           primary25: "#000000",     // option hover background
                           primary: "#000000",       // selected or active color
                         }
@@ -189,32 +282,33 @@ const ContactPage = memo(() => {
                       styles={{
                         control: (base, state) => ({
                           ...base,
-                          height: '45px',
-                          backgroundColor: "#141314",
-                          borderColor: errors.query ? "#dc3545" : "#141314",   // no visible border for control
+                          height: '50px',
+                          backgroundColor: "#101010",
+                          borderColor: errors.query ? "#dc3545" : "rgba(255,255,255,0.05)",
                           boxShadow: "none",
-                          color: "#141314",
+                          color: "#ffffff",
+                          borderRadius: '8px',
                         }),
                         menu: (base) => ({
                           ...base,
-                          backgroundColor: "#141314",
+                          backgroundColor: "#101010",
                           color: "#ffffff",
-                          border: "1px solid #989eac",  // border applied only on dropdown menu
-                          borderRadius: '4px',
-                          marginTop: 0,
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          borderRadius: '8px',
+                          marginTop: '4px',
                         }),
                         option: (base, state) => ({
                           ...base,
                           backgroundColor: state.isFocused
-                            ? "#000000"
+                            ? "rgba(255,255,255,0.05)"
                             : state.isSelected
-                              ? "#000000"
-                              : "#141314",
+                              ? "var(--bs-primary)"
+                              : "#101010",
                           color: "#ffffff",
                         }),
                         placeholder: (base) => ({
                           ...base,
-                          color: "#888888",
+                          color: "#666666",
                         }),
                         singleValue: (base) => ({
                           ...base,
@@ -229,13 +323,13 @@ const ContactPage = memo(() => {
                     {errors.query && <div className="invalid-feedback d-block">{errors.query}</div>}
                   </Col>
 
-                  <Col md="12" className="mb-4 mb-lg-5">
-                    <textarea className={`form-control font-size-14 ${errors.message ? 'is-invalid' : ''}`} rows={5} placeholder="Your Message*" required name="message" value={form.message} onChange={handleChange}></textarea>
+                  <Col md="12" className="mb-4">
+                    <textarea className={`form-control border-0 custom-dark-input py-3 px-4 rounded-3 ${errors.message ? 'is-invalid' : ''}`} rows={5} placeholder="Your Message" required name="message" value={form.message} onChange={handleChange}></textarea>
                     {errors.message && <div className="invalid-feedback">{errors.message}</div>}
                   </Col>
-                  <Col md="12" className="mb-4 mb-lg-5">
-                    <label className="form-label">Attach Screenshot (Optional)</label>
-                    <input type="file" className="form-control font-size-14" name="screenshot" accept="image/*" onChange={handleChange} ref={screenshotRef} />
+                  <Col md="12" className="mb-4">
+                    <label className="form-label text-muted small">Attach Screenshot (Optional)</label>
+                    <input type="file" className="form-control border-0 custom-dark-input rounded-3" name="screenshot" accept="image/*" onChange={handleChange} ref={screenshotRef} />
                   </Col>
                   <Col>
                     {/* Success and Error Alerts */}
@@ -251,11 +345,45 @@ const ContactPage = memo(() => {
                 </Row>
               </Form>
             </Col>
-            <Col lg="1" className="d-none d-lg-block"></Col>
+            {/* <Col lg="1" className="d-none d-lg-block"></Col> */}
+            <Col lg="4">
+              <div className="sidebar-contact ps-lg-5">
+                <div className="mb-5">
+                  <h4 className="fw-bold mb-4">Visit Us</h4>
+                  <p className="text-muted mb-4">If you'd like to visit or write to us:</p>
+                  <div className="d-flex align-items-start gap-2 mb-3">
+                    <MapPin size={20} className="text-primary mt-1" />
+                    <h6 className="fw-bold mb-0">Address:</h6>
+                  </div>
+                  <address className="text-muted small lh-lg">
+                    {CONTACT_INFO.address.title}<br />
+                    {CONTACT_INFO.address.line1}<br />
+                    {CONTACT_INFO.address.line2}
+                  </address>
+                </div>
 
+                <div className="pt-4 border-top">
+                  <h4 className="fw-bold mb-4">Business Inquiries</h4>
+                  <p className="text-muted small lh-base">
+                    For partnership opportunities, licensing, or media-related queries, please reach out to our business team.
+                  </p>
+                </div>
+              </div>
+            </Col>
           </Row>
         </Container>
       </div>
+      <div className="map mt-3">
+        <Container className="">
+          <iframe
+            loading="lazy"
+            className="w-100"
+            src={CONTACT_INFO.mapEmbedUrl}
+            height="600"
+          ></iframe>
+        </Container>
+      </div>
+
     </Fragment>
   );
 });

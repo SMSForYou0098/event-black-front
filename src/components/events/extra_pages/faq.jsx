@@ -107,47 +107,48 @@ const FAQPage = memo(() => {
       <div>
         <Container>
           <Row>
-            <Col lg="12" sm="12">
-              {/* Map over categories to create sections */}
-              {categories.map(category => (
-                <div key={category.id} className="mb-5">
-                  <h2 className="mb-4 text-center fs-5">{category.title}</h2>
-                  <div className="iq-accordian iq-accordian-square">
-                    {/* Filter and map over faqs for the current category */}
-                    {faqs.filter(faq => faq.category === category.id.toString()).map(faqItem => (
-                      <div
-                        key={faqItem.id}
-                        className={`iq-accordian-block ${activeId === faqItem.id ? "iq-active" : ""}`}
-                        onClick={() => toggleAccordion(faqItem.id)}
-                      >
-                        <div className="iq-accordian-title">
-                          <div className="iq-icon-right" style={{ backgroundColor: "var(--bs-body-bg)" }}>
-                            <i aria-hidden="true" className="fa fa-minus active bd"></i>
-                            <i aria-hidden="true" className="fa fa-plus inactive"></i>
-                          </div>
-                          <h4 className="mb-0 accordian-title iq-heading-title fs-6">
-                            {faqItem.question}
-                          </h4>
-                        </div>
-                        <div
-                          className={`iq-accordian-details ${activeId === faqItem.id ? "d-block" : "d-none"}`}
-                        >
-                          <p className="mb-0 fs-6">
-                            {faqItem.answer}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-              {/* Fallback: If no categories, show all FAQs */}
-              {categories.length === 0 && faqs.length > 0 && (
+            {/* Map over categories to create sections */}
+            {categories.map(category => (
+              <Col md="6" key={category.id} className="mb-5">
+                <h2 className="mb-4 text-center fs-5">{category.title}</h2>
                 <div className="iq-accordian iq-accordian-square">
-                  {faqs.map(faqItem => (
+                  {/* Filter and map over faqs for the current category */}
+                  {faqs.filter(faq => faq.category === category.id.toString()).map(faqItem => (
                     <div
                       key={faqItem.id}
+                      className={`iq-accordian-block ${activeId === faqItem.id ? "iq-active" : ""}`}
+                      onClick={() => toggleAccordion(faqItem.id)}
+                    >
+                      <div className="iq-accordian-title">
+                        <div className="iq-icon-right" style={{ backgroundColor: "var(--bs-body-bg)" }}>
+                          <i aria-hidden="true" className="fa fa-minus active bd"></i>
+                          <i aria-hidden="true" className="fa fa-plus inactive"></i>
+                        </div>
+                        <h4 className="mb-0 accordian-title iq-heading-title fs-6">
+                          {faqItem.question}
+                        </h4>
+                      </div>
+                      <div
+                        className={`iq-accordian-details ${activeId === faqItem.id ? "d-block" : "d-none"}`}
+                      >
+                        <p className="mb-0 fs-6">
+                          {faqItem.answer}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Col>
+            ))}
+          </Row>
+
+          {/* Fallback: If no categories, show all FAQs */}
+          {categories.length === 0 && faqs.length > 0 && (
+            <div className="iq-accordian iq-accordian-square">
+              <Row>
+                {faqs.map(faqItem => (
+                  <Col md="6" key={faqItem.id}>
+                    <div
                       className={`iq-accordian-block ${activeId === faqItem.id ? "iq-active" : ""}`}
                       onClick={() => toggleAccordion(faqItem.id)}
                     >
@@ -168,21 +169,21 @@ const FAQPage = memo(() => {
                         </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                  </Col>
+                ))}
+              </Row>
+            </div>
+          )}
 
-              {/* No FAQs available message */}
-              {faqs.length === 0 && (
-                <div className="text-center">
-                  <p className="fs-6">No FAQs available at the moment.</p>
-                </div>
-              )}
-            </Col>
-          </Row>
+          {/* No FAQs available message */}
+          {faqs.length === 0 && (
+            <div className="text-center">
+              <p className="fs-6">No FAQs available at the moment.</p>
+            </div>
+          )}
         </Container>
-      </div>
-    </Fragment>
+      </div >
+    </Fragment >
   );
 });
 

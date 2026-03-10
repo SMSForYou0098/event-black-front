@@ -256,7 +256,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
 
                     // Label (I) or (G)
                     if (props.ticketLabel) {
-                        centerText(props.ticketLabel + (ticketNumber ? ' ' + ticketNumber : ''), 12, 'Arial', canvas, currentY, { fontWeight: 'bold', fill: '#666' });
+                        centerText(props.ticketLabel + (ticketNumber ? ' ' + ticketNumber : ''), 12, 'Arial', canvas, currentY, { fontWeight: 'bold', fill: '#000' });
                         currentY += 30;
                     } else {
                         currentY += 10;
@@ -433,7 +433,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
             const dataURL = canvas.toDataURL({
                 format: 'jpeg',
                 quality: 0.9,
-                multiplier: 2
+                multiplier: 1
             });
 
             const link = document.createElement('a');

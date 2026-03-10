@@ -1,5 +1,4 @@
-// pages/_app.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { SessionProvider } from 'next-auth/react';
 import 'swiper/css';
@@ -40,6 +39,23 @@ export default function App({
         },
       })
   );
+
+  function clearAllCookies() {
+    document.cookie.split(";").forEach(function (cookie) {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie =
+        name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    });
+  }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      clearAllCookies();
+      console.log("All cookies cleared after 30 minutes");
+    }, 30 * 60 * 1000); // 30 minutes
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <>

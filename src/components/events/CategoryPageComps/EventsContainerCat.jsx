@@ -27,13 +27,15 @@ const EventsContainerCat = ({ events = [], loading = false, error = null, title 
               {error ? getErrorMessage(error) : "There are currently no active events. Please check back later or try refreshing."}
             </p>
 
-            <CustomBtn
-              variant="primary"
-              disabled={loading}
-              size="sm"
-              HandleClick={() => router.push('/events')}
-              buttonText={'Browse Other Events'}
-            />
+            <div className="d-flex justify-content-center mt-3">
+              <CustomBtn
+                variant="primary"
+                disabled={loading}
+                size="sm"
+                HandleClick={() => router.push('/events')}
+                buttonText={'Browse Other Events'}
+              />
+            </div>
           </Col>
         </Row>
       </Container>

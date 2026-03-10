@@ -126,6 +126,23 @@ textarea,
   // }
 }
 
+.custom-dark-input {
+  background-color: #101010 !important;
+  color: var(--bs-white) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+
+  &::placeholder {
+    color: #666 !important;
+  }
+
+  &:focus {
+    background-color: #161616 !important;
+    border-color: var(--bs-primary) !important;
+    box-shadow: none !important;
+    color: var(--bs-white) !important;
+  }
+}
+
 .card-header {
   background-color: rgba(255, 255, 255, 0.02) !important;
 }
@@ -633,6 +650,7 @@ input[type="number"] {
   &::-webkit-inner-spin-button,
   &::-webkit-outer-spin-button {
     -webkit-appearance: none;
+    appearance: none;
     margin: 0;
   }
 
@@ -644,6 +662,7 @@ input[type="number"] {
     &::-webkit-inner-spin-button,
     &::-webkit-outer-spin-button {
       -webkit-appearance: none;
+      appearance: none;
       margin: 0;
     }
   }

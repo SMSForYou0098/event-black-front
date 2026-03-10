@@ -86,7 +86,7 @@ const EventCrew = ({ crews = dummyCrews }) => {
             size="xl"
         // centered
         >
-            <CustomHeader title="Crew & Casts" closable={true} onClose={() => setShowModal(false)} />
+            <CustomHeader title="Cast & Crew" closable={true} onClose={() => setShowModal(false)} />
             <Modal.Body className='p-0 py-3'>
                 <Row className="g-4">
                     {crews.map((crew, index) => (
@@ -102,7 +102,7 @@ const EventCrew = ({ crews = dummyCrews }) => {
     return (
         <div className="event-crew-section my-4">
             <SectionSlider
-                title="Crew & Casts"
+                title="Cast & Crew"
                 list={crews}
                 slidesPerView={5}
                 spaceBetween={20}

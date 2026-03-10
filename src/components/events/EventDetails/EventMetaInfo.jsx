@@ -157,21 +157,21 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData, handleShare }) => {
       <div className="product-meta-wrapper mt-2">
 
         {/* Event Meta Info */}
-        <div className="event-meta-compact w-100 d-flex justify-content-between flex-wrap gap-3 ">
+        <div className="event-meta-compact w-100 d-flex justify-content-start flex-wrap gap-3 ">
           {metaInfo?.map((info, i) => (
             <div
               key={i}
-              className="custom-dark-content-bg d-flex align-items-start px-3 py-2 rounded-3 border"
+              className="custom-dark-content-bg d-flex align-items-center px-3 py-2 rounded-3 border"
             >
               <CustomTooltip text={info.description || ""}>
-                <>
-                  <span className="me-2">
+                <span className="d-inline-flex align-items-center">
+                  <span className="me-2 d-flex align-items-center">
                     <i className={info.icon}></i>
                   </span>
                   <span style={{ fontSize: 12, fontWeight: 500 }}>
                     {info.value}
                   </span>
-                </>
+                </span>
               </CustomTooltip>
             </div>
           ))}
@@ -180,83 +180,75 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData, handleShare }) => {
         {/* Desktop Pricing + Book Button */}
         <div className="d-none d-sm-block">
           {!eventStatus.disabled && (
-            <div className="rounded-3 p-3 d-inline-flex align-items-center justify-content-between gap-3 w-100 flex-wrap">
+            <div className="rounded-3 p-3 d-flex align-items-center gap-3 w-100 flex-wrap">
 
-              {/* Pricing label */}
-              <div className="d-flex gap-4">
+              <h6 className="m-0 d-flex gap-2 align-items-center flex-wrap text-nowrap">
+                <span className="text-primary fw-bold">Pricing :</span>
+                <span>
+                  {(() => {
+                    let displayPrice = 0;
+                    let showSaleBadge = false;
 
-                <h6 className="m-0 d-flex gap-2 align-items-center flex-wrap text-nowrap">
-                  <span className="text-primary fw-bold">Pricing :</span>
-                  <span>
-                    {(() => {
-                      let displayPrice = 0;
-                      let showSaleBadge = false;
+                    if (eventData?.on_sale && eventData?.lowest_sale_price) {
+                      displayPrice = Number(eventData.lowest_sale_price);
+                      showSaleBadge = true;
+                    } else if (eventData?.lowest_ticket_price) {
+                      displayPrice = Number(eventData.lowest_ticket_price);
+                    }
 
-                      if (eventData?.on_sale && eventData?.lowest_sale_price) {
-                        displayPrice = Number(eventData.lowest_sale_price);
-                        showSaleBadge = true;
-                      } else if (eventData?.lowest_ticket_price) {
-                        displayPrice = Number(eventData.lowest_ticket_price);
-                      }
+                    if (!displayPrice) return "Free";
 
-                      if (!displayPrice) return "Free";
+                    return (
+                      <>
+                        ₹{displayPrice} Onwards
+                        {showSaleBadge && (
+                          <CustomBadge className="ms-2">
+                            On Sale
+                          </CustomBadge>
+                        )}
+                      </>
+                    );
+                  })()}
+                </span>
+              </h6>
 
-                      return (
-                        <>
-                          ₹{displayPrice} Onwards
-                          {showSaleBadge && (
-                            <CustomBadge className="ms-2">
-                              On Sale
-                            </CustomBadge>
-                          )}
-                        </>
-                      );
-                    })()}
-                  </span>
-                </h6>
+              {/* Book */}
+              <CustomBtn
+                size="sm"
+                className="fw-bold rounded-3"
+                style={{ fontSize: "13px" }}
+                HandleClick={handleBookNow}
+                disabled={eventStatus.disabled}
+                buttonText={eventStatus.text}
+              />
 
-                {/* Book */}
-                <CustomBtn
-                  size="sm"
-                  className="fw-bold py-2 rounded-3"
-                  wrapper
-                  style={{ fontSize: "13px" }}
-                  HandleClick={handleBookNow}
-                  disabled={eventStatus.disabled}
-                  buttonText={eventStatus.text}
-                />
-              </div>
+              <InterestButton
+                eventId={eventData?.id}
+                eventData={eventData}
+                onLoginRequired={handleLoginRequired}
+              />
+              {/* Rate This */}
 
-              <div className='d-flex gap-2'>
-
-                {/* Interested */}
-                <InterestButton
-                  eventId={eventData?.id}
-                  eventData={eventData}
-                  onLoginRequired={handleLoginRequired}
-                />
-                {/* Rate This */}
-
-                <CustomBtn
-                  HandleClick={handleWriteReview}
-                  variant='outline-danger'
-                  size="sm"
-                  className="fw-bold py-2 rounded-3 d-flex align-items-center gap-2 justify-content-center"
-                  style={{ fontSize: "13px" }}
-                  buttonText="Rate This"
-                  icon={<Star size={16} />}
-                />
-                <CustomBtn
-                  HandleClick={handleShare}
-                  variant='outline-danger'
-                  size="sm"
-                  className="fw-bold py-2 rounded-3 d-flex align-items-center gap-2 justify-content-center"
-                  style={{ fontSize: "13px" }}
-                  buttonText="Share"
-                  icon={<Share2 size={16} />}
-                />
-              </div>
-
+              <CustomBtn
+                HandleClick={handleWriteReview}
+                variant='outline-danger'
+                size="sm"
+                className="fw-bold rounded-3"
+                style={{ fontSize: "13px" }}
+                buttonText="Rate This"
+                icon={<Star size={16} />}
+                labelStyle={{ fontSize: 12, fontWeight: 500 }}
+              />
+              <CustomBtn
+                HandleClick={handleShare}
+                variant='outline-danger'
+                size="sm"
+                className="fw-bold rounded-3"
+                style={{ fontSize: "13px" }}
+                buttonText="Share"
+                icon={<Share2 size={16} />}
+                labelStyle={{ fontSize: 12, fontWeight: 500 }}
+              />
             </div>
           )}
 
@@ -281,24 +273,26 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData, handleShare }) => {
             </Row>
           )}
         </div>
-      </div>
+      </div >
 
 
       {/* Login Modal */}
-      {!UserData && (
-        <LoginModal
-          show={showLoginModal}
-          onHide={() => setShowLoginModal(false)}
-          eventKey={event_key}
-        />
-      )}
+      {/* {!UserData && ( */}
+      <LoginModal
+        show={showLoginModal}
+        onHide={() => setShowLoginModal(false)}
+        eventKey={event_key}
+      />
+      {/* )} */}
 
       {/* Postponed Notice */}
-      {isPostponed && expectedDate && (
-        <div className="text-warning mt-2 fw-medium">
-          Expected on {formatDateDDMMYYYY(expectedDate)}
-        </div>
-      )}
+      {
+        isPostponed && expectedDate && (
+          <div className="text-warning mt-2 fw-medium">
+            Expected on {formatDateDDMMYYYY(expectedDate)}
+          </div>
+        )
+      }
 
       {/* Mobile Footer */}
       <div className="d-block d-sm-none">

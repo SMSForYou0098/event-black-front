@@ -178,14 +178,14 @@ const EventReviewsPage = () => {
 
     return (
         <div className="reviews-page bg-black min-vh-100 pb-5">
-            {!UserData && (
-                <LoginModal
-                    show={showLoginModal}
-                    onHide={() => setShowLoginModal(false)}
-                    eventKey={event_key}
-                    redirectPath={router.asPath}
-                />
-            )}
+            {/* {!UserData && ( */}
+            <LoginModal
+                show={showLoginModal}
+                onHide={() => setShowLoginModal(false)}
+                eventKey={event_key}
+                redirectPath={router.asPath}
+            />
+            {/* )} */}
 
             <Container className="px-0 px-md-3 pt-3 pt-md-4">
                 {/* Back Button & Title */}
@@ -424,7 +424,7 @@ const EventReviewsPage = () => {
                     <div className="reviews-list px-3 px-md-0">
                         {reviews.length === 0 ? (
                             <Card className="bg-dark border-0 shadow-sm">
-                                <Card.Body className="text-center py-5">
+                                <Card.Body className="text-center">
                                     <div className="bg-secondary bg-opacity-25 rounded-circle p-4 d-inline-flex mb-3">
                                         <Star size={48} className="text-muted" />
                                     </div>

@@ -92,13 +92,14 @@ const InterestButton = ({ eventId, eventData, onLoginRequired, className = "" })
                 <CustomBtn
                     variant={isInterested ? "primary" : "outline-danger"}
                     size="sm"
-                    className="fw-bold py-2 rounded-3"
+                    className="fw-bold rounded-3"
                     HandleClick={handleClick}
                     disabled={isLoading || inCooldown}
                     style={{
                         borderRadius: "4px",
                         minWidth: "auto",
                     }}
+                    labelStyle={{ fontSize: 12, fontWeight: 500 }}
                     hideIcon={true}
                     buttonText={
                         isLoading ? (

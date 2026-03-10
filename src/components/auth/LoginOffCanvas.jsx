@@ -1,5 +1,6 @@
 import React, { Fragment, memo, useEffect, useRef, useState } from "react";
 import { Modal, Offcanvas, Row, Col, Form, Button, Alert, Card, InputGroup } from "react-bootstrap";
+import Image from "next/image";
 import { useMutation } from "@tanstack/react-query";
 import { publicApi } from "@/lib/axiosInterceptor";
 import { useRouter } from "next/router";
@@ -923,8 +924,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             </Form.Control.Feedback>
                         </Form.Group>
 
-                        <span style={{ fontSize: '14px' }} className="text-white mt-2 mb-3 d-block">
-                            By continuing, you agree to accept our <Link href="/terms-and-conditions" className="text-decoration-underline text-primary">Terms & Conditions</Link> and <Link href="/privacy-policy" className="text-decoration-underline text-primary">Privacy Policy</Link>.
+                        <span style={{ fontSize: '12px' }} className="text-white mt-2 mb-3 d-block">
+                            I agree to accept our <Link href="/terms-and-conditions" className="text-decoration-underline text-primary">Terms & Conditions</Link> & <Link href="/privacy-policy" className="text-decoration-underline text-primary">Privacy Policy</Link>.
                         </span>
 
                         <div className="pb-5 mb-5"></div>
@@ -979,16 +980,35 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             showOffcanvas={show}
             setShowOffcanvas={() => handleModalClose()}
             placement="bottom"
-            className="modal-glass-bg"
-            hideIndicator={false}
-            title={
-                <div className="w-100 d-flex justify-content-center">
-                    <Logo height={isMobile ? 76 * 0.5 : 76} width={isMobile ? 111 * 0.5 : 189} />
-                </div>
-            }
+            className="bg-black"
+            hideIndicator={true}
+            bodyClassName='pt-0'
+            headerClassName='p-0'
+        // title={
+        //     <div className="w-100 d-flex justify-content-center">
+        //         <Logo height={isMobile ? 76 * 0.5 : 76} width={isMobile ? 111 * 0.5 : 189} />
+        //     </div>
+        // }
 
         >
-            <div ref={offcanvasBodyRef} className="pt-0 pb-2 d-flex flex-column" style={{ overflowY: 'auto' }}>
+            <div
+                ref={offcanvasBodyRef}
+                className="pt-0 pb-2 d-flex flex-column"
+                style={{
+                    overflowY: 'auto',
+                }}
+            >
+                <div className="px-3 mb-2">
+                    <Image
+                        src="/assets/images/pages/test-login.webp"
+                        alt="login-banner"
+                        width={0}
+                        height={0}
+                        sizes="100vw"
+                        className="img-fluid w-100 rounded-4"
+                        style={{ height: "auto", objectFit: "cover" }}
+                    />
+                </div>
                 {renderContent()}
             </div>
         </CustomDrawer>

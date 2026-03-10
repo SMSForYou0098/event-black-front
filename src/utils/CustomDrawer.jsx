@@ -15,6 +15,7 @@ const CustomDrawer = ({
   hideIndicator = false,
   className = '',
   bodyClassName = '',
+  headerClassName = '',
   style,
   ...props
 }) => {
@@ -92,13 +93,13 @@ const CustomDrawer = ({
 
   const drawerContent = (
     <>
-      <Offcanvas.Header className="d-flex justify-content-center align-items-center pt-3 text-center">
+      <Offcanvas.Header className={`${headerClassName} d-flex justify-content-center align-items-center pt-3 text-center`}>
         <Offcanvas.Title>{title}</Offcanvas.Title>
       </Offcanvas.Header>
 
       {/* ✅ Key fix: body uses flex-column so children can use flex:1 + scroll */}
       <Offcanvas.Body
-        className={`${bodyClassName} p-2`}
+        className={` p-2 ${bodyClassName}`}
         style={{
           display: 'flex',
           flexDirection: 'column',

@@ -165,7 +165,7 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
                     <>
                         {displayReviews.length === 0 ? (
                             <Card className="bg-dark border-0 shadow-sm rounded-3">
-                                <Card.Body className="d-flex flex-column align-items-center justify-content-center py-5">
+                                <Card.Body className="d-flex flex-column align-items-center justify-content-center">
                                     <div className="bg-secondary bg-opacity-25 rounded-circle p-4 mb-3">
                                         <Star className="text-muted" size={48} />
                                     </div>
