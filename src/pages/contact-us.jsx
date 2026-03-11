@@ -184,10 +184,11 @@ const ContactPage = memo(() => {
                 <p className="text-muted small mb-3">
                   Speak directly to one of our team members for assistance.
                 </p>
-                <div className="d-flex flex-column gap-2 mb-3">
+                <div className="d-flex align-items-center gap-2 mb-3">
                   <Link href={`tel:${CONTACT_INFO.phone1}`} className="text-white text-decoration-none small fw-500">
                     {CONTACT_INFO.phone1}
                   </Link>
+                  <span className="text-muted small">/</span>
                   <Link href={`tel:${CONTACT_INFO.phone2}`} className="text-white text-decoration-none small fw-500">
                     {CONTACT_INFO.phone2}
                   </Link>

@@ -236,7 +236,7 @@ const BookingSummary = () => {
                 onClose={handleCloseDrawer}
                 ticketType={ticketType}
                 ticketData={fullBookingData}
-                showTicketDetails={true}
+                showTicketDetails={false}
             />
             <Container >
                 <CartSteps id={'last'} />

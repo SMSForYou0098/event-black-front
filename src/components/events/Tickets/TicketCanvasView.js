@@ -64,8 +64,63 @@ const TicketCanvasView = forwardRef((props, ref) => {
     const number = seatNames || ticketData?.seat_name || ticketData?.event_seat_status?.seat_name || 'N/A';
     const address = venue?.address || event?.address || 'Address Not Specified';
     const ticketBG = ticket?.background_image || '';
-    const formattedDate = formatDateRange?.(ticketData?.booking_date || event?.date_range) || 'Date Not Available';
-    const date = formattedDate.replace(/\/\d{4}/g, "");
+    const formattedDate = ticketData?.booking_date || event?.date_range || 'Date Not Available';
+
+    // const date = formattedDate.replace(/\/\d{4}/g, "");
+    const date = (() => {
+        if (!formattedDate) return 'Date Not Available';
+
+        const parts = String(formattedDate)
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
+
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        const parseDate = (isoStr) => {
+            const d = new Date(isoStr);
+            if (Number.isNaN(d.getTime())) return null;
+
+            return {
+                day: d.getDate(),
+                month: months[d.getMonth()],
+                monthIndex: d.getMonth(),
+                year: d.getFullYear()
+            };
+        };
+
+        if (parts.length === 1) {
+            const d = parseDate(parts[0]);
+            return d ? `${d.day} ${d.month} ${d.year}` : parts[0];
+        }
+
+        const start = parseDate(parts[0]);
+        const end = parseDate(parts[1]);
+
+        if (!start || !end) return formattedDate;
+
+        // ✅ same date
+        if (
+            start.day === end.day &&
+            start.monthIndex === end.monthIndex &&
+            start.year === end.year
+        ) {
+            return `${start.day} ${start.month} ${start.year}`;
+        }
+
+        // same month & year
+        if (start.year === end.year && start.monthIndex === end.monthIndex) {
+            return `${start.day} to ${end.day} ${start.month} ${start.year}`;
+        }
+
+        // same year
+        if (start.year === end.year) {
+            return `${start.day} ${start.month} to ${end.day} ${end.month} ${start.year}`;
+        }
+
+        // different year
+        return `${start.day} ${start.month} ${start.year} to ${end.day} ${end.month} ${end.year}`;
+    })();
     const time = convertTo12HourFormat?.(event?.start_time) || 'Time Not Set';
     const OrderId = ticketData?.order_id || ticketData?.token || 'N/A';
     const title = event?.name || 'Event Name';
@@ -208,7 +263,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
                 if (showDetails) {
                     centerText(title, 16, 'Arial', canvas, 50, { fontWeight: 'bold' });
                     if (eventType) {
-                        centerText(eventType.charAt(0).toUpperCase() + eventType.slice(1), 11, 'Arial', canvas, 70, { fill: '#666' });
+                        centerText(eventType.charAt(0).toUpperCase() + eventType.slice(1), 11, 'Arial', canvas, 70, { fill: '#000' });
                     }
                     centerText(ticketName, 18, 'Arial', canvas, 185, { fontWeight: 'bold' });
                 }
@@ -275,19 +330,19 @@ const TicketCanvasView = forwardRef((props, ref) => {
                     // Date Column (FIRST)
                     const dateStartX = 40;
 
-                    const dateLabel = new fabric.Text('📅 Date', {
-                        left: dateStartX,
-                        top: currentY,
-                        fontSize: 14,
-                        fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
-                        fill: textColor,
-                        selectable: false,
-                        evented: false,
-                        fontWeight: 'normal',
-                    });
-                    canvas.add(dateLabel);
+                    // const dateLabel = new fabric.Text('📅 Date', {
+                    //     left: dateStartX,
+                    //     top: currentY,
+                    //     fontSize: 14,
+                    //     fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
+                    //     fill: textColor,
+                    //     selectable: false,
+                    //     evented: false,
+                    //     fontWeight: 'normal',
+                    // });
+                    // canvas.add(dateLabel);
 
-                    const dateValue = new fabric.Textbox(date, {
+                    const dateValue = new fabric.Textbox(`📅 ${date}`, {
                         left: dateStartX,
                         top: currentY + 20,
                         fontSize: 14,
@@ -305,19 +360,19 @@ const TicketCanvasView = forwardRef((props, ref) => {
                     // Time Column (SECOND)
                     const timeStartX = 180;
 
-                    const timeLabel = new fabric.Text('⏰ Time', {
-                        left: timeStartX,
-                        top: currentY,
-                        fontSize: 14,
-                        fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
-                        fill: textColor,
-                        selectable: false,
-                        evented: false,
-                        fontWeight: 'normal',
-                    });
-                    canvas.add(timeLabel);
+                    // const timeLabel = new fabric.Text('⏰ Time', {
+                    //     left: timeStartX,
+                    //     top: currentY,
+                    //     fontSize: 14,
+                    //     fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
+                    //     fill: textColor,
+                    //     selectable: false,
+                    //     evented: false,
+                    //     fontWeight: 'normal',
+                    // });
+                    // canvas.add(timeLabel);
 
-                    const timeValue = new fabric.Text(time, {
+                    const timeValue = new fabric.Text(`⏰ ${time}`, {
                         left: timeStartX,
                         top: currentY + 20,
                         fontSize: 14,
@@ -484,8 +539,8 @@ const TicketCanvasView = forwardRef((props, ref) => {
     };
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', width: '100%', minHeight: '550px' }}>
-            <canvas ref={canvasRef} />
+        <div className="mb-5 ticket-canvas-wrapper" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} style={{ display: 'block', width: `${CANVAS_WIDTH}px * 0.8`, height: `${CANVAS_HEIGHT}px * 0.8` }} />
         </div>
     );
 });

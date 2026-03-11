@@ -363,7 +363,7 @@ canvas {
   canvas {
     height: 97% !important; // adjust as needed for your design
     width: 74% !important; // full width on mobile
-    max-height: 60vh !important; // optional: responsive to viewport
+    max-height: 80vh !important; // optional: responsive to viewport
   }
 
   // Seating module: let Konva control canvas size so hit-testing and layout match (no 74% override)

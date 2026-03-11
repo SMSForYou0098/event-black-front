@@ -15,6 +15,7 @@ const BookingMobileFooter = ({ handleClick, selectedTickets, step = 0, isLoading
       handleClick();
     }
   }, [selectedTickets, handleClick]);
+  console.log('selectedTickets', selectedTickets)
   return (
     <>
       <BookingFooterLayout

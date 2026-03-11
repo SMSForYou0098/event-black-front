@@ -63,7 +63,7 @@ const SectionSlider = ({
       <Container fluid={containerFluid}>
         <div className="overflow-hidden card-style-slider" ref={slider}>
           <div className="d-flex align-items-center justify-content-between px-3 my-2">
-            <h5 className="main-title text-capitalize mb-0">{title}</h5>
+            <h6 className="main-title text-capitalize mb-0">{title}</h6>
             {
               hideViewAll !== false &&
               <Link

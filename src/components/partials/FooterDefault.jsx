@@ -7,6 +7,8 @@ import DOMPurify from 'dompurify';
 import { MailCheck } from "lucide-react";
 import Logo from "./Logo";
 import Divider from '../../utils/Divider'
+const ORGANIZER_LOGIN_URL = "https://login.getyourticket.in/auth/register";
+
 const FooterMega = memo(() => {
   const [animationClass, setAnimationClass] = useState("animate__fadeIn");
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -117,6 +119,18 @@ const FooterMega = memo(() => {
           { id: 17, title: "Global Festivals", page_id: "events/global-festivals" },
         ],
       },
+      {
+        id: 6,
+        title: "Registrations",
+        footer_menu: [
+          // { id: 13, title: "Registrations", page_id: "/" },
+          { id: 14, title: "Organizer", page_id: ORGANIZER_LOGIN_URL },
+          { id: 15, title: "Influencer ", page_id: "/" },
+          { id: 16, title: "Volunteer ", page_id: "/" },
+          { id: 17, title: "Internship ", page_id: "/" },
+          { id: 17, title: "Careers ", page_id: "/" },
+        ],
+      },
     ],
   };
 
@@ -154,7 +168,12 @@ const FooterMega = memo(() => {
                           <ul className="list-unstyled footer-menu">
                             {group.footer_menu.map((link) => (
                               <li className="mb-3" key={link.id}>
-                                <Link href={`/${link.page_id}`} className="ms-3">
+                                <Link
+                                  href={link.page_id.startsWith('http') ? link.page_id : `/${link.page_id}`}
+                                  className="ms-3"
+                                  target={link.page_id.startsWith('http') ? "_blank" : undefined}
+                                  rel={link.page_id.startsWith('http') ? "noopener noreferrer" : undefined}
+                                >
                                   {link.title}
                                 </Link>
                               </li>

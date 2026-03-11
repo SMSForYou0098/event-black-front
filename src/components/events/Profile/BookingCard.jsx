@@ -284,7 +284,7 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
         onClose={handleCloseDrawer}
         ticketType={ticketType}
         ticketData={ticketData}
-        showTicketDetails={true}
+        showTicketDetails={false}
       />
 
       {/* Transfer Drawer */}

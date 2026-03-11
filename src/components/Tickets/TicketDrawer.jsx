@@ -193,7 +193,7 @@ const TicketDrawer = ({
     const ticketContent = (
         <div className="d-flex flex-column h-100" style={{ flex: 1, minHeight: 0 }}>
             {/* Scrollable content area */}
-            <div className="flex-grow-1 overflow-auto p-3" style={{ minHeight: 0 }}>
+            <div className="flex-grow-1 p-3" style={{ minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
                 {/* Loading state */}
                 {!isImageReady && (
                     <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
@@ -293,12 +293,13 @@ const TicketDrawer = ({
 
     return (
         <CustomDrawer
-            title={ticketType?.type === 'individual' ? 'Single Tickets' : ticketType?.type === 'single' ? 'How To Get Entry !!!' : 'Group Ticket'}
+            title={ticketType?.type === 'individual' ? 'Single Tickets' : ticketType?.type === 'single' ? 'Single Ticket' : 'Group Ticket'}
             showOffcanvas={show}
             setShowOffcanvas={onClose}
             hideIndicator={isMobile ? false : true}
-            style={isMobile ? { height: "90vh" } : { height: "100vh" }}
+            style={{ height: "100vh" }}
             bodyClassName="pt-0"
+
         >
             {showTicket ? ticketContent : noticeContent}
         </CustomDrawer>
