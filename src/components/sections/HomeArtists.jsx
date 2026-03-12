@@ -8,7 +8,7 @@ import SectionSlider from "../slider/SectionSlider";
 import { generateImgPath } from "../../StaticData/data";
 import ProductCard from "../cards/ProductCard";
 
-const HomeArtists = memo(({type}) => {
+const HomeArtists = memo(({ type }) => {
   const [title] = useState("Artists");
   const [watching, setWatching] = useState(
     Array.from({ length: 8 }, (_, i) => ({
@@ -16,7 +16,7 @@ const HomeArtists = memo(({type}) => {
       value: Math.floor(Math.random() * 100), // Optional: random progress for demo
     }))
   );
-  
+
 
   return (
     <Fragment>
@@ -25,14 +25,14 @@ const HomeArtists = memo(({type}) => {
         list={watching}
         className="continue-watching-block"
         slidesPerView={6}
+        autoplay={{ delay: 3000, disableOnInteraction: false }}
+        loop={watching.length > 5}
       >
         {(data) => (
           <ProductCard
             thumbnail={data.image}
             imageOnly={true}
-            // progressValue={data.value}
-            // dataLeftTime={data.leftTime}
-            // link="/movies/detail"
+
           />
         )}
       </SectionSlider>

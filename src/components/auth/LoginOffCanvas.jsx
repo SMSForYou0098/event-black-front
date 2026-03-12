@@ -468,10 +468,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             isValid = false;
         }
 
-        if (!termsAccepted) {
-            errors.terms = "You must agree to the terms of use";
-            isValid = false;
-        }
+        // Terms are always accepted
+
 
         setValidationErrors(errors);
 
@@ -736,22 +734,10 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                 type="checkbox"
                                 id="terms-agreement"
                                 label="I agree with the terms of use"
-                                checked={termsAccepted}
-                                onChange={(e) => {
-                                    setTermsAccepted(e.target.checked);
-                                    setTouched(prev => ({ ...prev, terms: true }));
-                                }}
-                                isInvalid={touched.terms && !!validationErrors.terms}
+                                checked={true}
+                                onChange={() => { }}
                                 required
                             />
-                            <Form.Control.Feedback
-                                type="invalid"
-                                style={{
-                                    display: touched.terms && validationErrors.terms ? "block" : "none",
-                                }}
-                            >
-                                {validationErrors.terms}
-                            </Form.Control.Feedback>
                         </div>
                         <div className="mb-5"></div>
                         <MobileTwoButtonFooter
@@ -924,9 +910,20 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             </Form.Control.Feedback>
                         </Form.Group>
 
-                        <span style={{ fontSize: '12px' }} className="text-white mt-2 mb-3 d-block">
-                            I agree to accept our <Link href="/terms-and-conditions" className="text-decoration-underline text-primary">Terms & Conditions</Link> & <Link href="/privacy-policy" className="text-decoration-underline text-primary">Privacy Policy</Link>.
-                        </span>
+                        <div className="mb-3 mt-2">
+                            <Form.Check
+                                type="checkbox"
+                                id="signin-terms-agreement"
+                                label={
+                                    <span style={{ fontSize: '12px' }} className="text-white">
+                                        I agree to accept our <Link href="/terms-and-conditions" className="text-decoration-underline text-primary">Terms & Conditions</Link> & <Link href="/privacy-policy" className="text-decoration-underline text-primary">Privacy Policy</Link>.
+                                    </span>
+                                }
+                                checked={true}
+                                onChange={() => { }}
+                                required
+                            />
+                        </div>
 
                         <div className="pb-5 mb-5"></div>
                         <MobileTwoButtonFooter
@@ -1022,7 +1019,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         >
             <Modal.Header closeButton className="border-0 pb-0">
                 <Modal.Title className="w-100 text-center">
-                    <Logo height={isMobile ? 76 * 0.5 : 76} width={isMobile ? 111 * 0.5 : 189} />
+                    {/* <Logo height={isMobile ? 76 * 0.5 : 76} width={isMobile ? 111 * 0.5 : 189} /> */}
+                    <Logo height={isMobile ? 76 * 0.4 : 41 * 0.8} width={isMobile ? 111 * 0.4 : 328 * 0.8} />
                     <h6 className="mb-0 text-light">{getTitle()}</h6>
                 </Modal.Title>
             </Modal.Header>

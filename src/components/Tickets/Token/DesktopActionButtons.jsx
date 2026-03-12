@@ -63,7 +63,7 @@ const DesktopActionButtons = ({
 
                     {ticketData?.controls?.ticket_transfer && (
                         <CustomBtn
-                            variant="outline-primary"
+                            variant="secondary"
                             HandleClick={handleTransferClick}
                             disabled={!imageLoaded && cardImageUrl}
                             buttonText="Transfer"

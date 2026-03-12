@@ -28,7 +28,7 @@ const SectionSlider = ({
   containerFluid = true,
   onViewAll,
   hideViewAll = false,
-
+  autoplay = false,
 }) => {
   const themeSchemeDirection = useSelector(theme_scheme_direction);
 
@@ -109,11 +109,12 @@ const SectionSlider = ({
                 spaceBetween: 0,
               },
             }}
+            autoplay={autoplay}
             modules={modules}
           >
             {list?.map((data, index) => (
-              <SwiperSlide slidesPerView={6} spaceBetween={0}>
-                {children(data)}
+              <SwiperSlide key={index}>
+                {children(data, index)}
               </SwiperSlide>
             ))}
             <div className="swiper-button swiper-button-next"></div>

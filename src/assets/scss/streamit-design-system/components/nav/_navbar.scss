@@ -1,5 +1,5 @@
 .navbar {
-  > .container-fluid {
+  >.container-fluid {
     justify-content: center;
   }
 }
@@ -47,12 +47,12 @@ header {
         padding: 0 0.9375em;
         margin-right: 0;
 
-        &:hover > a,
-        > a.active {
+        &:hover>a,
+        >a.active {
           color: var(--bs-white) !important;
         }
 
-        > a {
+        >a {
           &::before {
             position: absolute;
             content: "";
@@ -82,15 +82,15 @@ header {
           }
         }
 
-        &:hover > a::before,
-        > a.active::before {
+        &:hover>a::before,
+        >a.active::before {
           opacity: 1;
           transform: translate3d(0, 0, 0);
           transition: all 0.5s ease-in-out;
         }
 
-        &:hover > a::after,
-        > a.active::after {
+        &:hover>a::after,
+        >a.active::after {
           opacity: 1;
           transform: translate3d(0, 0, 0);
           transition: all 0.5s ease-in-out;
@@ -155,61 +155,65 @@ header {
     min-width: 20rem;
   }
 
-.search-box {
-  .form-group {
-    // Remove the permanent animation
-    // animation: scale-out-hor-right 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
-  }
-
-  .iq-search-bar {
-    .form-control {
-      padding-left: 2.8em;
-      padding-right: 1.5em;
-      background: var(--bs-body-bg);
-      z-index: 0;
-    }
-  }
-
-  // Add animation when dropdown is shown
-  &.show {
+  .search-box {
     .form-group {
-      animation: scale-in-hor-right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+      // Remove the permanent animation
+      // animation: scale-out-hor-right 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
+    }
+
+    .iq-search-bar {
+      .form-control {
+        padding-left: 2.8em;
+        padding-right: 1.5em;
+        background: var(--bs-body-bg);
+        z-index: 0;
+      }
+    }
+
+    // Add animation when dropdown is shown
+    &.show {
+      .form-group {
+        animation: scale-in-hor-right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+      }
+    }
+
+    // Animation keyframes
+    @keyframes scale-in-hor-right {
+      0% {
+        transform: scaleX(0);
+        transform-origin: 100% 100%;
+        opacity: 1;
+      }
+
+      100% {
+        transform: scaleX(1);
+        transform-origin: 100% 100%;
+        opacity: 1;
+      }
+    }
+
+    @keyframes scale-out-hor-right {
+      0% {
+        transform: scaleX(1);
+        transform-origin: 100% 100%;
+        opacity: 1;
+      }
+
+      100% {
+        transform: scaleX(0);
+        transform-origin: 100% 100%;
+        opacity: 1;
+      }
     }
   }
 
-  // Animation keyframes
-  @keyframes scale-in-hor-right {
-    0% {
-      transform: scaleX(0);
-      transform-origin: 100% 100%;
-      opacity: 1;
-    }
-    100% {
-      transform: scaleX(1);
-      transform-origin: 100% 100%;
-      opacity: 1;
-    }
-  }
-
-  @keyframes scale-out-hor-right {
-    0% {
-      transform: scaleX(1);
-      transform-origin: 100% 100%;
-      opacity: 1;
-    }
-    100% {
-      transform: scaleX(0);
-      transform-origin: 100% 100%;
-      opacity: 1;
-    }
-  }
-}
-  .search-box a.show + ul li .form-group {
+  .search-box a.show+ul li .form-group {
     animation: scale-in-hor-right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
   }
 }
 
 .nav {
+
   //navbar button
   .navbar-toggler {
     border: none;
@@ -320,7 +324,7 @@ header {
       position: relative;
       flex-direction: column;
 
-      > ul {
+      >ul {
         position: absolute;
         height: auto !important;
         top: 100%;
@@ -349,9 +353,7 @@ header {
           a {
             transition: var(--sidebar-transition);
             transition-duration: var(--sidebar-transition-duration);
-            transition-timing-function: var(
-              --sidebar-transition-function-ease-in-out
-            );
+            transition-timing-function: var(--sidebar-transition-function-ease-in-out);
             padding: 0.5rem 1.25rem 0.5rem 1.25rem;
           }
 
@@ -363,22 +365,20 @@ header {
 
       .iq-header-sub-menu {
         .nav-item {
-          > .nav-link {
+          >.nav-link {
             &:hover {
               padding-left: 1.5rem;
               font-weight: 500;
               transition: var(--sidebar-transition);
               transition-duration: var(--sidebar-transition-duration);
-              transition-timing-function: var(
-                --sidebar-transition-function-ease-in-out
-              );
+              transition-timing-function: var(--sidebar-transition-function-ease-in-out);
             }
           }
         }
       }
 
       &:hover {
-        > ul {
+        >ul {
           display: block;
         }
       }
@@ -390,14 +390,14 @@ header {
       }
 
       &.active {
-        > a {
+        >a {
           color: var(--#{$variable-prefix}primary);
         }
       }
     }
 
-    > li {
-      > a {
+    >li {
+      >a {
         padding: 0.5rem 1.25rem;
         margin: 0;
         border-radius: 0.5rem;
@@ -418,7 +418,7 @@ header {
       border-left: 0;
     }
 
-    > li.iq-ecomm-active {
+    >li.iq-ecomm-active {
       padding: 0;
     }
   }
@@ -465,6 +465,7 @@ header {
           top: 100%;
           transform: translateY(0);
         }
+
         .form-group {
           width: 260px;
           margin: 0 0 0 auto;
@@ -538,8 +539,8 @@ header {
         li {
           padding: 0;
 
-          > a::before,
-          > a::after {
+          >a::before,
+          >a::after {
             content: none;
           }
         }
@@ -553,12 +554,10 @@ header {
               color: var(--bs-white);
               border: solid;
               border-width: 0 0 0.0625rem;
-              border-image-source: linear-gradient(
-                90deg,
-                rgb(31, 31, 31),
-                rgba(31, 31, 31, 0.6),
-                rgba(31, 31, 31, 0)
-              );
+              border-image-source: linear-gradient(90deg,
+                  rgb(31, 31, 31),
+                  rgba(31, 31, 31, 0.6),
+                  rgba(31, 31, 31, 0));
               border-image-slice: 1;
               font-weight: $font-weight-normal;
               font-size: 0.875rem;
@@ -653,13 +652,13 @@ header {
     li {
       .iq-header-sub-menu {
         li {
-          &:hover > a::before {
+          &:hover>a::before {
             opacity: 1;
             transform: translate3d(0, 0, 0);
             transition: all 0.5s ease-in-out;
           }
 
-          > a::before {
+          >a::before {
             position: absolute;
             content: "";
             background: var(--bs-primary);
@@ -676,13 +675,13 @@ header {
           padding: 0 0.9375em;
           margin-right: 0;
 
-          &:hover > a::after {
+          &:hover>a::after {
             opacity: 1;
             transform: translate3d(0, 0, 0);
             transition: all 0.5s ease-in-out;
           }
 
-          > a::after {
+          >a::after {
             position: absolute;
             content: "";
             background: transparent -webkit-gradient(linear, right top, left top, from(rgba(var(--bs-primary-rgb), 0)), to(rgba(var(--bs-primary-rgb), 0.3)));
@@ -740,12 +739,10 @@ header {
         border: 0.063em solid;
         border-image-slice: 0.063em;
         border-width: 0 0 0.063em 0;
-        border-image-source: linear-gradient(
-          to right,
-          rgba(209, 208, 207, 0.6),
-          rgba(209, 208, 207, 0.3),
-          rgba(209, 208, 207, 0)
-        );
+        border-image-source: linear-gradient(to right,
+            rgba(209, 208, 207, 0.6),
+            rgba(209, 208, 207, 0.3),
+            rgba(209, 208, 207, 0));
       }
     }
   }
@@ -840,44 +837,42 @@ header {
   }
 
   .iq-nav-menu {
-    > li {
+    >li {
       margin: 0 1rem 1.5rem;
 
       &:last-child {
         margin: 0 1rem 1.5rem;
       }
 
-      > a {
+      >a {
         padding: 0 0 1.5rem;
         color: var(--bs-white);
         border: solid;
         border-width: 0 0 0.0625rem;
-        border-image-source: linear-gradient(
-          90deg,
-          rgba(31, 31, 31, 1),
-          rgba(31, 31, 31, 0.6),
-          rgba(31, 31, 31, 0)
-        );
+        border-image-source: linear-gradient(90deg,
+            rgba(31, 31, 31, 1),
+            rgba(31, 31, 31, 0.6),
+            rgba(31, 31, 31, 0));
         border-image-slice: 1;
       }
     }
   }
 }
 
-.iq-nav-menu .nav-item > .nav-link:hover,
-.iq-nav-menu .nav-item > .nav-link:hover i {
+.iq-nav-menu .nav-item>.nav-link:hover,
+.iq-nav-menu .nav-item>.nav-link:hover i {
   color: var(--bs-primary);
 }
 
 .iq-nav-menu {
   li {
     &.active {
-      & > a {
+      &>a {
         color: var(--bs-primary);
       }
     }
 
-    & > ul {
+    &>ul {
       li {
         padding: 0;
         margin: 0;
@@ -885,8 +880,8 @@ header {
     }
   }
 
-  & > li {
-    & > a {
+  &>li {
+    &>a {
       font-weight: 500;
       font-size: 1rem;
       color: var(--bs-body-color);
@@ -914,7 +909,7 @@ header {
 .nav-link:focus {
   color: var(--bs-primary);
 
-  &:focus-visible{
+  &:focus-visible {
     box-shadow: none;
   }
 }
@@ -953,7 +948,7 @@ header {
     ul {
       li {
         &:hover {
-          & > .sub-menu {
+          &>.sub-menu {
             display: block !important;
             -webkit-animation: menu-sub-dropdown-animation-fade-in 0.3s ease 1,
               menu-sub-dropdown-animation-move-up 0.3s ease 1;
@@ -967,7 +962,7 @@ header {
 
   .iq-nav-menu {
     li {
-      & > ul {
+      &>ul {
         position: absolute;
         height: auto !important;
         top: 100%;
@@ -1017,17 +1012,18 @@ header {
       }
 
       &:hover {
-        & > ul {
+        &>ul {
           display: block;
         }
-        & > ul.mega-menu-item {
+
+        &>ul.mega-menu-item {
           display: flex;
         }
       }
 
       &.active {
-        & > a {
-          & > i {
+        &>a {
+          &>i {
             color: var(--bs-primary);
           }
         }
@@ -1044,8 +1040,8 @@ header {
       border-left: 0;
     }
 
-    & > li {
-      & > a {
+    &>li {
+      &>a {
         font-size: 0.875rem;
         padding: 1.0625rem var(--bs-navbar-nav-link-padding-x);
         line-height: 1.5rem;
@@ -1090,7 +1086,7 @@ header {
 @include media-breakpoint-up(xxl) {
   .iq-nav-menu {
     li {
-      > ul {
+      >ul {
         ul {
           left: 100%;
           right: auto;

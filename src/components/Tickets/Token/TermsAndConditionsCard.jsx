@@ -13,7 +13,7 @@ const TermsAndConditionsCard = ({ ticketData }) => {
 
                 {ticketData?.booking_type === 'online' && ticketData?.event?.online_ticket_terms && (
                     <div className="mb-4">
-                        <h6 className="fw-bold mb-2" style={{ fontSize: '14px' }}>Online Ticket Terms</h6>
+                        {/* <h6 className="fw-bold mb-2" style={{ fontSize: '14px' }}>Online Ticket Terms</h6> */}
                         <div
                             style={{ fontSize: '14px' }}
                             dangerouslySetInnerHTML={{
@@ -25,7 +25,7 @@ const TermsAndConditionsCard = ({ ticketData }) => {
 
                 {ticketData?.booking_type !== 'online' && ticketData?.event?.offline_ticket_terms && (
                     <div>
-                        <h6 className="fw-bold mb-2" style={{ fontSize: '14px' }}>Offline Ticket Terms</h6>
+                        {/* <h6 className="fw-bold mb-2" style={{ fontSize: '14px' }}>Offline Ticket Terms</h6> */}
                         <div
                             style={{ fontSize: '14px' }}
                             dangerouslySetInnerHTML={{

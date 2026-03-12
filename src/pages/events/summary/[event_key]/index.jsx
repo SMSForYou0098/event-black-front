@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import ReactDOMServer from "react-dom/server";
-import { AttendeesOffcanvas, ETicketAlert, TicketDataSummary } from '../../../../components/events/CheckoutComps/checkout_utils';
+import { AttendeesOffcanvas, ETicketAlert, TicketDataSummary, BookingMetadataCard } from '../../../../components/events/CheckoutComps/checkout_utils';
 import { api } from "@/lib/axiosInterceptor"
 import { useMyContext } from "@/Context/MyContextProvider";
 import { getErrorMessage } from "@/utils/errorUtils";
@@ -269,103 +269,17 @@ const BookingSummary = () => {
 
                     {/* Left Column */}
                     <Col lg={4}>
-                        <Card className="custom-dark-bg mb-4">
-                            <Card.Body className="p-4">
-                                <Row className="g-3 mb-3">
-                                    <Col xs={6}>
-                                        <div className="d-flex align-items-center">
-                                            <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Date</div>
-                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{getEventDates()}</div>
-                                            </div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6}>
-                                        <div className="d-flex align-items-start">
-                                            <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Booking Date</div>
-                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{formatDate(booking?.created_at) || 'N/A'}</div>
-                                            </div>
-                                        </div>
-                                    </Col>
-                                    {
-                                        seat_name && (
-                                            <Col xs={6}>
-                                                <div className="d-flex align-items-center">
-                                                    <SquareAsterisk size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                                    <div>
-                                                        <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Seats</div>
-                                                        <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{seat_name}</div>
-                                                    </div>
-                                                </div>
-                                            </Col>
-                                        )
-                                    }
-                                    {
-                                        booking?.booking_date && (
-                                            <Col xs={6}>
-                                                <div className="d-flex align-items-start">
-                                                    <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
-                                                    <div>
-                                                        <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Booked For Date</div>
-                                                        <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{formatDate(booking?.booking_date) || 'N/A'}</div>
-                                                    </div>
-                                                </div>
-                                            </Col>
-                                        )
-                                    }
-                                    <Col xs={6}>
-                                        <div className="d-flex align-items-center">
-                                            <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Entry Time</div>
-                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{event?.entry_time}</div>
-                                            </div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6}>
-                                        <div className="d-flex align-items-center">
-                                            <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Start Time</div>
-                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{event?.start_time}</div>
-                                            </div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={12}>
-                                        <div className="d-flex align-items-start">
-                                            <MapPin size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Venue</div>
-                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{venue?.address || event?.address || 'Venue Address'}</div>
-                                            </div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6}>
-                                        <div className="d-flex align-items-start">
-                                            <User size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Name</div>
-                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{user?.name || 'N/A'}</div>
-                                            </div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6}>
-                                        <div className="d-flex align-items-start">
-                                            <User size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
-                                            <div>
-                                                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Contact Number</div>
-                                                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{user?.number || 'N/A'}</div>
-                                            </div>
-                                        </div>
-                                    </Col>
-
-                                </Row>
-
-                            </Card.Body>
-                        </Card>
+                        <BookingMetadataCard
+                            eventDates={getEventDates()}
+                            bookingDate={formatDate(booking?.created_at)}
+                            seatName={seat_name}
+                            bookedForDate={booking?.booking_date ? formatDate(booking?.booking_date) : null}
+                            entryTime={event?.entry_time}
+                            startTime={event?.start_time}
+                            venueAddress={venue?.address || event?.address}
+                            userName={user?.name}
+                            userNumber={user?.number}
+                        />
                         {/* Pending Approval Message */}
                         {isApprovalRequired && (
                             <div className="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">

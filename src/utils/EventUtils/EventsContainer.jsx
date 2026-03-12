@@ -20,6 +20,7 @@ const EventsContainer = memo(({
   retry = 2,
   apiEndpoint = "events",
   isTopTenCard = false,
+  autoplay = null,
 }) => {
   const { createSlug } = useMyContext();
 
@@ -68,7 +69,13 @@ const EventsContainer = memo(({
 
   return (
     <Fragment>
-      <SectionSlider title={title} list={eventsList} className={className}>
+      <SectionSlider
+        title={title}
+        list={eventsList}
+        className={className}
+        autoplay={autoplay !== null ? autoplay : (isTopTenCard ? { delay: 3000, disableOnInteraction: false } : false)}
+        loop={(isTopTenCard || autoplay !== null) && eventsList.length > 5}
+      >
         {(data, index) => {
           // Ensure index is a valid number, fallback to array index if needed
           const safeIndex = typeof index === 'number' && !isNaN(index)

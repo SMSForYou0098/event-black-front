@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { motion, AnimatePresence } from 'framer-motion';
-import { Alert, Form, Button, Table, Card, InputGroup, Spinner, Offcanvas, ListGroup } from 'react-bootstrap';
-import { Receipt, Tag, ChevronDown, Ticket, Crown, InstagramIcon } from 'lucide-react';
+import { Alert, Form, Button, Table, Card, InputGroup, Spinner, Offcanvas, ListGroup, Row, Col } from 'react-bootstrap';
+import { Receipt, Tag, ChevronDown, Ticket, Crown, InstagramIcon, Calendar, Clock, MapPin, User, SquareAsterisk } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
 import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY } from '../../../utils/consts';
 import { decrypt } from '../../../utils/crypto';
@@ -438,3 +438,115 @@ export const AttendeesOffcanvas = ({
     </Offcanvas>
   );
 };
+
+export const BookingMetadataCard = ({
+  eventDates,
+  bookingDate,
+  seatName,
+  bookedForDate,
+  entryTime,
+  startTime,
+  venueAddress,
+  userName,
+  userNumber
+}) => {
+  return (
+    <Card className="custom-dark-bg mb-4">
+      <Card.Body className="p-4">
+        <Row className="g-3 mb-3">
+          <Col xs={6}>
+            <div className="d-flex align-items-center">
+              <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+              <div>
+                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Date</div>
+                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{eventDates || 'N/A'}</div>
+              </div>
+            </div>
+          </Col>
+          <Col xs={6}>
+            <div className="d-flex align-items-start">
+              <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+              <div>
+                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Booking Date</div>
+                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{bookingDate || 'N/A'}</div>
+              </div>
+            </div>
+          </Col>
+          {
+            seatName && (
+              <Col xs={6}>
+                <div className="d-flex align-items-center">
+                  <SquareAsterisk size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                  <div>
+                    <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Seats</div>
+                    <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{seatName}</div>
+                  </div>
+                </div>
+              </Col>
+            )
+          }
+          {
+            bookedForDate && (
+              <Col xs={6}>
+                <div className="d-flex align-items-start">
+                  <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+                  <div>
+                    <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Booked For Date</div>
+                    <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{bookedForDate || 'N/A'}</div>
+                  </div>
+                </div>
+              </Col>
+            )
+          }
+          <Col xs={6}>
+            <div className="d-flex align-items-center">
+              <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+              <div>
+                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Entry Time</div>
+                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{entryTime || 'N/A'}</div>
+              </div>
+            </div>
+          </Col>
+          <Col xs={6}>
+            <div className="d-flex align-items-center">
+              <Clock size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+              <div>
+                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Start Time</div>
+                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{startTime || 'N/A'}</div>
+              </div>
+            </div>
+          </Col>
+          <Col xs={12}>
+            <div className="d-flex align-items-start">
+              <MapPin size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+              <div>
+                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Venue</div>
+                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{venueAddress || 'Venue Address'}</div>
+              </div>
+            </div>
+          </Col>
+          <Col xs={6}>
+            <div className="d-flex align-items-start">
+              <User size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+              <div>
+                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Name</div>
+                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{userName || 'N/A'}</div>
+              </div>
+            </div>
+          </Col>
+          <Col xs={6}>
+            <div className="d-flex align-items-start">
+              <User size={18} style={{ color: '#b0b0b0', marginRight: '10px', marginTop: '2px' }} />
+              <div>
+                <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Contact Number</div>
+                <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{userNumber || 'N/A'}</div>
+              </div>
+            </div>
+          </Col>
+
+        </Row>
+
+      </Card.Body>
+    </Card>
+  )
+}

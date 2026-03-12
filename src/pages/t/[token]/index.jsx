@@ -1,19 +1,20 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useRouter } from "next/router";
-import { Container } from "react-bootstrap";
+import { Container, Row, Col, Card } from "react-bootstrap";
 import Swal from "sweetalert2";
 import moment from "moment";
 import { useQuery } from "@tanstack/react-query";
 import imgLoader from "../../../assets/event/stock/loader111.gif";
 import Image from "next/image";
+import { Calendar, Clock, MapPin, User, SquareAsterisk, AlertCircle } from 'lucide-react';
 import { useMyContext } from "@/Context/MyContextProvider";
 import { publicApi } from "@/lib/axiosInterceptor";
 import TicketErrorDisplay from "@/components/errors/TicketErrorDisplay";
 import { getErrorMessage } from "@/utils/errorUtils";
+import { ETicketAlert, TicketDataSummary, BookingMetadataCard } from "@/components/events/CheckoutComps/checkout_utils";
 
 
 // Extracted Components
-import TicketInfoCard from "@/components/Tickets/Token/TicketInfoCard";
 import TermsAndConditionsCard from "@/components/Tickets/Token/TermsAndConditionsCard";
 import DesktopActionButtons from "@/components/Tickets/Token/DesktopActionButtons";
 import MobileActionButtons from "@/components/Tickets/Token/MobileActionButtons";
@@ -220,16 +221,8 @@ const UserCard = () => {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: "2rem 1rem",
-        paddingBottom: "2.5rem",
-      }}
-      className="pb-md-4 pb-5"
-    >
+    <div className="cart-page">
       <Container>
-
         {isLoading ? (
           <div
             className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-75"
@@ -238,14 +231,13 @@ const UserCard = () => {
             <Image
               src={imgLoader}
               alt="Loading..."
-              width={60}
-              height={60}
+              width={200}
+              height={200}
               unoptimized
             />
           </div>
         ) : ticketData ? (
           <>
-
             {/* Logo */}
             {systemSetting?.footer_logo && (
               <div className="text-center mb-4">
@@ -261,27 +253,52 @@ const UserCard = () => {
               </div>
             )}
 
-            {/* Ticket Information Card */}
-            <TicketInfoCard
-              ticketData={ticketData}
-              ticketCount={ticketCount}
-              formattedDate={formattedDate}
-            />
+            <ETicketAlert />
 
-            {/* Desktop Buttons */}
-            <DesktopActionButtons
-              ticketData={ticketData}
-              ticketCount={ticketCount}
-              disableCombineButton={disableCombineButton}
-              imageLoaded={imageLoaded}
-              cardImageUrl={cardImageUrl}
-              handleDownloadClick={handleDownloadClick}
-              handleTransferClick={handleTransferClick}
-            />
+            <Row>
+              {/* Left Column */}
+              <Col lg={8}>
+                {/* Ticket Information Card */}
+                <TicketDataSummary
+                  eventName={ticketData?.event?.name}
+                  ticketName={ticketData?.ticket?.name}
+                  price={ticketData?.ticket?.price || 0}
+                  quantity={ticketCount}
+                  hidePrices={false}
+                  currency={ticketData?.ticket?.currency}
+                  subTotal={ticketData?.ticket?.amount || 0}
+                  processingFee={ticketData?.ticket?.tax || 0}
+                  total={ticketData?.ticket?.amount || 0}
+                />
 
-            {/* Terms & Conditions */}
-            <TermsAndConditionsCard ticketData={ticketData} />
 
+              </Col>
+
+              {/* Right Column */}
+              <Col lg={4}>
+                <BookingMetadataCard
+                  eventDates={formattedDate}
+                  bookingDate={moment(ticketData?.created_at).format("MMM D, YYYY")}
+                  entryTime={ticketData?.event?.entry_time}
+                  startTime={ticketData?.event?.start_time}
+                  venueAddress={ticketData?.event?.address}
+                  userName={ticketData?.user?.name}
+                  userNumber={ticketData?.user?.number}
+                />
+
+                <div className="d-none d-sm-block">
+                  <DesktopActionButtons
+                    ticketData={ticketData}
+                    ticketCount={ticketCount}
+                    disableCombineButton={disableCombineButton}
+                    imageLoaded={imageLoaded}
+                    cardImageUrl={cardImageUrl}
+                    handleDownloadClick={handleDownloadClick}
+                    handleTransferClick={handleTransferClick}
+                  />
+                </div>
+              </Col>
+            </Row>
           </>
         ) : (
           <TicketErrorDisplay
@@ -289,7 +306,6 @@ const UserCard = () => {
           />
         )}
 
-        {/* Drawer/CustomDrawer for Combine/Download actions */}
         <TicketCanvasDrawer
           showDrawer={showDrawer}
           setShowDrawer={setShowDrawer}
@@ -310,7 +326,6 @@ const UserCard = () => {
           isMobile={isMobile}
         />
 
-        {/* Fixed Footer Combine and Download Buttons - Visible only on mobile (< md) */}
         <MobileActionButtons
           ticketData={ticketData}
           ticketCount={ticketCount}
@@ -344,6 +359,8 @@ const UserCard = () => {
             }}
           />
         )}
+        {/* Terms & Conditions */}
+        <TermsAndConditionsCard ticketData={ticketData} />
       </Container>
     </div>
   );

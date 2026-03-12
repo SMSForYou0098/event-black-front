@@ -5,12 +5,14 @@
       max-height: 2.375rem;
     }
   }
+
   svg {
     width: 10rem;
   }
 }
 
 header {
+
   &.header-sticky,
   .header-sticky {
     position: absolute;
@@ -29,10 +31,8 @@ header {
       top: 0;
       left: 0;
       right: 0;
-      -webkit-animation: header-slide-down 0.7s
-        cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-      animation: header-slide-down 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)
-        both;
+      -webkit-animation: header-slide-down 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+      animation: header-slide-down 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
       animation-fill-mode: initial;
       transition: all 0.3s ease-out 0s;
     }
@@ -94,8 +94,9 @@ header {
 
   .navbar {
     .sub-nav.mega-menu-item {
-      li:hover > a::before,
-      li > a.active::before {
+
+      li:hover>a::before,
+      li>a.active::before {
         content: none;
       }
     }
@@ -111,8 +112,8 @@ Merchandise Header
       padding-left: 0;
     }
 
-    > .container-fluid,
-    > .container {
+    >.container-fluid,
+    >.container {
       justify-content: start;
     }
   }
@@ -171,6 +172,7 @@ Merchandise Header
 
 .search-box-2 {
   position: relative;
+
   input {
     height: auto;
     background-color: var(--bs-body-bg);
@@ -198,7 +200,7 @@ sidebar cart
     overflow-y: auto;
   }
 
-  .offcanvas-body{
+  .offcanvas-body {
     background-color: var(--bs-gray-900);
   }
 }
@@ -345,16 +347,10 @@ Slide Down Animation
 }
 
 @media (min-width: 1200px) {
-  header
-    .mega-menu-content
-    .iq-nav-menu
-    li
-    ul.mega-menu-item
-    li
-    .nav-link
-    span {
+  header .mega-menu-content .iq-nav-menu li ul.mega-menu-item li .nav-link span {
     padding-bottom: 0;
   }
+
   header {
     .navbar {
       .iq-nav-menu.navbar-nav {
@@ -370,8 +366,7 @@ Slide Down Animation
                   }
 
                   img {
-                    box-shadow: 0px 0px 87.3px 2.7px
-                      rgba(var(--bs-black-rgb), 0.06);
+                    box-shadow: 0px 0px 87.3px 2.7px rgba(var(--bs-black-rgb), 0.06);
                     transition: all 0.3s ease-in-out;
                   }
 
@@ -390,13 +385,13 @@ Slide Down Animation
     }
 
     &.header-center {
-      .iq-nav-menu li > ul.mega-menu-item {
+      .iq-nav-menu li>ul.mega-menu-item {
         left: 50%;
         transform: translateX(-50%);
         top: 100%;
       }
 
-      .iq-nav-menu > li:first-child {
+      .iq-nav-menu>li:first-child {
         position: static;
       }
     }

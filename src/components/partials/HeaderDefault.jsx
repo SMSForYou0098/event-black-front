@@ -277,7 +277,7 @@ const HeaderDefault = memo(() => {
                     {menu.map((item) => {
                       const isActive = location.asPath === item?.href;
                       return (
-                        <Nav.Item as="li" key={item.id} className="nav-item">
+                        <Nav.Item as="li" key={item.id} className="nav-item me-3">
                           <Link href={`${item?.href}`} passHref legacyBehavior>
                             <Nav.Link
                               className={`fw-bold ${isActive ? "active" : ""}`}

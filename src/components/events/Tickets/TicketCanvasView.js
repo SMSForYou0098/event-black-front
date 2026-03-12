@@ -318,7 +318,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
                     }
 
                     // Booking Type
-                    centerText(` ${bookingType}`, 10, 'Arial', canvas, currentY);
+                    centerText(` ${bookingType}`, 12, 'Arial', canvas, currentY, { fontWeight: 'bold', fill: '#000' });
                     currentY += 30;
 
                     // User number/seat
@@ -328,22 +328,24 @@ const TicketCanvasView = forwardRef((props, ref) => {
                     }
 
                     // Date Column (FIRST)
-                    const dateStartX = 40;
+                    // The center x-coordinate for the Date column
+                    const dateCenterX = 80;
 
-                    // const dateLabel = new fabric.Text('📅 Date', {
-                    //     left: dateStartX,
-                    //     top: currentY,
-                    //     fontSize: 14,
-                    //     fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
-                    //     fill: textColor,
-                    //     selectable: false,
-                    //     evented: false,
-                    //     fontWeight: 'normal',
-                    // });
-                    // canvas.add(dateLabel);
+                    const dateLabel = new fabric.Text('📅 ', {
+                        left: dateCenterX,
+                        top: currentY,
+                        fontSize: 14,
+                        fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
+                        fill: textColor,
+                        selectable: false,
+                        evented: false,
+                        fontWeight: 'normal',
+                        originX: 'center', // Center the icon
+                    });
+                    canvas.add(dateLabel);
 
-                    const dateValue = new fabric.Textbox(`📅 ${date}`, {
-                        left: dateStartX,
+                    const dateValue = new fabric.Textbox(`${date}`, {
+                        left: dateCenterX,
                         top: currentY + 20,
                         fontSize: 14,
                         fontFamily: 'Arial',
@@ -351,29 +353,33 @@ const TicketCanvasView = forwardRef((props, ref) => {
                         selectable: false,
                         evented: false,
                         fontWeight: 'bold',
-                        width: 120,
+                        width: 120, // Keep width for bounding box
                         lineHeight: 1.4,
+                        textAlign: 'center', // Center the text within the width
+                        originX: 'center',  // Center the textbox around dateCenterX
                     });
                     canvas.add(dateValue);
 
 
                     // Time Column (SECOND)
-                    const timeStartX = 180;
+                    // The center x-coordinate for the Time column
+                    const timeCenterX = 220;
 
-                    // const timeLabel = new fabric.Text('⏰ Time', {
-                    //     left: timeStartX,
-                    //     top: currentY,
-                    //     fontSize: 14,
-                    //     fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
-                    //     fill: textColor,
-                    //     selectable: false,
-                    //     evented: false,
-                    //     fontWeight: 'normal',
-                    // });
-                    // canvas.add(timeLabel);
+                    const timeLabel = new fabric.Text('⏰ ', {
+                        left: timeCenterX,
+                        top: currentY,
+                        fontSize: 14,
+                        fontFamily: 'Arial, Segoe UI Emoji, Apple Color Emoji',
+                        fill: textColor,
+                        selectable: false,
+                        evented: false,
+                        fontWeight: 'normal',
+                        originX: 'center', // Center the icon
+                    });
+                    canvas.add(timeLabel);
 
-                    const timeValue = new fabric.Text(`⏰ ${time}`, {
-                        left: timeStartX,
+                    const timeValue = new fabric.Text(`${time}`, {
+                        left: timeCenterX,
                         top: currentY + 20,
                         fontSize: 14,
                         fontFamily: 'Arial',
@@ -381,6 +387,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
                         selectable: false,
                         evented: false,
                         fontWeight: 'bold',
+                        originX: 'center', // Center the text
                     });
                     canvas.add(timeValue);
 

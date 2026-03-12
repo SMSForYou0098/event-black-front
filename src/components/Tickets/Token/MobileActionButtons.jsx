@@ -46,7 +46,7 @@ const MobileActionButtons = ({
                             disabled={!imageLoaded && cardImageUrl}
                             icon={<Download size={20} />}
                             iconPosition="left"
-                            buttonText="Combined"
+                            buttonText="Group"
                         />
                     ) : ticketCount === 1 ? (
                         <CustomBtn
@@ -69,7 +69,7 @@ const MobileActionButtons = ({
                             disabled={!imageLoaded && cardImageUrl}
                             icon={<Download size={20} />}
                             iconPosition="left"
-                            buttonText="Individual"
+                            buttonText="Single"
                         />
                     ) : null
                 }

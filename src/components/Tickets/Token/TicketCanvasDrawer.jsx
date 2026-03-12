@@ -200,7 +200,7 @@ const TicketCanvasDrawer = ({
                                                                     ref={(el) => {
                                                                         swiperCanvasRefs.current[index] = el;
                                                                     }}
-                                                                    showDetails={true}
+                                                                    showDetails={false}
                                                                     preloadedImage={cardImageUrl}
                                                                     ticketNumber={index + 1}
                                                                     ticketLabel="(I)"

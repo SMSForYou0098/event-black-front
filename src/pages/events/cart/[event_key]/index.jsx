@@ -253,13 +253,7 @@ const CartPage = () => {
         return false;
       }
 
-      // Check for ticket ID in either property (.id or .itemId)
       const ticketId = selectedTickets?.id || selectedTickets?.itemId;
-
-      if (!ticketId) {
-        ErrorAlert("Please select a ticket first.");
-        return false;
-      }
 
       const response = await api.get(
         `/user-ticket-info/${freshUser.id}/${ticketId}`
@@ -280,6 +274,12 @@ const CartPage = () => {
   const handleProcess = async (dateOverride = null) => {
     // Prevent proceeding if event is unavailable
     if (eventStatus.disabled) {
+      return;
+    }
+
+    const ticketId = selectedTickets?.id || selectedTickets?.itemId;
+    if (!ticketId || !selectedTickets?.quantity || parseInt(selectedTickets.quantity) === 0) {
+      ErrorAlert("Please select a ticket first.");
       return;
     }
 
@@ -637,9 +637,7 @@ const CartPage = () => {
                         rightButton={
                           <CustomBtn
                             disabled={
-                              eventStatus.disabled ||
-                              !selectedTickets?.quantity ||
-                              parseInt(selectedTickets.quantity) === 0
+                              eventStatus.disabled
                             }
                             HandleClick={() => {
                               if (isBelow991) setShowCartDrawer(false);
@@ -657,9 +655,7 @@ const CartPage = () => {
                     ) : (
                       <CustomBtn
                         disabled={
-                          eventStatus.disabled ||
-                          !selectedTickets?.quantity ||
-                          parseInt(selectedTickets.quantity) === 0
+                          eventStatus.disabled
                         }
                         HandleClick={() => {
                           if (isBelow991) setShowCartDrawer(false);
