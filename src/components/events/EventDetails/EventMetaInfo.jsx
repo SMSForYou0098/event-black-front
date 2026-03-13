@@ -74,7 +74,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData, handleShare }) => {
   const expectedDate = eventData?.eventControls?.expected_date;
 
   const getEventStatus = () => {
-    if (eventData?.total_tickets === 0)
+    if (eventData?.active_tickets === 0)
       return { disabled: true, text: "No Tickets Available" };
 
     if (isCancelled)

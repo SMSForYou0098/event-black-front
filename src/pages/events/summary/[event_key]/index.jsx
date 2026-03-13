@@ -239,7 +239,7 @@ const BookingSummary = () => {
                 showTicketDetails={false}
             />
             <Container >
-                <CartSteps id={'last'} />
+                {/* <CartSteps id={'last'} /> */}
                 <ETicketAlert />
                 <Row>
                     {/* Right Column */}

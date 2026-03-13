@@ -105,7 +105,7 @@ const TermsAccordion = ({
                 {/* Step 1: Booking Notice */}
                 {step === 'notice' && hasNotice && (
                     <>
-                        <div className="bg-dark text-white pb-5 mb-5 px-3">
+                        <div className="bg-dark text-white px-3" style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingBottom: '80px' }}>
                             <div
                                 className="description-content"
                                 style={{ whiteSpace: "pre-wrap" }}
@@ -130,13 +130,12 @@ const TermsAccordion = ({
                 {/* Step 2: Terms and Conditions */}
                 {step === 'terms' && hasTerms && (
                     <>
-                        <div style={{ paddingBottom: onAgree ? "80px" : "0" }}>
+                        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingBottom: onAgree ? "80px" : "0" }}>
                             {onlineTerms && (
                                 <div className={offlineTerms ? "mb-4" : ""}>
                                     {/* <h6 className="fw-bold mb-3 text-primary">Ticket Terms</h6> */}
                                     <div
-                                        className="description-content"
-                                        style={{ whiteSpace: "pre-line", lineHeight: "1.6" }}
+                                        className=""
                                         dangerouslySetInnerHTML={{ __html: onlineTerms }}
                                     />
                                 </div>

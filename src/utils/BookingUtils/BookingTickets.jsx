@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import CustomCounter from "../CustomCounter";
 import { Table, Accordion } from "react-bootstrap";
 import CommonPricingComp from "../../components/Tickets/CommonPricingComp";
@@ -102,6 +103,22 @@ const BookingTickets = ({
     return 0;
   };
 
+  const activeItems = cartItems?.filter((item) => Number(item.status) === 1) || [];
+
+  if (activeItems.length === 0) {
+    return (
+      <div className="text-center py-3">
+        <Image
+          src="/assets/images/event_page/ticket-opning-soon.webp"
+          alt="Tickets opening soon"
+          width={300}
+          height={200}
+          style={{ maxWidth: '100%', height: 'auto' }}
+        />
+      </div>
+    );
+  }
+
   return (
     <Table responsive className="cart-table rounded-4">
       <thead className="border-bottom">
@@ -123,115 +140,101 @@ const BookingTickets = ({
         </tr>
       </thead>
       <tbody>
-        {(() => {
-          const activeItems = cartItems?.filter((item) => Number(item.status) === 1) || [];
+        {activeItems.map((item) => (
+          <tr
+            key={item.id}
+            data-item="list"
+          >
+            <td>
+              <span className="fw-500 d-flex flex-column justify-content-start">
+                <span className="d-flex align-items-center gap-2" style={{ fontSize: '14px' }}>
+                  {item.name}
+                </span>
+                <span>
+                  Price:{" "}
+                  <CommonPricingComp
+                    currency={item?.currency}
+                    price={item?.price}
+                    isSale={item?.sale}
+                    salePrice={item?.sale_price}
+                    soldOut={item?.sold_out === true}
+                    booking_not_open={item?.booking_not_open === true}
+                    fast_filling={item?.fast_filling === true}
+                  />
+                </span>
 
-          if (activeItems.length === 0) {
-            return (
-              <tr>
-                <td colSpan={isMobile ? 2 : 3} className="text-center py-4 text-muted fw-semibold" style={{ fontSize: '14px' }}>
-                  No tickets available.
-                </td>
-              </tr>
-            );
-          }
+                {/* Know More Button */}
+                {item.description && (
+                  <button
+                    className="btn btn-link p-0 mt-2 text-start text-decoration-none"
+                    style={{
+                      fontSize: '0.875rem',
+                      fontWeight: '500'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedTicket(expandedTicket === item.id ? null : item.id);
+                    }}
+                  >
+                    {expandedTicket === item.id ? (
+                      <>
+                        <i className="bi bi-chevron-up me-1"></i>
+                        Show Less
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-chevron-down me-1"></i>
+                        Know More
+                      </>
+                    )}
+                  </button>
+                )}
 
-          return activeItems.map((item) => (
-            <tr
-              key={item.id}
-              data-item="list"
-            >
+                {/* Inline Description */}
+                {item.description && expandedTicket === item.id && (
+                  <span
+                    className="mt-2 fw-100 text-light"
+                    style={{
+                      animation: 'fadeIn 0.3s ease-in-out',
+                      display: 'block',
+                      fontWeight: '300',
+                      fontSize: '12px'
+                    }}
+                  >
+                    {/* <strong className="d-block mb-1">Description:</strong> */}
+                    {item.description}
+                  </span>
+                )}
+              </span>
+            </td>
+
+            <td className={isMobile ? "text-end" : "text-center"}>
+              <CustomCounter
+                resetCounterTrigger={resetCounterTrigger}
+                getTicketCount={getTicketCount}
+                category={item.name}
+                price={item?.sale === true ? item?.sale_price : item?.price}
+                limit={Math.min(
+                  item?.selection_limit ?? 10,
+                  item?.remaining_count ?? 10,
+                  item?.booking_per_customer ?? 10
+                )}
+                ticketID={item.id}
+                selectedTickets={selectedTickets}
+                isDisable={item?.sold_out === true || item?.booking_not_open === true}
+              />
+            </td>
+
+            {!isMobile && (
               <td>
-                <span className="fw-500 d-flex flex-column justify-content-start">
-                  <span className="d-flex align-items-center gap-2" style={{ fontSize: '14px' }}>
-                    {item.name}
-                  </span>
-                  <span>
-                    Price:{" "}
-                    <CommonPricingComp
-                      currency={item?.currency}
-                      price={item?.price}
-                      isSale={item?.sale}
-                      salePrice={item?.sale_price}
-                      soldOut={item?.sold_out === true}
-                      booking_not_open={item?.booking_not_open === true}
-                      fast_filling={item?.fast_filling === true}
-                    />
-                  </span>
-
-                  {/* Know More Button */}
-                  {item.description && (
-                    <button
-                      className="btn btn-link p-0 mt-2 text-start text-decoration-none"
-                      style={{
-                        fontSize: '0.875rem',
-                        fontWeight: '500'
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setExpandedTicket(expandedTicket === item.id ? null : item.id);
-                      }}
-                    >
-                      {expandedTicket === item.id ? (
-                        <>
-                          <i className="bi bi-chevron-up me-1"></i>
-                          Show Less
-                        </>
-                      ) : (
-                        <>
-                          <i className="bi bi-chevron-down me-1"></i>
-                          Know More
-                        </>
-                      )}
-                    </button>
-                  )}
-
-                  {/* Inline Description */}
-                  {item.description && expandedTicket === item.id && (
-                    <span
-                      className="mt-2 fw-100 text-light"
-                      style={{
-                        animation: 'fadeIn 0.3s ease-in-out',
-                        display: 'block',
-                        fontWeight: '300',
-                        fontSize: '12px'
-                      }}
-                    >
-                      {/* <strong className="d-block mb-1">Description:</strong> */}
-                      {item.description}
-                    </span>
-                  )}
+                <span className="fw-500" style={{ fontSize: '14px' }}>
+                  {item?.currency ? getCurrencySymbol(item.currency) : "₹"}
+                  {getSubtotal(item).toLocaleString("en-IN")}
                 </span>
               </td>
-
-              <td className={isMobile ? "text-end" : "text-center"}>
-                <CustomCounter
-                  resetCounterTrigger={resetCounterTrigger}
-                  getTicketCount={getTicketCount}
-                  category={item.name}
-                  price={item?.sale === true ? item?.sale_price : item?.price}
-                  limit={Math.min(
-                    item?.selection_limit ?? 10,
-                    item?.remaining_count ?? 10,
-                    item?.booking_per_customer ?? 10
-                  )}
-                  ticketID={item.id}
-                  selectedTickets={selectedTickets}
-                  isDisable={item?.sold_out === true || item?.booking_not_open === true}
-                />
-              </td>
-
-              {!isMobile && (
-                <td>
-                  <span className="fw-500" style={{ fontSize: '14px' }}>
-                    {item?.currency ? getCurrencySymbol(item.currency) : "₹"}
-                    {getSubtotal(item).toLocaleString("en-IN")}
-                  </span>
-                </td>
-              )}
-            </tr>
-          ));
-        })()}
+            )}
+          </tr>
+        ))}
 
 
       </tbody>

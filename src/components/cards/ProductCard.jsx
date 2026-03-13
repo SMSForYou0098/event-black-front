@@ -33,7 +33,7 @@ const ProductCard = memo((props) => {
                 className="position-absolute top-0 end-0 shadow-lg z-3"
                 style={{
                   transform: "rotate(-15deg)",
-                  margin: "10px",
+                  margin: "11px",
                   pointerEvents: "none",
                   objectFit: "contain"
                 }}
@@ -57,17 +57,18 @@ const ProductCard = memo((props) => {
 
         {
           !props?.imageOnly &&
-          <div className="product-caption">
+          <div className="product-caption" style={{ fontSize: '11px' }}>
             <p className="fs-6 my-0 fw-bold">
               <Link
                 href={props?.link || ''}
+                style={{ fontSize: "12px" }}
                 className="title-link"
               >
                 {props?.product_name}
               </Link>
             </p>
             <div >
-              <span className="fs-6 price" >
+              <span className="price">
                 {
                   !props?.noPrice &&
                   <>

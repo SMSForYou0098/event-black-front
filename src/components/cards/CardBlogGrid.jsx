@@ -1,4 +1,4 @@
-import React, { Fragment, memo } from 'react'
+import React, { Fragment, memo } from 'react';
 import Link from "next/link";
 
 const CardBlogGrid = memo((props) => {
@@ -26,7 +26,7 @@ const CardBlogGrid = memo((props) => {
                         </ul>
                     </div>
                     <div className="blog-title">
-                        <Link href={`/blogs/${props.id}`}>
+                        <Link href={`/blogs/detail`}>
                             <h3 className="mb-3 line-count-1 blog-heading">
                                 {props.title}
                             </h3>
@@ -34,9 +34,12 @@ const CardBlogGrid = memo((props) => {
                     </div>
                     <p className='line-count-2'>{props.description}</p>
                     <div className="iq-button link-button">
-                        <Link href='/blogs/detail' className="btn text-capitalize position-relative"><span className='button-text'>
-                            Read More<i className="fa fa-angle-right ml-2" aria-hidden="true"></i>
-                        </span></Link>
+                        <Link href='/blogs/detail' className="btn text-capitalize position-relative">
+                            <span className='button-text'>
+                                Read More
+                                <i className="fa fa-angle-right ml-2" aria-hidden="true"></i>
+                            </span>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -45,4 +48,4 @@ const CardBlogGrid = memo((props) => {
 })
 
 CardBlogGrid.displayName = "CardBlogGrid"
-export default CardBlogGrid
+export default CardBlogGrid;

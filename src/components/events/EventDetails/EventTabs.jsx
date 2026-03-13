@@ -155,15 +155,20 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
               </Row>
             </Tab.Pane>
 
-            <Tab.Pane eventKey="location" className="p-4 rounded">
+            <Tab.Pane eventKey="location" className="rounded">
               <Row>
                 <Col md="12">
                   <Card className="border-0 shadow-sm">
                     <Card.Body className="p-0">
                       {eventData?.venue?.aembeded_code ? (
                         <div
-                          className="ratio ratio-16x9"
-                          dangerouslySetInnerHTML={{ __html: eventData.venue.aembeded_code }}
+                          className="w-100"
+                          dangerouslySetInnerHTML={{
+                            __html: eventData.venue.aembeded_code.replace(
+                              /width="[^"]*"/,
+                              'width="100%"'
+                            ),
+                          }}
                         />
                       ) : (
                         <div className="p-3 text-muted text-center" style={{ fontSize: '14px' }}>No map available for this venue.</div>

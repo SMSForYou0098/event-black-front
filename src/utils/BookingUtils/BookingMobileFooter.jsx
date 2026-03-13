@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
 import { Button, Alert } from "react-bootstrap";
+import Image from "next/image";
 import BookingFooterLayout from "../BookingFooterLayout";
-import CustomDrawer from "../../utils/CustomDrawer"; // Adjust path as needed
+import CustomDrawer from "../CustomDrawer";
 import CustomBtn from "../CustomBtn";
 
 const BookingMobileFooter = ({ handleClick, selectedTickets, step = 0, isLoading = false }) => {
@@ -42,33 +43,28 @@ const BookingMobileFooter = ({ handleClick, selectedTickets, step = 0, isLoading
         }
       />
 
-      {/* Custom Drawer for No Tickets Warning */}
+      {/* Select Ticket Warning Drawer (mobile) */}
       <CustomDrawer
-        // title="No Tickets Selected"
         showOffcanvas={showDrawer}
         setShowOffcanvas={setShowDrawer}
       >
-        <div >
-          <Alert variant="warning" className="mb-3">
-            <div className="d-flex align-items-start">
-              <i className="fa-solid fa-triangle-exclamation me-2 mt-1"></i>
-              <div>
-                <strong>Please Select Tickets</strong>
-              </div>
-            </div>
-          </Alert>
-
-          <p className="mb-4" style={{ fontSize: '14px' }}>
-            You need to select at least one ticket before proceeding to checkout.
-          </p>
-
-          <CustomBtn
-            HandleClick={() => setShowDrawer(false)}
-            size="sm"
-            className="w-100"
-            buttonText='Got it'
-            hideIcon={true}
+        <div className="text-center">
+          <Image
+            src="/assets/images/event_page/select-ticket.webp"
+            alt="Please select tickets"
+            width={300}
+            height={200}
+            style={{ maxWidth: '100%', height: 'auto' }}
           />
+          <div className="mt-3">
+            <CustomBtn
+              HandleClick={() => setShowDrawer(false)}
+              size="sm"
+              className="w-100"
+              buttonText="Got it"
+              hideIcon={true}
+            />
+          </div>
         </div>
       </CustomDrawer>
     </>

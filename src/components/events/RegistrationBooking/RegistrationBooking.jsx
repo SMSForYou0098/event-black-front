@@ -9,6 +9,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { signIn } from "@/store/auth/authSlice";
 import { getErrorMessage } from "@/utils/errorUtils";
+import CustomDrawer from "@/utils/CustomDrawer";
 
 
 /**
@@ -26,6 +27,7 @@ const RegistrationBooking = ({
     tax_data,
     isMobile,
     setSelectedTickets,
+    onHide,
 }) => {
     const { getCurrencySymbol, isLoggedIn, UserData } = useMyContext();
     const dispatch = useDispatch();
@@ -432,9 +434,256 @@ const RegistrationBooking = ({
 
     const isLoading = createUserMutation.isPending || verifyUserMutation.isPending || verifyOtpMutation.isPending;
 
+    const registrationContent = (
+        <>
+            {/* OTP Section - show when OTP verification is needed */}
+            {showOtpSection ? (
+                <div className="text-center">
+                    <h5 className="mb-3">OTP Verification</h5>
+
+                    {otpError && (
+                        <Alert variant="danger" className="mb-3">
+                            {otpError}
+                        </Alert>
+                    )}
+
+                    <p className="text-muted mb-3">
+                        Enter the 6-digit OTP sent to <strong>{number}</strong>
+                    </p>
+
+                    <Form.Group className="mb-3">
+                        <Form.Control
+                            type="text"
+                            placeholder="Enter 6-digit OTP"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                            className="bg-dark text-white border-secondary text-center"
+                            style={{ fontSize: '1.5rem', letterSpacing: '0.5em' }}
+                            maxLength={6}
+                            autoFocus
+                        />
+                    </Form.Group>
+
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        {timerVisible ? (
+                            <span className="text-muted small">
+                                Resend OTP in {countdown}s
+                            </span>
+                        ) : (
+                            <CustomBtn
+                                buttonText="Resend OTP"
+                                HandleClick={handleResendOtp}
+                                variant="link"
+                                className="p-0"
+                                size="sm"
+                                loading={verifyUserMutation.isPending}
+                                hideIcon
+                            />
+                        )}
+                    </div>
+
+                    <CustomBtn
+                        buttonText="Verify OTP & Continue"
+                        HandleClick={handleVerifyOtp}
+                        className="w-100"
+                        loading={verifyOtpMutation.isPending}
+                        disabled={otp.length !== 6 || verifyOtpMutation.isPending}
+                        hideIcon
+                    />
+                </div>
+            ) : (
+                <>
+                    {/* User Details Form */}
+                    <div>
+                        <Row className="g-3">
+                            {/* Phone Number Field */}
+                            <Col xs={12} md={showFields ? 4 : 12}>
+                                <Form.Group>
+                                    <Form.Label className="text-white d-flex align-items-center gap-2 small">
+                                        <Phone size={14} /> Phone Number <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <div className="position-relative">
+                                        <Form.Control
+                                            type="tel"
+                                            placeholder="Enter phone number"
+                                            value={number}
+                                            onChange={handlePhoneChange}
+                                            className="bg-dark text-white border-secondary"
+                                            maxLength={12}
+                                            required
+                                        />
+                                        {checkingUser && (
+                                            <div className="position-absolute top-50 end-0 translate-middle-y me-3">
+                                                <Spinner animation="border" size="sm" variant="primary" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    {!showFields && (
+                                        <Form.Text className="text-muted small">
+                                            Enter 10 or 12 digit number
+                                        </Form.Text>
+                                    )}
+                                </Form.Group>
+                            </Col>
+
+                            {/* Name Field - show after phone verified */}
+                            {showFields && (
+                                <Col xs={12} md={4}>
+                                    <Form.Group>
+                                        <Form.Label className="text-white d-flex align-items-center gap-2 small">
+                                            <User size={14} /> Name <span className="text-danger">*</span>
+                                        </Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Enter your name"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            className="bg-dark text-white border-secondary"
+                                            disabled={isExist}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+
+                            {/* Email Field - show after phone verified */}
+                            {showFields && (
+                                <Col xs={12} md={4}>
+                                    <Form.Group>
+                                        <Form.Label className="text-white d-flex align-items-center gap-2 small">
+                                            <Mail size={14} /> Email <span className="text-danger">*</span>
+                                        </Form.Label>
+                                        <Form.Control
+                                            type="email"
+                                            placeholder="Enter your email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            className="bg-dark text-white border-secondary"
+                                            disabled={isExist}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+
+                            {/* Dynamic Event Fields */}
+                            {showFields && loadingFields && (
+                                <Col xs={12}>
+                                    <div className="d-flex justify-content-center py-3">
+                                        <Spinner animation="border" size="sm" variant="primary" />
+                                    </div>
+                                </Col>
+                            )}
+
+                            {showFields && !loadingFields && filteredEventFields.map((field, index) => (
+                                <Col xs={12} md={4} key={index}>
+                                    <Form.Group>
+                                        <Form.Label className="text-white d-flex align-items-center gap-2 small text-capitalize">
+                                            {getFieldIcon(field.type)} {field.field_name?.replace(/_/g, ' ')}
+                                        </Form.Label>
+
+                                        {field.type === 'file' ? (
+                                            <Form.Control
+                                                type="file"
+                                                onChange={(e) => handleFileChange(field.field_name, e)}
+                                                className="bg-dark text-white border-secondary"
+                                                accept="image/*"
+                                            />
+                                        ) : (
+                                            <Form.Control
+                                                type={field.type === 'number' ? 'number' : 'text'}
+                                                placeholder={`Enter ${field.field_name?.replace(/_/g, ' ')}`}
+                                                value={customFieldValues[field.field_name] || ""}
+                                                onChange={(e) => handleCustomFieldChange(field.field_name, e.target.value)}
+                                                className="bg-dark text-white border-secondary"
+                                            />
+                                        )}
+
+                                        {field.note && (
+                                            <Form.Text className="text-muted small">
+                                                {field.note}
+                                            </Form.Text>
+                                        )}
+                                    </Form.Group>
+                                </Col>
+                            ))}
+
+                            {/* Verify & Continue Button for new users */}
+                            {showFields && isExist === false && (
+                                <Col xs={12} className="mt-4">
+                                    <CustomBtn
+                                        buttonText="Verify & Continue"
+                                        HandleClick={handleNewUserRegistration}
+                                        className="w-100"
+                                        loading={isLoading}
+                                        disabled={!name.trim() || !email.trim() || isLoading}
+                                        hideIcon
+                                    />
+                                    <Form.Text className="text-muted small d-block text-center mt-2">
+                                        An OTP will be sent to your phone number for verification
+                                    </Form.Text>
+                                </Col>
+                            )}
+
+                            {/* Continue Button for existing users */}
+                            {showFields && isExist === true && (
+                                <Col xs={12} className="mt-4">
+                                    <CustomBtn
+                                        buttonText={isLoggedIn ? "Continue to Checkout" : "Verify & Continue"}
+                                        HandleClick={() => {
+                                            if (isLoggedIn) {
+                                                // Already logged in, proceed directly
+                                                handleContinueToCheckout(false);
+                                            } else {
+                                                // Not logged in, need OTP verification
+                                                verifyUserMutation.mutate(number);
+                                            }
+                                        }}
+                                        className="w-100"
+                                        loading={verifyUserMutation.isPending}
+                                        disabled={!name.trim() || !email.trim() || verifyUserMutation.isPending}
+                                        hideIcon
+                                    />
+                                    {!isLoggedIn && (
+                                        <Form.Text className="text-muted small d-block text-center mt-2">
+                                            An OTP will be sent to verify your identity
+                                        </Form.Text>
+                                    )}
+                                </Col>
+                            )}
+                        </Row>
+                    </div>
+                </>
+            )}
+        </>
+    );
+
+    if (isMobile) {
+        return (
+            <CustomDrawer
+                showOffcanvas={show}
+                setShowOffcanvas={() => onHide && onHide()}
+                title={
+                    <div className="d-flex align-items-center gap-2">
+                        <Ticket size={24} className="text-warning" />
+                        Registration
+                    </div>
+                }
+                placement="bottom"
+                className="bg-dark text-white"
+                style={{ height: 'auto', minHeight: '60vh' }}
+            >
+                <div className="p-2">
+                    {registrationContent}
+                </div>
+            </CustomDrawer>
+        );
+    }
+
     return (
         <Modal
             show={show}
+            onHide={() => onHide && onHide()}
             backdrop="static"
             keyboard={false}
             centered
@@ -448,225 +697,7 @@ const RegistrationBooking = ({
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {/* OTP Section - show when OTP verification is needed */}
-                {showOtpSection ? (
-                    <div className="text-center">
-                        <h5 className="mb-3">OTP Verification</h5>
-
-                        {otpError && (
-                            <Alert variant="danger" className="mb-3">
-                                {otpError}
-                            </Alert>
-                        )}
-
-                        <p className="text-muted mb-3">
-                            Enter the 6-digit OTP sent to <strong>{number}</strong>
-                        </p>
-
-                        <Form.Group className="mb-3">
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter 6-digit OTP"
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                                className="bg-dark text-white border-secondary text-center"
-                                style={{ fontSize: '1.5rem', letterSpacing: '0.5em' }}
-                                maxLength={6}
-                                autoFocus
-                            />
-                        </Form.Group>
-
-                        <div className="d-flex justify-content-between align-items-center mb-3">
-                            {timerVisible ? (
-                                <span className="text-muted small">
-                                    Resend OTP in {countdown}s
-                                </span>
-                            ) : (
-                                <CustomBtn
-                                    buttonText="Resend OTP"
-                                    HandleClick={handleResendOtp}
-                                    variant="link"
-                                    className="p-0"
-                                    size="sm"
-                                    loading={verifyUserMutation.isPending}
-                                    hideIcon
-                                />
-                            )}
-                        </div>
-
-                        <CustomBtn
-                            buttonText="Verify OTP & Continue"
-                            HandleClick={handleVerifyOtp}
-                            className="w-100"
-                            loading={verifyOtpMutation.isPending}
-                            disabled={otp.length !== 6 || verifyOtpMutation.isPending}
-                            hideIcon
-                        />
-                    </div>
-                ) : (
-                    <>
-                        {/* User Details Form */}
-                        <div>
-                            <Row className="g-3">
-                                {/* Phone Number Field */}
-                                <Col xs={12} md={showFields ? 4 : 12}>
-                                    <Form.Group>
-                                        <Form.Label className="text-white d-flex align-items-center gap-2 small">
-                                            <Phone size={14} /> Phone Number <span className="text-danger">*</span>
-                                        </Form.Label>
-                                        <div className="position-relative">
-                                            <Form.Control
-                                                type="tel"
-                                                placeholder="Enter phone number"
-                                                value={number}
-                                                onChange={handlePhoneChange}
-                                                className="bg-dark text-white border-secondary"
-                                                maxLength={12}
-                                                required
-                                            />
-                                            {checkingUser && (
-                                                <div className="position-absolute top-50 end-0 translate-middle-y me-3">
-                                                    <Spinner animation="border" size="sm" variant="primary" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        {!showFields && (
-                                            <Form.Text className="text-muted small">
-                                                Enter 10 or 12 digit number
-                                            </Form.Text>
-                                        )}
-                                    </Form.Group>
-                                </Col>
-
-                                {/* Name Field - show after phone verified */}
-                                {showFields && (
-                                    <Col xs={12} md={4}>
-                                        <Form.Group>
-                                            <Form.Label className="text-white d-flex align-items-center gap-2 small">
-                                                <User size={14} /> Name <span className="text-danger">*</span>
-                                            </Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Enter your name"
-                                                value={name}
-                                                onChange={(e) => setName(e.target.value)}
-                                                className="bg-dark text-white border-secondary"
-                                                disabled={isExist}
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                )}
-
-                                {/* Email Field - show after phone verified */}
-                                {showFields && (
-                                    <Col xs={12} md={4}>
-                                        <Form.Group>
-                                            <Form.Label className="text-white d-flex align-items-center gap-2 small">
-                                                <Mail size={14} /> Email <span className="text-danger">*</span>
-                                            </Form.Label>
-                                            <Form.Control
-                                                type="email"
-                                                placeholder="Enter your email"
-                                                value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
-                                                className="bg-dark text-white border-secondary"
-                                                disabled={isExist}
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                )}
-
-                                {/* Dynamic Event Fields */}
-                                {showFields && loadingFields && (
-                                    <Col xs={12}>
-                                        <div className="d-flex justify-content-center py-3">
-                                            <Spinner animation="border" size="sm" variant="primary" />
-                                        </div>
-                                    </Col>
-                                )}
-
-                                {showFields && !loadingFields && filteredEventFields.map((field, index) => (
-                                    <Col xs={12} md={4} key={index}>
-                                        <Form.Group>
-                                            <Form.Label className="text-white d-flex align-items-center gap-2 small text-capitalize">
-                                                {getFieldIcon(field.type)} {field.field_name?.replace(/_/g, ' ')}
-                                            </Form.Label>
-
-                                            {field.type === 'file' ? (
-                                                <Form.Control
-                                                    type="file"
-                                                    onChange={(e) => handleFileChange(field.field_name, e)}
-                                                    className="bg-dark text-white border-secondary"
-                                                    accept="image/*"
-                                                />
-                                            ) : (
-                                                <Form.Control
-                                                    type={field.type === 'number' ? 'number' : 'text'}
-                                                    placeholder={`Enter ${field.field_name?.replace(/_/g, ' ')}`}
-                                                    value={customFieldValues[field.field_name] || ""}
-                                                    onChange={(e) => handleCustomFieldChange(field.field_name, e.target.value)}
-                                                    className="bg-dark text-white border-secondary"
-                                                />
-                                            )}
-
-                                            {field.note && (
-                                                <Form.Text className="text-muted small">
-                                                    {field.note}
-                                                </Form.Text>
-                                            )}
-                                        </Form.Group>
-                                    </Col>
-                                ))}
-
-                                {/* Verify & Continue Button for new users */}
-                                {showFields && isExist === false && (
-                                    <Col xs={12} className="mt-4">
-                                        <CustomBtn
-                                            buttonText="Verify & Continue"
-                                            HandleClick={handleNewUserRegistration}
-                                            className="w-100"
-                                            loading={isLoading}
-                                            disabled={!name.trim() || !email.trim() || isLoading}
-                                            hideIcon
-                                        />
-                                        <Form.Text className="text-muted small d-block text-center mt-2">
-                                            An OTP will be sent to your phone number for verification
-                                        </Form.Text>
-                                    </Col>
-                                )}
-
-                                {/* Continue Button for existing users */}
-                                {showFields && isExist === true && (
-                                    <Col xs={12} className="mt-4">
-                                        <CustomBtn
-                                            buttonText={isLoggedIn ? "Continue to Checkout" : "Verify & Continue"}
-                                            HandleClick={() => {
-                                                if (isLoggedIn) {
-                                                    // Already logged in, proceed directly
-                                                    handleContinueToCheckout(false);
-                                                } else {
-                                                    // Not logged in, need OTP verification
-                                                    verifyUserMutation.mutate(number);
-                                                }
-                                            }}
-                                            className="w-100"
-                                            loading={verifyUserMutation.isPending}
-                                            disabled={!name.trim() || !email.trim() || verifyUserMutation.isPending}
-                                            hideIcon
-                                        />
-                                        {!isLoggedIn && (
-                                            <Form.Text className="text-muted small d-block text-center mt-2">
-                                                An OTP will be sent to verify your identity
-                                            </Form.Text>
-                                        )}
-                                    </Col>
-                                )}
-                            </Row>
-                        </div>
-                    </>
-                )}
+                {registrationContent}
             </Modal.Body>
         </Modal>
     );

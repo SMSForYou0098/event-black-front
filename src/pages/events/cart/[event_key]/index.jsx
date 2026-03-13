@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
+import Image from "next/image";
 import { Container, Row, Col, Table, Button, Alert, Form, Modal } from "react-bootstrap";
 import Flatpickr from "react-flatpickr";
 import 'flatpickr/dist/flatpickr.min.css';
@@ -62,6 +63,7 @@ const CartPage = () => {
 
   // Cart drawer (mobile): show cart summary in drawer when tapping Proceed
   const [showCartDrawer, setShowCartDrawer] = useState(false);
+  const [showSelectTicketDrawer, setShowSelectTicketDrawer] = useState(false);
 
   const [isBelow991, setIsBelow991] = useState(false);
 
@@ -279,7 +281,7 @@ const CartPage = () => {
 
     const ticketId = selectedTickets?.id || selectedTickets?.itemId;
     if (!ticketId || !selectedTickets?.quantity || parseInt(selectedTickets.quantity) === 0) {
-      ErrorAlert("Please select a ticket first.");
+      setShowSelectTicketDrawer(true);
       return;
     }
 
@@ -719,6 +721,59 @@ const CartPage = () => {
           />
         </div>
 
+        {/* Select Ticket Warning — Drawer on mobile, Modal on desktop */}
+        {isMobile ? (
+          <CustomDrawer
+            showOffcanvas={showSelectTicketDrawer}
+            setShowOffcanvas={setShowSelectTicketDrawer}
+          >
+            <div className="text-center">
+              <Image
+                src="/assets/images/event_page/select-ticket.webp"
+                alt="Please select tickets"
+                width={300}
+                height={200}
+                style={{ maxWidth: '100%', height: 'auto' }}
+              />
+              <div className="mt-3">
+                <CustomBtn
+                  HandleClick={() => setShowSelectTicketDrawer(false)}
+                  size="sm"
+                  className="w-100"
+                  buttonText="Got it"
+                  hideIcon={true}
+                />
+              </div>
+            </div>
+          </CustomDrawer>
+        ) : (
+          <Modal
+            show={showSelectTicketDrawer}
+            onHide={() => setShowSelectTicketDrawer(false)}
+            centered
+            className="modal-glass-bg"
+          >
+            <Modal.Body className="text-center p-4">
+              <Image
+                src="/assets/images/event_page/select-ticket.webp"
+                alt="Please select tickets"
+                width={300}
+                height={200}
+                style={{ maxWidth: '100%', height: 'auto' }}
+              />
+              <div className="mt-3">
+                <CustomBtn
+                  HandleClick={() => setShowSelectTicketDrawer(false)}
+                  size="sm"
+                  className="w-100"
+                  buttonText="Got it"
+                  hideIcon={true}
+                />
+              </div>
+            </Modal.Body>
+          </Modal>
+        )}
+
         {/* Date Selection - Responsive: Modal for Desktop, Drawer for Mobile */}
         {isMobile ? (
           <CustomDrawer
@@ -850,6 +905,7 @@ const CartPage = () => {
         {/* Registration Modal - auto-opens for Registration category */}
         <RegistrationBooking
           show={showRegistrationModal}
+          onHide={() => setShowRegistrationModal(false)}
           eventId={event?.id}
           cartItems={cartItems}
           tax_data={event?.taxData}
