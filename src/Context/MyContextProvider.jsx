@@ -36,8 +36,10 @@ export const MyContextProvider = ({ children }) => {
   const [currencyMaster, setCurrencyMaster] = useState(currencyData ?? {});
   const [systemSetting, setSystemSetting] = useState();
   const [hideMobileMenu, setHideMobileMenu] = useState(false);
+  const [ticketActions, setTicketActions] = useState(null);
 
   const isMobile = useMediaQuery({ maxWidth: 575 });
+
 
   // If your currency.json is an ARRAY, normalize it to a map once here.
   // (If it's already a map, this effect will be a no-op.)
@@ -462,7 +464,10 @@ export const MyContextProvider = ({ children }) => {
       showHeaderBookBtn,
       setShowHeaderBookBtn,
       formatDateDDMMYYYY,
+      ticketActions,
+      setTicketActions,
       // react-query flags:
+
       systemSettingsLoading,
       systemSettingsError,
       systemSettingsErrorObj,
@@ -506,7 +511,10 @@ export const MyContextProvider = ({ children }) => {
       systemSettingsError,
       systemSettingsErrorObj,
       refetchSystemSettings,
+      ticketActions,
+      setTicketActions,
     ]
+
   );
 
   return <MyContext.Provider value={contextValue}>{children}</MyContext.Provider>;

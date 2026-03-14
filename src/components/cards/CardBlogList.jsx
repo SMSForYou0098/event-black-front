@@ -7,7 +7,7 @@ const CardBlogList = memo((props) => {
             <article>
                 <div className="iq-blog-box">
                     <div className="iq-blog-image clearfix">
-                        <Link href='/blogs/detail'>
+                        <Link href={props.link || '/blogs/detail'}>
                             <img src={props.thumbnail} alt="" className='img-fluid w-100' />
                         </Link>
                     </div>
@@ -26,14 +26,14 @@ const CardBlogList = memo((props) => {
                                 </li>
                             </ul>
                         </div>
-                        <Link href='/blogs/detail'>
+                        <Link href={props.link || '/blogs/detail'}>
                             <h3 className="mb-3 line-count-1 blog-heading">
                                 {props.title}
                             </h3>
                         </Link>
                         <p className='line-count-2'>{props.description}</p>
                         <div className="iq-button">
-                            <Link className="btn text-uppercase position-relative" href='/blogs/detail'>
+                            <Link className="btn text-uppercase position-relative" href={props.link || '/blogs/detail'}>
                                 Read More
                                 <i className="fa-solid fa-play"></i>
                             </Link>

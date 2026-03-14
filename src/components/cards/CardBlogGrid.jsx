@@ -6,7 +6,7 @@ const CardBlogGrid = memo((props) => {
         <Fragment>
             <div className="iq-blog-box">
                 <div className="iq-blog-image clearfix">
-                    <Link href="/blogs/detail">
+                    <Link href={props.link || "/blogs/detail"}>
                         <img src={props.thumbnail} alt="" loading="lazy" className='img-fluid w-100' />
                     </Link>
                 </div>
@@ -26,7 +26,7 @@ const CardBlogGrid = memo((props) => {
                         </ul>
                     </div>
                     <div className="blog-title">
-                        <Link href={`/blogs/detail`}>
+                        <Link href={props.link || `/blogs/detail`}>
                             <h3 className="mb-3 line-count-1 blog-heading">
                                 {props.title}
                             </h3>
@@ -34,7 +34,7 @@ const CardBlogGrid = memo((props) => {
                     </div>
                     <p className='line-count-2'>{props.description}</p>
                     <div className="iq-button link-button">
-                        <Link href='/blogs/detail' className="btn text-capitalize position-relative">
+                        <Link href={props.link || '/blogs/detail'} className="btn text-capitalize position-relative">
                             <span className='button-text'>
                                 Read More
                                 <i className="fa fa-angle-right ml-2" aria-hidden="true"></i>

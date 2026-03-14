@@ -11,6 +11,9 @@ import CommentsSection from '../../../components/events/blogs/comments/CommentSe
 import PostById from '../../../components/events/blogs/PostPage';
 import DetailMetaList from '../../../components/blog/DetailMetaList';
 // import RelatedPosts from '../../../components/events/blogs/';
+import RecentPost from '../../../components/blog/sidebar/RecentPost';
+import CategoriesWidget from '../../../components/blog/sidebar/CategoriesWidget';
+import TagsWidget from '../../../components/blog/sidebar/TagsWidget';
 import CardBlogGrid from "../../../components/events/blogs/CardBlogGrid";
 import { BlogSEO } from '../../../components/events/SEO';
 
@@ -117,17 +120,17 @@ const PostPage = () => {
     <div className='pt-5'>
       <Row>
         <BlogSEO articleData={{
-          title:postData?.data?.title,
-          description:postData?.data?.meta_description,
-          featured_image:postData?.data?.thumbnail,
-          author:postData?.data?.user?.name,
-          published_date:postData?.data?.created_at,
-          category: postData?.categories.map((item)=>item.title),
-          tags:postData?.data?.tags
-        }} 
-        slug={title}
+          title: postData?.data?.title,
+          description: postData?.data?.meta_description,
+          featured_image: postData?.data?.thumbnail,
+          author: postData?.data?.user?.name,
+          published_date: postData?.data?.created_at,
+          category: postData?.categories.map((item) => item.title),
+          tags: postData?.data?.tags
+        }}
+          slug={title}
         />
-          <Col lg={12} sm={12}>
+        <Col lg={8} sm={12}>
           <PostById
             post={postData?.data}
             categories={postData?.categories || []}
@@ -139,37 +142,39 @@ const PostPage = () => {
             refreshComments={refetchComments}
             loading={commentsLoading}
           />
-          </Col>
-      {/* <Col lg={3} sm={12}>
-        <DetailMetaList />
-      </Col> */}
+        </Col>
+        <Col lg={4} sm={12}>
+          <RecentPost posts={relatedPostsData || []} />
+          <CategoriesWidget categories={postData?.categories || []} />
+          <TagsWidget tags={postData?.data?.tags || []} />
+        </Col>
       </Row>
       {/* <RelatedPosts 
         posts={relatedPostsData || []} 
         loading={relatedLoading} 
       /> */}
 
-{relatedPostsData?.length === 0 ? (
+      {relatedPostsData?.length === 0 ? (
         ""
       ) : (
         <Container fluid >
-        <Row className="g-4">
-          <h3>Related Posts</h3>
-          {relatedPostsData?.map((item) => (
-            <Col lg={4} md={6} sm={12} key={item.id ?? `blog-${idx}`}>
-            <CardBlogGrid
-              title={item.title}
-              content={item.content_length}
-              thumbnail={item.thumbnail}
-              description={item.description || item.excerpt || ""}
-              username={item.user_data?.name || item.username || "Unknown"}
-              date={item.created_at}
-              categories={item.categories}
-              id={item?.id}
-            />
-          </Col>
-          ))}
-        </Row>
+          <Row className="g-4">
+            <h3>Related Posts</h3>
+            {relatedPostsData?.map((item) => (
+              <Col lg={4} md={6} sm={12} key={item.id ?? `blog-${idx}`}>
+                <CardBlogGrid
+                  title={item.title}
+                  content={item.content_length}
+                  thumbnail={item.thumbnail}
+                  description={item.description || item.excerpt || ""}
+                  username={item.user_data?.name || item.username || "Unknown"}
+                  date={item.created_at}
+                  categories={item.categories}
+                  id={item?.id}
+                />
+              </Col>
+            ))}
+          </Row>
         </Container>
       )}
     </div>

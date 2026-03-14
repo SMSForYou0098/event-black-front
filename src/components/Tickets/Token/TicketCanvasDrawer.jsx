@@ -33,6 +33,10 @@ const TicketCanvasDrawer = ({
     isCanvasReady,
     isMobile,
 }) => {
+    const handleCanvasReady = React.useCallback(() => {
+        setIsCanvasReady(true);
+    }, [setIsCanvasReady]);
+
     return (
         <CustomDrawer
             showOffcanvas={showDrawer}
@@ -153,7 +157,7 @@ const TicketCanvasDrawer = ({
                                                         preloadedImage={cardImageUrl}
                                                         ticketNumber={drawerType === "single" ? 1 : undefined}
                                                         ticketLabel={drawerType === "single" ? "(I)" : "(G)"}
-                                                        onReady={() => setIsCanvasReady(true)}
+                                                        onReady={handleCanvasReady}
                                                         ticketData={{
                                                             ticket: {
                                                                 name: ticketData?.ticket?.name || "Event Ticket",
@@ -204,7 +208,7 @@ const TicketCanvasDrawer = ({
                                                                     preloadedImage={cardImageUrl}
                                                                     ticketNumber={index + 1}
                                                                     ticketLabel="(I)"
-                                                                    onReady={() => setIsCanvasReady(true)}
+                                                                    onReady={handleCanvasReady}
                                                                     ticketData={{
                                                                         ticket: {
                                                                             name: ticketData?.ticket?.name || "Event Ticket",

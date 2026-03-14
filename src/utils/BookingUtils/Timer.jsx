@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, ShoppingCart, Ticket } from 'lucide-react';
+import { Clock, ShoppingCart, Ticket, TicketCheck } from 'lucide-react';
 import { Modal, Button } from 'react-bootstrap';
 import { CustomHeader } from '../ModalUtils/CustomModalHeader';
 import CustomBtn from '../CustomBtn';
@@ -117,7 +117,12 @@ const Timer = ({ timestamp, onExpire, navigateOnExpire }) => {
                 keyboard={false}  // 🔧 Prevent dismissal by pressing Esc
             >
                 <CustomHeader
-                    title="⏰ Session Expired"
+                    title={
+                        <div className='d-flex align-items-center gap-2'>
+                            <TicketCheck size={26} />
+                            <span className=' mb-0'>Book Again</span>
+                        </div>
+                    }
                     onClose={handleCloseModal}
                     closable={false} // 🔧 Remove X button, force use of "Go Home" button
                 />
@@ -126,12 +131,17 @@ const Timer = ({ timestamp, onExpire, navigateOnExpire }) => {
                     {/* ❌ OLD: "More than 10 minutes have passed here." - unclear */}
                     {/* ✅ NEW: Clear, actionable message */}
                     <div className="text-center">
-                        <p className="mb-3">
+                        <img
+                            src="/assets/images/event_page/session.webp"
+                            alt="session expired"
+                            className="img-fluid mb-3"
+                        />
+                        {/* <p className="mb-3">
                             Your booking session has expired after 10 minutes of inactivity.
                         </p>
                         <p className="text-muted mb-0">
                             Please start a new booking to continue.
-                        </p>
+                        </p> */}
                     </div>
                 </Modal.Body>
                 <Modal.Footer className="justify-content-center border-0 pt-0">

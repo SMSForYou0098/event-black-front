@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Button, Container, Row, Col } from 'react-bootstrap';
 import CommentBox from './CommentBox';
 import Swal from 'sweetalert2';
@@ -52,31 +52,110 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
     }));
   };
 
-  const toggleLike = async (commentId, currentStatus) => {
-    try {
-      const res = await api.post(
-        `/blog-comments/${commentId}/like`,
-        { like: !currentStatus },
-      );
+  const likeTimeouts = useRef({});
+  const pendingStatus = useRef({});
+  const originalStatuses = useRef({});
 
-      const { likes } = res.data;
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    const timeouts = likeTimeouts.current;
+    return () => {
+      Object.values(timeouts).forEach(clearTimeout);
+    };
+  }, []);
 
-      setCommentList((prevComments) =>
-        prevComments.map((comment) =>
-          comment.id === commentId
-            ? { ...comment, likes }
-            : {
-              ...comment,
-              replies: comment.replies?.map((r) =>
-                r.id === commentId ? { ...r, likes } : r
-              ) || [],
-            }
-        )
-      );
-    } catch (error) {
-      console.error('Failed to toggle like:', error);
-      ErrorAlert('Error', getErrorMessage(error, 'Could not update like status.'), 'error');
+  const toggleLike = (commentId, isCurrentlyLiked) => {
+    // If no timeout is running, this is the start of a new interaction sequence.
+    // Store the original status to compare later.
+    if (!likeTimeouts.current[commentId]) {
+      originalStatuses.current[commentId] = isCurrentlyLiked;
     }
+
+    // 1. Determine "base" status: use pending status if exists, else use current prop
+    const baseStatus = pendingStatus.current[commentId] !== undefined
+      ? pendingStatus.current[commentId]
+      : isCurrentlyLiked;
+
+    const newStatus = !baseStatus;
+    pendingStatus.current[commentId] = newStatus;
+
+    // 2. Optimistic Update (UI)
+    setCommentList((prevComments) =>
+      prevComments.map((comment) => {
+        if (comment.id === commentId) {
+          const newLikes = newStatus
+            ? [...(comment.likes || []), UserData?.id]
+            : (comment.likes || []).filter((id) => id !== UserData?.id);
+          return { ...comment, likes: newLikes };
+        }
+        if (comment.replies) {
+          return {
+            ...comment,
+            replies: (comment.replies || []).map((r) => {
+              if (r.id === commentId) {
+                const newLikes = newStatus
+                  ? [...(r.likes || []), UserData?.id]
+                  : (r.likes || []).filter((id) => id !== UserData?.id);
+                return { ...r, likes: newLikes };
+              }
+              return r;
+            }),
+          };
+        }
+        return comment;
+      })
+    );
+
+    // 3. Debounce API Call (3 seconds)
+    if (likeTimeouts.current[commentId]) {
+      clearTimeout(likeTimeouts.current[commentId]);
+    }
+
+    likeTimeouts.current[commentId] = setTimeout(async () => {
+      const statusToSend = pendingStatus.current[commentId];
+      const original = originalStatuses.current[commentId];
+
+      // If user toggled back to original state, avoid unnecessary API call
+      if (statusToSend === original) {
+        delete likeTimeouts.current[commentId];
+        delete pendingStatus.current[commentId];
+        delete originalStatuses.current[commentId];
+        console.log("Like toggle cancelled: back to original state");
+        return;
+      }
+
+      try {
+        const res = await api.post(
+          `/blog-comments/${commentId}/like`,
+          { like: statusToSend },
+        );
+
+        // Sync with server's actual likes array to handle multiple clients
+        if (res.data?.likes) {
+          setCommentList((prevComments) =>
+            prevComments.map((comment) => {
+              if (comment.id === commentId) return { ...comment, likes: res.data.likes };
+              if (comment.replies) {
+                return {
+                  ...comment,
+                  replies: (comment.replies || []).map((r) =>
+                    r.id === commentId ? { ...r, likes: res.data.likes } : r
+                  ),
+                };
+              }
+              return comment;
+            })
+          );
+        }
+      } catch (error) {
+        console.error('Failed to toggle like:', error);
+        // ErrorAlert('Error', getErrorMessage(error, 'Could not update like status.'), 'error');
+      } finally {
+        delete likeTimeouts.current[commentId];
+        delete pendingStatus.current[commentId];
+        delete originalStatuses.current[commentId];
+      }
+    }, 1000); // 3 second debounce as requested
   };
 
   const handleDelete = async (commentId) => {

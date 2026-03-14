@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { HomeIcon, LayoutDashboard, MenuIcon, Telescope, TicketIcon, UserIcon } from "lucide-react";
-import { Button, Col, Container, Nav, Offcanvas, Row } from "react-bootstrap";
+import { Download, HomeIcon, LayoutDashboard, MenuIcon, SendHorizontal, Telescope, TicketIcon, UserIcon } from "lucide-react";
+import { Button, Col, Container, Nav, Offcanvas, Row, Dropdown } from "react-bootstrap";
 import CustomMenu from "../CustomComponents/CustomMenu";
 import { useMyContext } from "@/Context/MyContextProvider";
 import LoginModal from "../auth/LoginOffCanvas";
@@ -20,10 +20,10 @@ export const AnimatedButton = ({ onClick, Icon, text, animation, isActive }) => 
     }}
     transition={{
       type: "spring",
-      stiffness: 300,  // Reduced from 400
-      damping: 30,     // Increased from 25
-      mass: 1.2,       // Added mass for more "weight" feeling
-      duration: 0.5    // Added duration for smoother transition
+      stiffness: 300,
+      damping: 30,
+      mass: 1.2,
+      duration: 0.5
     }}
   >
     <Button
@@ -75,7 +75,7 @@ export const AnimatedButton = ({ onClick, Icon, text, animation, isActive }) => 
  * MobileBottomMenu component
  */
 const MobileBottomMenu = ({ hideMenu = false }) => {
-  const { UserData, isLoggedIn } = useMyContext();
+  const { UserData, isLoggedIn, ticketActions } = useMyContext();
   const [show, setShow] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const router = useRouter();
@@ -117,15 +117,14 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     "/faq",
   ]);
 
-  // Show only if the exact path matches one in visibleRoutes
-  const shouldShowMenu = visibleRoutes.has(currentPath);
+  // Show only if the exact path matches one in visibleRoutes OR it's a ticket page
+  const shouldShowMenu = visibleRoutes.has(currentPath) || currentPath.startsWith("/t/");
 
   // Return null if menu should be hidden
   if (hideMenu || !shouldShowMenu) return null;
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow((s) => !s);
-
 
   const buttons = [
     {
@@ -156,16 +155,6 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
       text: "Live",
       animation: { rotate: [0, -20, 0] },
     },
-    // {
-    //   key: "menu",
-    //   onClick: () => {
-    //     handleShow();
-    //     setActiveButton("menu");
-    //   },
-    //   Icon: MenuIcon,
-    //   text: "Menu",
-    //   animation: { scale: [1, 1.2, 1] },
-    // },
     {
       key: "bookings",
       onClick: () => {
@@ -181,15 +170,139 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     },
   ];
 
+  const renderTicketActions = () => {
+    if (!ticketActions || !currentPath.startsWith("/t/")) return null;
+
+    const {
+      ticketData,
+      ticketCount,
+      disableCombineButton,
+      imageLoaded,
+      cardImageUrl,
+      handleDownloadClick,
+      handleTransferClick,
+    } = ticketActions;
+
+    const isDisabled = !imageLoaded && cardImageUrl;
+    const canTransfer = ticketData?.controls?.ticket_transfer && UserData?.id === ticketData?.user_id;
+
+    return (
+      <div className="d-flex gap-2 w-100 mb-3 px-2">
+        {canTransfer ? (
+          <>
+            <Button
+              variant="outline-primary"
+              onClick={handleTransferClick}
+              className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap flex-fill"
+              style={{
+                border: '1px solid var(--bs-primary)',
+                lineHeight: 1.7,
+              }}
+              disabled={isDisabled}
+            >
+              <SendHorizontal size={18} />
+              Transfer
+            </Button>
+            {ticketCount > 1 ? (
+              <Dropdown className="flex-fill">
+                <Dropdown.Toggle
+                  as={Button}
+                  variant="primary"
+                  className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap w-100"
+                  style={{
+                    background: 'var(--bs-primary)',
+                    border: 'none',
+                    lineHeight: 1.7,
+                  }}
+                  disabled={isDisabled}
+                >
+                  <Download size={18} />
+                  Download
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="custom-dropdown-menu w-100">
+                  {disableCombineButton && (
+                    <Dropdown.Item onClick={() => handleDownloadClick("combine")} className="custom-dropdown-item">Group</Dropdown.Item>
+                  )}
+                  <Dropdown.Item onClick={() => handleDownloadClick("download")} className="custom-dropdown-item">Single</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            ) : (
+              <Button
+                variant="primary"
+                onClick={() => handleDownloadClick("single")}
+                className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap flex-fill"
+                style={{
+                  background: 'var(--bs-primary)',
+                  border: 'none',
+                  lineHeight: 1.7,
+                }}
+                disabled={isDisabled}
+              >
+                <Download size={18} />
+                Download
+              </Button>
+            )}
+          </>
+        ) : (
+          <>
+            {ticketCount > 1 ? (
+              <>
+                {disableCombineButton && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleDownloadClick("combine")}
+                    className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap flex-fill"
+                    style={{ lineHeight: 1.7 }}
+                    disabled={isDisabled}
+                  >
+                    <Download size={18} />
+                    Group
+                  </Button>
+                )}
+                <Button
+                  variant="primary"
+                  onClick={() => handleDownloadClick("download")}
+                  className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap flex-fill"
+                  style={{
+                    background: 'var(--bs-primary)',
+                    border: 'none',
+                    lineHeight: 1.7,
+                  }}
+                  disabled={isDisabled}
+                >
+                  <Download size={18} />
+                  Single
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="primary"
+                onClick={() => handleDownloadClick("single")}
+                className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap flex-fill"
+                style={{
+                  background: 'var(--bs-primary)',
+                  border: 'none',
+                  lineHeight: 1.7,
+                }}
+                disabled={isDisabled}
+              >
+                <Download size={18} />
+                Download
+              </Button>
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
-      {/* {!UserData && ( */}
       <LoginModal
         show={showLoginModal}
         onHide={() => setShowLoginModal(false)}
         redirectPath="/bookings"
       />
-      {/* )} */}
       <Offcanvas
         show={show}
         onHide={handleClose}
@@ -243,11 +356,10 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
             padding: '12px 16px',
             borderRadius: '0px',
             background: 'rgba(0, 0, 0, 0.3)',
-            // background:"#000",
-            // border: '1px solid rgba(255, 255, 255, 0.1)',
             boxShadow: '0 4px 24px 0 rgba(0, 0, 0, 0.1)'
           }}
         >
+          {renderTicketActions()}
           <Row className="g-0 justify-content-between align-items-center">
             {buttons.map(({ key, ...buttonProps }) => (
               <Col
@@ -259,56 +371,6 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
               </Col>
             ))}
           </Row>
-
-          {/* Central floating Book button */}
-          {/* <motion.div
-          initial={{ y: 80, opacity: 0, scale: 0.8 }}
-          animate={{ y: 0, opacity: 1, scale: 1 }}
-          transition={{ 
-            delay: 0.2, // Slight delay after container animation
-            type: "spring",
-            stiffness: 150,
-            damping: 15
-          }}
-          style={{
-            position: "absolute",
-            top: "-20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 9999,
-            width: 60,
-            height: 60,
-            borderRadius: "50%",
-            overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
-        >
-          <Button
-            variant="warning"
-            className="rounded-circle"
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "column",
-              padding: 0,
-            }}
-            onClick={() => router.push("/events")}
-          >
-            <motion.div
-              animate={{ scale: [1, 1.25, 1] }}
-              transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <TicketIcon color="var(--bs-dark)" size={20} />
-            </motion.div>
-            <span style={{ fontSize: 10, marginTop: 5 }}>Book</span>
-          </Button>
-        </motion.div> */}
         </Container>
       </motion.div>
     </>

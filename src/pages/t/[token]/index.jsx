@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/router";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import Swal from "sweetalert2";
@@ -17,7 +17,6 @@ import { ETicketAlert, TicketDataSummary, BookingMetadataCard } from "@/componen
 // Extracted Components
 import TermsAndConditionsCard from "@/components/Tickets/Token/TermsAndConditionsCard";
 import DesktopActionButtons from "@/components/Tickets/Token/DesktopActionButtons";
-import MobileActionButtons from "@/components/Tickets/Token/MobileActionButtons";
 import TicketCanvasDrawer from "@/components/Tickets/Token/TicketCanvasDrawer";
 import LoginOffCanvas from "@/components/auth/LoginOffCanvas";
 import TokenTransferDrawer from "@/components/Tickets/Token/TokenTransferDrawer";
@@ -65,7 +64,7 @@ const formatDateRange = (dateRange) => {
 };
 
 const UserCard = () => {
-  const { ErrorAlert, systemSetting, isMobile, UserData } = useMyContext();
+  const { ErrorAlert, systemSetting, isMobile, UserData, setTicketActions } = useMyContext();
   const router = useRouter();
   const { token: orderId } = router.query;
 
@@ -165,13 +164,15 @@ const UserCard = () => {
     }
   }, [isTokenError, tokenError, isTicketError, ticketError, ErrorAlert]);
 
+  const ticketCount = useMemo(() => ticketData?.data?.length || 0, [ticketData]);
   // Computed values
+
+
   const isLoading = isTokenLoading || isTicketLoading;
   const hasError = isTokenError || isTicketError;
   const errorMessage = getErrorMessage(tokenError || ticketError, "No ticket data available");
 
 
-  const ticketCount = useMemo(() => ticketData?.data?.length || 0, [ticketData]);
 
   const timeString = useMemo(() => {
     const entry = ticketData?.event?.entry_time || "";
@@ -185,7 +186,7 @@ const UserCard = () => {
   );
 
   // Handle download click (opens drawer with notice)
-  const handleDownloadClick = (type) => {
+  const handleDownloadClick = useCallback((type) => {
     // Check if image is loaded
     if (!imageLoaded && cardImageUrl) {
       Swal.fire({
@@ -201,20 +202,37 @@ const UserCard = () => {
     setDrawerType(type);
     setShowTicketInDrawer(false);
     setShowDrawer(true);
-  };
+  }, [imageLoaded, cardImageUrl]);
 
-  // Handle "Generate Ticket" click inside drawer
   const handleGenerateTicket = () => {
     setShowTicketInDrawer(true);
   };
 
-  const handleTransferClick = () => {
+  const handleTransferClick = useCallback(() => {
     if (!UserData) {
       setShowLoginModal(true);
     } else {
       setShowTransferDrawer(true);
     }
-  };
+  }, [UserData]);
+
+  useEffect(() => {
+    if (ticketData) {
+      setTicketActions({
+        ticketData,
+        ticketCount,
+        disableCombineButton,
+        imageLoaded,
+        cardImageUrl,
+        handleDownloadClick,
+        handleTransferClick,
+      });
+    }
+    return () => setTicketActions(null);
+  }, [ticketData, ticketCount, disableCombineButton, imageLoaded, cardImageUrl, setTicketActions, handleDownloadClick, handleTransferClick]);
+
+
+  // Handle "Generate Ticket" click inside drawer
 
   if (!router.isReady) {
     return null;
@@ -324,16 +342,6 @@ const UserCard = () => {
           activeSlideIndex={activeSlideIndex}
           isCanvasReady={isCanvasReady}
           isMobile={isMobile}
-        />
-
-        <MobileActionButtons
-          ticketData={ticketData}
-          ticketCount={ticketCount}
-          disableCombineButton={disableCombineButton}
-          imageLoaded={imageLoaded}
-          cardImageUrl={cardImageUrl}
-          handleDownloadClick={handleDownloadClick}
-          handleTransferClick={handleTransferClick}
         />
 
         {/* Transfer Modals */}

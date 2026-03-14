@@ -1,6 +1,7 @@
 import CustomBtn from "@/utils/CustomBtn";
-import { Download, ArrowRightLeft, SendHorizontal } from "lucide-react";
+import { Download, ArrowRightLeft, SendHorizontal, Home, User as UserIcon } from "lucide-react";
 import { useMyContext } from "@/Context/MyContextProvider";
+import { useRouter } from "next/router";
 
 const DesktopActionButtons = ({
     ticketData,
@@ -11,12 +12,35 @@ const DesktopActionButtons = ({
     handleDownloadClick,
     handleTransferClick,
 }) => {
-    const { UserData } = useMyContext();
+    const { UserData, isLoggedIn } = useMyContext();
+    const router = useRouter();
+
+    const homeAndBookings = (
+        <>
+            <CustomBtn
+                variant="outline-secondary"
+                HandleClick={() => router.push("/")}
+                buttonText="Home"
+                icon={<Home size={20} />}
+                iconPosition="left"
+            />
+            <CustomBtn
+                variant="outline-secondary"
+                HandleClick={() => router.push("/bookings")}
+                buttonText="Bookings"
+                icon={<UserIcon size={20} />}
+                iconPosition="left"
+            />
+        </>
+    );
+
     return (
-        <div className="text-center mb-4 d-none d-md-block">
+        <div className="text-center mb-4 d-none d-lg-block">
             {ticketCount > 1 ? (
-                <div className="d-flex justify-content-center gap-3">
+                <div className="d-flex flex-wrap justify-content-center gap-3">
+                    {/* {homeAndBookings} */}
                     {ticketData?.controls?.ticket_transfer && UserData?.id === ticketData?.user_id && (
+
                         <CustomBtn
                             variant="outline-primary"
                             HandleClick={handleTransferClick}
@@ -51,8 +75,10 @@ const DesktopActionButtons = ({
 
                 </div>
             ) : (
-                <div className="d-flex justify-content-center gap-3">
+                <div className="d-flex flex-wrap justify-content-center gap-3">
+                    {homeAndBookings}
                     <CustomBtn
+
                         variant="primary"
                         HandleClick={() => handleDownloadClick("single")}
                         disabled={!imageLoaded && cardImageUrl}

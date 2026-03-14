@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import { signIn } from "@/store/auth/authSlice";
 import { getErrorMessage } from "@/utils/errorUtils";
 import CustomDrawer from "@/utils/CustomDrawer";
+import { CustomHeader } from "@/utils/ModalUtils/CustomModalHeader";
 
 
 /**
@@ -690,12 +691,17 @@ const RegistrationBooking = ({
             size="lg"
             className="modal-glass-bg"
         >
-            <Modal.Header className="border-0">
-                <Modal.Title className="d-flex fe-6 align-items-center gap-2">
-                    <Ticket size={24} className="text-warning" />
-                    Registration
-                </Modal.Title>
-            </Modal.Header>
+            <CustomHeader
+                title={
+                    <div className="d-flex align-items-center gap-2">
+                        <Ticket size={24} className="text-warning" />
+                        Registration
+                    </div>
+                }
+                closable={true}
+                onClose={() => onHide && onHide()}
+                className="border-0"
+            />
             <Modal.Body>
                 {registrationContent}
             </Modal.Body>
