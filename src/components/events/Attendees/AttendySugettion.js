@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Modal, Button, Row, Col, Card, Image, Form, InputGroup } from 'react-bootstrap';
 import { useMyContext } from "@/Context/MyContextProvider";
-import { PlusIcon, Search } from 'lucide-react';
+import { PlusIcon, Search, X } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
+import CustomDrawer from '@/utils/CustomDrawer';
 
 const AttendySugettion = (props) => {
   const { requiredFields, data, showAddAttendeeModal, setShowAddAttendeeModal, setAttendeesList, quantity, openAddModal, totalAttendee, selectedAttendees, setSelectedAttendees } = props;
@@ -96,6 +97,137 @@ const AttendySugettion = (props) => {
     );
   }, [searchTerm, data]);
 
+  const headerContent = (
+    <div className="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-between w-100 px-3 py-2">
+      <div className='d-flex align-items-center'>
+        <p className='m-0 p-0 fw-bold' style={{ fontSize: '14px' }}>Attendees</p>
+        <span className='text-muted m-0 p-0' style={{ fontSize: '12px' }}>&nbsp;(select max {quantity})</span>
+      </div>
+      <div className='d-flex align-items-center gap-2'>
+        <Form.Group className="mt-2 mt-md-0" controlId="searchAttendees">
+          <InputGroup size="sm">
+            <Form.Control
+              type="text"
+              className="custom-dark-content-bg border-0 rounded-3 rounded-end-0"
+              placeholder="Search..."
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ fontSize: '12px', minWidth: isMobile ? '120px' : '200px' }}
+            />
+            <Button
+              variant="primary"
+              className="rounded-3 rounded-start-0 py-1" id="button-search">
+              <Search size={14} className='fw-bold' />
+            </Button>
+          </InputGroup>
+        </Form.Group>
+        {isMobile && <X size={20} className='text-muted cursor-pointer ms-2' onClick={() => HandleClose()} />}
+      </div>
+    </div>
+  );
+
+  const bodyContent = (
+    <div className={`${isMobile ? 'p-2' : 'p-3'}`}>
+      <Row className='g-3 overflow-auto custom-scrollbar' style={{ maxHeight: isMobile ? '70vh' : '40rem' }}>
+        {filteredAttendees?.map((attendee, index) => {
+          const isSelected = isAttendeeSelected(attendee);
+          const isDisabled = selectedAttendees.length >= quantity && !isSelected;
+
+          return (
+            <Col md={4} xs={12} key={index} className="mb-2">
+              <Card
+                className={`p-0 card-glassmorphism shadow-none ${isSelected ? 'border-primary' : ''} ${isDisabled ? 'opacity-50' : ''}`}
+                onClick={() => !isDisabled && handleSelectAttendee(attendee, index)}
+                style={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}
+              >
+                <Card.Body className="py-2 px-3">
+                  <Row className="align-items-center g-2 flex-nowrap">
+
+                    {/* Checkbox */}
+                    <Col xs="auto" className="d-flex align-items-center pe-1">
+                      <input
+                        type="checkbox"
+                        className="form-check-input m-0"
+                        checked={isSelected}
+                        disabled={isDisabled}
+                        onChange={() => { }}
+                        style={{
+                          cursor: isDisabled ? 'not-allowed' : 'pointer',
+                          width: '1.2rem',
+                          height: '1.2rem',
+                          marginTop: 0,
+                          alignSelf: 'center'
+                        }}
+                      />
+                    </Col>
+
+                    {/* Image */}
+                    <Col xs="auto" className="d-flex align-items-center px-1">
+                      {attendee?.Photo && (
+                        <Image
+                          loading="lazy"
+                          src={`${attendee?.Photo}?v=${new Date().getTime()}`}
+                          alt="attendee Image"
+                          style={{
+                            width: '42px',
+                            height: '42px',
+                            objectFit: 'cover',
+                            borderRadius: '4px'
+                          }}
+                        />
+                      )}
+                    </Col>
+
+                    {/* Details */}
+                    <Col className="min-w-0 ps-2">
+                      <div className="d-flex flex-column">
+
+                        <p className="mb-0 text-truncate fw-bold" style={{ fontSize: '13px', lineHeight: '1.2' }}>
+                          {attendee?.name}
+                        </p>
+
+                        <p className="mb-0 text-truncate text-muted" style={{ fontSize: '12px', lineHeight: '1.2' }}>
+                          {attendee?.number}
+                        </p>
+
+                        {attendee?.email && (
+                          <p className="mb-0 text-truncate text-muted" style={{ fontSize: '12px', lineHeight: '1.2' }}>
+                            {attendee?.email}
+                          </p>
+                        )}
+
+                      </div>
+                    </Col>
+
+                  </Row>
+                </Card.Body>
+              </Card>
+            </Col>
+          );
+        })}
+      </Row>
+      <div className="d-flex justify-content-center mt-3 gap-2">
+        <CustomBtn
+          className=""
+          HandleClick={() => HandleClose()}
+          icon={<PlusIcon size={16} />}
+          disabled={quantity === selectedAttendees?.length}
+          buttonText={`Add New ${!isMobile ? 'Attendee' : ''}`}
+          style={{ fontSize: '14px' }}
+          variant="secondary"
+          size='sm'
+        />
+        <CustomBtn
+          variant="primary"
+          icon={<i className="fa-solid fa-check" style={{ fontSize: '14px' }}></i>}
+          HandleClick={handleConfirmAttendees}
+          buttonText={`Confirm${!isMobile ? ' Selection' : ''}`}
+          style={{ fontSize: '14px' }}
+          size='sm'
+        />
+      </div>
+    </div>
+  );
+
   return (
     <>
       <style>{`
@@ -104,105 +236,37 @@ const AttendySugettion = (props) => {
             max-width: 90vw !important;
           }
         }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.1);
+          border-radius: 10px;
+        }
       `}</style>
-      <Modal dialogClassName="custom-wide-modal" show={showAddAttendeeModal} onHide={() => HandleClose()} size='xl' centered>
-        <Modal.Header className="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-between p-2 px-4">
-          <div className='d-flex align-items-center'>
-            <p className='m-0 p-0'>Attendees</p>
-            <span className='text-muted h6 m-0 p-0'>&nbsp;(select max {quantity})</span>
-          </div>
-          <Form.Group className="mt-2" controlId="searchAttendees">
-            <InputGroup>
-              <Form.Control
-                type="text"
-                className="custom-dark-content-bg border-0 rounded-3 rounded-end-0"
-                placeholder="Search Attendees..."
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Button
-                variant="primary"
-                size="sm"
-                className="rounded-3 rounded-start-0" id="button-search">
-                <Search size={16} className='fw-bold' />
-              </Button>
-            </InputGroup>
-          </Form.Group>
-        </Modal.Header>
-        <Modal.Body className="p-3">
-          <Row className='g-3 overflow-auto' style={{ maxHeight: isMobile ? '25rem' : '40rem' }}>
-            {filteredAttendees?.map((attendee, index) => {
-              const isSelected = isAttendeeSelected(attendee);
-              const isDisabled = selectedAttendees.length >= quantity && !isSelected;
 
-              return (
-                <Col md={4} key={index}>
-                  <Card
-                    className={`p-0 card-glassmorphism cursor-pointer shadow-none ${isSelected ? 'border-primary' : ''} ${isDisabled ? 'opacity-50' : ''}`}
-                    onClick={() => !isDisabled && handleSelectAttendee(attendee, index)}
-                    style={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}
-                  >
-                    <Card.Body>
-                      <Row className="align-items-center gx-3">
-                        <Col xs="auto">
-                          <Form.Check
-                            type="checkbox"
-                            checked={isSelected}
-                            disabled={isDisabled}
-                            onChange={() => { }} // Empty handler to prevent React warning
-                            style={{ cursor: isDisabled ? 'not-allowed' : 'pointer', width: '1.5rem', height: '1.5rem', transform: 'scale(1.2)' }}
-                          />
-                        </Col>
-
-                        <Col xs="auto" className="px-0">
-                          {attendee?.Photo && (
-                            <Image
-                              loading='lazy'
-                              style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }}
-                              src={`${attendee?.Photo}?v=${new Date().getTime()}`}
-                              alt='attendee Image'
-                            />
-                          )}
-                        </Col>
-
-                        <Col className="min-w-0">
-                          <div className="d-flex flex-column" style={{ fontSize: '0.9rem' }}>
-                            <p className='m-0 p-0 text-truncate'>
-                              <strong>Name:</strong> {attendee?.name}
-                            </p>
-                            <p className='m-0 p-0 text-truncate'>
-                              <strong>Number:</strong> {attendee?.number}
-                            </p>
-                            {attendee?.email && (
-                              <p className='m-0 p-0 text-truncate'>
-                                <strong>Email:</strong> {attendee?.email}
-                              </p>
-                            )}
-                          </div>
-                        </Col>
-                      </Row>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              );
-            })}
-          </Row>
-          <div className="d-flex justify-content-center m-3">
-            <CustomBtn
-              className="me-2 custom-dark-content-bg border-0"
-              HandleClick={() => HandleClose()}
-              icon={<PlusIcon />}
-              disabled={quantity === selectedAttendees?.length}
-              buttonText={`Add New ${!isMobile ? 'Attendee' : ''}`}
-            />
-            <CustomBtn
-              variant="primary"
-              icon={<i className="fa-solid fa-check"></i>}
-              HandleClick={handleConfirmAttendees}
-              buttonText={`Confirm${!isMobile ? ' Selection' : ''}`}
-            />
-          </div>
-        </Modal.Body>
-      </Modal>
+      {isMobile ? (
+        <CustomDrawer
+          showOffcanvas={showAddAttendeeModal}
+          setShowOffcanvas={setShowAddAttendeeModal}
+          title={headerContent}
+          placement="bottom"
+          className="bg-dark text-white"
+          headerClassName="p-0 border-bottom border-secondary"
+          style={{ height: '85vh' }}
+        >
+          {bodyContent}
+        </CustomDrawer>
+      ) : (
+        <Modal dialogClassName="custom-wide-modal" show={showAddAttendeeModal} onHide={() => HandleClose()} size='xl' centered>
+          <Modal.Header className="p-0 border-bottom border-secondary">
+            {headerContent}
+          </Modal.Header>
+          <Modal.Body className="p-0">
+            {bodyContent}
+          </Modal.Body>
+        </Modal>
+      )}
     </>
   )
 }

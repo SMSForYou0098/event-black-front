@@ -128,7 +128,6 @@ const CustomDrawer = ({
             position: 'relative',
             transform: `translateY(${dragY}px)`,
             transition: isDragging ? 'none' : 'transform 0.25s ease-out',
-            touchAction: 'none',
             minHeight: '100%',
             display: 'flex',
             flexDirection: 'column',

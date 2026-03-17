@@ -18,6 +18,7 @@ const DesktopActionButtons = ({
     const homeAndBookings = (
         <>
             <CustomBtn
+                size="sm"
                 variant="outline-secondary"
                 HandleClick={() => router.push("/")}
                 buttonText="Home"
@@ -25,6 +26,7 @@ const DesktopActionButtons = ({
                 iconPosition="left"
             />
             <CustomBtn
+                size="sm"
                 variant="outline-secondary"
                 HandleClick={() => router.push("/bookings")}
                 buttonText="Bookings"
@@ -37,11 +39,12 @@ const DesktopActionButtons = ({
     return (
         <div className="text-center mb-4 d-none d-lg-block">
             {ticketCount > 1 ? (
-                <div className="d-flex flex-wrap justify-content-center gap-3">
+                <div className="d-flex flex-nowrap justify-content-center gap-3">
                     {/* {homeAndBookings} */}
                     {ticketData?.controls?.ticket_transfer && UserData?.id === ticketData?.user_id && (
 
                         <CustomBtn
+                            size="sm"
                             variant="outline-primary"
                             HandleClick={handleTransferClick}
                             disabled={!imageLoaded && cardImageUrl}
@@ -54,20 +57,22 @@ const DesktopActionButtons = ({
 
                     {disableCombineButton && (
                         <CustomBtn
+                            size="sm"
                             variant="secondary"
                             HandleClick={() => handleDownloadClick("combine")}
                             disabled={!imageLoaded && cardImageUrl}
-                            buttonText="Combined Ticket"
+                            buttonText="Group Ticket"
                             icon={<Download size={20} />}
                             iconPosition="left"
                         />
                     )}
 
                     <CustomBtn
+                        size="sm"
                         variant="primary"
                         HandleClick={() => handleDownloadClick("download")}
                         disabled={!imageLoaded && cardImageUrl}
-                        buttonText="Individual Tickets"
+                        buttonText="Single Tickets"
                         icon={<Download size={20} />}
                         iconPosition="left"
                     />
@@ -75,9 +80,10 @@ const DesktopActionButtons = ({
 
                 </div>
             ) : (
-                <div className="d-flex flex-wrap justify-content-center gap-3">
+                <div className="d-flex flex-nowrap justify-content-center gap-3">
                     {homeAndBookings}
                     <CustomBtn
+                        size="sm"
 
                         variant="primary"
                         HandleClick={() => handleDownloadClick("single")}
@@ -89,6 +95,7 @@ const DesktopActionButtons = ({
 
                     {ticketData?.controls?.ticket_transfer && (
                         <CustomBtn
+                            size="sm"
                             variant="secondary"
                             HandleClick={handleTransferClick}
                             disabled={!imageLoaded && cardImageUrl}

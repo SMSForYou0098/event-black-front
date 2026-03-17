@@ -19,7 +19,7 @@ const MobileTwoButtonFooter = ({
 
           {/* Right Button */}
           {rightButton && (
-            <div className="flex-fill">
+            <div className="">
               {rightButton}
             </div>
           )}

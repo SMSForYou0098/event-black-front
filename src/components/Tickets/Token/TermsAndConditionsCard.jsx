@@ -7,7 +7,7 @@ const TermsAndConditionsCard = ({ ticketData }) => {
     }
 
     return (
-        <Card className="mt-5 shadow-sm border-0">
+        <Card className="mt-0 mt-sm-2 shadow-sm border-0">
             <Card.Body>
                 <h5 className="mb-4 fw-semibold" style={{ fontSize: '16px' }}>Terms & Conditions</h5>
 

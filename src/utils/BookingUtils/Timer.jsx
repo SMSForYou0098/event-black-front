@@ -104,7 +104,7 @@ const Timer = ({ timestamp, onExpire, navigateOnExpire }) => {
                     <span>
                         {timeLeft === 0
                             ? 'Time expired!'
-                            : `Complete your booking within ${formatTime(timeLeft)} mins`
+                            : `Book within ${formatTime(timeLeft)} mins`
                         }
                     </span>
                 </div>

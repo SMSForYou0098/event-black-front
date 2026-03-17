@@ -394,15 +394,7 @@ export const MyContextProvider = ({ children }) => {
     return arr.map((item) => ({ label: item.title, value: item.id }));
   };
 
-  const fetchCategoryData = async (category) => {
-    try {
-      const response = await commonapi.get(`/category-data/${category}`);
-      return response.data;
-    } catch (err) {
-      return err.message;
-    } finally {
-    }
-  };
+  // fetchCategoryData refactored to useCategoryData hook in services/events.js
 
   // ---------- FIX: make getCurrencySymbol PURE (no setState here) ----------
   const getCurrencySymbol = useCallback(
@@ -455,7 +447,7 @@ export const MyContextProvider = ({ children }) => {
       GetSystemSetting, // kept same name and behavior for external callers
       showLoading,
       getCurrencySymbol,
-      fetchCategoryData,
+      // fetchCategoryData,
       isScrolled,
       loader,
       isLoggedIn,
@@ -501,7 +493,6 @@ export const MyContextProvider = ({ children }) => {
       GetSystemSetting,
       showLoading,
       getCurrencySymbol,
-      fetchCategoryData,
       isScrolled,
       loader,
       isLoggedIn,

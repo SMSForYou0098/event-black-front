@@ -3,6 +3,7 @@ import { Modal, Button, Form, Spinner } from "react-bootstrap";
 import { QRCodeSVG } from "qrcode.react";
 import { useReactToPrint } from "react-to-print";
 import { useMyContext } from "../../../../../Context/MyContextProvider";
+import { useCategoryData } from "../../../../../services/events";
 import POSPrintModal from "../../POS/POSPrintModal";
 
 const staticCustomFieldsData = [
@@ -40,11 +41,12 @@ const getWithExpiry = (key) => {
 };
 
 const StickerModal = ({ data, open, setOpen, category_id, setAttendeeState, AttendyView, printInvoiceData }) => {
-  const { fetchCategoryData } = useMyContext();
+  const { } = useMyContext();
+  const { data: catQueryData, isLoading: isCatLoading } = useCategoryData(category_id);
   const [customFieldsData, setCustomFieldsData] = useState(staticCustomFieldsData);
   const [printOptions, setPrintOptions] = useState({});
   const [stickerSize, setStickerSize] = useState('2x1');
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [showPrintModel, setShowPrintModel] = useState(false);
   const printRef = useRef();
 
@@ -61,31 +63,19 @@ const StickerModal = ({ data, open, setOpen, category_id, setAttendeeState, Atte
 
   // Fetch category data if not in localStorage
   useEffect(() => {
-    let ignore = false;
     const key = STICKER_MODAL_FIELDS_KEY(category_id);
-    if (open && category_id && !getWithExpiry(key)) {
-      setLoading(true);
-      fetchCategoryData(category_id)
-        .then((res) => {
-          if (!ignore) {
-            const fields = res?.customFieldsData || staticCustomFieldsData;
-            setCustomFieldsData(fields);
-            setWithExpiry(key, fields, FIELD_TTL);
-            
-            const opts = {};
-            fields.forEach(f => { opts[f.field_name] = true; });
-            opts.showQR = true;
-            setPrintOptions(opts);
-            setWithExpiry(STICKER_MODAL_TOGGLES_KEY(category_id), opts, FIELD_TTL);
-          }
-          setLoading(false);
-        })
-        .catch(() => {
-          setLoading(false);
-        });
+    if (open && category_id && catQueryData && !getWithExpiry(key)) {
+      const fields = catQueryData?.customFieldsData || staticCustomFieldsData;
+      setCustomFieldsData(fields);
+      setWithExpiry(key, fields, FIELD_TTL);
+
+      const opts = {};
+      fields.forEach(f => { opts[f.field_name] = true; });
+      opts.showQR = true;
+      setPrintOptions(opts);
+      setWithExpiry(STICKER_MODAL_TOGGLES_KEY(category_id), opts, FIELD_TTL);
     }
-    return () => { ignore = true; };
-  }, [category_id, open, fetchCategoryData]);
+  }, [category_id, open, catQueryData]);
 
   const moveField = (idx, direction) => {
     setCustomFieldsData((fields) => {
@@ -151,10 +141,10 @@ const StickerModal = ({ data, open, setOpen, category_id, setAttendeeState, Atte
   // Calculate dynamic font size based on content length
   const getDynamicFontSize = (value, fieldName) => {
     if (stickerSize === '2x1') return '8px';
-    
+
     const length = value?.length || 0;
     const isNameField = fieldName === 'Name';
-    
+
     if (length <= 15) return isNameField ? '16px' : '18px';
     if (length <= 25) return isNameField ? '16px' : '18px';
     return isNameField ? '7px' : '6px';
@@ -220,12 +210,12 @@ const StickerModal = ({ data, open, setOpen, category_id, setAttendeeState, Atte
           <Modal.Title>Sticker Preview</Modal.Title>
         </Modal.Header>
         <Modal.Body className="d-flex justify-content-center">
-          {loading ? (
+          {isCatLoading ? (
             <Spinner animation="border" />
           ) : (
             <div style={{ '@media print': { body: { margin: 0, padding: 0 } } }}>
-              <div 
-                ref={printRef} 
+              <div
+                ref={printRef}
                 className="sticker-wrapper"
                 style={stickerWrapperStyle}
               >
@@ -265,28 +255,28 @@ const StickerModal = ({ data, open, setOpen, category_id, setAttendeeState, Atte
             <div className="mb-3">
               <Form.Label>Sticker Size:</Form.Label>
               <div className="d-flex gap-2">
-                <Button 
-                  variant={stickerSize === '2x1' ? 'primary' : 'outline-primary'} 
+                <Button
+                  variant={stickerSize === '2x1' ? 'primary' : 'outline-primary'}
                   size="sm"
                   onClick={() => handleSizeChange('2x1')}
                 >
-                  2x1 
+                  2x1
                 </Button>
-                <Button 
-                  variant={stickerSize === '2x2' ? 'primary' : 'outline-primary'} 
+                <Button
+                  variant={stickerSize === '2x2' ? 'primary' : 'outline-primary'}
                   size="sm"
                   onClick={() => handleSizeChange('2x2')}
                 >
                   2x2
                 </Button>
-                {printInvoiceData && 
+                {printInvoiceData &&
                   <Button onClick={() => setShowPrintModel(true)}>
                     Print Invoice
                   </Button>
                 }
               </div>
             </div>
-            
+
             {customFieldsData.map((field, idx) => (
               <div key={field.id} className="d-flex align-items-center gap-2 me-2 mb-2 p-2 rounded border bg-light-subtle">
                 <Form.Check
@@ -340,10 +330,10 @@ const StickerModal = ({ data, open, setOpen, category_id, setAttendeeState, Atte
           </div>
         </Modal.Footer>
       </Modal>
-      
-      <POSPrintModal 
-        showPrintModel={showPrintModel} 
-        closePrintModel={() => setShowPrintModel(false)} 
+
+      <POSPrintModal
+        showPrintModel={showPrintModel}
+        closePrintModel={() => setShowPrintModel(false)}
         event={printInvoiceData?.event}
         bookingData={printInvoiceData?.bookingData}
         subtotal={printInvoiceData?.subtotal}

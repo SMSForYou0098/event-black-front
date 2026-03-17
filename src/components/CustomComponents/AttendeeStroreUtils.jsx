@@ -11,9 +11,13 @@ export const checkForDuplicateAttendees = (attendees, setErrorMessages, setShowE
     const duplicates = {};
     const errorMessages = [];
 
-    const fieldsToCheck = Object.keys(attendees[0] || {}).filter(field =>
-        field !== 'missingFields' && field !== 'Mo' && field !== 'Gender' && field !== 'id' && attendees[0][field]
-    );
+    const fieldsToCheck = Object.keys(attendees[0] || {}).filter(field => {
+        if (field === 'missingFields' || field === 'id' || field === 'Gender') return false;
+        const type = getFieldType(field);
+        const lower = field.toLowerCase();
+        // Check for specific number related keywords or email
+        return type === "email" || type === "phone" || lower === 'mo' || lower === 'number';
+    });
     fieldsToCheck.forEach(field => {
         duplicates[field] = new Map();
     });

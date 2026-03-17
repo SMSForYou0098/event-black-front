@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { selectCheckoutDataByKey, updateAttendees } from "@/store/customSlices/checkoutDataSlice";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { validateAttendeeData, checkForDuplicateAttendees } from "../../../../components/CustomComponents/AttendeeStroreUtils";
-import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
+import { Button, Col, Container, Modal, Row, Spinner } from "react-bootstrap";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
 import DynamicAttendeeForm from "../../../../components/events/Attendees/DynamicAttendeeForm";
 import { useDispatch } from "react-redux";
@@ -16,7 +16,11 @@ import Timer from "../../../../utils/BookingUtils/Timer";
 import MobileTwoButtonFooter from "../../../../utils/MobileTwoButtonFooter";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axiosInterceptor";
+import { useCategoryData } from "../../../../services/events";
 import { getErrorMessage } from "@/utils/errorUtils";
+import CustomHeader from "../../../../utils/ModalUtils/CustomModalHeader";
+import CustomDrawer from "../../../../utils/CustomDrawer";
+import { X } from "lucide-react";
 
 
 export const useEventFields = (eventId, options = {}) =>
@@ -43,13 +47,21 @@ export const useEventFields = (eventId, options = {}) =>
 const AttendeePage = () => {
   const router = useRouter();
   const { categoryId, k, event_key } = router.query ?? {};
-  const { fetchCategoryData, isMobile, ErrorAlert, UserData } = useMyContext();
-  const [categoryData, setCategoryData] = useState(null);
-  const [loadingCategory, setLoadingCategory] = useState(false);
-  const [attendeeList, setAttendeesList] = useState([]);
-  const [selectedAttendees, setSelectedAttendees] = useState([]);
   const [errorMessages, setErrorMessages] = useState([]);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const { ErrorAlert, isMobile, UserData, AskAlert, successAlert } = useMyContext();
+  const { data: catQueryData, isLoading: isCatLoading } = useCategoryData(categoryId);
+
+  const [categoryData, setCategoryData] = useState(null);
+  // const [loadingCategory, setLoadingCategory] = useState(false);
+
+  useEffect(() => {
+    if (catQueryData && isCategoryAttendeeRequired) {
+      setCategoryData(catQueryData?.customFieldsData ?? []);
+    }
+  }, [catQueryData, isCategoryAttendeeRequired]);
+  const [attendeeList, setAttendeesList] = useState([]);
+  const [selectedAttendees, setSelectedAttendees] = useState([]);
   const [event_id, setEventId] = useState(null);
 
   const dispatch = useDispatch();
@@ -82,33 +94,33 @@ const AttendeePage = () => {
   });
 
   // fetch category config when categoryId is available (ONLY when attendee_required is true)
-  useEffect(() => {
-    let mounted = true;
-    const getData = async () => {
-      if (!categoryId || !isCategoryAttendeeRequired) return;
-      setLoadingCategory(true);
-      try {
-        const CData = await fetchCategoryData(categoryId);
-        if (!mounted) return;
-        setCategoryData(CData?.customFieldsData ?? []);
-      } catch (err) {
-        console.error("Failed to fetch category data", getErrorMessage(err));
+  // useEffect(() => {
+  //   let mounted = true;
+  //   const getData = async () => {
+  //     if (!categoryId || !isCategoryAttendeeRequired) return;
+  //     setLoadingCategory(true);
+  //     try {
+  //       const CData = await fetchCategoryData(categoryId);
+  //       if (!mounted) return;
+  //       setCategoryData(CData?.customFieldsData ?? []);
+  //     } catch (err) {
+  //       console.error("Failed to fetch category data", getErrorMessage(err));
 
-        if (mounted) setCategoryData([]);
-      } finally {
-        if (mounted) setLoadingCategory(false);
-      }
-    };
+  //       if (mounted) setCategoryData([]);
+  //     } finally {
+  //       if (mounted) setLoadingCategory(false);
+  //     }
+  //   };
 
-    getData();
-    return () => {
-      mounted = false;
-    };
-  }, [categoryId, fetchCategoryData, isCategoryAttendeeRequired]);
+  //   getData();
+  //   return () => {
+  //     mounted = false;
+  //   };
+  // }, [categoryId, fetchCategoryData, isCategoryAttendeeRequired]);
 
   // Determine which data to use
   const activeApiData = isCategoryAttendeeRequired ? categoryData : (isEventAttendeeRequired ? (eventFieldsData || []) : []);
-  const activeLoading = isCategoryAttendeeRequired ? loadingCategory : loadingEventFields;
+  const activeLoading = isCategoryAttendeeRequired ? isCatLoading : loadingEventFields;
 
   // derive list of required field names (memoized)
   const requiredFieldNames = useMemo(() => {
@@ -209,7 +221,76 @@ const AttendeePage = () => {
               selectedAttendees={selectedAttendees}
               setSelectedAttendees={setSelectedAttendees}
               event_id={event_id}
+              showAttendeeSuggetion={data?.event?.online_att_sug || false}
             />
+
+            {/* ERROR DISPLAY for Duplicate Attendees */}
+            {(() => {
+              const errorBody = (
+                <div className="alert alert-danger border-0 p-3 m-0">
+                  <p className="mb-2">The following duplicate entries were found. Please ensure each attendee is unique:</p>
+                  <ul className="mb-0">
+                    {errorMessages.map((msg, idx) => (
+                      <li key={idx} className="mb-1">{msg}</li>
+                    ))}
+                  </ul>
+                  <div className="mt-3 pt-2 border-top border-danger-subtle">
+                    <p className="mb-0 small fw-bold">Note: Each attendee must have a unique Email address and Phone number.</p>
+                  </div>
+                </div>
+              );
+
+
+              return isMobile ? (
+                <CustomDrawer
+                  showOffcanvas={showErrorModal}
+                  setShowOffcanvas={setShowErrorModal}
+                  title='Duplicate Attendees Found'
+                  placement="bottom"
+                  style={{ height: 'auto', maxHeight: '70vh' }}
+                  headerClassName="p-3 border-bottom border-secondary"
+                >
+                  <div className="p-3">
+                    {errorBody}
+                    <div className="mt-3">
+                      <CustomBtn
+                        variant="primary"
+                        className="w-100"
+                        HandleClick={() => setShowErrorModal(false)}
+                        buttonText="Close"
+                        size="sm"
+                      />
+                    </div>
+                  </div>
+                </CustomDrawer>
+              ) : (
+                <Modal
+                  show={showErrorModal}
+                  onHide={() => setShowErrorModal(false)}
+                  centered
+                  size="lg"
+                  className="modal-glass-bg"
+                >
+                  <CustomHeader
+                    title="Duplicate Attendees Found"
+                    closable={true}
+                    onClose={() => setShowErrorModal(false)}
+                    className="border-bottom border-secondary"
+                  />
+                  <Modal.Body className="p-0">
+                    {errorBody}
+                  </Modal.Body>
+                  <Modal.Footer className="border-0">
+                    <CustomBtn
+                      variant="primary"
+                      HandleClick={() => setShowErrorModal(false)}
+                      buttonText="Close"
+                      size="sm"
+                    />
+                  </Modal.Footer>
+                </Modal>
+              );
+            })()}
             {hasMissingFields && (
               <div className="mb-3 text-white fw-bold">
                 <span className="text-primary">*</span> Please fill all required fields for each attendee before saving.
@@ -229,19 +310,21 @@ const AttendeePage = () => {
               <MobileTwoButtonFooter
                 leftButton={
                   <CustomBtn
-                    className="custom-dark-content-bg border-0 w-100"
                     HandleClick={() => window.history.back()}
                     buttonText="Back"
                     icon={<i className="fa-solid fa-arrow-left"></i>}
+                    variant='secondary'
+                    size='sm'
                   />
                 }
                 rightButton={
                   <CustomBtn
-                    className="border-0 w-100"
                     disabled={hasMissingFields || (attendeeList?.length !== quantity)}
                     HandleClick={handleSaveAttendees}
                     buttonText="Continue"
                     icon={<i className="fa-solid fa-arrow-right"></i>}
+                    variant='primary'
+                    size='sm'
                   />
                 }
               />

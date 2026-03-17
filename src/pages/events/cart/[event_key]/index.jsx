@@ -16,7 +16,7 @@ import BookingTickets from "../../../../utils/BookingUtils/BookingTickets";
 import CartSteps from "../../../../utils/BookingUtils/CartSteps";
 // import LoginModal from "../../../../components/auth/LoginModal";
 import LoginModal from "../../../../components/auth/LoginOffCanvas";
-import { useEventData, useLockSeats, useEventInfluencers } from "../../../../services/events";
+import { useEventData, useLockSeats, useEventInfluencers, useEventTickets, useCategoryData } from "../../../../services/events";
 import CustomBtn from "../../../../utils/CustomBtn";
 import CustomDrawer from "../../../../utils/CustomDrawer";
 import { useCheckoutData } from "../../../../hooks/useCheckoutData";
@@ -94,7 +94,21 @@ const CartPage = () => {
 
   //TAX STATES
 
-  const { data: event, isLoading, isError, error } = useEventData(event_key, UserData?.id ? UserData?.id : null);
+  const { data: event, isLoading: isEventLoading, isError: isEventError, error: eventError } = useEventData(event_key, UserData?.id ? UserData?.id : null);
+  const { data: fetchedTickets, isLoading: isTicketsLoading } = useEventTickets(event_key);
+  const { data: catQueryData } = useCategoryData(event?.Category?.id);
+
+  useEffect(() => {
+    if (catQueryData) {
+      setCategoryData(catQueryData.categoryData);
+    }
+  }, [catQueryData]);
+
+  useEffect(() => {
+    if (fetchedTickets) {
+      setCartItems(fetchedTickets);
+    }
+  }, [fetchedTickets]);
   useHeaderSimple({
     title: event?.name || "Event Details",
   });
@@ -189,18 +203,24 @@ const CartPage = () => {
 
   const eventStatus = getEventStatus();
 
+  // useEffect(() => {
+  //   if (event) {
+  //     setSeatingModule(event?.eventControls?.ticket_system)
+  //   }
+  //   const getCategoryData = async () => {
+  //     let data = await fetchCategoryData(event?.Category?.id);
+  //     setCategoryData(data?.categoryData);
+  //   };
+  //   if (event?.Category?.id) {
+  //     getCategoryData();
+  //   }
+  //   return () => { };
+  // }, [event]);
+
   useEffect(() => {
     if (event) {
       setSeatingModule(event?.eventControls?.ticket_system)
     }
-    const getCategoryData = async () => {
-      let data = await fetchCategoryData(event?.Category?.id);
-      setCategoryData(data?.categoryData);
-    };
-    if (event?.Category?.id) {
-      getCategoryData();
-    }
-    return () => { };
   }, [event]);
 
   // Auto-open Registration modal when category is Registration
@@ -345,6 +365,7 @@ const CartPage = () => {
       category: categoryData,
       tax_data: event?.tax_data,
       attendee_required: event?.eventControls?.attendee_required,
+      online_att_sug: event?.eventControls?.online_att_sug,
     };
 
     const selectedTicket = cartItems.find(
@@ -376,45 +397,9 @@ const CartPage = () => {
     // return `/events/checkout/${event_key}/?k=${dataKey}`;
   };
 
-  const FetchTickets = async () => {
-    if (!event_key) return;
-
-    // Define only the fields you need
-    const requiredFields = [
-      "id",
-      "name",
-      "price",
-      "sale_price",
-      "currency",
-      "ticket_quantity",
-      "remaining_count",
-      "booking_per_customer",
-      "sale",
-      "sold_out",
-      "status",
-      "description",
-      "selection_limit",
-      "sale_date",
-      "booking_not_open",
-      "fast_filling"
-    ];
-
-    try {
-      const response = await publicApi.get(`/tickets/${event_key}`, {
-        params: {
-          fields: requiredFields.join(","),
-        },
-      });
-      const data = await response.data;
-      setCartItems(data.tickets);
-    } catch (error) {
-      console.error("Error fetching tickets:", error);
-    }
-  };
-
-  useEffect(() => {
-    FetchTickets();
-  }, [event_key]);
+  // useEffect(() => {
+  //   FetchTickets();
+  // }, [event_key]);
 
   // Quantity change handler
   // const handleQuantityChange = useCallback((itemId, newQuantity, subtotal) => {
@@ -426,8 +411,18 @@ const CartPage = () => {
   }, [categoryData]);
   // Early return if no items
 
-  if (isLoading) {
+  if (isEventLoading) {
     return <BookingSummarySkeleton type={"cart"} />;
+  }
+
+  if (isEventError) {
+    return (
+      <Container className="py-5">
+        <Alert variant="danger">
+          {getErrorMessage(eventError, "Failed to load event details. Please try again.")}
+        </Alert>
+      </Container>
+    );
   }
 
   const CardContainer = ({ children, className = "", style = {} }) => (
@@ -533,7 +528,7 @@ const CartPage = () => {
           {/* Cart Items */}
           <Col lg="8">
             {/* Show loading skeleton while data is loading */}
-            {isLoading ? (
+            {isEventLoading ? (
               <BookingSummarySkeleton type={"tickets"} />
             ) : eventStatus.disabled ? (
               // Show message when event is unavailable
@@ -555,7 +550,9 @@ const CartPage = () => {
             ) : (
               // Show tickets/seating layout when event is available
               <>
-                {seatingModule ?
+                {isTicketsLoading ? (
+                  <BookingSummarySkeleton type={"tickets"} />
+                ) : seatingModule ?
                   <BookingLayout
                     eventId={event?.id}
                     setSelectedTkts={setSelectedTickets}

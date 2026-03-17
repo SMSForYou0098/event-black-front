@@ -1,4 +1,4 @@
-import { api } from "@/lib/axiosInterceptor";
+import { api, publicApi } from "@/lib/axiosInterceptor";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 export const useEventData = (event_key, userId) => {
@@ -109,5 +109,62 @@ export const useEventInfluencers = (eventId, enabled = true) => {
         },
         enabled: !!eventId && enabled,
         staleTime: 5 * 60 * 1000,
+    });
+};
+
+/**
+ * Fetch tickets for an event
+ * @param {string} event_key - Event key
+ * @returns {UseQueryResult} Query result with tickets data
+ */
+export const useEventTickets = (event_key) => {
+    return useQuery({
+        queryKey: ['eventTickets', event_key],
+        queryFn: async () => {
+            const requiredFields = [
+                "id",
+                "name",
+                "price",
+                "sale_price",
+                "currency",
+                "ticket_quantity",
+                "remaining_count",
+                "booking_per_customer",
+                "sale",
+                "sold_out",
+                "status",
+                "description",
+                "selection_limit",
+                "sale_date",
+                "booking_not_open",
+                "fast_filling"
+            ];
+
+            const response = await publicApi.get(`/tickets/${event_key}`, {
+                params: {
+                    fields: requiredFields.join(","),
+                },
+            });
+            return response.data.tickets;
+        },
+        enabled: !!event_key,
+        staleTime: 2 * 60 * 1000, // 2 minutes
+    });
+};
+
+/**
+ * Fetch specifications for a category
+ * @param {string|number} categoryId - Category ID
+ * @returns {UseQueryResult} Query result with category data
+ */
+export const useCategoryData = (categoryId) => {
+    return useQuery({
+        queryKey: ['categoryData', categoryId],
+        queryFn: async () => {
+            const response = await api.get(`/category-data/${categoryId}`);
+            return response.data;
+        },
+        enabled: !!categoryId,
+        staleTime: 10 * 60 * 1000, // 10 minutes
     });
 };
