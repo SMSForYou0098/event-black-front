@@ -15,6 +15,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { TbBrandInstagramFilled, TbBrandYoutubeFilled } from 'react-icons/tb';
+import { YOUTUBE_LINK, INSTAGRAM_LINK } from '@/utils/consts';
 
 // API fetch function for ticket background image
 const fetchTicketImage = async (path) => {
@@ -153,23 +154,21 @@ const TicketDrawer = ({
 
                 <div className="d-flex justify-content-center align-items-center gap-4 mt-3 mb-1">
                     <a
-                        href="https://www.youtube.com/@Get-Your-Ticket"
+                        href={YOUTUBE_LINK}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-decoration-none text-white d-flex align-items-center"
-                        style={{ gap: 6, marginRight: 10 }}
+                        className="text-decoration-none text-white d-flex align-items-center gap-2"
                     >
-                        <TbBrandYoutubeFilled style={{ fontSize: 20 }} />
+                        <TbBrandYoutubeFilled style={{ fontSize: 22 }} />
                         <span className="small fw-semibold">YouTube</span>
                     </a>
                     <a
-                        href="https://www.instagram.com/getyourticket.in"
+                        href={INSTAGRAM_LINK}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-decoration-none text-white d-flex align-items-center"
-                        style={{ gap: 6 }}
+                        className="text-decoration-none text-white d-flex align-items-center gap-2"
                     >
-                        <TbBrandInstagramFilled style={{ fontSize: 20 }} />
+                        <TbBrandInstagramFilled style={{ fontSize: 22 }} />
                         <span className="small fw-semibold">Instagram</span>
                     </a>
                 </div>

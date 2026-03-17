@@ -21,6 +21,7 @@ import { getErrorMessage } from "@/utils/errorUtils";
 import CustomHeader from "../../../../utils/ModalUtils/CustomModalHeader";
 import CustomDrawer from "../../../../utils/CustomDrawer";
 import { X } from "lucide-react";
+import ImageMessageModal from "../../../../utils/ModalUtils/ImageMessageModal";
 
 
 export const useEventFields = (eventId, options = {}) =>
@@ -49,23 +50,28 @@ const AttendeePage = () => {
   const { categoryId, k, event_key } = router.query ?? {};
   const [errorMessages, setErrorMessages] = useState([]);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false);
   const { ErrorAlert, isMobile, UserData, AskAlert, successAlert } = useMyContext();
   const { data: catQueryData, isLoading: isCatLoading } = useCategoryData(categoryId);
 
   const [categoryData, setCategoryData] = useState(null);
   // const [loadingCategory, setLoadingCategory] = useState(false);
+  const dispatch = useDispatch();
+  const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
+
+  // Derive switch flag
+  const isCategoryAttendeeRequired = data?.event?.category?.attendy_required;
+  const isEventAttendeeRequired = data?.event?.attendee_required;
 
   useEffect(() => {
     if (catQueryData && isCategoryAttendeeRequired) {
       setCategoryData(catQueryData?.customFieldsData ?? []);
     }
   }, [catQueryData, isCategoryAttendeeRequired]);
+
   const [attendeeList, setAttendeesList] = useState([]);
   const [selectedAttendees, setSelectedAttendees] = useState([]);
   const [event_id, setEventId] = useState(null);
-
-  const dispatch = useDispatch();
-  const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
   useEffect(() => {
     if (!data) return;
 
@@ -83,9 +89,6 @@ const AttendeePage = () => {
   }, [data]);
 
   // fetch category config when categoryId is available
-  // Derive switch flag
-  const isCategoryAttendeeRequired = data?.event?.category?.attendy_required;
-  const isEventAttendeeRequired = data?.event?.attendee_required;
 
   // New hook for event fields (when attendee_required is false)
   const isEnabled = !isCategoryAttendeeRequired && !!isEventAttendeeRequired && !!event_id;
@@ -145,6 +148,18 @@ const AttendeePage = () => {
     setAttendeesList((prev) => (typeof updater === "function" ? updater(prev) : updater));
   }, []);
 
+  const quantity = useMemo(() => {
+    // prefer new shape: data.newQuantity or data.selectedQuantity
+    if (!data) return 0;
+    const q =
+      data.newQuantity ??
+      data.selectedQuantity ??
+      data?.data?.quantity ??
+      data?.data?.selectedQuantity ??
+      0;
+    return q;
+  }, [data]);
+
   const handleSaveAttendees = useCallback(() => {
     if (!UserData) {
       ErrorAlert("Your login session has expired. Please log in again.");
@@ -152,9 +167,8 @@ const AttendeePage = () => {
       return false;
     }
     // some basic guard
-    if (!attendeeList || attendeeList.length === 0) return;
-    if (hasMissingFields) {
-      ErrorAlert("Please fill all required fields for each attendee before saving.");
+    if (!attendeeList || attendeeList.length < quantity || hasMissingFields) {
+      setShowAddAttendeeModal(true);
       return;
     }
 
@@ -184,22 +198,12 @@ const AttendeePage = () => {
     router.push(`/events/checkout/${router.query.event_key}/?k=${k}`);
 
     // TODO: call API to persist attendees if you want
-  }, [attendeeList, hasMissingFields, dispatch, k, router, ErrorAlert]);
+  }, [attendeeList, hasMissingFields, dispatch, k, router, ErrorAlert, quantity, UserData, event_key]);
 
   // derive quantity safely from `data`
   // support both shapes: new slice may put selected info at `data` root,
   // older shape might be under `data.data`. Adjust as needed.
-  const quantity = useMemo(() => {
-    // prefer new shape: data.newQuantity or data.selectedQuantity
-    if (!data) return 0;
-    const q =
-      data.newQuantity ??
-      data.selectedQuantity ??
-      data?.data?.quantity ??
-      data?.data?.selectedQuantity ??
-      0;
-    return q;
-  }, [data]);
+
   return (
     <div >
       <Container>
@@ -319,7 +323,6 @@ const AttendeePage = () => {
                 }
                 rightButton={
                   <CustomBtn
-                    disabled={hasMissingFields || (attendeeList?.length !== quantity)}
                     HandleClick={handleSaveAttendees}
                     buttonText="Continue"
                     icon={<i className="fa-solid fa-arrow-right"></i>}
@@ -339,7 +342,6 @@ const AttendeePage = () => {
                 />
                 <CustomBtn
                   size='sm'
-                  disabled={hasMissingFields || (attendeeList?.length !== quantity)}
                   HandleClick={handleSaveAttendees}
                   buttonText={"Save & Continue"}
                 />
@@ -347,6 +349,14 @@ const AttendeePage = () => {
             )}
           </Col>
         </Row>
+        <ImageMessageModal
+          show={showAddAttendeeModal}
+          onHide={() => setShowAddAttendeeModal(false)}
+          imageSrc="/assets/images/event_page/add-atttendy.webp"
+          altText="Please add attendees"
+          isMobile={isMobile}
+          buttonText="Got it"
+        />
       </Container>
     </div>
   );

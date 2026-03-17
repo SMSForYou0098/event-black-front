@@ -83,3 +83,6 @@ export const ANIMATION_VARIANTS = {
 // Example: export other constants
 // export const SOME_CONST = "someValue";
 // export const ANOTHER_CONST = 42;
+
+export const YOUTUBE_LINK = "https://youtube.com/shorts/2zaqjAvL-NA";
+export const INSTAGRAM_LINK = "https://www.instagram.com/reel/DV-wf8BgkIa/?igsh=ZWpmaDd2Z3Q4Zms4";

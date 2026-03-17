@@ -25,10 +25,11 @@ import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
 import BookingLayout from "../../../../components/events/SeatingModuleAdmin/Bookinglayout";
 import toast from "react-hot-toast";
-import RegistrationBooking from "../../../../components/events/RegistrationBooking/RegistrationBooking";
-import CustomHeader from "../../../../utils/ModalUtils/CustomModalHeader";
 import MobileTwoButtonFooter from "../../../../utils/MobileTwoButtonFooter";
 import { getErrorMessage } from "@/utils/errorUtils";
+import ImageMessageModal from "../../../../utils/ModalUtils/ImageMessageModal";
+import RegistrationBooking from "../../../../components/events/RegistrationBooking/RegistrationBooking";
+import CustomHeader from "../../../../utils/ModalUtils/CustomModalHeader";
 
 const CartPage = () => {
   const { event_key, section: sectionParam, row: rowParam } = useRouter().query;
@@ -718,58 +719,15 @@ const CartPage = () => {
           />
         </div>
 
-        {/* Select Ticket Warning — Drawer on mobile, Modal on desktop */}
-        {isMobile ? (
-          <CustomDrawer
-            showOffcanvas={showSelectTicketDrawer}
-            setShowOffcanvas={setShowSelectTicketDrawer}
-          >
-            <div className="text-center">
-              <Image
-                src="/assets/images/event_page/select-ticket.webp"
-                alt="Please select tickets"
-                width={300}
-                height={200}
-                style={{ maxWidth: '100%', height: 'auto' }}
-              />
-              <div className="mt-3">
-                <CustomBtn
-                  HandleClick={() => setShowSelectTicketDrawer(false)}
-                  size="sm"
-                  className="w-100"
-                  buttonText="Got it"
-                  hideIcon={true}
-                />
-              </div>
-            </div>
-          </CustomDrawer>
-        ) : (
-          <Modal
-            show={showSelectTicketDrawer}
-            onHide={() => setShowSelectTicketDrawer(false)}
-            centered
-            className="modal-glass-bg"
-          >
-            <Modal.Body className="text-center p-4">
-              <Image
-                src="/assets/images/event_page/select-ticket.webp"
-                alt="Please select tickets"
-                width={300}
-                height={200}
-                style={{ maxWidth: '100%', height: 'auto' }}
-              />
-              <div className="mt-3">
-                <CustomBtn
-                  HandleClick={() => setShowSelectTicketDrawer(false)}
-                  size="sm"
-                  className="w-100"
-                  buttonText="Got it"
-                  hideIcon={true}
-                />
-              </div>
-            </Modal.Body>
-          </Modal>
-        )}
+        {/* Select Ticket Warning — Common Responsive Modal/Drawer */}
+        <ImageMessageModal
+          show={showSelectTicketDrawer}
+          onHide={() => setShowSelectTicketDrawer(false)}
+          imageSrc="/assets/images/event_page/select-ticket.webp"
+          altText="Please select tickets"
+          isMobile={isMobile}
+          buttonText="Got it"
+        />
 
         {/* Date Selection - Responsive: Modal for Desktop, Drawer for Mobile */}
         {isMobile ? (

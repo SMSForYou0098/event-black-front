@@ -81,7 +81,7 @@ const DesktopActionButtons = ({
                 </div>
             ) : (
                 <div className="d-flex flex-nowrap justify-content-center gap-3">
-                    {homeAndBookings}
+                    {/* {homeAndBookings} */}
                     <CustomBtn
                         size="sm"
 
