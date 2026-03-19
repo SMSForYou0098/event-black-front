@@ -13,7 +13,7 @@ const PriceData = (props) => {
     <>
       {props.lowest_ticket_price !== undefined &&
         props.lowest_ticket_price !== null && (
-          <div className="movie-price" style={{ fontSize: '10px' }}>
+          <div className="movie-price" style={{ fontSize: '12px' }}>
             <div className="d-flex align-items-center gap-2">
               {props.lowest_ticket_price === 0 ? (
                 <span className="text-primary fw-bold">Free</span>
@@ -93,7 +93,7 @@ const CardStyle = memo((props) => {
           </div>
           <div className="evnt-desc mt-3">
             <div>
-              <h6 style={{ fontSize: "12px" }} className="text-capitalize">
+              <h6 style={{ fontSize: "14px" }} className="text-capitalize">
                 <Link href={props.link}>{props.title}</Link>
               </h6>
               <PriceData {...props} />

@@ -57,11 +57,11 @@ const ProductCard = memo((props) => {
 
         {
           !props?.imageOnly &&
-          <div className="product-caption" style={{ fontSize: '11px' }}>
+          <div className="product-caption" style={{ fontSize: '12px' }}>
             <p className="fs-6 my-0 fw-bold">
               <Link
                 href={props?.link || ''}
-                style={{ fontSize: "12px" }}
+                style={{ fontSize: "14px" }}
                 className="title-link"
               >
                 {props?.product_name}

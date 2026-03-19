@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Col, Row, Button, Card, Form, Modal, InputGroup, Spinner } from "react-bootstrap";
 import { api } from "@/lib/axiosInterceptor";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useMyContext } from "@/Context/MyContextProvider";
 import AttendySugettion from "./AttendySugettion";
@@ -55,17 +55,37 @@ const DynamicAttendeeForm = ({
   const [editingIndex, setEditingIndex] = useState(null);
   const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false);
   const [errors, setErrors] = useState({});
-  const fetchExistingAttendees = async () => {
-    if (!UserData?.id || !categoryId || !event_id) return [];
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    const url = isCorporate
-      ? `/corporate-attendee/${UserData.id}/${categoryId}`
-      : `/user-attendee/${UserData.id}/${categoryId}/${event_id}?isAgent=${isAgent ? 1 : 0}`;
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const fetchExistingAttendees = async ({ pageParam = 1 }) => {
+    if (!UserData?.id || !categoryId || !event_id) return { data: [], nextPage: undefined };
+
+    const url = `/user-attendee/${UserData.id}/${categoryId}/${event_id}?isAgent=${isAgent ? 1 : 0}&page=${pageParam}&search=${encodeURIComponent(debouncedSearch)}`;
 
     const resp = await api.get(url);
-    // return attendees array or empty
-    const { status, attendees = [] } = resp.data ?? {};
-    return status && Array.isArray(attendees) ? attendees : [];
+    const result = resp.data ?? {};
+
+    let items = [];
+    let hasMore = false;
+
+    if (result.status) {
+      items = Array.isArray(result.attendees) ? result.attendees : [];
+      if (result.pagination) {
+        hasMore = result.pagination.current_page < result.pagination.last_page;
+      } else {
+        hasMore = items.length > 0; // fallback
+      }
+    }
+    return { data: items, nextPage: hasMore ? pageParam + 1 : undefined };
   };
 
   const data = useSelector((state) => (k ? selectCheckoutDataByKey(state, k) : null));
@@ -75,20 +95,24 @@ const DynamicAttendeeForm = ({
       : Array.isArray(data?.data?.attendees)
         ? data.data?.attendees
         : [];
-  const { data: fetchedAttendees = [], refetch: refetchExisting } = useQuery({
-    queryKey: ["existingAttendees", UserData?.id, categoryId, isCorporate, isAgent, event_id],
-    queryFn: fetchExistingAttendees,
-    enabled: !!UserData?.id && !!categoryId && !!event_id && showAttendeeSuggetion,
-    // staleTime: 5 * 60 * 1000,
-    onSuccess: (data) => {
 
-    },
-    onError: (err) => {
-      console.error("Failed to fetch existing attendees", err);
-      ErrorAlert(getErrorMessage(err, "Failed to fetch existing attendees"));
-    }
+  const {
+    data: infiniteData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isFetchingAttendees
+  } = useInfiniteQuery({
+    queryKey: ["existingAttendees", UserData?.id, categoryId, isCorporate, isAgent, event_id, debouncedSearch],
+    queryFn: fetchExistingAttendees,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    enabled: !!UserData?.id && !!categoryId && !!event_id && showAttendeeSuggetion,
   });
 
+  const fetchedAttendees = useMemo(() => {
+    return infiniteData?.pages.flatMap(page => page.data) || [];
+  }, [infiniteData]);
 
   useEffect(() => {
     if (attendeesFromRedux.length === 0 && fetchedAttendees.length > 0) {
@@ -631,7 +655,7 @@ const DynamicAttendeeForm = ({
               icon={<i className="fa-solid fa-arrow-left" style={{ fontSize: '12px' }}></i>}
             />
             {
-              attendeeList?.length < quantity && (
+              attendeeList?.length < quantity && showAttendeeSuggetion && (
                 <CustomBtn
                   variant="outline-primary"
                   className="d-flex align-items-center justify-content-center btn-sm py-1"
@@ -682,6 +706,12 @@ const DynamicAttendeeForm = ({
         setAttendeesList={setAttendeesList}
         selectedAttendees={selectedAttendees}
         setSelectedAttendees={setSelectedAttendees}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        fetchNextPage={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        isLoading={isFetchingAttendees}
       />
       {/* }  */}
       {/* )} */}

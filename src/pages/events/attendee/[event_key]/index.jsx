@@ -225,7 +225,7 @@ const AttendeePage = () => {
               selectedAttendees={selectedAttendees}
               setSelectedAttendees={setSelectedAttendees}
               event_id={event_id}
-              showAttendeeSuggetion={data?.event?.online_att_sug || false}
+              showAttendeeSuggetion={!data?.event?.online_att_sug || false}
             />
 
             {/* ERROR DISPLAY for Duplicate Attendees */}

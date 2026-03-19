@@ -11,6 +11,8 @@ import { signIn } from "@/store/auth/authSlice";
 import { getErrorMessage } from "@/utils/errorUtils";
 import CustomDrawer from "@/utils/CustomDrawer";
 import { CustomHeader } from "@/utils/ModalUtils/CustomModalHeader";
+import { processImageFile } from "../../CustomComponents/AttendeeStroreUtils";
+import FaceDetector from "../Attendees/FaceDetector";
 
 
 /**
@@ -44,6 +46,7 @@ const RegistrationBooking = ({
     const [photo, setPhoto] = useState(null);
     const [showFields, setShowFields] = useState(false);
     const [isExist, setIsExist] = useState(null);
+    const [errors, setErrors] = useState({});
 
     // User check query
     const { data: userData, isLoading: checkingUser, isError: isUserCheckError } = useQuery({
@@ -278,10 +281,10 @@ const RegistrationBooking = ({
     const handleContinueToCheckout = async (isNewUser = false) => {
         // Prepare registration data
         const registrationData = {
-            // name,
-            // email,
-            // number,
-            // photo,
+            name,
+            email,
+            number,
+            photo,
             user_id: UserData?.id,
             event_id: eventId,
             ...customFieldValues
@@ -326,7 +329,51 @@ const RegistrationBooking = ({
             console.error("Error storing registration:", error);
             setOtpError(getErrorMessage(error, "Registration failed. Please try again."));
         }
+    };
 
+    const validateForm = () => {
+        const newErrors = {};
+
+        // Validate hardcoded fields
+        if (!number || (number.length !== 10 && number.length !== 12)) {
+            newErrors.number = "Please enter a valid 10 or 12 digit number";
+        }
+        if (!name.trim()) {
+            newErrors.name = "Name is required";
+        }
+        if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            newErrors.email = "Please enter a valid email address";
+        }
+
+        // Validate dynamic fields
+        eventFields.forEach(field => {
+            const { field_name, field_required, lable } = field;
+            // Skip hardcoded fields if they are in the JSON
+            if (['name', 'email', 'number'].includes(field_name.toLowerCase())) return;
+
+            const value = customFieldValues[field_name] ?? (field_name.toLowerCase() === 'photo' ? photo : "");
+            const isEmpty = value instanceof File || (typeof value === 'string' && value.startsWith('data:image'))
+                ? !value
+                : typeof value === "string" ? !value.trim() : !value;
+
+            if (field_required && isEmpty) {
+                newErrors[field_name] = `${lable || field_name} is required`;
+            }
+
+            // Specific format checks for dynamic fields if needed (email/phone detection)
+            if (!isEmpty && typeof value === 'string') {
+                if (/email/i.test(field_name) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                    newErrors[field_name] = `${lable || field_name} must be a valid email`;
+                }
+                const isPhoneField = ["number", "phone number", "mobile number", "contact_number", "mo", "phone", "contact number"].includes(field_name.toLowerCase()) || /phone|contact|mobile/i.test(field_name);
+                if (isPhoneField && !/^\d{10,12}$/.test(value)) {
+                    newErrors[field_name] = `${lable || field_name} must be a valid number`;
+                }
+            }
+        });
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     // Removed fetchEventFields useEffect as it is replaced by useQuery
@@ -348,6 +395,18 @@ const RegistrationBooking = ({
         }
     };
 
+    const parseFieldOptions = (options) => {
+        if (!options) return [];
+        if (Array.isArray(options)) return options;
+        try {
+            const parsed = JSON.parse(options);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            console.error('Failed to parse field options:', e);
+            return [];
+        }
+    };
+
     // Handle custom field value changes
     const handleCustomFieldChange = (fieldTitle, value) => {
         setCustomFieldValues(prev => ({
@@ -357,14 +416,50 @@ const RegistrationBooking = ({
     };
 
     // Handle file input changes
-    const handleFileChange = (fieldTitle, e) => {
+    const handleFileChange = async (fieldName, e) => {
         const file = e.target.files[0];
-        if (file) {
-            setCustomFieldValues(prev => ({
-                ...prev,
-                [fieldTitle]: file
-            }));
-        }
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+            const fileData = ev.target.result;
+
+            // Photo processing (face detection)
+            if (fieldName.toLowerCase().includes("photo")) {
+                try {
+                    const faceImageBase64 = await FaceDetector.cropFaceFromImage(fileData);
+                    if (faceImageBase64) {
+                        if (fieldName === 'photo') setPhoto(faceImageBase64);
+                        else handleCustomFieldChange(fieldName, faceImageBase64);
+                        return;
+                    }
+                } catch (err) {
+                    console.warn("Face detection failed, using original/compressed image", err);
+                }
+            }
+
+            // Fallback for non-photo or failed face detection: compression
+            try {
+                const processedBlob = await processImageFile(file);
+                if (processedBlob instanceof Blob) {
+                    const base64 = await new Promise((resolve) => {
+                        const r = new FileReader();
+                        r.onloadend = () => resolve(r.result);
+                        r.readAsDataURL(processedBlob);
+                    });
+                    if (fieldName === 'photo') setPhoto(base64);
+                    else handleCustomFieldChange(fieldName, base64);
+                } else {
+                    // If compression failed or returned something else, use the original file data (base64)
+                    if (fieldName === 'photo') setPhoto(fileData);
+                    else handleCustomFieldChange(fieldName, fileData);
+                }
+            } catch (error) {
+                if (fieldName === 'photo') setPhoto(fileData);
+                else handleCustomFieldChange(fieldName, fileData);
+            }
+        };
+        reader.readAsDataURL(file);
     };
 
     // Get icon for field type
@@ -374,6 +469,10 @@ const RegistrationBooking = ({
                 return <Hash size={14} />;
             case 'file':
                 return <Upload size={14} />;
+            case 'email':
+                return <Mail size={14} />;
+            case 'select':
+                return <Users size={14} />;
             default:
                 return <FileText size={14} />;
         }
@@ -381,8 +480,7 @@ const RegistrationBooking = ({
 
     // Handle new user registration (create user + OTP)
     const handleNewUserRegistration = () => {
-        if (!name.trim() || !email.trim() || !number.trim()) {
-            setOtpError("Please fill all required fields");
+        if (!validateForm()) {
             return;
         }
 
@@ -411,10 +509,11 @@ const RegistrationBooking = ({
         verifyUserMutation.mutate(number);
     };
 
-    // Filter out name, email, number, photo from dynamic fields
+    // Filter out name, email, number from dynamic fields as they are hardcoded
+    // But KEEP photo if we want to render it dynamically OR if we want to render it in profile
     const filteredEventFields = eventFields.filter(field => {
         const title = field.field_name?.toLowerCase();
-        return !['name', 'email', 'number', 'photo'].includes(title);
+        return !['name', 'email', 'number'].includes(title);
     });
 
     // Filter active tickets
@@ -509,9 +608,10 @@ const RegistrationBooking = ({
                                             placeholder="Enter phone number"
                                             value={number}
                                             onChange={handlePhoneChange}
-                                            className="bg-dark text-white border-secondary"
+                                            className={`bg-dark text-white border-secondary ${errors.number ? 'border-danger' : ''}`}
                                             maxLength={12}
                                             required
+                                            isInvalid={!!errors.number}
                                         />
                                         {checkingUser && (
                                             <div className="position-absolute top-50 end-0 translate-middle-y me-3">
@@ -519,7 +619,8 @@ const RegistrationBooking = ({
                                             </div>
                                         )}
                                     </div>
-                                    {!showFields && (
+                                    {errors.number && <Form.Text className="text-danger small">{errors.number}</Form.Text>}
+                                    {!showFields && !errors.number && (
                                         <Form.Text className="text-muted small">
                                             Enter 10 or 12 digit number
                                         </Form.Text>
@@ -538,11 +639,16 @@ const RegistrationBooking = ({
                                             type="text"
                                             placeholder="Enter your name"
                                             value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                            className="bg-dark text-white border-secondary"
+                                            onChange={(e) => {
+                                                setName(e.target.value);
+                                                setErrors(prev => ({ ...prev, name: "" }));
+                                            }}
+                                            className={`bg-dark text-white border-secondary ${errors.name ? 'border-danger' : ''}`}
                                             disabled={isExist}
+                                            isInvalid={!!errors.name}
                                             required
                                         />
+                                        {errors.name && <Form.Text className="text-danger small">{errors.name}</Form.Text>}
                                     </Form.Group>
                                 </Col>
                             )}
@@ -558,11 +664,16 @@ const RegistrationBooking = ({
                                             type="email"
                                             placeholder="Enter your email"
                                             value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            className="bg-dark text-white border-secondary"
+                                            onChange={(e) => {
+                                                setEmail(e.target.value);
+                                                setErrors(prev => ({ ...prev, email: "" }));
+                                            }}
+                                            className={`bg-dark text-white border-secondary ${errors.email ? 'border-danger' : ''}`}
                                             disabled={isExist}
+                                            isInvalid={!!errors.email}
                                             required
                                         />
+                                        {errors.email && <Form.Text className="text-danger small">{errors.email}</Form.Text>}
                                     </Form.Group>
                                 </Col>
                             )}
@@ -576,38 +687,135 @@ const RegistrationBooking = ({
                                 </Col>
                             )}
 
-                            {showFields && !loadingFields && filteredEventFields.map((field, index) => (
-                                <Col xs={12} md={4} key={index}>
-                                    <Form.Group>
-                                        <Form.Label className="text-white d-flex align-items-center gap-2 small text-capitalize">
-                                            {getFieldIcon(field.type)} {field.field_name?.replace(/_/g, ' ')}
-                                        </Form.Label>
+                            {showFields && !loadingFields && filteredEventFields.map((field, index) => {
+                                const field_name = field.field_name;
+                                const field_type = field.field_type || field.type;
+                                const isPhoto = field_name.toLowerCase() === 'photo';
+                                const value = isPhoto ? photo : (customFieldValues[field_name] || "");
+                                const error = errors[field_name];
+                                const label = field.lable || field.field_name;
+                                const isRequired = field.field_required;
 
-                                        {field.type === 'file' ? (
-                                            <Form.Control
-                                                type="file"
-                                                onChange={(e) => handleFileChange(field.field_name, e)}
-                                                className="bg-dark text-white border-secondary"
-                                                accept="image/*"
-                                            />
-                                        ) : (
-                                            <Form.Control
-                                                type={field.type === 'number' ? 'number' : 'text'}
-                                                placeholder={`Enter ${field.field_name?.replace(/_/g, ' ')}`}
-                                                value={customFieldValues[field.field_name] || ""}
-                                                onChange={(e) => handleCustomFieldChange(field.field_name, e.target.value)}
-                                                className="bg-dark text-white border-secondary"
-                                            />
-                                        )}
+                                return (
+                                    <Col xs={12} md={4} key={index}>
+                                        <Form.Group className="mb-2">
+                                            <Form.Label className="text-white d-flex align-items-center gap-2 small text-capitalize">
+                                                {getFieldIcon(field_type)} {label.replace(/_/g, ' ')} {isRequired && <span className="text-danger">*</span>}
+                                            </Form.Label>
 
-                                        {field.note && (
-                                            <Form.Text className="text-muted small">
-                                                {field.note}
-                                            </Form.Text>
-                                        )}
-                                    </Form.Group>
-                                </Col>
-                            ))}
+                                            {field_type === 'file' ? (
+                                                <div className="d-flex flex-column gap-2">
+                                                    <Form.Control
+                                                        type="file"
+                                                        onChange={(e) => {
+                                                            handleFileChange(field_name, e);
+                                                            setErrors(prev => ({ ...prev, [field_name]: "" }));
+                                                        }}
+                                                        className={`bg-dark text-white border-secondary ${error ? 'border-danger' : ''}`}
+                                                        accept="image/*"
+                                                        isInvalid={!!error}
+                                                    />
+                                                    {value && (typeof value === 'string' && (value.startsWith('data:image') || value.startsWith('http'))) && (
+                                                        <div className="d-flex align-items-center gap-2">
+                                                            <img
+                                                                src={value}
+                                                                alt="Preview"
+                                                                className="rounded border border-secondary"
+                                                                style={{ width: 40, height: 40, objectFit: 'cover' }}
+                                                            />
+                                                            <span className="text-success small">Photo Selected</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : field_type === 'select' ? (
+                                                <Form.Select
+                                                    value={value}
+                                                    onChange={(e) => {
+                                                        handleCustomFieldChange(field_name, e.target.value);
+                                                        setErrors(prev => ({ ...prev, [field_name]: "" }));
+                                                    }}
+                                                    className={`bg-dark text-white border-secondary ${error ? 'border-danger' : ''}`}
+                                                    isInvalid={!!error}
+                                                >
+                                                    <option value="">Select {label}</option>
+                                                    {parseFieldOptions(field.field_options).map((opt, i) => (
+                                                        <option key={i} value={opt}>{opt}</option>
+                                                    ))}
+                                                </Form.Select>
+                                            ) : field_type === 'radio' ? (
+                                                <div className="d-flex gap-3 flex-wrap">
+                                                    {parseFieldOptions(field.field_options).map((option, idx) => (
+                                                        <div key={idx} className="form-check d-flex align-items-center gap-2">
+                                                            <input
+                                                                className="form-check-input"
+                                                                type="radio"
+                                                                id={`${field_name}-${idx}`}
+                                                                name={field_name}
+                                                                value={option}
+                                                                checked={value === option}
+                                                                onChange={(e) => handleCustomFieldChange(field_name, e.target.value)}
+                                                            />
+                                                            <label className="form-check-label text-white small" htmlFor={`${field_name}-${idx}`}>
+                                                                {option}
+                                                            </label>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : field_type === 'checkbox' ? (
+                                                <div className="d-flex gap-3 flex-wrap">
+                                                    {parseFieldOptions(field.field_options).map((option, idx) => (
+                                                        <div key={idx} className="form-check d-flex align-items-center gap-2">
+                                                            <input
+                                                                className="form-check-input"
+                                                                type="checkbox"
+                                                                id={`${field_name}-${idx}`}
+                                                                value={option}
+                                                                checked={(Array.isArray(value) ? value : []).includes(option)}
+                                                                onChange={(e) => {
+                                                                    const currentValues = Array.isArray(value) ? value : [];
+                                                                    const newValues = e.target.checked
+                                                                        ? [...currentValues, option]
+                                                                        : currentValues.filter(v => v !== option);
+                                                                    handleCustomFieldChange(field_name, newValues);
+                                                                }}
+                                                            />
+                                                            <label className="form-check-label text-white small" htmlFor={`${field_name}-${idx}`}>
+                                                                {option}
+                                                            </label>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : field_type === 'textarea' ? (
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={2}
+                                                    placeholder={`Enter ${label}`}
+                                                    value={value}
+                                                    onChange={(e) => {
+                                                        handleCustomFieldChange(field_name, e.target.value);
+                                                        setErrors(prev => ({ ...prev, [field_name]: "" }));
+                                                    }}
+                                                    className={`bg-dark text-white border-secondary ${error ? 'border-danger' : ''}`}
+                                                    isInvalid={!!error}
+                                                />
+                                            ) : (
+                                                <Form.Control
+                                                    type={field_type === 'number' ? 'number' : 'text'}
+                                                    placeholder={`Enter ${label}`}
+                                                    value={value}
+                                                    onChange={(e) => {
+                                                        handleCustomFieldChange(field_name, e.target.value);
+                                                        setErrors(prev => ({ ...prev, [field_name]: "" }));
+                                                    }}
+                                                    className={`bg-dark text-white border-secondary ${error ? 'border-danger' : ''}`}
+                                                    isInvalid={!!error}
+                                                />
+                                            )}
+                                            {error && <Form.Text className="text-danger small">{error}</Form.Text>}
+                                        </Form.Group>
+                                    </Col>
+                                );
+                            })}
 
                             {/* Verify & Continue Button for new users */}
                             {showFields && isExist === false && (
@@ -632,6 +840,7 @@ const RegistrationBooking = ({
                                     <CustomBtn
                                         buttonText={isLoggedIn ? "Continue to Checkout" : "Verify & Continue"}
                                         HandleClick={() => {
+                                            if (!validateForm()) return;
                                             if (isLoggedIn) {
                                                 // Already logged in, proceed directly
                                                 handleContinueToCheckout(false);

@@ -1,7 +1,8 @@
 import { Ticket } from "lucide-react";
 import NextImage from "next/image";
-import React from "react";
-import { Card, Col, Nav, Row, Tab } from "react-bootstrap";
+import React, { useCallback, useRef, useState } from "react";
+import { Button, ButtonGroup, Card, Col, Nav, Row, Tab } from "react-bootstrap";
+import CustomBtn from "../../../utils/CustomBtn";
 
 const EventTabs = ({ eventData, startDate, endDate }) => {
   const tabItems = [
@@ -12,6 +13,72 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
     // { key: "organizer", label: "Organizer" },
     // { key: "terms", label: "Terms" },
   ];
+  const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef(null);
+  const lastTouchDist = useRef(null);
+  const containerRef = useRef(null);
+
+  const MIN_SCALE = 0.5;
+  const MAX_SCALE = 4;
+
+  // ── Zoom helpers ──────────────────────────────────────────────
+  const clampScale = (s) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
+
+  const zoomIn = () => setScale((s) => clampScale(s + 0.25));
+  const zoomOut = () => setScale((s) => clampScale(s - 0.25));
+  const reset = () => { setScale(1); setTranslate({ x: 0, y: 0 }); };
+
+  // ── Mouse wheel zoom ──────────────────────────────────────────
+  const onWheel = useCallback((e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.15 : -0.15;
+    setScale((s) => clampScale(s + delta));
+  }, []);
+
+  // ── Mouse drag pan ────────────────────────────────────────────
+  const onMouseDown = (e) => {
+    setIsDragging(true);
+    dragStart.current = { x: e.clientX - translate.x, y: e.clientY - translate.y };
+  };
+  const onMouseMove = (e) => {
+    if (!isDragging || !dragStart.current) return;
+    setTranslate({ x: e.clientX - dragStart.current.x, y: e.clientY - dragStart.current.y });
+  };
+  const onMouseUp = () => { setIsDragging(false); dragStart.current = null; };
+
+  // ── Touch: pinch-zoom + pan ───────────────────────────────────
+  const onTouchStart = (e) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastTouchDist.current = Math.hypot(dx, dy);
+    } else if (e.touches.length === 1) {
+      dragStart.current = {
+        x: e.touches[0].clientX - translate.x,
+        y: e.touches[0].clientY - translate.y,
+      };
+    }
+  };
+  const onTouchMove = (e) => {
+    e.preventDefault();
+    if (e.touches.length === 2 && lastTouchDist.current != null) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.hypot(dx, dy);
+      const delta = (dist - lastTouchDist.current) * 0.01;
+      setScale((s) => clampScale(s + delta));
+      lastTouchDist.current = dist;
+    } else if (e.touches.length === 1 && dragStart.current) {
+      setTranslate({
+        x: e.touches[0].clientX - dragStart.current.x,
+        y: e.touches[0].clientY - dragStart.current.y,
+      });
+    }
+  };
+  const onTouchEnd = () => { lastTouchDist.current = null; dragStart.current = null; };
+
   return (
     <div className="mt-3">
       <div className="product-detail-tab" id="event-details">
@@ -125,29 +192,119 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                 </Col>
               </Row>
             </Tab.Pane>
-            <Tab.Pane eventKey="layout" className="p-4  rounded">
+            <Tab.Pane eventKey="layout" className="p-4 rounded">
               <Row>
                 <Col md="12">
                   <Card className="border-0 shadow-sm">
                     <Card.Body className="p-0">
                       {typeof eventData?.eventMedia?.layout_image === "string" ? (
-                        <div className="text-center">
-                          <NextImage
-                            src={eventData.eventMedia.layout_image}
-                            alt="Event layout image"
-                            width={400}
-                            height={600}
-                            loading="lazy"
-                            placeholder="blur"
-                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..." // keep your tiny base64
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            style={{ height: "auto", objectFit: "cover" }}
-                            onError={(e) => console.error("Image failed to load", e)}
-                            priority={false}
-                          />
+                        <div>
+                          {/* ── Zoom controls ── */}
+                          {/* <div
+                            className="d-flex flex-column flex-md-row align-items-center justify-content-between px-3 py-2 border-bottom gap-2"
+                            style={{ userSelect: "none" }}
+                          >
+                            <small className="text-muted d-none d-md-block">
+                              Scroll to zoom · Drag to pan · Pinch on mobile
+                            </small>
+                            <small className="text-muted d-md-none text-center" style={{ fontSize: '11px' }}>
+                              Pinch to zoom · Drag to pan
+                            </small>
+                            <div className="d-flex align-items-center gap-2 justify-content-center w-100" style={{ maxWidth: '300px' }}>
+                              <div className="d-flex border border-secondary rounded-3 overflow-hidden flex-fill">
+                                <CustomBtn
+                                  variant="dark"
+                                  size="sm"
+                                  HandleClick={zoomOut}
+                                  buttonText="−"
+                                  wrapperClassName="flex-fill m-0 p-0"
+                                  className="border-0 rounded-0 w-100 h-100"
+                                  hideIcon={true}
+                                  style={{ padding: '4px 0' }}
+                                />
+                                <div className="d-flex align-items-center justify-content-center px-1 border-start border-end border-secondary" style={{ minWidth: 55, fontSize: '12px' }}>
+                                  {Math.round(scale * 100)}%
+                                </div>
+                                <CustomBtn
+                                  variant="dark"
+                                  size="sm"
+                                  HandleClick={zoomIn}
+                                  buttonText="+"
+                                  wrapperClassName="flex-fill m-0 p-0"
+                                  className="border-0 rounded-0 w-100 h-100"
+                                  hideIcon={true}
+                                  style={{ padding: '4px 0' }}
+                                />
+                              </div>
+                              <CustomBtn
+                                variant="outline-secondary"
+                                size="sm"
+                                HandleClick={reset}
+                                buttonText="↺ Reset"
+                                className="border-0 shadow-sm"
+                                hideIcon={true}
+                              />
+                            </div>
+                          </div> */}
+
+                          {/* ── Scrollable viewport ── */}
+                          <div
+                            ref={containerRef}
+                            onWheel={onWheel}
+                            onMouseDown={onMouseDown}
+                            onMouseMove={onMouseMove}
+                            onMouseUp={onMouseUp}
+                            onMouseLeave={onMouseUp}
+                            onTouchStart={onTouchStart}
+                            onTouchMove={onTouchMove}
+                            onTouchEnd={onTouchEnd}
+                            style={{
+                              overflow: "hidden",
+                              position: "relative",
+                              width: "100%",
+                              height: "clamp(250px, 50vh, 700px)", // adjusted for smaller screens
+                              cursor: isDragging ? "grabbing" : "grab",
+                              touchAction: "none", // disables browser default touch so pinch works
+                              backgroundColor: "#00000003"
+                            }}
+                          >
+                            {/* ── Transformed image wrapper ── */}
+                            <div
+                              className="d-flex align-items-center justify-content-center w-100 h-100"
+                              style={{
+                                transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
+                                transformOrigin: "center center",
+                                transition: isDragging ? "none" : "transform 0.15s ease",
+                                willChange: "transform",
+                              }}
+                            >
+                              <NextImage
+                                src={eventData.eventMedia.layout_image}
+                                alt="Event layout image"
+                                width={800}
+                                height={800}
+                                loading="lazy"
+                                placeholder="blur"
+                                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                style={{
+                                  maxHeight: "100%",
+                                  maxWidth: "100%",
+                                  objectFit: "contain",
+                                  pointerEvents: "none", // prevents image drag interfering with pan
+                                  userSelect: "none",
+                                }}
+                                onError={(e) => console.error("Image failed to load", e)}
+                                priority={false}
+                                draggable={false}
+                              />
+                            </div>
+                          </div>
                         </div>
                       ) : (
-                        <div className="p-4 text-muted" style={{ fontSize: '14px' }}>No layout image available.</div>
+                        <div className="p-4 text-muted" style={{ fontSize: "14px" }}>
+                          No layout image available.
+                        </div>
                       )}
                     </Card.Body>
                   </Card>

@@ -1,13 +1,25 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, Button, Row, Col, Card, Image, Form, InputGroup } from 'react-bootstrap';
+import { Modal, Button, Row, Col, Card, Image, Form, InputGroup, Spinner } from 'react-bootstrap';
 import { useMyContext } from "@/Context/MyContextProvider";
 import { PlusIcon, Search, X } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
 import CustomDrawer from '@/utils/CustomDrawer';
+import { useInView } from 'react-intersection-observer';
 
 const AttendySugettion = (props) => {
-  const { requiredFields, data, showAddAttendeeModal, setShowAddAttendeeModal, setAttendeesList, quantity, openAddModal, totalAttendee, selectedAttendees, setSelectedAttendees } = props;
-  const [searchTerm, setSearchTerm] = useState("");
+  const {
+    requiredFields, data, showAddAttendeeModal, setShowAddAttendeeModal, setAttendeesList, quantity, openAddModal, totalAttendee, selectedAttendees, setSelectedAttendees,
+    searchQuery, setSearchQuery, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading
+  } = props;
+
+  const { ref, inView } = useInView();
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   const { ErrorAlert, isMobile } = useMyContext()
 
   // Helper function to get a stable ID from attendee object
@@ -85,17 +97,7 @@ const AttendySugettion = (props) => {
   }, [selectedAttendees?.length, quantity, showAddAttendeeModal, setShowAddAttendeeModal]);
 
 
-  const filteredAttendees = useMemo(() => {
-    if (!searchTerm.trim()) return data;
-    const searchLower = searchTerm.toLowerCase();
-    return data.filter(attendee =>
-      ["name", "number", "email"].some(key =>
-        String(attendee[key] || "")
-          ?.toLowerCase()
-          ?.includes(searchLower)
-      )
-    );
-  }, [searchTerm, data]);
+  // Remote filtering handled by query already
 
   const headerContent = (
     <div className="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-between w-100 px-3 py-2">
@@ -110,7 +112,8 @@ const AttendySugettion = (props) => {
               type="text"
               className="custom-dark-content-bg border-0 rounded-3 rounded-end-0"
               placeholder="Search..."
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               style={{ fontSize: '12px', minWidth: isMobile ? '120px' : '200px' }}
             />
             <Button
@@ -128,34 +131,37 @@ const AttendySugettion = (props) => {
   const bodyContent = (
     <div className={`${isMobile ? 'p-2' : 'p-3'}`}>
       <Row className='g-3 overflow-auto custom-scrollbar' style={{ maxHeight: isMobile ? '70vh' : '40rem' }}>
-        {filteredAttendees?.map((attendee, index) => {
+        {isLoading && (
+          <Col xs={12} className="text-center py-3">
+            <Spinner animation="border" size="sm" variant="primary" />
+          </Col>
+        )}
+        {data?.map((attendee, index) => {
           const isSelected = isAttendeeSelected(attendee);
           const isDisabled = selectedAttendees.length >= quantity && !isSelected;
 
           return (
             <Col md={4} xs={12} key={index} className="mb-2">
               <Card
-                className={`p-0 card-glassmorphism shadow-none ${isSelected ? 'border-primary' : ''} ${isDisabled ? 'opacity-50' : ''}`}
+                className={`h-100 p-0 card-glassmorphism shadow-sm attendee-card ${isSelected ? 'border-primary border-2' : ''} ${isDisabled ? 'opacity-50' : ''}`}
                 onClick={() => !isDisabled && handleSelectAttendee(attendee, index)}
-                style={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}
+                style={{ cursor: isDisabled ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.05)' : '' }}
               >
                 <Card.Body className="py-2 px-3">
                   <Row className="align-items-center g-2 flex-nowrap">
 
                     {/* Checkbox */}
-                    <Col xs="auto" className="d-flex align-items-center pe-1">
+                    <Col xs="auto" className="d-flex align-items-center pe-2">
                       <input
                         type="checkbox"
-                        className="form-check-input m-0"
+                        className="form-check-input m-0 cursor-pointer"
                         checked={isSelected}
                         disabled={isDisabled}
                         onChange={() => { }}
                         style={{
-                          cursor: isDisabled ? 'not-allowed' : 'pointer',
-                          width: '1.2rem',
-                          height: '1.2rem',
-                          marginTop: 0,
-                          alignSelf: 'center'
+                          width: '18px',
+                          height: '18px',
+                          border: isSelected ? 'none' : '1px solid rgba(255,255,255,0.4)',
                         }}
                       />
                     </Col>
@@ -178,24 +184,22 @@ const AttendySugettion = (props) => {
                     </Col>
 
                     {/* Details */}
-                    <Col className="min-w-0 ps-2">
-                      <div className="d-flex flex-column">
+                    <Col className="min-w-0 ps-2 d-flex flex-column justify-content-center">
+                      <p className="mb-1 text-truncate fw-semibold text-white" style={{ fontSize: '14px', lineHeight: '1.2' }}>
+                        {attendee?.name || <span className="text-muted fst-italic">No Name Provided</span>}
+                      </p>
 
-                        <p className="mb-0 text-truncate fw-bold" style={{ fontSize: '13px', lineHeight: '1.2' }}>
-                          {attendee?.name}
+                      {attendee?.number && (
+                        <p className="mb-1 text-truncate text-white-50 d-flex align-items-center gap-1" style={{ fontSize: '12px', lineHeight: '1.2' }}>
+                          <i className="fa-solid fa-phone" style={{ fontSize: '10px' }}></i> {attendee.number}
                         </p>
+                      )}
 
-                        <p className="mb-0 text-truncate text-muted" style={{ fontSize: '12px', lineHeight: '1.2' }}>
-                          {attendee?.number}
+                      {attendee?.email && (
+                        <p className="mb-0 text-truncate text-white-50 d-flex align-items-center gap-1" style={{ fontSize: '11px', lineHeight: '1.2' }}>
+                          <i className="fa-solid fa-envelope" style={{ fontSize: '10px' }}></i> {attendee.email}
                         </p>
-
-                        {attendee?.email && (
-                          <p className="mb-0 text-truncate text-muted" style={{ fontSize: '12px', lineHeight: '1.2' }}>
-                            {attendee?.email}
-                          </p>
-                        )}
-
-                      </div>
+                      )}
                     </Col>
 
                   </Row>
@@ -204,6 +208,12 @@ const AttendySugettion = (props) => {
             </Col>
           );
         })}
+        {isFetchingNextPage && (
+          <Col xs={12} className="text-center py-2">
+            <Spinner animation="border" size="sm" variant="primary" />
+          </Col>
+        )}
+        <div ref={ref} style={{ height: '10px' }}></div>
       </Row>
       <div className="d-flex justify-content-center mt-3 gap-2">
         <CustomBtn
@@ -237,11 +247,25 @@ const AttendySugettion = (props) => {
           }
         }
         .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
+          width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.15);
           border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255,255,255,0.25);
+        }
+        .attendee-card {
+          border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .attendee-card:hover {
+          transform: translateY(-2px);
+          border-color: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 6px 16px rgba(0,0,0,0.3) !important;
+        }
+        .attendee-card.border-primary {
+          box-shadow: 0 0 0 1px var(--bs-primary) !important;
         }
       `}</style>
 

@@ -20,6 +20,8 @@ import { useEventData, useLockSeats, useEventInfluencers, useEventTickets, useCa
 import CustomBtn from "../../../../utils/CustomBtn";
 import CustomDrawer from "../../../../utils/CustomDrawer";
 import { useCheckoutData } from "../../../../hooks/useCheckoutData";
+import { useMutation } from "@tanstack/react-query";
+import LoaderComp from "../../../../utils/LoaderComp";
 import { Calendar, Pin, Ticket, Users, Check, User } from "lucide-react";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
@@ -54,7 +56,6 @@ const CartPage = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [path, setPath] = useState("");
   const router = useRouter();
-  const [isChecking, setIsChecking] = useState(false);
   const [selectedDate, setSelectedDate] = useState(""); // For daily event date selection
   const [showDatePicker, setShowDatePicker] = useState(false); // Date selection modal/drawer state
 
@@ -262,8 +263,14 @@ const CartPage = () => {
   }, [isApprovalRequired, categoryData, selectedInfluencer, showInfluencerDrawer, influencersData]);
 
 
+  const checkTicketMutation = useMutation({
+    mutationFn: async ({ userId, ticketId }) => {
+      const response = await api.get(`/user-ticket-info/${userId}/${ticketId}`);
+      return response.data;
+    }
+  });
+
   const checkTicketStatus = async () => {
-    setIsChecking(true);
     try {
       // ⚠️ Read directly from Redux store — NOT from the closed-over `UserData`.
       // After auto-logout + re-login, Redux state is updated synchronously, but
@@ -278,11 +285,9 @@ const CartPage = () => {
 
       const ticketId = selectedTickets?.id || selectedTickets?.itemId;
 
-      const response = await api.get(
-        `/user-ticket-info/${freshUser.id}/${ticketId}`
-      );
-      if (!response.data.status) {
-        ErrorAlert(response.data.message || "Booking limit reached");
+      const data = await checkTicketMutation.mutateAsync({ userId: freshUser.id, ticketId });
+      if (!data.status) {
+        ErrorAlert(data.message || "Booking limit reached");
         return false;
       }
       return true; // allowed
@@ -290,8 +295,6 @@ const CartPage = () => {
       console.error("Error checking ticket status:", error);
       ErrorAlert(getErrorMessage(error, "Unable to check ticket status. Please try again."));
       return false;
-    } finally {
-      setIsChecking(false);
     }
   };
   const handleProcess = async (dateOverride = null) => {
@@ -519,6 +522,11 @@ const CartPage = () => {
   const buttonText = `${attendeeRequired ? "Proceed to Attendee" : "Checkout"}`;
   return (
     <div className="cart-page">
+      {checkTicketMutation.isPending && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <LoaderComp />
+        </div>
+      )}
       <Container>
         {/* Cart Steps */}
         <CartSteps
@@ -648,7 +656,7 @@ const CartPage = () => {
                             className=""
                             size='sm'
                             style={{ width: "100%" }}
-                            loading={isChecking || lockSeatsMutation.isPending}
+                            loading={checkTicketMutation.isPending || lockSeatsMutation.isPending}
                           />
                         }
                       />
@@ -665,7 +673,7 @@ const CartPage = () => {
                         buttonText={<span>{buttonText}</span>}
                         className="cart-proceed-btn"
                         style={{ width: "100%" }}
-                        loading={isChecking || lockSeatsMutation.isPending}
+                        loading={checkTicketMutation.isPending || lockSeatsMutation.isPending}
                       />
                     )}
                   </div>
