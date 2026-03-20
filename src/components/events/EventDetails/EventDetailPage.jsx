@@ -129,8 +129,6 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
           <EventCrew crews={eventData?.artists_list} />
           <EventTabs
             eventData={eventData}
-            startDate={startDate}
-            endDate={endDate}
           />
           {/* Add EventCrew component here */}
           <EventPhotoGallery eventPhotos={eventData?.eventMedia?.images || []} />

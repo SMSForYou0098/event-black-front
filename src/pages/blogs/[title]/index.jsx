@@ -136,15 +136,15 @@ const PostPage = () => {
             categories={postData?.categories || []}
             loading={postLoading}
           />
-          <CommentsSection
+          {/* <CommentsSection
             comments={commentsData || []}
             id={key}
             refreshComments={refetchComments}
             loading={commentsLoading}
-          />
+          /> */}
         </Col>
         <Col lg={4} sm={12}>
-          <RecentPost posts={relatedPostsData || []} />
+          {/* <RecentPost posts={relatedPostsData || []} /> */}
           <CategoriesWidget categories={postData?.categories || []} />
           <TagsWidget tags={postData?.data?.tags || []} />
         </Col>
@@ -157,9 +157,9 @@ const PostPage = () => {
       {relatedPostsData?.length === 0 ? (
         ""
       ) : (
-        <Container fluid >
+        <Container fluid className='mt-4 p-0' >
           <Row className="g-4">
-            <h3>Related Posts</h3>
+            <h6 style={{ fontStyle: "14px" }}>Related Posts</h6>
             {relatedPostsData?.map((item) => (
               <Col lg={4} md={6} sm={12} key={item.id ?? `blog-${idx}`}>
                 <CardBlogGrid

@@ -4,14 +4,23 @@ import axios from 'axios';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
 import { publicApi, api } from "@/lib/axiosInterceptor";
 import { getErrorMessage } from "@/utils/errorUtils";
+import LoginModal from "@/components/auth/LoginOffCanvas";
 
 
 const CommentBox = ({ id, parentId = null, onCommentAdded, onCancel }) => {
   const [formData, setFormData] = useState({ text: '' });
   const [error, setError] = useState(null);
+  const { isLoggedIn } = useMyContext();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+
     setError(null);
     if (!formData.text.trim()) {
       setError('Comment cannot be empty.');
@@ -38,6 +47,7 @@ const CommentBox = ({ id, parentId = null, onCommentAdded, onCancel }) => {
 
   return (
     <div className="mb-3">
+      <LoginModal show={showLoginModal} onHide={() => setShowLoginModal(false)} redirectPath={window.location.pathname} />
       {error && <Alert variant="danger" className="mb-2">{error}</Alert>}
 
       <Form onSubmit={handleSubmit}>

@@ -152,6 +152,10 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData, handleShare }) => {
     handleContinue();
   };
 
+  const price = eventData?.on_sale
+    ? eventData?.lowest_sale_price
+    : eventData?.lowest_ticket_price;
+
   return (
     <>
       <div className="product-meta-wrapper mt-2">
@@ -311,10 +315,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData, handleShare }) => {
               <>
                 Starts From
                 <h5 className="fw-bold">
-                  ₹
-                  {eventData?.on_sale
-                    ? eventData?.lowest_sale_price
-                    : eventData?.lowest_ticket_price}
+                  {price === 0 ? "Free" : `₹${price}`}
                 </h5>
               </>
             }

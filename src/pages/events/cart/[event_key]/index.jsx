@@ -620,11 +620,16 @@ const CartPage = () => {
                         ))}
                       </tbody>
                     </Table>
-                    <Alert style={{ fontSize: "12px" }} className="p-1 rounded-3 border-dashed-thin d-flex justify-content-between flex-wrap gap-2">
-                      <span className="text-white small">
-                        Base price only — fees & taxes added at checkout.
-                      </span>
-                    </Alert>
+                    {(event?.taxData?.convenience_fee ?? 0) > 0 && (
+                      <Alert
+                        style={{ fontSize: "12px" }}
+                        className="p-1 rounded-3 border-dashed-thin d-flex justify-content-between flex-wrap gap-2"
+                      >
+                        <span className="text-white small">
+                          Base price only — fees & taxes added at checkout.
+                        </span>
+                      </Alert>
+                    )}
                   </div>
 
                   {/* Checkout button — same for desktop column and mobile drawer */}

@@ -10,7 +10,6 @@ import { useRouter } from 'next/router';
 import ShareModal from './ShareModal';
 import OtherLocations from './OtherLocations';
 import Image from 'next/image';
-
 const DetailsHeader = ({ eventData, event_key }) => {
     const descRef = useRef(null);
     const router = useRouter();

@@ -3,8 +3,10 @@ import { Navbar, Container } from "react-bootstrap";
 import { ArrowLeft, Home } from "lucide-react";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import { useMyContext } from "@/Context/MyContextProvider";
 
 const HeaderSimple = memo(({ title = "", logoSrc = "" }) => {
+  const { truncateString } = useMyContext();
   const router = useRouter();
   const [isSticky, setIsSticky] = useState(false);
 
@@ -21,7 +23,7 @@ const HeaderSimple = memo(({ title = "", logoSrc = "" }) => {
     const handleScroll = () => {
       const shouldBeSticky = window.scrollY > 1;
       setIsSticky(shouldBeSticky);
-      
+
       // Update all header elements with sticky class
       const headerStickies = document.querySelectorAll(".header-sticky");
       headerStickies.forEach(header => {
@@ -61,19 +63,19 @@ const HeaderSimple = memo(({ title = "", logoSrc = "" }) => {
         {/* Center: Title or Logo - Always render content */}
         <div className="d-flex align-items-center flex-grow-1">
           {logoSrc ? (
-            <Image 
-              height={isSticky ? 35 : 40} 
-              width={isSticky ? 35 : 40} 
-              src={logoSrc} 
+            <Image
+              height={isSticky ? 35 : 40}
+              width={isSticky ? 35 : 40}
+              src={logoSrc}
               alt="Logo"
               className="mx-2"
-              style={{ 
+              style={{
                 transition: 'all 0.3s ease',
                 opacity: 1
               }}
             />
           ) : (
-            <h5 
+            <h5
               className={`mb-0 fw-bold`}
               style={{
                 transition: 'all 0.3s ease',
@@ -82,7 +84,7 @@ const HeaderSimple = memo(({ title = "", logoSrc = "" }) => {
                 visibility: 'visible'
               }}
             >
-              {title}
+              {truncateString(title, 20)}
             </h5>
           )}
         </div>

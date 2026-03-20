@@ -3,8 +3,10 @@ import NextImage from "next/image";
 import React, { useCallback, useRef, useState } from "react";
 import { Button, ButtonGroup, Card, Col, Nav, Row, Tab } from "react-bootstrap";
 import CustomBtn from "../../../utils/CustomBtn";
+import { useMyContext } from "../../../Context/MyContextProvider";
 
-const EventTabs = ({ eventData, startDate, endDate }) => {
+const EventTabs = ({ eventData }) => {
+  const { formatDateRange, convertTo12HourFormat } = useMyContext();
   const tabItems = [
     { key: "description", label: "Description" },
     { key: "location", label: "Locate" },
@@ -135,7 +137,7 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                         <i className="fa fa-calendar me-2"></i>Date Range
                       </h6>
                       <p className="mb-0" style={{ fontSize: '14px' }}>
-                        {startDate} to {endDate}
+                        {formatDateRange(eventData?.date_range)}
                       </p>
                     </Card.Body>
                   </Card>
@@ -148,15 +150,15 @@ const EventTabs = ({ eventData, startDate, endDate }) => {
                       </h6>
                       <Row className="mb-0">
                         <Col xs={4}>
-                          <span style={{ fontSize: '14px' }}><strong>Entry:</strong> {eventData?.entry_time}</span> <br />
+                          <span style={{ fontSize: '14px' }}><strong>Entry:</strong> {convertTo12HourFormat(eventData?.entry_time)}</span> <br />
 
                         </Col>
                         <Col xs={4}>
-                          <span style={{ fontSize: '14px' }}><strong>Start:</strong> {eventData?.start_time}</span> <br />
+                          <span style={{ fontSize: '14px' }}><strong>Start:</strong> {convertTo12HourFormat(eventData?.start_time)}</span> <br />
 
                         </Col>
                         <Col xs={4}>
-                          <span style={{ fontSize: '14px' }}><strong>End:</strong> {eventData?.end_time}</span>
+                          <span style={{ fontSize: '14px' }}><strong>End:</strong> {convertTo12HourFormat(eventData?.end_time)}</span>
                         </Col>
                       </Row>
 

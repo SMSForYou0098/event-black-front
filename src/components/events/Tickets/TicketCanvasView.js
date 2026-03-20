@@ -271,10 +271,10 @@ const TicketCanvasView = forwardRef((props, ref) => {
                 // Add QR code
                 if (qrDataUrl) {
                     const qrImg = await loadFabricImage(qrDataUrl);
-                    const qrCodeSize = 85;
+                    const qrCodeSize = 100;
                     const padding = 4;
                     const qrPositionX = (CANVAS_WIDTH / 2) - (qrCodeSize / 2);
-                    const qrPositionY = 220;
+                    const qrPositionY = 250;
 
                     const qrBackground = new fabric.Rect({
                         left: qrPositionX - padding,
@@ -302,7 +302,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
                 }
 
                 // Add details
-                let currentY = 310;
+                let currentY = 360;
 
                 // Ticket name (larger and bold) - REMOVE THIS
                 // centerText(ticketName, 18, 'Arial', canvas, currentY, { fontWeight: 'bold' });

@@ -1,72 +1,96 @@
-import React, { Fragment, memo } from 'react'
-//react-router-dom
+import React, { memo, useMemo } from 'react'
 import Link from "next/link";
 import Image from 'next/image';
 import { useMyContext } from '@/Context/MyContextProvider';
-import CustomBtn from '@/utils/CustomBtn';
-import { Calendar, Clock, MoveRight } from 'lucide-react';
-import { CustomTooltip } from '@/utils/CustomTooltip';
+
 const CardBlogGrid = memo((props) => {
-    const { id, title, description, thumbnail, date, categories, content } = props;
-    const { formatDateDDMMYYYY, createSlug } = useMyContext()
-    const estimatedReadTime = Math.max(1, Math.ceil(content / 1000));
+    const { id, title, description, thumbnail, date, username } = props;
+    const { createSlug } = useMyContext()
+
+    const formattedDate = useMemo(() => {
+        if (!date) return "";
+        try {
+            // Check if date is in DD/MM/YYYY format and convert for Date constructor
+            let dateToParse = date;
+            if (typeof date === 'string' && date.includes('/')) {
+                const [day, month, year] = date.split('/');
+                dateToParse = `${year}-${month}-${day}`;
+            }
+
+            const d = new Date(dateToParse);
+            if (!isNaN(d.getTime())) {
+                const options = { month: 'long', day: 'numeric', year: 'numeric' };
+                return d.toLocaleDateString('en-US', options).toUpperCase();
+            }
+        } catch (e) {
+            console.error("Date parsing error", e);
+        }
+        return date?.toUpperCase() || "";
+    }, [date]);
+
     return (
-        <Link href={`/blogs/${createSlug(title)}?key=${id}`} className='text-decoration-none'>
-            <div className="iq-blog-box border-0">
-                <div className="iq-blog-image border-0 clearfix mb-1">
+        <div className="iq-blog-box border-0 mb-4 h-100">
+            <div className="iq-blog-image clearfix mb-3 overflow-hidden rounded-4 shadow-sm" style={{ aspectRatio: '16/10' }}>
+                <Link href={`/blogs/${createSlug(title)}?key=${id}`}>
                     <Image
-                        src={props.thumbnail || "/assets/images/no-banner.jpg"}
-                        alt="blog-img"
-                        width={370}
-                        height={240}
-                        className='img-fluid rounded-3 border-0'
+                        src={thumbnail || "/assets/images/no-banner.jpg"}
+                        alt={title}
+                        width={400}
+                        height={250}
+                        className='img-fluid w-100 h-100'
                         style={{
-                            objectFit: 'cover', // This ensures images maintain aspect ratio while filling the container
-                            width: '100%',
-                            height: '240px' // Fixed height for all images
+                            objectFit: 'cover',
+                            transition: 'transform 0.5s ease'
+                        }}
+                        onMouseOver={(e) => {
+                            e.currentTarget.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseOut={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)';
                         }}
                     />
-                    <div className="iq-blog-meta d-flex position-absolute bottom-0 start-0 z-2 mx-2">
-                        {props.categories.map(cat =>
-                            <ul key={cat.id} className="iq-blogtag list-inline">
-                                <li className="border-gredient-left">
-                                    {cat.title}
-                                </li>
-                            </ul>
-                        )}
+                </Link>
+            </div>
+            <div className="iq-blog-detail">
+                <div className="iq-blog-meta d-flex align-items-center gap-3 mb-2 text-uppercase" style={{ fontSize: '12px', fontWeight: '600', letterSpacing: '0.8px' }}>
+                    <div className="author-meta d-flex align-items-center">
+                        <i className="fa fa-user-o me-2" aria-hidden="true" style={{ color: '#b51515' }}></i>
+                        <span className="text-white-50">{username || 'JENNY'}</span>
+                    </div>
+                    <div className="date-meta d-flex align-items-center">
+                        <i className="fa fa-calendar-o me-2" aria-hidden="true" style={{ color: '#b51515' }}></i>
+                        <span className="text-white-50">{formattedDate}</span>
                     </div>
                 </div>
-                <div className="iq-blog-detail px-2">
-                    <div className="blog-title mb-2">
-                        <h5 className="line-count-1 blog-heading m-0">
-                            {props.title}
+                <div className="blog-title mb-2">
+                    <Link href={`/blogs/${createSlug(title)}?key=${id}`} className="text-decoration-none">
+                        <h5 className="blog-heading text-primary fw-bold mb-0" style={{ fontSize: '14px', lineHeight: '1.2', letterSpacing: '-0.02em' }}>
+                            {title}
                         </h5>
-                    </div>
-                    {/* <p className='line-count-2'>{props.description}this is the decription portion</p> */}
-                    <div className="mb-2">
-                        <div className="iq-button link-button d-flex justify-content-between">
-                            <small className='d-flex align-items-center gap-2'>
-                                <CustomTooltip text={`${estimatedReadTime} min read`}>
-                                    <Clock size={16} /> <strong className='text-white'>{estimatedReadTime} min</strong>
-                                </CustomTooltip>
-                            </small>
-                            <small className="d-flex align-items-center gap-2 fw-bold custom-text-secondary">
-                                <Calendar size={16} /> {formatDateDDMMYYYY(props.date)}
-                            </small>
-                        </div>
-                        <CustomBtn
-                            buttonText="Read More"
-                            linkUrl={`/blogs/${createSlug(props.title)}?id=${props.id}`}
-                            size="sm"
-                            icon={<MoveRight className="icon" />}
-                            className="btn-primary w-100 rounded-3 mt-2"
-                        />
-                    </div>
+                    </Link>
+                </div>
+                <p className='line-count-2 mb-3' style={{ color: '#ADB5BD', fontSize: '12px' }}>
+                    {description || "An anthology series filled with captivating stories that keep us guessing till the end. An anthology series featuring diverse perspectives and haunting mysteries."}
+                </p>
+                <div className="iq-button link-button">
+                    <Link href={`/blogs/${createSlug(title)}?key=${id}`} className="text-decoration-none">
+                        <span className='read-more-link d-inline-flex align-items-center' style={{
+                            color: '#b51515',
+                            fontWeight: '700',
+                            borderBottom: '2px solid #b51515',
+                            paddingBottom: '2px',
+                            fontSize: '12px',
+                            transition: 'all 0.3s ease'
+                        }}>
+                            Read More
+                            <i className="fa fa-angle-right ms-2" aria-hidden="true"></i>
+                        </span>
+                    </Link>
                 </div>
             </div>
-        </Link>
+        </div>
     )
 })
 
 CardBlogGrid.displayName = "CardBlogGrid"
-export default CardBlogGrid
+export default CardBlogGrid;

@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Home, ArrowLeft } from 'lucide-react';
 import CustomBtn from '@/utils/CustomBtn';
@@ -13,11 +14,14 @@ const Custom404 = () => {
             <Row className="text-center">
                 <Col md={12}>
                     <div className="mb-4">
-                        <img
+                        <Image
                             src="/assets/images/event_page/404.webp"
                             alt="404 Not Found"
+                            width={450}
+                            height={450}
                             className="img-fluid floating-image"
-                            style={{ maxWidth: '500px' }}
+                            style={{ height: 'auto' }}
+                            priority
                         />
                     </div>
 
@@ -26,7 +30,7 @@ const Custom404 = () => {
                             buttonText="Back to Previous"
                             icon={<ArrowLeft size={18} />}
                             HandleClick={() => router.back()}
-                            variant="outline-info"
+                            variant="secondary"
                             className="px-4 py-2"
                         />
                         <CustomBtn

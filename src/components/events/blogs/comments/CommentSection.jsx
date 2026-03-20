@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useMyContext } from "@/Context/MyContextProvider"; //done
 import { publicApi, api } from "@/lib/axiosInterceptor";
 import { getErrorMessage } from "@/utils/errorUtils";
+import LoginModal from "@/components/auth/LoginOffCanvas";
 
 
 // import CommentsSectionSkeleton from '../skeletons/CommentsSectionSkeleton';
@@ -19,13 +20,18 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
   const [commentList, setCommentList] = useState(comments);
   const [replyTo, setReplyTo] = useState(null);
   const [expandedReplies, setExpandedReplies] = useState({});
-  const { UserData, ErrorAlert, AskAlert } = useMyContext();
+  const { UserData, ErrorAlert, AskAlert, isLoggedIn } = useMyContext();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     setCommentList(comments);
   }, [comments]);
 
   const handleOpenComment = () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
     if (commentList.length >= MAX_COMMENTS_LIMIT) {
       ErrorAlert('Limit Reached', `Maximum of ${MAX_COMMENTS_LIMIT} comments allowed.`, 'info');
       return;
@@ -34,6 +40,10 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
   };
 
   const handleReply = (commentId, depth) => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
     if (depth >= MAX_COMMENT_DEPTH) {
       ErrorAlert('Cannot Reply', 'You cannot reply to a reply.', 'info');
       return;
@@ -65,6 +75,10 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
   }, []);
 
   const toggleLike = (commentId, isCurrentlyLiked) => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
     // If no timeout is running, this is the start of a new interaction sequence.
     // Store the original status to compare later.
     if (!likeTimeouts.current[commentId]) {
@@ -159,6 +173,10 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
   };
 
   const handleDelete = async (commentId) => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
     // Use reusable AskAlert
     const confirmed = await AskAlert(
       "This comment will be permanently deleted.", // title
@@ -281,6 +299,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
 
   return (
     <Container fluid className="mt-3 px-0">
+      <LoginModal show={showLoginModal} onHide={() => setShowLoginModal(false)} redirectPath={window.location.pathname} />
       <Row className="justify-content-center">
         <Col xs={12} md={10} lg={8}>
           <div className="px-3">
