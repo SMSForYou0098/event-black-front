@@ -140,7 +140,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
 
       try {
         const res = await api.post(
-          `/blog-comments/${commentId}/like`,
+          `/blogs/comments/${commentId}/like`,
           { like: statusToSend },
         );
 
@@ -186,7 +186,7 @@ const CommentsSection = ({ comments = [], id, refreshComments, loading }) => {
 
     if (confirmed) {
       try {
-        await api.delete(`/blog-comment-destroy/${commentId}`);
+        await api.delete(`/blogs/comments/destroy/${commentId}`);
 
         setCommentList((prev) => prev.filter((c) => c.id !== commentId));
         refreshComments();

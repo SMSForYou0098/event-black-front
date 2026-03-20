@@ -2,7 +2,7 @@ import React, { Fragment, memo, useState } from "react";
 import Link from "next/link";
 import { Col, Row } from "react-bootstrap";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper";
+import { Navigation, Autoplay } from "swiper";
 import { Youtube } from "lucide-react";
 import { useSelector } from "react-redux";
 import { theme_scheme_direction } from "../../store/setting/selectors";
@@ -79,7 +79,7 @@ export const toAbsolute = (url) => {
  * - banners: [] (used when type !== 'main')
  * - loading: boolean (used when type !== 'main')
  */
-const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loading: propLoading = false, error: propError = null }) => {
+const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loading: propLoading = false, error: propError = null, autoPlay = false, autoPlayDelay = 3000 }) => {
 
   const themeSchemeDirection = useSelector(theme_scheme_direction);
   const [toggler, setToggler] = useState(false);
@@ -236,6 +236,8 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                   type={type}
                   handleBannerNavigation={handleBannerNavigation}
                   handleMediaClick={handleMediaClick}
+                  autoPlay={autoPlay}
+                  autoPlayDelay={autoPlayDelay}
                 />
               )}
             </MobileOnly>
@@ -247,6 +249,8 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                   key={`desktop-${String(themeSchemeDirection)}`}
                   dir={String(themeSchemeDirection)}
                   {...desktopSwiperConfig}
+                  autoplay={autoPlay ? { delay: autoPlayDelay, disableOnInteraction: false } : false}
+                  modules={autoPlay ? [Navigation, Autoplay] : [Navigation]}
                 >
                   {bannersToRender.map((banner, index) => {
                     // Direct usage - no extraction needed

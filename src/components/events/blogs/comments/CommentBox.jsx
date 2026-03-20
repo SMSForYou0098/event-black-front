@@ -29,7 +29,7 @@ const CommentBox = ({ id, parentId = null, onCommentAdded, onCancel }) => {
 
     try {
       await api.post(
-        `/blog-comment-store/${id}`,
+        `blogs/comments/store/${id}`,
         {
           comment: formData.text,
           id: parentId,

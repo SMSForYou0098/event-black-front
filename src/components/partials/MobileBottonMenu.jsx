@@ -100,6 +100,11 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
       "/profile": "profile",
       "/bookings": "bookings",
     };
+
+    if (currentPath.startsWith("/events/category/")) {
+      return "events";
+    }
+
     return pathToButton[currentPath] || "home";
   }, [currentPath]);
 
@@ -115,10 +120,14 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
     "/about-us",
     "/blogs",
     "/faq",
+
   ]);
 
   // Show only if the exact path matches one in visibleRoutes OR it's a ticket page
-  const shouldShowMenu = visibleRoutes.has(currentPath) || currentPath.startsWith("/t/");
+  const shouldShowMenu =
+    visibleRoutes.has(currentPath) ||
+    currentPath.startsWith("/t/") ||
+    currentPath.startsWith("/events/category/");
 
   // Return null if menu should be hidden
   if (hideMenu || !shouldShowMenu) return null;

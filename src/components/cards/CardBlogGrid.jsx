@@ -43,10 +43,10 @@ const CardBlogGrid = memo((props) => {
                 </div>
                 <div className="iq-blog-detail">
                     <div className="iq-blog-meta d-flex align-items-center gap-3 mb-2 text-uppercase" style={{ fontSize: '12px', fontWeight: '600', letterSpacing: '0.8px' }}>
-                        <div className="author-meta d-flex align-items-center">
+                        {/* <div className="author-meta d-flex align-items-center">
                             <i className="fa fa-user-o me-2" aria-hidden="true" style={{ color: '#b51515' }}></i>
                             <span className="text-white-50">{props.username || 'JENNY'}</span>
-                        </div>
+                        </div> */}
                         <div className="date-meta d-flex align-items-center">
                             <i className="fa fa-calendar-o me-2" aria-hidden="true" style={{ color: '#b51515' }}></i>
                             <span className="text-white-50">{formattedDate}</span>

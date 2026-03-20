@@ -56,7 +56,7 @@ const PostPage = () => {
     queryFn: async () => {
       const headers = { Authorization: `Bearer ${authToken}` };
       // const response = await axios.get(`${api}blog-show/${key}`, { headers });
-      const response = await publicApi.get(`/blog-show/${key}`);
+      const response = await publicApi.get(`/blogs/show/${key}`);
       if (!response.data?.status) {
         throw new Error(response.data?.message || 'Invalid post data format.');
       }
@@ -73,7 +73,7 @@ const PostPage = () => {
     queryFn: async () => {
       const headers = { Authorization: `Bearer ${authToken}` };
       // const response = await axios.get(`${api}related-blogs/${key}`, { headers });
-      const response = await publicApi.get(`/related-blogs/${key}`);
+      const response = await publicApi.get(`blogs/related/${key}`);
       return response.data?.data || [];
     },
     enabled: !!key && !!postData,
@@ -85,7 +85,7 @@ const PostPage = () => {
     queryKey: ['comments', key],
     queryFn: async () => {
       const headers = { Authorization: `Bearer ${authToken}` };
-      const response = await publicApi.get(`/blog-comment-show/${key}`);
+      const response = await publicApi.get(`blogs/comment/show/${key}`);
 
       if (response.data?.status) {
         const commentsData = response.data.data || [];
@@ -166,7 +166,7 @@ const PostPage = () => {
                   title={item.title}
                   content={item.content_length}
                   thumbnail={item.thumbnail}
-                  description={item.description || item.excerpt || ""}
+                  description={item?.content || item.excerpt || ""}
                   username={item.user_data?.name || item.username || "Unknown"}
                   date={item.created_at}
                   categories={item.categories}

@@ -547,9 +547,9 @@ const CartPage = () => {
     if (response.data.status || response.data?.result?.status === 1 || response.data?.result?.success || response.data?.payment_url) {
       // Store session data for paid bookings
       const sessionId =
+        response.data?.session_id ||
         response.data?.txnid ||
-        response.data?.order_data?.cf_order_id ||
-        response.data?.session_id;
+        response.data?.order_data?.cf_order_id;
 
       const sessionData = {
         session_id: sessionId,
@@ -667,7 +667,9 @@ const CartPage = () => {
   // Verify payment and redirect to waiting page
   const verifyPaymentAndRedirect = (rzpResponse, sessionId) => {
     if (sessionId) {
-      router.push(`/events/waiting/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(sessionId)}`);
+      const r_url = `/events/waiting/${encodeURIComponent(event_key)}/${encodeURIComponent(sessionId)}`
+      // router.push(`/events/waiting/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(sessionId)}`);
+      router.push(r_url);
     } else {
       console.error('❌ Session ID missing for redirection');
       ErrorAlert('Something went wrong. Please check your bookings.');

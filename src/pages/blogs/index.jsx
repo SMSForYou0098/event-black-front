@@ -64,7 +64,7 @@ const BLogs = memo(() => {
     let filtered = allBlogs;
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(blog => 
+      filtered = filtered.filter(blog =>
         blog.title?.toLowerCase().includes(searchLower) ||
         blog.description?.toLowerCase().includes(searchLower) ||
         blog.excerpt?.toLowerCase().includes(searchLower)
@@ -74,8 +74,8 @@ const BLogs = memo(() => {
     // Filter by categories
     if (selectedCategories.length > 0) {
       const selectedCategoryIds = selectedCategories.map(cat => cat.value);
-      filtered = filtered.filter(blog => 
-        blog.categories?.some(cat => 
+      filtered = filtered.filter(blog =>
+        blog.categories?.some(cat =>
           selectedCategoryIds.includes(cat.id) || selectedCategoryIds.includes(cat.value)
         )
       );
@@ -161,7 +161,7 @@ const BLogs = memo(() => {
     url: "/blogs",
     type: "website"
   };
-  
+
 
 
 
@@ -199,7 +199,7 @@ const BLogs = memo(() => {
                 {error && (
                   <Alert variant="danger" className="d-flex justify-content-between align-items-center">
                     <span>{error?.message || "Failed to load blogs"}</span>
-                    <button 
+                    <button
                       className="btn btn-outline-danger btn-sm"
                       onClick={() => refetch()}
                     >
@@ -215,7 +215,7 @@ const BLogs = memo(() => {
                       <Col lg={4} md={6} sm={12} key={item.id ?? `blog-${idx}`}>
                         <CardBlogGrid
                           title={item.title}
-                          content={item.content_length}
+                          content={item?.content}
                           thumbnail={item.thumbnail}
                           description={item.description || item.excerpt || ""}
                           username={item.user_data?.name || item.username || "Unknown"}
@@ -235,9 +235,9 @@ const BLogs = memo(() => {
                 {/* Pagination (frontend only) */}
                 {!isLoading && totalPages > 1 && (
                   <div className="mt-3">
-                    <PaginationComponent 
-                      currentPage={currentPage} 
-                      totalPages={totalPages} 
+                    <PaginationComponent
+                      currentPage={currentPage}
+                      totalPages={totalPages}
                       onPageChange={handlePageChange}
                       disabled={isLoading}
                     />

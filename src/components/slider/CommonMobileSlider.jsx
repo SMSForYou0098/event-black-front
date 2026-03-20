@@ -1,10 +1,10 @@
 import React, { memo } from 'react'
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper";
+import { Navigation, Autoplay } from "swiper";
 import Image from 'next/image';
 import { BsYoutube } from "react-icons/bs";
 
-const CommonMobileSlider = memo(({ banners = [], themeSchemeDirection, handleBannerNavigation, handleMediaClick }) => {
+const CommonMobileSlider = memo(({ banners = [], themeSchemeDirection, handleBannerNavigation, handleMediaClick, autoPlay = false, autoPlayDelay = 3000 }) => {
   return (
     <Swiper
       key={`mobile-${String(themeSchemeDirection)}`}
@@ -14,7 +14,8 @@ const CommonMobileSlider = memo(({ banners = [], themeSchemeDirection, handleBan
         nextEl: ".swiper-banner-button-next",
       }}
       loop={true}
-      modules={[Navigation]}
+      autoplay={autoPlay ? { delay: autoPlayDelay, disableOnInteraction: false } : false}
+      modules={autoPlay ? [Navigation, Autoplay] : [Navigation]}
       className="position-relative"
     >
       {banners.map((banner, index) => {

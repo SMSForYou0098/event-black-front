@@ -191,7 +191,7 @@ const FooterMega = memo(() => {
 
               {/* Footer Bottom Section */}
               <div className="footer-bottom pt-0">
-                <Container className="footer-border">
+                <div className="footer-border">
                   <Row>
                     <Col xl={12} lg={12} className="text-center d-flex justify-content-center flex-column align-items-center">
                       <h4 className="footer-link-title">Subscribe Newsletter</h4>
@@ -278,7 +278,7 @@ const FooterMega = memo(() => {
                       </small>
                     </Col>
                   </Row>
-                </Container>
+                </div>
               </div>
             </Container>
           </footer>

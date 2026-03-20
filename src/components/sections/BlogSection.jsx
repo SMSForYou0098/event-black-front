@@ -47,7 +47,7 @@ const BlogSection = () => {
                   title={data.title}
                   link={`/blogs/${createSlug(data?.title)}?key=${data?.id}`}
                   date={data?.created_at ? formatDateDDMMYYYY(data.created_at) : "Date"}
-                  description={data?.description || ""}
+                  description={data?.content || ""}
                   categories={data?.categories?.map(c => c.title).join(', ') || ""}
                 />
               </Col>
