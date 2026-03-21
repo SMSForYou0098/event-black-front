@@ -10,12 +10,20 @@ const PostById = ({ post, categories, loading }) => {
   const { isMobile } = useMyContext();
 
   const postTags = useMemo(() => {
-    const tags = post?.tags;
-    if (!tags) return [];
+    let tags = post?.tags;
+
+    // If tags are missing, try to use categories as fallback
+    if (!tags || (Array.isArray(tags) && tags.length === 0)) {
+      if (post?.categories && Array.isArray(post.categories)) {
+        return post.categories.map(c => typeof c === 'object' ? c.title : c);
+      }
+      return [];
+    }
+
     if (Array.isArray(tags)) return tags.map(t => typeof t === 'object' ? t.title || t.name : t);
     if (typeof tags === 'string') return tags.split(',').map(t => t.trim());
     return [];
-  }, [post?.tags]);
+  }, [post?.tags, post?.categories]);
 
   const visibleTags = postTags.slice(0, 3);
   const hiddenTags = postTags.slice(3);

@@ -80,22 +80,31 @@ const PostPage = () => {
     retry: 2,
   });
 
-  // Fetch comments
-  const { data: commentsData, error: commentsError, isLoading: commentsLoading, refetch: refetchComments } = useQuery({
-    queryKey: ['comments', key],
+  const { data: recentPostsData, isLoading: recentLoading } = useQuery({
+    queryKey: ["recent-posts"],
     queryFn: async () => {
-      const headers = { Authorization: `Bearer ${authToken}` };
-      const response = await publicApi.get(`blogs/comment/show/${key}`);
-
-      if (response.data?.status) {
-        const commentsData = response.data.data || [];
-        return transformComments(commentsData);
-      }
-      return [];
+      const response = await publicApi.get("/blogs/recent");
+      return response.data?.data || [];
     },
-    enabled: !!key,
     retry: 2,
   });
+
+  // Fetch comments
+  // const { data: commentsData, error: commentsError, isLoading: commentsLoading, refetch: refetchComments } = useQuery({
+  //   queryKey: ['comments', key],
+  //   queryFn: async () => {
+  //     const headers = { Authorization: `Bearer ${authToken}` };
+  //     const response = await publicApi.get(`blogs/comment/show/${key}`);
+
+  //     if (response.data?.status) {
+  //       const commentsData = response.data.data || [];
+  //       return transformComments(commentsData);
+  //     }
+  //     return [];
+  //   },
+  //   enabled: !!key,
+  //   retry: 2,
+  // });
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -105,8 +114,10 @@ const PostPage = () => {
   }, [key]);
 
   // Handle loading and error states
-  const isLoading = postLoading || commentsLoading;
-  const error = postError?.message || commentsError?.message;
+  // const isLoading = postLoading || commentsLoading;
+  const isLoading = postLoading;
+  // const error = postError?.message || commentsError?.message;
+  const error = postError?.message;
 
   if (error) {
     return (
@@ -123,9 +134,9 @@ const PostPage = () => {
           title: postData?.data?.title,
           description: postData?.data?.meta_description,
           featured_image: postData?.data?.thumbnail,
-          author: postData?.data?.user?.name,
+          author: postData?.data?.user_data?.name || postData?.data?.user?.name,
           published_date: postData?.data?.created_at,
-          category: postData?.categories.map((item) => item.title),
+          category: postData?.categories?.map((item) => item.title) || [],
           tags: postData?.data?.tags
         }}
           slug={title}
@@ -144,7 +155,7 @@ const PostPage = () => {
           /> */}
         </Col>
         <Col lg={4} sm={12}>
-          {/* <RecentPost posts={relatedPostsData || []} /> */}
+          <RecentPost posts={recentPostsData || []} />
           <CategoriesWidget categories={postData?.categories || []} />
           <TagsWidget tags={postData?.data?.tags || []} />
         </Col>
@@ -160,7 +171,7 @@ const PostPage = () => {
         <Container fluid className='mt-4 p-0' >
           <Row className="g-4">
             <h6 style={{ fontStyle: "14px" }}>Related Posts</h6>
-            {relatedPostsData?.map((item) => (
+            {relatedPostsData?.map((item, idx) => (
               <Col lg={4} md={6} sm={12} key={item.id ?? `blog-${idx}`}>
                 <CardBlogGrid
                   title={item.title}

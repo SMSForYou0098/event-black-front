@@ -222,48 +222,130 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, bounds }) {
   const sw = Number(section.width) || 600;
   const sh = Number(section.height) || 250;
 
+  const isStanding = section.type === 'Standing';
+  const rows = section.rows || [];
+  const standingTickets = Object.values(section.seatStatusMap || {});
+  const standingTicket = standingTickets[0]; // Take the first ticket category for standing
+
   return (
     <div
       className="position-absolute user-select-none"
-      style={{ left: sx, top: sy, width: sw, height: sh, pointerEvents: 'none' }}
+      style={{
+        left: sx,
+        top: sy,
+        width: sw,
+        height: sh,
+        pointerEvents: 'none',
+      }}
     >
+      {/* Background for Standing section to make it distinct */}
+      {isStanding && (
+        <div
+          className="position-absolute rounded-3"
+          style={{
+            inset: 0,
+            border: '2px dashed rgba(255,255,255,0.2)',
+            background: 'rgba(255,255,255,0.03)',
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+
       <div
         className="position-absolute text-white fw-bold text-center user-select-none"
-        style={{ left: 0, top: 12, width: sw, fontSize: 14, pointerEvents: 'none' }}
+        style={{
+          left: 0,
+          top: isStanding ? sh / 2 - 20 : 12,
+          width: sw,
+          fontSize: 14,
+          pointerEvents: 'none',
+          zIndex: 2,
+        }}
       >
         {section.name || 'Section'}
+        {isStanding && standingTicket && (
+          <div className="small fw-normal opacity-75 mt-1">
+            ₹{standingTicket.price} • {standingTicket.remaining_count > 0 ? 'Available' : 'Sold Out'}
+          </div>
+        )}
       </div>
-      {(section.rows || []).flatMap((row) =>
-        (row.seats || []).map((seat) => {
-          if (seat.type === 'blank') {
+
+      {isStanding && standingTicket ? (
+        <div
+          className="position-absolute"
+          style={{
+            left: 0,
+            top: 0,
+            width: sw,
+            height: sh,
+            pointerEvents: 'auto',
+          }}
+        >
+          {/* Standing section acts as a large seat/area */}
+          <button
+            type="button"
+            className="w-100 h-100 border-0 bg-transparent p-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (standingTicket.sold_out || !standingTicket.status) return;
+
+              // Map standing section click to onSeatClick using a virtual seat
+              const virtualSeat = {
+                ...standingTicket,
+                id: `standing_${section.id}_${standingTicket.id}`,
+                sectionId: section.id,
+                rowId: null,
+                label: section.name,
+                status: 'available',
+                ticket: standingTicket,
+                type: 'standing'
+              };
+              onSeatClick(virtualSeat, section.id, null);
+            }}
+            disabled={standingTicket.sold_out || !standingTicket.status}
+            style={{
+              cursor: (standingTicket.sold_out || !standingTicket.status) ? 'not-allowed' : 'pointer',
+              borderRadius: 8,
+              transition: 'all 0.2s',
+              background: selectedSeatIds.has(`standing_${section.id}_${standingTicket.id}`)
+                ? 'rgba(181, 21, 21, 0.2)' // PRIMARY color with opacity if selected
+                : 'transparent'
+            }}
+          />
+        </div>
+      ) : (
+        rows.flatMap((row) =>
+          (row.seats || []).map((seat) => {
+            if (seat.type === 'blank') {
+              return (
+                <div key={seat.id} className="position-absolute" style={{ left: 0, top: 0, pointerEvents: 'none' }}>
+                  <GapPlaceholder seat={seat} radius={seat.radius} />
+                </div>
+              );
+            }
+            const seatWithIds = { ...seat, sectionId: section.id, rowId: row.id };
+            const isSelected = selectedSeatIds.has(seat.id);
+            const disabled =
+              seat.status === 'booked' ||
+              seat.status === 'disabled' ||
+              seat.status === 'hold' ||
+              seat.status === 'locked' ||
+              !seat.ticket;
+
             return (
-              <div key={seat.id} className="position-absolute" style={{ left: 0, top: 0, pointerEvents: 'none' }}>
-                <GapPlaceholder seat={seat} radius={seat.radius} />
+              <div key={seat.id} className="position-absolute" style={{ left: 0, top: 0, pointerEvents: 'auto' }}>
+                <SeatButton
+                  seat={seatWithIds}
+                  rowTitle={row.title || ''}
+                  isSelected={isSelected}
+                  onClick={onSeatClick}
+                  disabled={disabled}
+                  radius={seat.radius}
+                />
               </div>
             );
-          }
-          const seatWithIds = { ...seat, sectionId: section.id, rowId: row.id };
-          const isSelected = selectedSeatIds.has(seat.id);
-          const disabled =
-            seat.status === 'booked' ||
-            seat.status === 'disabled' ||
-            seat.status === 'hold' ||
-            seat.status === 'locked' ||
-            !seat.ticket;
-
-          return (
-            <div key={seat.id} className="position-absolute" style={{ left: 0, top: 0, pointerEvents: 'auto' }}>
-              <SeatButton
-                seat={seatWithIds}
-                rowTitle={row.title || ''}
-                isSelected={isSelected}
-                onClick={onSeatClick}
-                disabled={disabled}
-                radius={seat.radius}
-              />
-            </div>
-          );
-        })
+          })
+        )
       )}
     </div>
   );

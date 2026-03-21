@@ -28,52 +28,64 @@ const CardBlogGrid = memo((props) => {
         return date?.toUpperCase() || "";
     }, [date]);
 
+    const blogLink = useMemo(() => {
+        try {
+            const slug = title ? createSlug(title).toLowerCase() : 'detail';
+            return `/blogs/${slug}?key=${id}`;
+        } catch (e) {
+            return `/blogs/detail?key=${id}`;
+        }
+    }, [title, id, createSlug]);
+
     return (
         <div className="iq-blog-box border-0 mb-4 h-100">
             <div className="iq-blog-image clearfix mb-3 overflow-hidden rounded-4 shadow-sm" style={{ aspectRatio: '16/10' }}>
-                <Link href={`/blogs/${createSlug(title)}?key=${id}`}>
-                    <Image
-                        src={thumbnail || "/assets/images/no-banner.jpg"}
-                        alt={title}
-                        width={400}
-                        height={250}
-                        className='img-fluid w-100 h-100'
-                        style={{
-                            objectFit: 'cover',
-                            transition: 'transform 0.5s ease'
-                        }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.transform = 'scale(1.05)';
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.transform = 'scale(1)';
-                        }}
-                    />
+                <Link href={blogLink} className="d-block w-100 h-100">
+                    <div className="w-100 h-100 overflow-hidden">
+                        <Image
+                            src={thumbnail || "/assets/images/no-banner.jpg"}
+                            alt={title || "Blog Image"}
+                            width={400}
+                            height={250}
+                            className='img-fluid w-100 h-100'
+                            style={{
+                                objectFit: 'cover',
+                                transition: 'transform 0.5s ease',
+                                cursor: 'pointer'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.transform = 'scale(1.05)';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.transform = 'scale(1)';
+                            }}
+                        />
+                    </div>
                 </Link>
             </div>
             <div className="iq-blog-detail">
                 <div className="iq-blog-meta d-flex align-items-center gap-3 mb-2 text-uppercase" style={{ fontSize: '12px', fontWeight: '600', letterSpacing: '0.8px' }}>
-                    <div className="author-meta d-flex align-items-center">
+                    {/* <div className="author-meta d-flex align-items-center">
                         <i className="fa fa-user-o me-2" aria-hidden="true" style={{ color: '#b51515' }}></i>
-                        <span className="text-white-50">{username || 'JENNY'}</span>
-                    </div>
+                        <span className="text-white-50">{username || 'ADMIN'}</span>
+                    </div> */}
                     <div className="date-meta d-flex align-items-center">
                         <i className="fa fa-calendar-o me-2" aria-hidden="true" style={{ color: '#b51515' }}></i>
                         <span className="text-white-50">{formattedDate}</span>
                     </div>
                 </div>
                 <div className="blog-title mb-2">
-                    <Link href={`/blogs/${createSlug(title)}?key=${id}`} className="text-decoration-none">
+                    <Link href={blogLink} className="text-decoration-none">
                         <h5 className="blog-heading text-primary fw-bold mb-0" style={{ fontSize: '14px', lineHeight: '1.2', letterSpacing: '-0.02em' }}>
                             {title}
                         </h5>
                     </Link>
                 </div>
                 <p className='line-count-2 mb-3' style={{ color: '#ADB5BD', fontSize: '12px' }}>
-                    {description || "An anthology series filled with captivating stories that keep us guessing till the end. An anthology series featuring diverse perspectives and haunting mysteries."}
+                    {description || "No description available."}
                 </p>
                 <div className="iq-button link-button">
-                    <Link href={`/blogs/${createSlug(title)}?key=${id}`} className="text-decoration-none">
+                    <Link href={blogLink} className="text-decoration-none">
                         <span className='read-more-link d-inline-flex align-items-center' style={{
                             color: '#b51515',
                             fontWeight: '700',
