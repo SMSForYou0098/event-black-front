@@ -41,7 +41,7 @@ const ProductCard = memo((props) => {
             </>
           )}
 
-          <Link href={props?.link || ""}>
+          <Link href={props?.link || "#"}>
             <div className="product-image">
               <Image
                 src={props.thumbnail || "/assets/images/no-banner.jpg"}
@@ -60,7 +60,7 @@ const ProductCard = memo((props) => {
           <div className="product-caption" style={{ fontSize: '12px' }}>
             <p className="fs-6 my-0 fw-bold">
               <Link
-                href={props?.link || ''}
+                href={props?.link || '#'}
                 style={{ fontSize: "14px" }}
                 className="title-link"
               >

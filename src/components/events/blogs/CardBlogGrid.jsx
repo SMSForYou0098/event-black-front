@@ -39,28 +39,20 @@ const CardBlogGrid = memo((props) => {
 
     return (
         <div className="iq-blog-box border-0 mb-4 h-100">
-            <div className="iq-blog-image clearfix mb-3 overflow-hidden rounded-4 shadow-sm" style={{ aspectRatio: '16/10' }}>
+            <div className="iq-blog-image clearfix mb-3 overflow-hidden rounded-4 shadow-sm blog-image-hover" style={{ aspectRatio: '16/10' }}>
                 <Link href={blogLink} className="d-block w-100 h-100">
-                    <div className="w-100 h-100 overflow-hidden">
-                        <Image
-                            src={thumbnail || "/assets/images/no-banner.jpg"}
-                            alt={title || "Blog Image"}
-                            width={400}
-                            height={250}
-                            className='img-fluid w-100 h-100'
-                            style={{
-                                objectFit: 'cover',
-                                transition: 'transform 0.5s ease',
-                                cursor: 'pointer'
-                            }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.transform = 'scale(1.05)';
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.transform = 'scale(1)';
-                            }}
-                        />
-                    </div>
+                    <Image
+                        src={thumbnail || "/assets/images/no-banner.jpg"}
+                        alt={title || "Blog Image"}
+                        width={400}
+                        height={250}
+                        className='img-fluid w-100 h-100'
+                        style={{
+                            objectFit: 'cover',
+                            transition: 'transform 0.5s ease',
+                            cursor: 'pointer'
+                        }}
+                    />
                 </Link>
             </div>
             <div className="iq-blog-detail">

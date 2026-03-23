@@ -374,7 +374,7 @@ export const MyContextProvider = ({ children }) => {
         .replace(/[^\w-]+/g, "")
         .toLowerCase();
     }
-    return "";
+    return "na";
   };
 
   const convertSlugToTitle = (slug) => {

@@ -75,7 +75,7 @@ const CardStyle = memo((props) => {
       <div className="iq-top-ten-block">
         <div className="block-image position-relative">
           <div className="img-box">
-            <Link href={props.link} className="overly-images">
+            <Link href={props.link || "#"} className="overly-images">
               {props.on_sale && (
                 <span className="position-absolute top-0 end-0 m-2 z-index-3">
                   <SaleTag />
@@ -94,7 +94,7 @@ const CardStyle = memo((props) => {
           <div className="evnt-desc mt-3">
             <div>
               <h6 style={{ fontSize: "14px" }} className="text-capitalize">
-                <Link href={props.link}>{props.title}</Link>
+                <Link href={props.link || "#"}>{props.title}</Link>
               </h6>
               <PriceData {...props} />
             </div>
