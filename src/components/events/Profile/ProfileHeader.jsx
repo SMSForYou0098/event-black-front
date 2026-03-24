@@ -5,10 +5,12 @@ import AvatarImage from '../../../utils/ProfileUtils/AvatarImage';
 import { useIsMobile } from '../../../utils/consts';
 import CustomBadge from '../../../utils/ProfileUtils/getBadgeClass';
 import Link from 'next/link';
+import { useMyContext } from '@/Context/MyContextProvider';
 
 const ProfileHeader = ({ user = {}, onEditClick, onAvatarUpload, loading }) => {
   const fileInputRef = useRef(null);
   const isMobile = useIsMobile();
+  const { userRole } = useMyContext();
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -38,25 +40,27 @@ const ProfileHeader = ({ user = {}, onEditClick, onAvatarUpload, loading }) => {
       }}
     >
       {/* Mobile: top-right tiny edit icon */}
-      <Button
-        type="button"
-        onClick={onEditClick}
-        disabled={!!loading}
-        className="position-absolute d-flex d-md-none align-items-center justify-content-center"
-        style={{
-          top: 8,
-          right: 8,
-          width: 32,
-          height: 32,
-          borderRadius: 8,
-          padding: 0,
-        }}
-        variant="primary"
-        aria-label="Edit profile"
-      >
-        <PenLine size={16} />
-      </Button>
-
+      {
+        userRole === 'User' && (
+          <Button
+            type="button"
+            onClick={onEditClick}
+            disabled={!!loading}
+            className="position-absolute d-flex d-md-none align-items-center justify-content-center"
+            style={{
+              top: 8,
+              right: 8,
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              padding: 0,
+            }}
+            variant="primary"
+            aria-label="Edit profile"
+          >
+            <PenLine size={16} />
+          </Button>
+        )}
       <Container fluid className="px-0">
         <Row className="align-items-center g-3">
           {/* Left: Avatar + text */}
@@ -94,29 +98,32 @@ const ProfileHeader = ({ user = {}, onEditClick, onAvatarUpload, loading }) => {
                 />
 
                 {/* camera button */}
-                <Button
-                  variant="warning"
-                  size="sm"
-                  className="position-absolute d-flex align-items-center justify-content-center"
-                  style={{
-                    bottom: -6,
-                    right: -6,
-                    width: 30,
-                    height: 30,
-                    borderRadius: '50%',
-                    padding: 0,
-                    background: 'linear-gradient(135deg, #ffc107, #fd7e14)',
-                  }}
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={loading}
-                  aria-label="Change avatar"
-                >
-                  {loading ? (
-                    <Spinner animation="border" size="sm" variant="dark" />
-                  ) : (
-                    <Camera size={14} />
+                {
+                  userRole === 'User' && (
+                    <Button
+                      variant="warning"
+                      size="sm"
+                      className="position-absolute d-flex align-items-center justify-content-center"
+                      style={{
+                        bottom: -6,
+                        right: -6,
+                        width: 30,
+                        height: 30,
+                        borderRadius: '50%',
+                        padding: 0,
+                        background: 'linear-gradient(135deg, #ffc107, #fd7e14)',
+                      }}
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={loading}
+                      aria-label="Change avatar"
+                    >
+                      {loading ? (
+                        <Spinner animation="border" size="sm" variant="dark" />
+                      ) : (
+                        <Camera size={14} />
+                      )}
+                    </Button>
                   )}
-                </Button>
               </div>
 
               {/* Name + Verified badge + metadata */}
@@ -146,23 +153,26 @@ const ProfileHeader = ({ user = {}, onEditClick, onAvatarUpload, loading }) => {
           </Col>
 
           {/* Desktop: Edit button on the right */}
-          <Col xs={12} md="auto" className="ms-auto text-md-end d-none d-md-block">
-            <Button
-              type="button"
-              onClick={onEditClick}
-              disabled={!!loading}
-              className="d-inline-flex align-items-center gap-1 px-2 py-1"
-              variant="primary"
-              style={{
-                fontSize: '0.8rem',
-                height: '28px',
-                borderRadius: '8px',
-              }}
-            >
-              <PenLine size={14} />
-              Edit
-            </Button>
-          </Col>
+          {
+            userRole === 'User' && (
+              <Col xs={12} md="auto" className="ms-auto text-md-end d-none d-md-block">
+                <Button
+                  type="button"
+                  onClick={onEditClick}
+                  disabled={!!loading}
+                  className="d-inline-flex align-items-center gap-1 px-2 py-1"
+                  variant="primary"
+                  style={{
+                    fontSize: '0.8rem',
+                    height: '28px',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <PenLine size={14} />
+                  Edit
+                </Button>
+              </Col>
+            )}
         </Row>
       </Container>
     </Container>

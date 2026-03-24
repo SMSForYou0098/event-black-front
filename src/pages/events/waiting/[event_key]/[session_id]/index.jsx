@@ -80,7 +80,7 @@ const PaymentWaiting = () => {
                     try {
                         const data = JSON.parse(event.data);
 
-                        if (data.payment_status === 'confirmed' || data.payment_status === 'success') {
+                        if (data.payment_status === 'confirmed' || data.payment_status === 'success' || data.status === 'confirmed' || data.status === 'success') {
                             // Clear timeout since we got a response
                             if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
@@ -94,11 +94,12 @@ const PaymentWaiting = () => {
                                     `/events/summary/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(session_id)}`
                                 );
                             }, 1500);
-                        } else if (data.status === 'failed') {
+                        } else if (data.status === 'failed' || data.payment_status === 'failed' || data.status === 'error' || data.payment_status === 'error' || data.status === 'cancelled' || data.payment_status === 'cancelled') {
                             // Clear timeout since we got a response
                             if (timeoutRef.current) clearTimeout(timeoutRef.current);
                             setStatus('failed');
-                            setErrorMessage(getErrorMessage(data, 'Payment failed. Please try again.'));
+                            const isCancelled = data.status === 'cancelled' || data.payment_status === 'cancelled';
+                            setErrorMessage(getErrorMessage(data, isCancelled ? 'Payment was cancelled.' : 'Payment failed. Please try again.'));
                             eventSource.close();
                         }
 
@@ -207,7 +208,7 @@ const PaymentWaiting = () => {
                             {status === 'pending' && message}
                             {status === 'confirmed' && 'Payment Successful!'}
                             {status === 'failed' && 'Payment Failed'}
-                            {status === 'timeout' && 'Payment Received'}
+                            {status === 'timeout' && 'Status Pending'}
                         </h4>
 
                         <p className="text-muted mb-4">
@@ -216,9 +217,9 @@ const PaymentWaiting = () => {
                             {status === 'failed' && errorMessage}
                             {status === 'timeout' && (
                                 <>
-                                    <span className="text-success fw-semibold">Don't worry!</span> Your payment has been processed successfully.
+                                    <span className="text-warning fw-semibold">Wait a moment!</span> We are still confirming your booking status.
                                     <br />
-                                    You will receive your tickets via WhatsApp, SMS & Email shortly.
+                                    If your payment was successful, you will receive your tickets via WhatsApp shortly.
                                     <br />
                                     <small>Redirecting to home page...</small>
                                 </>
@@ -236,9 +237,9 @@ const PaymentWaiting = () => {
                         {/* Timeout info */}
                         {status === 'timeout' && (
                             <div className="mb-4">
-                                <CheckCircle size={40} className="text-success mb-2" />
+                                <Clock size={40} className="text-warning mb-2" />
                                 <p className="text-muted small mb-0">
-                                    Check your bookings in <strong>"My Bookings"</strong> section.
+                                    You can check your booking status in <strong>"My Bookings"</strong> soon.
                                 </p>
                             </div>
                         )}

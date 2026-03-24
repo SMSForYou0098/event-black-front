@@ -266,6 +266,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         const errors = { ...validationErrors };
         if (!name.trim()) {
             errors.name = "Full name is required";
+        } else if (/[^a-zA-Z\s]/.test(name)) {
+            errors.name = "Full name should only contain letters and spaces";
         } else {
             delete errors.name;
         }
@@ -303,6 +305,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         const errors = { ...validationErrors };
         if (is_address_required && !address.trim()) {
             errors.address = "Address is required";
+        } else if (/[#]/.test(address)) {
+            errors.address = "Special characters like # are not allowed in address";
         } else {
             delete errors.address;
         }
@@ -445,6 +449,9 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         if (!name.trim()) {
             errors.name = "Full name is required";
             isValid = false;
+        } else if (/[^a-zA-Z\s]/.test(name)) {
+            errors.name = "Full name should only contain letters and spaces";
+            isValid = false;
         }
 
         if (!number.trim()) {
@@ -465,6 +472,9 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
 
         if (is_address_required && !address.trim()) {
             errors.address = "Address is required";
+            isValid = false;
+        } else if (/[#]/.test(address)) {
+            errors.address = "Special characters like # are not allowed in address";
             isValid = false;
         }
 
@@ -648,7 +658,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                         required
                                         className="card-glassmorphism__input"
                                         onChange={(e) => {
-                                            setName(e.target.value);
+                                            const value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+                                            setName(value);
                                             setTouched(prev => ({ ...prev, name: true }));
                                         }}
                                         size={isMobile ? "sm" : ""}
@@ -716,7 +727,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                             required
                                             size={isMobile ? "sm" : ""}
                                             onChange={(e) => {
-                                                setAddress(e.target.value);
+                                                const value = e.target.value.replace(/[#]/g, "");
+                                                setAddress(value);
                                                 setTouched(prev => ({ ...prev, address: true }));
                                             }}
                                             isInvalid={touched.address && !!validationErrors.address}

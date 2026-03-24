@@ -18,9 +18,9 @@ import { Headphones, Phone, Megaphone, Users, MapPin } from "lucide-react";
 
 // Mock context for providing API URL and token
 const CONTACT_INFO = {
-  supportEmail: "support@getyourticker.in",
-  adsEmail: "adds@getyourticker.in",
-  inquiriesEmail: "contact@getyourticker.in",
+  supportEmail: "support@getyourticket.in",
+  adsEmail: "adds@getyourticket.in",
+  inquiriesEmail: "contact@getyourticket.in",
   phone1: process.env.NEXT_PUBLIC_SUPPORT_CALL_PHONE1 || "8000308888",
   phone2: process.env.NEXT_PUBLIC_SUPPORT_CALL_PHONE2 || "8000306666",
   workingHours: "11:00 AM - 6:00 PM",
