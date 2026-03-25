@@ -6,11 +6,12 @@ import { ChevronLeft, Star, MessageSquarePlus, AlertCircle, Filter, SortDesc, Tr
 import { useEventReviews, useCreateReview, useUpdateReview, useDeleteReview } from "@/hooks/useReviews";
 import ReviewCard from "@/components/reviews/ReviewCard";
 import ReviewForm from "@/components/reviews/ReviewForm";
-import StarRating from "@/components/reviews/StarRating";
+import ReviewSummaryCard from "@/components/reviews/ReviewSummaryCard";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useHeaderSimple } from "@/Context/HeaderContext";
 import toast from "react-hot-toast";
 import LoginModal from "@/components/auth/LoginOffCanvas";
+import CustomBtn from "@/utils/CustomBtn";
 
 const EventReviewsPage = () => {
     const router = useRouter();
@@ -55,9 +56,14 @@ const EventReviewsPage = () => {
         }
     }, [inView, hasNextPage, fetchNextPage]);
 
-    // Flatten reviews
+    // Get summary from the first page of the API response
+    const summaryData = reviewsData?.pages?.[0]?.summary || {};
     const allReviews = reviewsData?.pages?.flatMap(page => page?.data || []) || [];
-    const totalReviews = reviewsData?.pages?.[0]?.pagination?.total || allReviews.length || 0;
+
+    // Use consolidated stats from API summary
+    const totalReviews = summaryData?.total_reviews || reviewsData?.pages?.[0]?.pagination?.total || allReviews.length || 0;
+    const averageRating = Number(summaryData?.average_rating) || 0;
+    const ratingBreakdown = summaryData?.rating_breakdown || { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
 
     // Filter and Sort Reviews
     const getFilteredAndSortedReviews = () => {
@@ -83,20 +89,6 @@ const EventReviewsPage = () => {
     };
 
     const reviews = getFilteredAndSortedReviews();
-
-    // Calculate Rating Distribution
-    const ratingDistribution = {
-        5: allReviews.filter(r => Math.floor(r.rating) === 5).length,
-        4: allReviews.filter(r => Math.floor(r.rating) === 4).length,
-        3: allReviews.filter(r => Math.floor(r.rating) === 3).length,
-        2: allReviews.filter(r => Math.floor(r.rating) === 2).length,
-        1: allReviews.filter(r => Math.floor(r.rating) === 1).length,
-    };
-
-    // Stats
-    const averageRating = totalReviews > 0
-        ? allReviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0) / allReviews.length
-        : 0;
 
     const userReview = allReviews.find((r) => r.user_id === UserData?.id);
 
@@ -197,96 +189,48 @@ const EventReviewsPage = () => {
                     >
                         <ChevronLeft size={24} />
                     </Button>
-                    <h4 className="text-white mb-0 fw-bold">Reviews & Ratings</h4>
+                    <h6 className="text-white mb-0 fw-bold">Reviews & Ratings</h6>
                 </div>
 
                 {/* Stats Card */}
-                <Card className="bg-dark border-0 shadow-sm mb-4 mx-3 mx-md-0">
-                    <Card.Body className="p-4">
-                        <Row className="g-4">
-                            {/* Average Rating */}
-                            <Col xs={12} md={4} className="text-center text-md-start">
-                                <div className="d-flex flex-column align-items-center align-items-md-start">
-                                    <div className="display-3 fw-bold text-white mb-2">
-                                        {averageRating?.toFixed(1)}
-                                    </div>
-                                    <StarRating rating={averageRating} size={24} readOnly />
-                                    <p className="text-muted mt-2 mb-0">
-                                        Based on {totalReviews} review{totalReviews !== 1 ? "s" : ""}
-                                    </p>
-                                </div>
-                            </Col>
+                <div className="mb-4 mx-3 mx-md-0">
+                    <ReviewSummaryCard
+                        averageRating={averageRating}
+                        totalReviews={totalReviews}
+                        ratingBreakdown={ratingBreakdown}
+                        onFilterByRating={(star) => setSelectedFilter(star.toString())}
+                    />
 
-                            {/* Rating Distribution */}
-                            <Col xs={12} md={5}>
-                                <h6 className="text-white mb-3 fw-semibold">Rating Distribution</h6>
-                                {[5, 4, 3, 2, 1].map((rating) => (
-                                    <div
-                                        key={rating}
-                                        className="d-flex align-items-center gap-2 mb-2 cursor-pointer"
-                                        onClick={() => setSelectedFilter(rating.toString())}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <span className="text-white" style={{ width: '20px' }}>
-                                            {rating}
-                                        </span>
-                                        <Star size={14} className="text-warning" fill="currentColor" />
-                                        <div
-                                            className="flex-grow-1 bg-secondary rounded-pill overflow-hidden"
-                                            style={{ height: '8px' }}
-                                        >
-                                            <div
-                                                className="bg-warning h-100 rounded-pill"
-                                                style={{
-                                                    width: `${totalReviews > 0 ? (ratingDistribution[rating] / totalReviews) * 100 : 0}%`,
-                                                    transition: 'width 0.3s ease'
-                                                }}
-                                            />
-                                        </div>
-                                        <span
-                                            className="text-muted"
-                                            style={{ width: '40px', textAlign: 'right' }}
-                                        >
-                                            {ratingDistribution[rating]}
-                                        </span>
-                                    </div>
-                                ))}
-                            </Col>
-
-                            {/* Action Button */}
-                            <Col xs={12} md={3} className="d-flex align-items-center justify-content-center justify-content-md-end">
-                                {!userReview ? (
+                    {/* Action Button */}
+                    <div className="d-flex justify-content-end mt-3">
+                        {!userReview ? (
+                            <CustomBtn
+                                HandleClick={handleWriteReview}
+                                buttonText="Write Review"
+                                icon={<MessageSquarePlus size={20} />}
+                                iconPosition="left"
+                                className="px-4 justify-content-center"
+                            />
+                        ) : (
+                            <div className="text-center">
+                                <Badge bg="secondary" className="px-3 py-2 mb-2">
+                                    <i className="fas fa-check me-2"></i>
+                                    Review Submitted
+                                </Badge>
+                                <div>
                                     <Button
-                                        variant="primary"
-                                        size="lg"
-                                        className="d-flex align-items-center gap-2 px-4 w-100 w-md-auto justify-content-center"
-                                        onClick={handleWriteReview}
+                                        variant="link"
+                                        size="sm"
+                                        className="text-primary text-decoration-none p-0"
+                                        onClick={() => handleEditReview(userReview)}
                                     >
-                                        <MessageSquarePlus size={20} />
-                                        <span>Write Review</span>
+                                        Edit Your Review
                                     </Button>
-                                ) : (
-                                    <div className="text-center">
-                                        <Badge bg="success" className="px-3 py-2 mb-2">
-                                            <i className="fas fa-check me-2"></i>
-                                            Review Submitted
-                                        </Badge>
-                                        <div>
-                                            <Button
-                                                variant="link"
-                                                size="sm"
-                                                className="text-primary text-decoration-none p-0"
-                                                onClick={() => handleEditReview(userReview)}
-                                            >
-                                                Edit Your Review
-                                            </Button>
-                                        </div>
-                                    </div>
-                                )}
-                            </Col>
-                        </Row>
-                    </Card.Body>
-                </Card>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
                 {/* Filters & Sort */}
                 <div className="d-flex justify-content-between align-items-center mb-4 px-3 px-md-0 flex-wrap gap-3">
@@ -345,7 +289,7 @@ const EventReviewsPage = () => {
                                             <span>{rating}</span>
                                             <Star size={14} fill="currentColor" className="text-warning" />
                                             <span className="ms-auto text-muted">
-                                                ({ratingDistribution[rating]})
+                                                ({ratingBreakdown[rating] || 0})
                                             </span>
                                         </div>
                                     </Dropdown.Item>

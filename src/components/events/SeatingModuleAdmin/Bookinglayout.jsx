@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { api } from '@/lib/axiosInterceptor';
 import { useMyContext } from '@/Context/MyContextProvider';
 import useBooking from '../SeatingModule/components/Usebooking';
 import SeatingGrid from './components/SeatingGrid';
+import StandingQuantityPicker from './components/StandingQuantityPicker';
 
 function SeatingGridSkeleton() {
   return (
@@ -34,6 +35,15 @@ const BookingLayout = (props) => {
   const { UserData, ErrorAlert } = useMyContext();
   const selectedSeatsRef = useRef(null);
 
+  // Compute dynamic maxSeats from the highest selection_limit across all cart items
+  const dynamicMaxSeats = useMemo(() => {
+    if (!Array.isArray(cartItems) || cartItems.length === 0) return 10;
+    const limits = cartItems
+      .map(t => parseInt(t.selection_limit, 10))
+      .filter(n => Number.isFinite(n) && n >= 1);
+    return limits.length > 0 ? Math.max(...limits) : 10;
+  }, [cartItems]);
+
   const {
     selectedSeats,
     setSelectedSeats,
@@ -41,7 +51,7 @@ const BookingLayout = (props) => {
     setSections,
     handleSeatClick,
   } = useBooking({
-    maxSeats: 10,
+    maxSeats: dynamicMaxSeats,
     holdDuration: 600,
     autoHoldTimeout: true,
     event: event ?? null,
@@ -92,7 +102,74 @@ const BookingLayout = (props) => {
   const [layoutData, setLayoutData] = useState(null);
   const [stage, setStage] = useState(null);
 
-  const handleRemoveSeat = () => setSelectedSeats([]);
+  // Standing section quantity picker state
+  const [standingPicker, setStandingPicker] = useState({ show: false, section: null, ticket: null });
+
+  const handleStandingSectionClick = useCallback((section, ticket) => {
+    setStandingPicker({ show: true, section, ticket });
+  }, []);
+
+  const handleStandingConfirm = useCallback(({ section, ticket, quantity }) => {
+    if (!ticket || quantity <= 0) return;
+
+    const round = (n) => +Number(n ?? 0).toFixed(2);
+    const ticketId = Number(ticket.id);
+    const basePrice = parseFloat(ticket.price || 0);
+    const baseAmount = round(basePrice);
+
+    // Tax calculation (same logic as useBooking)
+    const taxData = event?.tax_data || event?.taxData;
+    const feeRaw = Number(taxData?.convenience_fee) || 0;
+    const feeType = String(taxData?.type || '').toLowerCase();
+    let convenienceFee = 0;
+    if (feeType === 'percentage' || feeType === 'percent') {
+      convenienceFee = round(baseAmount * (feeRaw / 100));
+    } else if (['flat', 'fixed', 'amount'].includes(feeType)) {
+      convenienceFee = round(feeRaw);
+    }
+    const centralGST = round(convenienceFee * 0.09);
+    const stateGST = round(convenienceFee * 0.09);
+    const totalTax = round(centralGST + stateGST + convenienceFee);
+    const finalAmount = round(baseAmount + totalTax);
+
+    // Build the ticket selection object (matches useBooking pattern)
+    const totalBaseAmount = round(baseAmount * quantity);
+    const totalCentralGST = round(centralGST * quantity);
+    const totalStateGST = round(stateGST * quantity);
+    const totalConvenienceFee = round(convenienceFee * quantity);
+    const totalTaxTotal = round(totalCentralGST + totalStateGST + totalConvenienceFee);
+    const totalFinalAmount = round(totalBaseAmount + totalTaxTotal);
+
+    const standingTicket = {
+      id: ticketId,
+      ticket_id: ticketId,
+      category: ticket.name || 'Standing',
+      ticket: ticket,
+      quantity,
+      seats: [],
+      isStanding: true,
+      sectionId: section.id,
+      sectionName: section.name,
+      price: round(basePrice),
+      baseAmount,
+      centralGST,
+      stateGST,
+      convenienceFee,
+      totalTax,
+      finalAmount,
+      totalBaseAmount,
+      totalCentralGST,
+      totalStateGST,
+      totalConvenienceFee,
+      totalTaxTotal,
+      totalFinalAmount,
+      subTotal: round(basePrice * quantity),
+      grandTotal: totalFinalAmount,
+    };
+
+    setSelectedSeats(standingTicket);
+    toast.success(`${quantity} ${ticket.name || 'standing'} ticket(s) selected`);
+  }, [event, setSelectedSeats]);
 
   useEffect(() => {
     let isMounted = true;
@@ -101,7 +178,7 @@ const BookingLayout = (props) => {
     const fetchLayoutData = async () => {
       if (!layoutId) return;
       setIsLoading(true);
-      handleRemoveSeat();
+      setSelectedSeats({});
       try {
         const response = await api.get(
           `layout/theatre/${layoutId}?eventId=${eventId}`,
@@ -192,6 +269,7 @@ const BookingLayout = (props) => {
               sections={sections}
               selectedSeats={selectedSeatsForGrid}
               onSeatClick={handleSeatClickWithLimit}
+              onStandingSectionClick={handleStandingSectionClick}
               stage={stage}
               storageKey={layoutId ? `layout_${layoutId}` : undefined}
               scrollToSectionId={scrollToSectionId}
@@ -200,6 +278,15 @@ const BookingLayout = (props) => {
           </div>
         </Col>
       </Row>
+
+      {/* Standing section quantity picker */}
+      <StandingQuantityPicker
+        show={standingPicker.show}
+        onHide={() => setStandingPicker({ show: false, section: null, ticket: null })}
+        section={standingPicker.section}
+        ticket={standingPicker.ticket}
+        onConfirm={handleStandingConfirm}
+      />
     </div>
   );
 };

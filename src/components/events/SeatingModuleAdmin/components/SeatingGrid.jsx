@@ -216,7 +216,7 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius }) {
   );
 }
 
-function SectionBlock({ section, selectedSeatIds, onSeatClick, bounds }) {
+function SectionBlock({ section, selectedSeatIds, onSeatClick, onStandingSectionClick, bounds }) {
   const sx = (Number(section.x) || 0) - bounds.minX;
   const sy = (Number(section.y) || 0) - bounds.minY;
   const sw = Number(section.width) || 600;
@@ -224,8 +224,21 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, bounds }) {
 
   const isStanding = section.type === 'Standing';
   const rows = section.rows || [];
-  const standingTickets = Object.values(section.seatStatusMap || {});
-  const standingTicket = standingTickets[0]; // Take the first ticket category for standing
+
+  // For standing sections, build the ticket from seatStatusMap (full data) merged with section.ticket (selection_limit)
+  const standingTicket = useMemo(() => {
+    if (!isStanding) return null;
+    const seatStatusTickets = Object.values(section.seatStatusMap || {});
+    const ticketCatId = section.ticketCategory;
+    const fullTicket = ticketCatId
+      ? seatStatusTickets.find(t => String(t.id) === String(ticketCatId))
+      : seatStatusTickets[0];
+    if (!fullTicket) return section.ticket || null;
+    return {
+      ...fullTicket,
+      selection_limit: section.ticket?.selection_limit || fullTicket.selection_limit,
+    };
+  }, [isStanding, section]);
 
   return (
     <div
@@ -281,35 +294,21 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, bounds }) {
             pointerEvents: 'auto',
           }}
         >
-          {/* Standing section acts as a large seat/area */}
+          {/* Standing section — open quantity picker on click */}
           <button
             type="button"
             className="w-100 h-100 border-0 bg-transparent p-0"
             onClick={(e) => {
               e.stopPropagation();
               if (standingTicket.sold_out || !standingTicket.status) return;
-
-              // Map standing section click to onSeatClick using a virtual seat
-              const virtualSeat = {
-                ...standingTicket,
-                id: `standing_${section.id}_${standingTicket.id}`,
-                sectionId: section.id,
-                rowId: null,
-                label: section.name,
-                status: 'available',
-                ticket: standingTicket,
-                type: 'standing'
-              };
-              onSeatClick(virtualSeat, section.id, null);
+              onStandingSectionClick?.(section, standingTicket);
             }}
             disabled={standingTicket.sold_out || !standingTicket.status}
             style={{
               cursor: (standingTicket.sold_out || !standingTicket.status) ? 'not-allowed' : 'pointer',
               borderRadius: 8,
               transition: 'all 0.2s',
-              background: selectedSeatIds.has(`standing_${section.id}_${standingTicket.id}`)
-                ? 'rgba(181, 21, 21, 0.2)' // PRIMARY color with opacity if selected
-                : 'transparent'
+              background: 'transparent'
             }}
           />
         </div>
@@ -358,6 +357,7 @@ const SeatingGrid = ({
   sections,
   selectedSeats,
   onSeatClick,
+  onStandingSectionClick,
   stage,
   storageKey,
   scrollToSectionId,
@@ -893,6 +893,7 @@ const SeatingGrid = ({
             section={section}
             selectedSeatIds={selectedSeatIds}
             onSeatClick={handleSeatClickWithZoom}
+            onStandingSectionClick={onStandingSectionClick}
             bounds={bounds}
           />
         ))}

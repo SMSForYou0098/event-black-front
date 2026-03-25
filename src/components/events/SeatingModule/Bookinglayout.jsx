@@ -1,5 +1,5 @@
 // BookingLayout.jsx - IMPROVED VERSION WITH CUSTOM HOOK
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, Row, Col, Button, Modal, Form } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { api } from "@/lib/axiosInterceptor";
@@ -17,6 +17,15 @@ const BookingLayout = (props) => {
     const stageRef = useRef(null);
     const selectedSeatsRef = useRef(null);
 
+    // Compute dynamic maxSeats from the highest selection_limit across all cart items
+    const dynamicMaxSeats = useMemo(() => {
+        if (!Array.isArray(cartItems) || cartItems.length === 0) return 10;
+        const limits = cartItems
+            .map(t => parseInt(t.selection_limit, 10))
+            .filter(n => Number.isFinite(n) && n >= 1);
+        return limits.length > 0 ? Math.max(...limits) : 10;
+    }, [cartItems]);
+
     // Custom booking hook (must be before handler that uses it)
     const {
         selectedSeats,
@@ -33,7 +42,7 @@ const BookingLayout = (props) => {
         extendTimer,
         maxSeats
     } = useBooking({
-        maxSeats: 10,
+        maxSeats: dynamicMaxSeats,
         holdDuration: 600, // 10 minutes
         autoHoldTimeout: true,
         event: event // Pass event data for tax calculations

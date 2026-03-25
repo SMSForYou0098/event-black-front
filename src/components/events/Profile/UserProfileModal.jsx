@@ -300,6 +300,8 @@ const UserProfileModal = ({
               <Form.Label>Enter OTP</Form.Label>
               <Form.Control
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={otp}
                 maxLength={6}
                 onChange={(e) => {

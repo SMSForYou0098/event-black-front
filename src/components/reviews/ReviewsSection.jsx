@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Card, Button, Spinner, Container, Row, Col, Badge } from "react-bootstrap";
+import { Card, Button, Spinner, Container, Row, Col } from "react-bootstrap";
 import { Star, MessageSquarePlus, AlertCircle, ChevronRight } from "lucide-react";
 import ReviewCard from "./ReviewCard";
 import ReviewForm from "./ReviewForm";
-import StarRating from "./StarRating";
+import ReviewSummaryCard from "./ReviewSummaryCard";
 import { useEventReviews, useCreateReview, useUpdateReview, useDeleteReview } from "@/hooks/useReviews";
 import { useMyContext } from "@/Context/MyContextProvider";
 import toast from "react-hot-toast";
@@ -27,16 +27,14 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
     const updateMutation = useUpdateReview();
     const deleteMutation = useDeleteReview();
 
-    // Flatten reviews from infinite query pages - data is directly in page.data array
+    // Get summary from the first page of the API response
+    const summaryData = reviewsData?.pages?.[0]?.summary || {};
     const reviews = reviewsData?.pages?.flatMap(page => page?.data || []) || [];
 
-    // Get total count from first page pagination
-    const totalReviews = reviewsData?.pages?.[0]?.pagination?.total || reviews.length || 0;
-
-    // Calculate stats (or use from API if available later)
-    const averageRating = reviews.length > 0
-        ? reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0) / reviews.length
-        : 0;
+    // Use consolidated stats from API summary
+    const totalReviews = summaryData?.total_reviews || reviewsData?.pages?.[0]?.pagination?.total || reviews.length || 0;
+    const averageRating = Number(summaryData?.average_rating) || 0;
+    const ratingBreakdown = summaryData?.rating_breakdown || { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
 
     // Check if user already reviewed
     const userReview = reviews.find((r) => r.user_id === UserData?.id);
@@ -105,38 +103,29 @@ const ReviewsSection = ({ eventId, onLoginRequired }) => {
     return (
         <div className="reviews-section py-4">
             <Container fluid className="px-3 px-md-4">
-                {/* Header with Stats */}
-                <Row className="mb-4 g-3">
-                    <Col xs={12} lg={6} className="d-flex flex-column justify-content-center">
-                        <h5 className="text-white mb-3 fw-bold">Reviews & Ratings</h5>
-                        {totalReviews > 0 && (
-                            <div className="d-flex align-items-center gap-3 flex-wrap">
-                                <div className="d-flex align-items-center gap-2">
-                                    <StarRating rating={averageRating} size={20} readOnly />
-                                    <span className="text-white fw-bold fs-5">
-                                        {averageRating?.toFixed(1)}
-                                    </span>
-                                </div>
-                                <Badge bg="secondary" className="px-3 py-2">
-                                    {totalReviews} review{totalReviews !== 1 ? "s" : ""}
-                                </Badge>
-                            </div>
-                        )}
-                    </Col>
-
-                    {/* Write Review Button */}
-                    {/* <Col xs={12} lg={6} className="d-flex align-items-center justify-content-lg-end">
-                        {!userReview && (
+                {/* Header and Summary Section */}
+                <div className="mb-5">
+                    <div className="d-flex align-items-center justify-content-between mb-4">
+                        <h6 className="text-white fw-bold m-0">Reviews & Ratings</h6>
+                        {!userReview && !isLoading && !isError && (
                             <CustomBtn
                                 HandleClick={handleWriteReview}
                                 size="sm"
-                                className="d-flex align-items-center gap-2 w-100 w-lg-auto justify-content-center"
+                                className="d-flex align-items-center gap-2"
                                 buttonText='Rate This'
                                 icon={<MessageSquarePlus size={18} />}
                             />
                         )}
-                    </Col> */}
-                </Row>
+                    </div>
+
+                    {!isLoading && !isError && totalReviews > 0 && (
+                        <ReviewSummaryCard
+                            averageRating={averageRating}
+                            totalReviews={totalReviews}
+                            ratingBreakdown={ratingBreakdown}
+                        />
+                    )}
+                </div>
 
                 {/* Loading State */}
                 {isLoading && (

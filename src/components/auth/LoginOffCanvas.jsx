@@ -574,6 +574,8 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             <Form.Label>Enter OTP</Form.Label>
                             <Form.Control
                                 type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
                                 size=""
                                 value={otp}
                                 autoFocus

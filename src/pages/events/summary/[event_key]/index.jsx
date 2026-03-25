@@ -151,8 +151,12 @@ const BookingSummary = () => {
     // For display purposes (user info, dates etc), use first individual booking
     const booking = isMaster ? mutation.data?.bookings?.bookings?.[0] || {} : mutation.data?.bookings || {};
 
-    const seat_name = isMaster ? mutation.data?.bookings?.bookings?.map((booking) => booking.seat_name).join(", ") : mutation.data?.bookings?.seat_name;
-    // For TicketModal, transform the booking data to ensure each individual booking
+    const seat_name = isMaster
+        ? mutation.data?.bookings?.bookings
+            ?.map((booking) => booking.seat_name)
+            ?.filter(Boolean) // removes undefined, null, empty
+            .join(", ")
+        : mutation.data?.bookings?.seat_name;    // For TicketModal, transform the booking data to ensure each individual booking
     // has the token needed for QR code display
     // NOTE: Individual tickets use their own 'token' for QR, group tickets use 'order_id'
     const fullBookingData = useMemo(() => {

@@ -546,6 +546,8 @@ const TransferBookingDrawer = ({
                                     <Form.Control
                                         ref={otpInputRef}
                                         type="text"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
                                         placeholder="• • • • • •"
                                         value={otp}
                                         onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}

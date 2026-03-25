@@ -134,10 +134,14 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
           <EventPhotoGallery eventPhotos={eventData?.eventMedia?.images || []} />
 
           {/* Reviews Section */}
-          <ReviewsSection
-            eventId={eventData?.id}
-            onLoginRequired={handleLoginRequired}
-          />
+          {
+            eventData?.eventControls?.rating && (
+              <ReviewsSection
+                eventId={eventData?.id}
+                onLoginRequired={handleLoginRequired}
+              />
+            )
+          }
         </Container>
       </div>
     </Fragment>
