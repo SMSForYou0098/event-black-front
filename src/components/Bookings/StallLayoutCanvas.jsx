@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Stage, Layer, Rect, Text, Circle, Line } from 'react-konva';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import * as PIXI from 'pixi.js';
+import { Viewport } from 'pixi-viewport';
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -12,359 +13,352 @@ const getShapeBounds = (shape) => {
   const radius = Number(shape?.radius || 0);
 
   if (type === 'rect') {
-    return {
-      minX: x,
-      minY: y,
-      maxX: x + width,
-      maxY: y + height
-    };
+    return { minX: x, minY: y, maxX: x + width, maxY: y + height };
   }
 
   if (type === 'circle') {
-    return {
-      minX: x - radius,
-      minY: y - radius,
-      maxX: x + radius,
-      maxY: y + radius
-    };
+    return { minX: x - radius, minY: y - radius, maxX: x + radius, maxY: y + radius };
   }
 
   if (type === 'line' && Array.isArray(shape?.points) && shape.points.length >= 2) {
     const pointXs = [];
     const pointYs = [];
-
-    for (let index = 0; index < shape.points.length; index += 2) {
-      const pointX = Number(shape.points[index]);
-      const pointY = Number(shape.points[index + 1]);
-
-      if (Number.isFinite(pointX) && Number.isFinite(pointY)) {
-        pointXs.push(pointX);
-        pointYs.push(pointY);
+    for (let i = 0; i < shape.points.length; i += 2) {
+      const px = Number(shape.points[i]);
+      const py = Number(shape.points[i + 1]);
+      if (Number.isFinite(px) && Number.isFinite(py)) {
+        pointXs.push(px);
+        pointYs.push(py);
       }
     }
-
     if (pointXs.length > 0 && pointYs.length > 0) {
       return {
         minX: Math.min(...pointXs),
         minY: Math.min(...pointYs),
         maxX: Math.max(...pointXs),
-        maxY: Math.max(...pointYs)
+        maxY: Math.max(...pointYs),
       };
     }
   }
 
-  return {
-    minX: x,
-    minY: y,
-    maxX: x + width,
-    maxY: y + height
-  };
+  return { minX: x, minY: y, maxX: x + width, maxY: y + height };
 };
 
 const getLayoutBounds = (shapes = []) => {
-  if (!Array.isArray(shapes) || shapes.length === 0) {
-    return null;
-  }
+  if (!Array.isArray(shapes) || shapes.length === 0) return null;
 
-  let minX = Number.POSITIVE_INFINITY;
-  let minY = Number.POSITIVE_INFINITY;
-  let maxX = Number.NEGATIVE_INFINITY;
-  let maxY = Number.NEGATIVE_INFINITY;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
   shapes.forEach((shape) => {
-    const bounds = getShapeBounds(shape);
-    minX = Math.min(minX, bounds.minX);
-    minY = Math.min(minY, bounds.minY);
-    maxX = Math.max(maxX, bounds.maxX);
-    maxY = Math.max(maxY, bounds.maxY);
+    const b = getShapeBounds(shape);
+    minX = Math.min(minX, b.minX);
+    minY = Math.min(minY, b.minY);
+    maxX = Math.max(maxX, b.maxX);
+    maxY = Math.max(maxY, b.maxY);
   });
 
-  if (![minX, minY, maxX, maxY].every(Number.isFinite)) {
-    return null;
-  }
-
+  if (![minX, minY, maxX, maxY].every(Number.isFinite)) return null;
   return { minX, minY, maxX, maxY };
+};
+
+const toPixiColor = (value, fallback) => {
+  try {
+    return new PIXI.Color(value || fallback).toNumber();
+  } catch {
+    return new PIXI.Color(fallback).toNumber();
+  }
 };
 
 const StallLayoutCanvas = ({
   layout = [],
   selectedStallId,
   onSelect,
-  getFillColor
+  getFillColor,
 }) => {
   const containerRef = useRef(null);
-  const [stageScale, setStageScale] = useState(1);
-  const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
-  const [viewport, setViewport] = useState({ width: 1100, height: 620 });
+  const appRef = useRef(null);
+  const viewportRef = useRef(null);
+  const [viewportSize, setViewportSize] = useState({ width: 1100, height: 620 });
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, shape: null });
+  const [appReady, setAppReady] = useState(false);
 
   const layoutBounds = useMemo(() => getLayoutBounds(layout), [layout]);
-  const lastCenter = useRef(null);
-  const lastDist = useRef(0);
 
+  // --- Resize ---
   useEffect(() => {
-    const updateViewport = () => {
+    const updateSize = () => {
       if (!containerRef.current) return;
       const width = Math.max(320, Math.floor(containerRef.current.clientWidth || 1100));
-      setViewport({ width, height: 620 });
+      const isMobile = width <= 768;
+      const height = isMobile ? Math.floor(window.innerHeight * 0.30) : 620;
+      setViewportSize({ width, height });
     };
-
-    updateViewport();
-    window.addEventListener('resize', updateViewport);
-    return () => window.removeEventListener('resize', updateViewport);
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
   }, []);
 
+  // --- PIXI Application Init ---
   useEffect(() => {
-    if (!Array.isArray(layout) || layout.length === 0 || !layoutBounds) {
-      setStageScale(1);
-      setStagePosition({ x: 0, y: 0 });
-      return;
-    }
+    if (!containerRef.current) return;
+    let disposed = false;
 
-    const padding = 40;
-    const layoutWidth = Math.max(1, layoutBounds.maxX - layoutBounds.minX);
-    const layoutHeight = Math.max(1, layoutBounds.maxY - layoutBounds.minY);
+    const setup = async () => {
+      const app = new PIXI.Application();
+      await app.init({
+        width: viewportSize.width,
+        height: viewportSize.height,
+        antialias: true,
+        backgroundAlpha: 0,
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
+      });
 
-    const fitScale = clamp(
-      Math.min(
-        (viewport.width - padding * 2) / layoutWidth,
-        (viewport.height - padding * 2) / layoutHeight
-      ) * 0.8,
-      0.35,
-      2
-    );
-
-    const offsetX = (viewport.width - layoutWidth * fitScale) / 2;
-    const offsetY = (viewport.height - layoutHeight * fitScale) / 2;
-
-    setStageScale(fitScale);
-    setStagePosition({
-      x: offsetX - layoutBounds.minX * fitScale,
-      y: offsetY - layoutBounds.minY * fitScale
-    });
-  }, [layout, layoutBounds, viewport.width, viewport.height]);
-
-  const handleWheel = (event) => {
-    event.evt.preventDefault();
-
-    const scaleBy = 1.08;
-    const stage = event.target.getStage();
-    const oldScale = stageScale;
-    const pointer = stage.getPointerPosition();
-
-    if (!pointer) return;
-
-    const mousePointTo = {
-      x: (pointer.x - stagePosition.x) / oldScale,
-      y: (pointer.y - stagePosition.y) / oldScale
-    };
-
-    const direction = event.evt.deltaY > 0 ? -1 : 1;
-    const nextScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
-    const newScale = clamp(nextScale, 0.5, 3);
-
-    const newPos = {
-      x: pointer.x - mousePointTo.x * newScale,
-      y: pointer.y - mousePointTo.y * newScale
-    };
-
-    setStageScale(newScale);
-    setStagePosition(newPos);
-  };
-
-  const getDistance = (p1, p2) => {
-    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-  };
-
-  const getCenter = (p1, p2) => {
-    return {
-      x: (p1.x + p2.x) / 2,
-      y: (p1.y + p2.y) / 2,
-    };
-  };
-
-  const handleTouch = (e) => {
-    e.evt.preventDefault();
-    const touch1 = e.evt.touches[0];
-    const touch2 = e.evt.touches[1];
-
-    if (touch1 && touch2) {
-      if (e.target.getStage().isDragging()) {
-        e.target.getStage().stopDrag();
-      }
-
-      const p1 = { x: touch1.clientX, y: touch1.clientY };
-      const p2 = { x: touch2.clientX, y: touch2.clientY };
-
-      if (!lastCenter.current) {
-        lastCenter.current = getCenter(p1, p2);
-        lastDist.current = getDistance(p1, p2);
+      if (disposed || !containerRef.current) {
+        app.destroy(true, { children: true, texture: true });
         return;
       }
 
-      const newDist = getDistance(p1, p2);
-      const newCenter = getCenter(p1, p2);
+      app.canvas.style.display = 'block';
+      app.canvas.style.width = '100%';
+      app.canvas.style.height = '100%';
+      app.canvas.style.touchAction = 'none';
 
-      const stage = e.currentTarget;
-      const oldScale = stage.scaleX();
+      // --- pixi-viewport: replaces ALL manual pan/zoom/pinch code ---
+      const viewport = new Viewport({
+        screenWidth: viewportSize.width,
+        screenHeight: viewportSize.height,
+        worldWidth: 2000,
+        worldHeight: 2000,
+        events: app.renderer.events,
+        passiveWheel: false,
+      });
 
-      const pointTo = {
-        x: (newCenter.x - stage.x()) / oldScale,
-        y: (newCenter.y - stage.y()) / oldScale,
-      };
+      viewport
+        .drag({ mouseButtons: 'left' })   // drag to pan (touch + mouse)
+        .pinch()                            // two-finger pinch zoom
+        .wheel({ smooth: 5, interrupt: true })
+        .decelerate({ friction: 0.92 })
+        .clampZoom({ minScale: 0.15, maxScale: 4 });
 
-      const scaleBy = (newDist / lastDist.current) * oldScale;
-      const newScale = clamp(scaleBy, 0.4, 3);
+      // Prevent page scroll when wheel is inside the canvas
+      app.canvas.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
 
-      const newPos = {
-        x: newCenter.x - pointTo.x * newScale,
-        y: newCenter.y - pointTo.y * newScale,
-      };
+      app.stage.addChild(viewport);
 
-      setStageScale(newScale);
-      setStagePosition(newPos);
-      lastDist.current = newDist;
-      lastCenter.current = newCenter;
-    }
-  };
+      containerRef.current.innerHTML = '';
+      containerRef.current.appendChild(app.canvas);
 
-  const handleTouchEnd = () => {
-    lastDist.current = 0;
-    lastCenter.current = null;
-  };
+      appRef.current = app;
+      viewportRef.current = viewport;
+      setAppReady(true);
+    };
 
-  const showTooltip = (shape, event) => {
-    setTooltip({
-      visible: true,
-      x: event.evt.layerX + 12,
-      y: event.evt.layerY + 12,
-      shape
-    });
-  };
+    setup();
 
-  const hideTooltip = () => {
+    return () => {
+      disposed = true;
+      setAppReady(false);
+      if (appRef.current) {
+        appRef.current.destroy(true, { children: true, texture: true });
+      }
+      appRef.current = null;
+      viewportRef.current = null;
+    };
+  }, []);
+
+  // --- Resize renderer + viewport ---
+  useEffect(() => {
+    const app = appRef.current;
+    const viewport = viewportRef.current;
+    if (!app || !viewport || !appReady) return;
+
+    app.renderer.resize(viewportSize.width, viewportSize.height);
+    app.canvas.style.height = `${viewportSize.height}px`;
+    viewport.resize(viewportSize.width, viewportSize.height);
+  }, [viewportSize.width, viewportSize.height, appReady]);
+
+  // --- Fit layout into viewport on data load ---
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || !appReady || !layoutBounds) return;
+    if (!Array.isArray(layout) || layout.length === 0) return;
+
+    const padding = 60;
+    const layoutWidth = Math.max(1, layoutBounds.maxX - layoutBounds.minX);
+    const layoutHeight = Math.max(1, layoutBounds.maxY - layoutBounds.minY);
+
+    const centerX = layoutBounds.minX + layoutWidth / 2;
+    const centerY = layoutBounds.minY + layoutHeight / 2;
+
+    const fitScale = clamp(
+      Math.min(
+        (viewportSize.width - padding * 2) / layoutWidth,
+        (viewportSize.height - padding * 2) / layoutHeight
+      ) * 0.85,
+      0.3,
+      2
+    );
+
+    viewport.scale.set(fitScale);
+    viewport.moveCenter(centerX, centerY);
+  }, [layout, layoutBounds, viewportSize.width, viewportSize.height, appReady]);
+
+  // --- Tooltip helpers ---
+  const showTooltip = useCallback((shape, x, y) => {
+    setTooltip({ visible: true, x: x + 12, y: y + 12, shape });
+  }, []);
+
+  const hideTooltip = useCallback(() => {
     setTooltip({ visible: false, x: 0, y: 0, shape: null });
-  };
+  }, []);
 
-  const renderShape = (shape) => {
-    const shapeId = shape?.id || `${shape?.type}-${shape?.x}-${shape?.y}`;
-    const isSelected = selectedStallId && shape?.id === selectedStallId;
-    const isStall = shape?.entityType === 'stall';
-    const isClickable = isStall && shape?.meta?.bookable && !shape?.meta?.booked;
-    const shapeWidth = Number(shape?.width || 0);
-    const shapeHeight = Number(shape?.height || 0);
-    const shapeX = Number(shape?.x || 0);
-    const shapeY = Number(shape?.y || 0);
-    const shapeRotation = Number(shape?.rotation || 0);
+  // --- Draw shapes ---
+  useEffect(() => {
+    const app = appRef.current;
+    const viewport = viewportRef.current;
+    if (!app || !viewport || !appReady) return;
 
-    if (shape?.type === 'rect') {
-      return (
-        <React.Fragment key={shapeId}>
-          <Rect
-            x={shapeX + shapeWidth / 2}
-            y={shapeY + shapeHeight / 2}
-            width={shapeWidth}
-            height={shapeHeight}
-            rotation={shapeRotation}
-            offsetX={shapeWidth / 2}
-            offsetY={shapeHeight / 2}
-            fill={getFillColor(shape)}
-            stroke={isSelected ? '#1677ff' : '#000'}
-            strokeWidth={isSelected ? 3 : 1}
-            scaleX={isSelected ? 1.02 : 1}
-            scaleY={isSelected ? 1.02 : 1}
-            cornerRadius={Number(shape?.radius || 0)}
-            opacity={isSelected ? 0.9 : 1}
-            onClick={() => {
-              if (!isClickable) return;
-              onSelect(shape);
-            }}
-            onTap={() => {
-              if (!isClickable) return;
-              onSelect(shape);
-            }}
-            onMouseEnter={(event) => {
-              const container = event.target.getStage().container();
-              container.style.cursor = isClickable ? 'pointer' : 'not-allowed';
-              showTooltip(shape, event);
-            }}
-            onMouseLeave={(event) => {
-              const container = event.target.getStage().container();
-              container.style.cursor = 'default';
-              hideTooltip();
-            }}
-          />
+    // Clear only shape children (keep viewport plugins intact)
+    viewport.removeChildren();
+    hideTooltip();
 
-          {shape?.display?.showLabel && (
-            <Text
-              text={shape?.meta?.name || ''}
-              x={shapeX + shapeWidth / 2}
-              y={shapeY + shapeHeight / 2}
-              width={shapeWidth}
-              height={shapeHeight}
-              offsetX={shapeWidth / 2}
-              offsetY={shapeHeight / 2}
-              rotation={shapeRotation}
-              fontSize={14}
-              fill="#000"
-              align="center"
-              verticalAlign="middle"
-              listening={false}
-            />
-          )}
-        </React.Fragment>
+    const zoomToShape = (shape) => {
+      const cx = Number(shape?.x || 0) + Number(shape?.width || 0) / 2;
+      const cy = Number(shape?.y || 0) + Number(shape?.height || 0) / 2;
+      const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const desiredScale = isMobile ? 0.9 : 1.5;
+      const targetScale = Math.max(viewport.scale.x, desiredScale);
+
+      viewport.animate({
+        time: 300,
+        position: new PIXI.Point(cx, cy),
+        scale: targetScale,
+        ease: 'easeInOutSine',
+        removeOnInterrupt: true,
+      });
+    };
+
+    layout.forEach((shape) => {
+      const isSelected = selectedStallId && shape?.id === selectedStallId;
+      const isStall = shape?.entityType === 'stall';
+      const isClickable = isStall && shape?.meta?.bookable && !shape?.meta?.booked;
+      const shapeWidth = Number(shape?.width || 0);
+      const shapeHeight = Number(shape?.height || 0);
+      const shapeX = Number(shape?.x || 0);
+      const shapeY = Number(shape?.y || 0);
+      const shapeRotation = Number(shape?.rotation || 0);
+      const fillColor = toPixiColor(getFillColor(shape), '#eeeeee');
+      const strokeColor = toPixiColor(
+        isSelected ? '#1677ff' : (shape.style?.stroke || '#000000'),
+        '#000000'
       );
-    }
+      const strokeW = Number(isSelected ? 3 : (shape.style?.strokeWidth || 1));
 
-    if (shape?.type === 'circle') {
-      return (
-        <Circle
-          key={shapeId}
-          x={Number(shape?.x || 0)}
-          y={Number(shape?.y || 0)}
-          radius={Number(shape?.radius || 0)}
-          fill={getFillColor(shape)}
-          stroke={isSelected ? '#1677ff' : '#000'}
-          strokeWidth={isSelected ? 3 : 1}
-          scaleX={isSelected ? 1.05 : 1}
-          scaleY={isSelected ? 1.05 : 1}
-          onClick={() => {
-            if (!isClickable) return;
+      if (shape?.type === 'rect') {
+        const gfx = new PIXI.Graphics();
+        gfx.rect(-shapeWidth / 2, -shapeHeight / 2, shapeWidth, shapeHeight);
+        gfx.fill({ color: fillColor, alpha: isSelected ? 0.9 : 1 });
+        if (strokeW > 0) gfx.stroke({ color: strokeColor, width: strokeW });
+        gfx.x = shapeX + shapeWidth / 2;
+        gfx.y = shapeY + shapeHeight / 2;
+        gfx.rotation = (shapeRotation * Math.PI) / 180;
+        gfx.scale.set(isSelected ? 1.02 : 1);
+        gfx.eventMode = 'static';
+        gfx.cursor = isClickable ? 'pointer' : 'default';
+
+        gfx.on('pointertap', () => {
+          if (isClickable) {
+            zoomToShape(shape);
             onSelect(shape);
-          }}
-          onTap={() => {
-            if (!isClickable) return;
+          }
+        });
+        gfx.on('pointerover', (e) => {
+          app.canvas.style.cursor = isClickable ? 'pointer' : 'not-allowed';
+          showTooltip(shape, e.global.x, e.global.y);
+        });
+        gfx.on('pointermove', (e) => {
+          setTooltip((prev) =>
+            prev.visible
+              ? { ...prev, x: e.global.x + 12, y: e.global.y + 12 }
+              : prev
+          );
+        });
+        gfx.on('pointerout', () => {
+          app.canvas.style.cursor = 'default';
+          hideTooltip();
+        });
+
+        viewport.addChild(gfx);
+
+        // Label
+        if (shape?.display?.showLabel && shape?.meta?.name) {
+          const label = new PIXI.Text({
+            text: shape.meta.name,
+            style: { fill: '#000000', fontSize: 14, align: 'center' },
+          });
+          label.anchor.set(0.5);
+          label.x = shapeX + shapeWidth / 2;
+          label.y = shapeY + shapeHeight / 2;
+          label.rotation = (shapeRotation * Math.PI) / 180;
+          label.eventMode = 'none';
+          viewport.addChild(label);
+        }
+      }
+
+      if (shape?.type === 'circle') {
+        const radius = Number(shape?.radius || 0);
+        const gfx = new PIXI.Graphics();
+        gfx.circle(0, 0, radius);
+        gfx.fill({ color: fillColor });
+        if (strokeW > 0) gfx.stroke({ color: strokeColor, width: strokeW });
+        gfx.x = Number(shape?.x || 0);
+        gfx.y = Number(shape?.y || 0);
+        gfx.scale.set(isSelected ? 1.05 : 1);
+        gfx.eventMode = 'static';
+        gfx.cursor = isClickable ? 'pointer' : 'default';
+
+        gfx.on('pointertap', () => {
+          if (isClickable) {
+            zoomToShape(shape);
             onSelect(shape);
-          }}
-          onMouseEnter={(event) => {
-            const container = event.target.getStage().container();
-            container.style.cursor = isClickable ? 'pointer' : 'not-allowed';
-            showTooltip(shape, event);
-          }}
-          onMouseLeave={(event) => {
-            const container = event.target.getStage().container();
-            container.style.cursor = 'default';
-            hideTooltip();
-          }}
-        />
-      );
-    }
+          }
+        });
+        gfx.on('pointerover', (e) => {
+          app.canvas.style.cursor = isClickable ? 'pointer' : 'not-allowed';
+          showTooltip(shape, e.global.x, e.global.y);
+        });
+        gfx.on('pointermove', (e) => {
+          setTooltip((prev) =>
+            prev.visible
+              ? { ...prev, x: e.global.x + 12, y: e.global.y + 12 }
+              : prev
+          );
+        });
+        gfx.on('pointerout', () => {
+          app.canvas.style.cursor = 'default';
+          hideTooltip();
+        });
 
-    if (shape?.type === 'line' && Array.isArray(shape?.points)) {
-      return (
-        <Line
-          key={shapeId}
-          points={shape.points}
-          stroke={shape?.stroke || '#000'}
-          strokeWidth={Number(shape?.strokeWidth || 1)}
-          listening={false}
-        />
-      );
-    }
+        viewport.addChild(gfx);
+      }
 
-    return null;
-  };
+      if (shape?.type === 'line' && Array.isArray(shape?.points) && shape.points.length >= 2) {
+        const gfx = new PIXI.Graphics();
+        gfx.moveTo(Number(shape.points[0]), Number(shape.points[1]));
+        for (let i = 2; i < shape.points.length; i += 2) {
+          gfx.lineTo(Number(shape.points[i]), Number(shape.points[i + 1]));
+        }
+        gfx.stroke({
+          color: toPixiColor(shape?.stroke || '#000000', '#000000'),
+          width: Number(shape?.strokeWidth || 1),
+        });
+        viewport.addChild(gfx);
+      }
+    });
+  }, [layout, selectedStallId, onSelect, getFillColor, appReady, showTooltip, hideTooltip]);
 
+  // --- Tooltip UI ---
   const tooltipStatus = tooltip.shape?.meta?.booked
     ? 'Booked'
     : tooltip.shape?.meta?.bookable
@@ -373,25 +367,7 @@ const StallLayoutCanvas = ({
 
   return (
     <div ref={containerRef} className="position-relative border rounded bg-white overflow-hidden w-100 stall-layout-scope">
-      <div className='canvas-container'>
-        <Stage
-          width={viewport.width}
-          height={viewport.height}
-          scaleX={stageScale}
-          scaleY={stageScale}
-          x={stagePosition.x}
-          y={stagePosition.y}
-          onWheel={handleWheel}
-          onTouchMove={handleTouch}
-          onTouchEnd={handleTouchEnd}
-          draggable
-          onDragEnd={(event) => {
-            setStagePosition({ x: event.target.x(), y: event.target.y() });
-          }}
-        >
-          <Layer>{layout.map(renderShape)}</Layer>
-        </Stage>
-      </div>
+      <div className="canvas-container" />
 
       {tooltip.visible && tooltip.shape && (
         <div
@@ -401,7 +377,7 @@ const StallLayoutCanvas = ({
             top: tooltip.y,
             zIndex: 10,
             pointerEvents: 'none',
-            maxWidth: '220px'
+            maxWidth: '220px',
           }}
         >
           <div className="fw-semibold">{tooltip.shape?.meta?.name || 'Shape'}</div>

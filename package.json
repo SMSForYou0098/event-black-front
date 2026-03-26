@@ -49,6 +49,8 @@
     "next-auth": "^4.24.11",
     "next-redux-wrapper": "^8.1.0",
     "npm": "^10.2.4",
+    "pixi-viewport": "^6.0.3",
+    "pixi.js": "^8.17.1",
     "pusher-js": "^8.4.0",
     "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",

@@ -50,6 +50,7 @@ const StallBookingPage = () => {
         points: Array.isArray(shape?.points) ? shape.points : [],
         stroke: shape?.stroke,
         strokeWidth: shape?.strokeWidth,
+        style: shape?.style || {},
         entityType: shape?.entityType || '',
         meta: shape?.meta || {},
         display: shape?.display || {}
@@ -119,29 +120,9 @@ const StallBookingPage = () => {
   };
 
   return (
-    <div className="container-fluid py-4">
+    <div className="" style={{ maxHeight: '60vh' }}>
       <div className="row">
         <div className="col-12">
-          <div className="alert alert-info mb-3" role="alert">
-            👉 Click on a green stall to select and proceed with booking
-          </div>
-
-          <div className="mb-3">
-            <h5 className="mb-1">Select Your Stall</h5>
-            <p className="text-muted mb-0">
-              Click on any available stall (green) to book it. Grey stalls are unavailable or already booked.
-            </p>
-          </div>
-
-          <div className="d-flex gap-3 mb-3 flex-wrap align-items-center">
-            <div className="fw-semibold">Legend:</div>
-            <div className="d-flex flex-wrap gap-2">
-              <span className="badge bg-success">Available</span>
-              <span className="badge bg-danger">Booked</span>
-              <span className="badge bg-secondary">Unavailable</span>
-              <span className="badge bg-light text-dark border">Non-bookable Area</span>
-            </div>
-          </div>
 
           {isLoading && (
             <div className="py-5 text-center">
