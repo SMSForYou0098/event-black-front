@@ -83,6 +83,7 @@ const HeaderDefault = memo(() => {
     { id: 5, title: "Blog", href: "/blogs" },
     { id: 6, title: "Offers", href: "/events/offers" },
     { id: 7, title: "Live Events", href: "/events/live" },
+    { id: 8, title: "Exhibition", href: "/events/exhibition" },
   ];
   // NEW: State for show more functionality
   const [showAllEvents, setShowAllEvents] = useState(false);

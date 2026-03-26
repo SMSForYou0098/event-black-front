@@ -360,29 +360,33 @@ canvas {
 
 // Custom height for mobile screens (applies to non-seating canvases only)
 @media (max-width: 576px) {
+  .canvas-container {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
   canvas {
     height: 97% !important; // adjust as needed for your design
     width: 74% !important; // full width on mobile
     max-height: 80vh !important; // optional: responsive to viewport
   }
 
-  // Seating module: let Konva control canvas size so hit-testing and layout match (no 74% override)
-  .seating-module-scope canvas {
+  // Seating and Stall modules: let Konva control canvas size so hit-testing and layout match
+  .seating-module-scope canvas,
+  .stall-layout-scope canvas {
     width: unset !important;
     height: unset !important;
     max-height: none !important;
+    max-width: none !important;
   }
 }
 
-@media (max-width: 576px) {
-  .canvas-container {
-    position: relative;
-    width: 300px !important;
-    height: 400px !important;
-    overflow: hidden;
-    transform: translate(12%, 0%);
-  }
-}
+
 
 // .iq-card {
 //   .block-images {
