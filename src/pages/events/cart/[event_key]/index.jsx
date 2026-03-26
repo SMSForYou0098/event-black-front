@@ -19,6 +19,7 @@ import LoginModal from "../../../../components/auth/LoginOffCanvas";
 import { useEventData, useLockSeats, useEventInfluencers, useEventTickets, useCategoryData } from "../../../../services/events";
 import CustomBtn from "../../../../utils/CustomBtn";
 import CustomDrawer from "../../../../utils/CustomDrawer";
+import ResponsiveModalDrawer from "../../../../utils/ResponsiveModalDrawer";
 import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 import { useMutation } from "@tanstack/react-query";
 import LoaderComp from "../../../../utils/LoaderComp";
@@ -742,102 +743,58 @@ const CartPage = () => {
           buttonText="Got it"
         />
 
-        {/* Date Selection - Responsive: Modal for Desktop, Drawer for Mobile */}
-        {isMobile ? (
-          <CustomDrawer
-            showOffcanvas={showDatePicker}
-            setShowOffcanvas={setShowDatePicker}
-            title=""
-            placement="bottom"
-            className="bg-dark text-white"
-            style={{ height: 'auto', minHeight: '50vh' }}
-          >
-            <div className="d-flex flex-column align-items-center justify-content-center h-100">
-              <div className="custom-flatpickr-wrapper">
-                <Flatpickr
-                  value={selectedDate}
-                  options={{
-                    inline: true,
-                    minDate: "today",
-                    dateFormat: "Y-m-d",
-                    enable: [
-                      {
-                        from: parseDateRange.minDateStr,
-                        to: parseDateRange.maxDateStr
-                      }
-                    ]
-                  }}
-                  onChange={([date]) => {
-                    if (date) {
-                      const dateStr = date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
-                      setSelectedDate(dateStr);
-                      setShowDatePicker(false);
+        {/* Date Selection - Unified Responsive Wrapper */}
+        <ResponsiveModalDrawer
+          show={showDatePicker}
+          onHide={() => setShowDatePicker(false)}
+          title=""
+          closable={false}
+          drawerProps={{
+            className: "bg-dark text-white",
+            style: { height: 'auto', minHeight: '50vh' }
+          }}
+          modalProps={{
+            className: "modal-glass-bg",
+            headerClassName: "border-0"
+          }}
+        >
+          <div className="d-flex flex-column align-items-center justify-content-center h-100 py-2">
+            <div className="custom-flatpickr-wrapper">
+              <Flatpickr
+                value={selectedDate}
+                options={{
+                  inline: true,
+                  minDate: "today",
+                  dateFormat: "Y-m-d",
+                  enable: [
+                    {
+                      from: parseDateRange.minDateStr,
+                      to: parseDateRange.maxDateStr
                     }
-                  }}
-                  render={(_, ref) => {
-                    return (
-                      <input
-                        ref={ref}
-                        type="text"
-                        placeholder="Select Date.."
-                        className="form-control bg-dark text-white border-secondary text-center"
-                        readOnly
-                      />
-                    );
-                  }}
-                />
-              </div>
+                  ]
+                }}
+                onChange={([date]) => {
+                  if (date) {
+                    const dateStr = date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+                    setSelectedDate(dateStr);
+                    setShowDatePicker(false);
+                  }
+                }}
+                render={(_, ref) => {
+                  return (
+                    <input
+                      ref={ref}
+                      type="text"
+                      placeholder="Select Date.."
+                      className="form-control bg-dark text-white border-secondary text-center"
+                      readOnly
+                    />
+                  );
+                }}
+              />
             </div>
-          </CustomDrawer>
-        ) : (
-          <Modal
-            show={showDatePicker}
-            onHide={() => setShowDatePicker(false)}
-            centered
-            className="modal-glass-bg"
-          >
-
-            <CustomHeader title="" className='border-0' closable={false} onClose={() => setShowDatePicker(false)} />
-            <Modal.Body>
-              <div className="d-flex flex-column align-items-center justify-content-center">
-                <div className="custom-flatpickr-wrapper">
-                  <Flatpickr
-                    value={selectedDate}
-                    options={{
-                      inline: true,
-                      minDate: "today",
-                      dateFormat: "Y-m-d",
-                      enable: [
-                        {
-                          from: parseDateRange.minDateStr,
-                          to: parseDateRange.maxDateStr
-                        }
-                      ]
-                    }}
-                    onChange={([date]) => {
-                      if (date) {
-                        const dateStr = date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
-                        setSelectedDate(dateStr);
-                        setShowDatePicker(false);
-                      }
-                    }}
-                    render={(_, ref) => {
-                      return (
-                        <input
-                          ref={ref}
-                          type="text"
-                          placeholder="Select Date.."
-                          className="form-control bg-dark text-white border-secondary text-center"
-                          readOnly
-                        />
-                      );
-                    }}
-                  />
-                </div>
-              </div>
-            </Modal.Body>
-          </Modal>
-        )}
+          </div>
+        </ResponsiveModalDrawer>
 
         {/* {!UserData && ( */}
         <LoginModal

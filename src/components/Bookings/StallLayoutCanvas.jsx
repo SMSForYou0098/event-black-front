@@ -167,41 +167,40 @@ const StallLayoutCanvas = ({
     };
   }, []);
 
-  // --- Resize renderer + viewport ---
+  // --- Resize renderer + fit layout ---
   useEffect(() => {
     const app = appRef.current;
     const viewport = viewportRef.current;
-    if (!app || !viewport || !appReady) return;
+    if (!app || !viewport || !appReady || !containerRef.current) return;
 
-    app.renderer.resize(viewportSize.width, viewportSize.height);
-    app.canvas.style.height = `${viewportSize.height}px`;
-    viewport.resize(viewportSize.width, viewportSize.height);
-  }, [viewportSize.width, viewportSize.height, appReady]);
+    // Read actual container size from DOM
+    const screenW = Math.max(320, containerRef.current.clientWidth);
+    const isMobile = screenW <= 768;
+    const screenH = isMobile ? Math.floor(window.innerHeight * 0.30) : 620;
 
-  // --- Fit layout into viewport on data load ---
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    if (!viewport || !appReady || !layoutBounds) return;
-    if (!Array.isArray(layout) || layout.length === 0) return;
+    // 1. Resize renderer and viewport to actual container size
+    app.renderer.resize(screenW, screenH);
+    viewport.resize(screenW, screenH);
 
-    const padding = 60;
-    const layoutWidth = Math.max(1, layoutBounds.maxX - layoutBounds.minX);
-    const layoutHeight = Math.max(1, layoutBounds.maxY - layoutBounds.minY);
+    // 2. Fit layout to viewport
+    if (Array.isArray(layout) && layout.length > 0 && layoutBounds) {
+      const layoutWidth = Math.max(1, layoutBounds.maxX - layoutBounds.minX);
+      const layoutHeight = Math.max(1, layoutBounds.maxY - layoutBounds.minY);
+      const centerX = layoutBounds.minX + layoutWidth / 2;
+      const centerY = layoutBounds.minY + layoutHeight / 2;
 
-    const centerX = layoutBounds.minX + layoutWidth / 2;
-    const centerY = layoutBounds.minY + layoutHeight / 2;
+      // Calculate scale to fit entire layout on screen
+      const scale = clamp(
+        Math.min(screenW / layoutWidth, screenH / layoutHeight) * 0.9,
+        0.15,
+        2
+      );
 
-    const fitScale = clamp(
-      Math.min(
-        (viewportSize.width - padding * 2) / layoutWidth,
-        (viewportSize.height - padding * 2) / layoutHeight
-      ) * 0.85,
-      0.3,
-      2
-    );
-
-    viewport.scale.set(fitScale);
-    viewport.moveCenter(centerX, centerY);
+      // Directly set position so layout center = screen center
+      viewport.scale.set(scale);
+      viewport.x = screenW / 2 - centerX * scale;
+      viewport.y = screenH / 2 - centerY * scale;
+    }
   }, [layout, layoutBounds, viewportSize.width, viewportSize.height, appReady]);
 
   // --- Tooltip helpers ---

@@ -62,7 +62,7 @@ const ExhibitionPage = () => {
                                     on_sale={item?.on_sale}
                                     city={item?.city}
                                     houseFull={item?.house_full}
-                                    link={`/events/exhibition/booking?layout_id=${item.stall_layout_id}&event_key=${item.event_key}`}
+                                    link={`/events/exhibition/booking?layout_id=${item.stall_layout_id}&event_id=${item.id}`}
                                 />
                             )}
                         </SectionSlider>

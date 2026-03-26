@@ -300,7 +300,7 @@ const CommonBannerSlider = memo(({ type = 'main', banners: propBanners = [], loa
                                     className="video-open playbtn"
                                     style={{ cursor: 'pointer' }}
                                   >
-                                    <BsYoutube size={80} color="#b51515" strokeWidth={1} />
+                                    <BsYoutube size={50} color="#b51515" strokeWidth={1} />
                                     {/* <span className="w-trailor text-uppercase">Watch Trailer</span> */}
                                   </div>
                                 </Col>
