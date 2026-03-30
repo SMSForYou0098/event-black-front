@@ -8,6 +8,7 @@ import { api } from "@/lib/axiosInterceptor";
 import toast from "react-hot-toast";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { getErrorMessage } from "@/utils/errorUtils";
+import OtpInput from "@/components/common/OtpInput";
 
 
 const MODAL_VIEWS = {
@@ -298,14 +299,9 @@ const UserProfileModal = ({
 
             <Form.Group className="mb-3" controlId="formOtp">
               <Form.Label>Enter OTP</Form.Label>
-              <Form.Control
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
+              <OtpInput
                 value={otp}
-                maxLength={6}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                onChange={(value) => {
                   setOtp(value);
                   if (errors.otp) setErrors((p) => ({ ...p, otp: "" }));
                 }}

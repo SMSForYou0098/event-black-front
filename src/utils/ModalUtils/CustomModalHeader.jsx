@@ -3,7 +3,7 @@ import { Modal } from "react-bootstrap";
 
 const CustomHeader = ({ title, closable, onClose, className }) => (
   <Modal.Header className={`p-0 m-0 px-4 py-3 ${className}`}>
-    <h4 className="p-0 m-0">{title}</h4>
+    <h6 className="p-0 m-0">{title}</h6>
     {closable && <X className="cursor-pointer" onClick={onClose} />}
   </Modal.Header>
 );

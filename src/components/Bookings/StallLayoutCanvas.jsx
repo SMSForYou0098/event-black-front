@@ -189,17 +189,25 @@ const StallLayoutCanvas = ({
       const centerX = layoutBounds.minX + layoutWidth / 2;
       const centerY = layoutBounds.minY + layoutHeight / 2;
 
-      // Calculate scale to fit entire layout on screen
-      const scale = clamp(
+      // Calculate scale to fit entire layout on screen.
+      const fitScale = clamp(
         Math.min(screenW / layoutWidth, screenH / layoutHeight) * 0.9,
         0.15,
         2
       );
+      const scale = isMobile ? 0.15 : fitScale;
 
-      // Directly set position so layout center = screen center
+      // Keep scale deterministic across devices.
       viewport.scale.set(scale);
-      viewport.x = screenW / 2 - centerX * scale;
-      viewport.y = screenH / 2 - centerY * scale;
+      if (isMobile) {
+        const leftPadding = 12;
+        const topPadding = 12;
+        // Mobile should start from left edge of layout, not center.
+        viewport.x = leftPadding - layoutBounds.minX * scale;
+        viewport.y = topPadding - layoutBounds.minY * scale;
+      } else {
+        viewport.moveCenter(centerX, centerY);
+      }
     }
   }, [layout, layoutBounds, viewportSize.width, viewportSize.height, appReady]);
 
@@ -365,12 +373,12 @@ const StallLayoutCanvas = ({
       : 'Not Available';
 
   return (
-    <div ref={containerRef} className="position-relative border rounded bg-white overflow-hidden w-100 stall-layout-scope">
+    <div ref={containerRef} className="position-relative border rounded-3 overflow-hidden w-100 stall-layout-scope">
       <div className="canvas-container" />
 
       {tooltip.visible && tooltip.shape && (
         <div
-          className="position-absolute bg-dark text-white px-2 py-1 rounded small"
+          className="position-absolute card-glassmorphism text-white px-2 py-1 rounded-3 small"
           style={{
             left: tooltip.x,
             top: tooltip.y,

@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useMyContext } from "@/Context/MyContextProvider";
 import Logo from "../partials/Logo";
 import { getErrorMessage } from "@/utils/errorUtils";
+import OtpInput from "@/components/common/OtpInput";
 
 const MODAL_VIEWS = {
     SIGN_IN: "SIGN_IN",
@@ -572,17 +573,12 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                     <div className="d-flex flex-column flex-grow-1">
                         <Form.Group controlId="otp" className="mb-3">
                             <Form.Label>Enter OTP</Form.Label>
-                            <Form.Control
-                                type="text"
-                                inputMode="numeric"
-                                pattern="[0-9]*"
-                                size=""
+                            <OtpInput
                                 value={otp}
                                 autoFocus
                                 className="card-glassmorphism__input"
                                 placeholder="Enter 6-digit OTP"
-                                onChange={(e) => {
-                                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                                onChange={(value) => {
                                     setOTP(value);
                                     setTouched(prev => ({ ...prev, otp: true }));
                                     if (value.length === 6) {

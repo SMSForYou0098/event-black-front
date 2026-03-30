@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Container, Row, Col, Card, Badge, Table } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
 import { Calendar, MapPin, Ticket, User, CheckCircle, Info } from 'lucide-react';
 import { useRouter } from "next/router";
 import { useQuery } from '@tanstack/react-query';
@@ -117,14 +117,10 @@ const ExhibitionBookingSummary = () => {
                                     <Card.Body className="p-4 d-flex flex-column">
                                         <h5 className="text-white mb-4 border-bottom border-secondary pb-2">Payment Overview</h5>
                                         <div className="flex-grow-1">
-                                            <Table borderless className="text-white mb-0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td className="ps-0 py-3 fw-bold fs-5">Total Paid</td>
-                                                        <td className="pe-0 py-3 text-end text-success fw-bold fs-5">₹{application?.amount || 'N/A'}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </Table>
+                                            <div className="d-flex justify-content-between align-items-center py-3">
+                                                <span className="fw-bold fs-5 text-white">Total Paid</span>
+                                                <span className="text-success fw-bold fs-5">₹{application?.amount || 'N/A'}</span>
+                                            </div>
 
                                         </div>
                                         <div className="mt-auto pt-4">

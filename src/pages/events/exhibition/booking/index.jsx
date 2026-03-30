@@ -328,7 +328,7 @@ const StallBookingPage = () => {
   };
 
   return (
-    <div className="" style={{ maxHeight: '60vh' }}>
+    <div>
       <div className="row">
         <div className="col-12">
           {isLoading && (

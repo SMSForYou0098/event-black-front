@@ -5,7 +5,6 @@ import { IS_MOBILE } from '../../SeatingModule/components/constants';
 import CustomDrawer from '@/utils/CustomDrawer';
 import { CustomHeader } from '@/utils/ModalUtils/CustomModalHeader';
 import CustomBtn from '@/utils/CustomBtn';
-import { PRIMARY } from '@/utils/consts';
 
 /**
  * Standing Section Quantity Picker

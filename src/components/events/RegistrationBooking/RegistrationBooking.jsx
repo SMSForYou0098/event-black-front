@@ -13,6 +13,7 @@ import CustomDrawer from "@/utils/CustomDrawer";
 import { CustomHeader } from "@/utils/ModalUtils/CustomModalHeader";
 import { processImageFile } from "../../CustomComponents/AttendeeStroreUtils";
 import FaceDetector from "../Attendees/FaceDetector";
+import OtpInput from "@/components/common/OtpInput";
 
 
 /**
@@ -552,16 +553,12 @@ const RegistrationBooking = ({
                     </p>
 
                     <Form.Group className="mb-3">
-                        <Form.Control
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
+                        <OtpInput
                             placeholder="Enter 6-digit OTP"
                             value={otp}
-                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                            onChange={setOtp}
                             className="bg-dark text-white border-secondary text-center"
                             style={{ fontSize: '1.5rem', letterSpacing: '0.5em' }}
-                            maxLength={6}
                             autoFocus
                         />
                     </Form.Group>

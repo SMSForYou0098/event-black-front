@@ -6,6 +6,7 @@ import CustomBtn from '@/utils/CustomBtn';
 import { getUserByPhone, createTransferUser, transferBooking, verifyTransferOtp } from '@/services/transferService';
 import { useMyContext } from '@/Context/MyContextProvider';
 import { getErrorMessage } from '@/utils/errorUtils';
+import OtpInput from '@/components/common/OtpInput';
 
 
 // Step Indicator Component – accepts dynamic steps (3 or 4)
@@ -543,15 +544,11 @@ const TransferBookingDrawer = ({
                                 >
                                     <KeyRound size={24} className="text-info mb-2" />
                                     <p className="mb-3 small">Enter the 6-digit OTP sent to <strong>{formData.phone}</strong></p>
-                                    <Form.Control
+                                    <OtpInput
                                         ref={otpInputRef}
-                                        type="text"
-                                        inputMode="numeric"
-                                        pattern="[0-9]*"
                                         placeholder="• • • • • •"
                                         value={otp}
-                                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                                        maxLength={6}
+                                        onChange={setOtp}
                                         className="text-center mb-3"
                                         style={{ fontSize: '1.5rem', letterSpacing: '0.5em', fontWeight: 600 }}
                                     />
