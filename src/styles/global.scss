@@ -635,12 +635,18 @@ canvas {
       border-radius: 2rem 0 0 2rem;
 
       &::before {
-        top: 50%;
+        top: 8px;
         left: 8px;
         transform: translateY(-50%) rotate(90deg);
       }
     }
   }
+}
+
+// Special helper for 95vh height drawers (overrides bootstrap fit-content !important)
+.offcanvas-height-95 {
+  height: 95dvh !important;
+  max-height: 95dvh !important;
 }
 
 //input 

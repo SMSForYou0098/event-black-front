@@ -12,11 +12,11 @@ const getShapeBounds = (shape) => {
   const height = Number(shape?.height || 0);
   const radius = Number(shape?.radius || 0);
 
-  if (type === 'rect') {
+  if (type === 'rect' || type === 'square' || type === 'L_shape' || type === 'T_shape') {
     return { minX: x, minY: y, maxX: x + width, maxY: y + height };
   }
 
-  if (type === 'circle') {
+  if (type === 'circle' || type === 'polygon') {
     return { minX: x - radius, minY: y - radius, maxX: x + radius, maxY: y + radius };
   }
 
@@ -139,7 +139,7 @@ const StallLayoutCanvas = ({
         .pinch()                            // two-finger pinch zoom
         .wheel({ smooth: 5, interrupt: true })
         .decelerate({ friction: 0.92 })
-        .clampZoom({ minScale: 0.15, maxScale: 4 });
+        .clampZoom({ minScale: 0.01, maxScale: 4 });
 
       // Prevent page scroll when wheel is inside the canvas
       app.canvas.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
@@ -192,10 +192,10 @@ const StallLayoutCanvas = ({
       // Calculate scale to fit entire layout on screen.
       const fitScale = clamp(
         Math.min(screenW / layoutWidth, screenH / layoutHeight) * 0.9,
-        0.15,
+        0.05,
         2
       );
-      const scale = isMobile ? 0.15 : fitScale;
+      const scale = isMobile ? Math.min(fitScale, 0.15) : fitScale;
 
       // Keep scale deterministic across devices.
       viewport.scale.set(scale);
@@ -249,7 +249,12 @@ const StallLayoutCanvas = ({
     layout.forEach((shape) => {
       const isSelected = selectedStallId && shape?.id === selectedStallId;
       const isStall = shape?.entityType === 'stall';
-      const isClickable = isStall && shape?.meta?.bookable && !shape?.meta?.booked;
+
+      const bookingStatus = shape?.booking?.status?.toLowerCase();
+      const isActuallyBooked = shape?.meta?.booked || bookingStatus === 'confirmed' || bookingStatus === 'pending';
+      const isActuallyHeld = bookingStatus === 'hold' || shape?.booking?.is_held;
+      const isClickable = isStall && shape?.meta?.bookable && !isActuallyBooked && !isActuallyHeld;
+
       const shapeWidth = Number(shape?.width || 0);
       const shapeHeight = Number(shape?.height || 0);
       const shapeX = Number(shape?.x || 0);
@@ -260,20 +265,30 @@ const StallLayoutCanvas = ({
         isSelected ? '#1677ff' : (shape.style?.stroke || '#000000'),
         '#000000'
       );
-      const strokeW = Number(isSelected ? 3 : (shape.style?.strokeWidth || 1));
+      const strokeW = Number(isSelected ? 3 : (shape.style?.strokeWidth ?? 1));
 
-      if (shape?.type === 'rect') {
+      if (shape?.type === 'rect' || shape?.type === 'square') {
+        const scX = Number(shape?.scaleX ?? 1);
+        const scY = Number(shape?.scaleY ?? 1);
+
         const gfx = new PIXI.Graphics();
-        gfx.rect(-shapeWidth / 2, -shapeHeight / 2, shapeWidth, shapeHeight);
+        // Use top-left origin for parity with admin builder
+        gfx.rect(0, 0, shapeWidth, shapeHeight);
         gfx.fill({ color: fillColor, alpha: isSelected ? 0.9 : 1 });
         if (strokeW > 0) gfx.stroke({ color: strokeColor, width: strokeW });
-        gfx.x = shapeX + shapeWidth / 2;
-        gfx.y = shapeY + shapeHeight / 2;
-        gfx.rotation = (shapeRotation * Math.PI) / 180;
-        gfx.scale.set(isSelected ? 1.02 : 1);
+
+        const container = new PIXI.Container();
+        container.x = shapeX;
+        container.y = shapeY;
+        container.rotation = (shapeRotation * Math.PI) / 180;
+        container.scale.set(
+          (isSelected ? 1.02 : 1) * scX,
+          (isSelected ? 1.02 : 1) * scY
+        );
+        container.addChild(gfx);
+
         gfx.eventMode = 'static';
         gfx.cursor = isClickable ? 'pointer' : 'default';
-
         gfx.on('pointertap', () => {
           if (isClickable) {
             zoomToShape(shape);
@@ -281,22 +296,21 @@ const StallLayoutCanvas = ({
           }
         });
         gfx.on('pointerover', (e) => {
-          app.canvas.style.cursor = isClickable ? 'pointer' : 'not-allowed';
+          let cursor = 'not-allowed';
+          if (isClickable) cursor = 'pointer';
+          else if (isActuallyHeld) cursor = 'wait';
+          app.canvas.style.cursor = cursor;
           showTooltip(shape, e.global.x, e.global.y);
         });
         gfx.on('pointermove', (e) => {
           setTooltip((prev) =>
-            prev.visible
-              ? { ...prev, x: e.global.x + 12, y: e.global.y + 12 }
-              : prev
+            prev.visible ? { ...prev, x: e.global.x + 12, y: e.global.y + 12 } : prev
           );
         });
         gfx.on('pointerout', () => {
           app.canvas.style.cursor = 'default';
           hideTooltip();
         });
-
-        viewport.addChild(gfx);
 
         // Label
         if (shape?.display?.showLabel && shape?.meta?.name) {
@@ -305,26 +319,44 @@ const StallLayoutCanvas = ({
             style: { fill: '#000000', fontSize: 14, align: 'center' },
           });
           label.anchor.set(0.5);
-          label.x = shapeX + shapeWidth / 2;
-          label.y = shapeY + shapeHeight / 2;
-          label.rotation = (shapeRotation * Math.PI) / 180;
+          label.x = shapeWidth / 2;
+          label.y = shapeHeight / 2;
           label.eventMode = 'none';
-          viewport.addChild(label);
+          container.addChild(label);
         }
+
+        viewport.addChild(container);
       }
 
-      if (shape?.type === 'circle') {
-        const radius = Number(shape?.radius || 0);
+      if (shape?.type === 'L_shape' || shape?.type === 'T_shape') {
+        const w = shapeWidth;
+        const h = shapeHeight;
+        const ix = Number(shape?.insetX ?? 0.35);
+        const iy = Number(shape?.insetY ?? 0.35);
+        const scX = Number(shape?.scaleX ?? 1);
+        const scY = Number(shape?.scaleY ?? 1);
+
         const gfx = new PIXI.Graphics();
-        gfx.circle(0, 0, radius);
-        gfx.fill({ color: fillColor });
+        const polyPoints = shape.type === 'L_shape'
+          ? [0, 0, w * ix, 0, w * ix, h * (1 - iy), w, h * (1 - iy), w, h, 0, h]
+          : [0, 0, w, 0, w, h * iy, w * (1 - ix), h * iy, w * (1 - ix), h, w * ix, h, w * ix, h * iy, 0, h * iy];
+
+        gfx.poly(polyPoints);
+        gfx.fill({ color: fillColor, alpha: isSelected ? 0.9 : 1 });
         if (strokeW > 0) gfx.stroke({ color: strokeColor, width: strokeW });
-        gfx.x = Number(shape?.x || 0);
-        gfx.y = Number(shape?.y || 0);
-        gfx.scale.set(isSelected ? 1.05 : 1);
+
+        const container = new PIXI.Container();
+        container.x = shapeX;
+        container.y = shapeY;
+        container.rotation = (shapeRotation * Math.PI) / 180;
+        container.scale.set(
+          (isSelected ? 1.02 : 1) * scX,
+          (isSelected ? 1.02 : 1) * scY
+        );
+        container.addChild(gfx);
+
         gfx.eventMode = 'static';
         gfx.cursor = isClickable ? 'pointer' : 'default';
-
         gfx.on('pointertap', () => {
           if (isClickable) {
             zoomToShape(shape);
@@ -332,14 +364,15 @@ const StallLayoutCanvas = ({
           }
         });
         gfx.on('pointerover', (e) => {
-          app.canvas.style.cursor = isClickable ? 'pointer' : 'not-allowed';
+          let cursor = 'not-allowed';
+          if (isClickable) cursor = 'pointer';
+          else if (isActuallyHeld) cursor = 'wait';
+          app.canvas.style.cursor = cursor;
           showTooltip(shape, e.global.x, e.global.y);
         });
         gfx.on('pointermove', (e) => {
           setTooltip((prev) =>
-            prev.visible
-              ? { ...prev, x: e.global.x + 12, y: e.global.y + 12 }
-              : prev
+            prev.visible ? { ...prev, x: e.global.x + 12, y: e.global.y + 12 } : prev
           );
         });
         gfx.on('pointerout', () => {
@@ -347,7 +380,112 @@ const StallLayoutCanvas = ({
           hideTooltip();
         });
 
-        viewport.addChild(gfx);
+        if (shape?.display?.showLabel && shape?.meta?.name) {
+          if (shape.type === 'L_shape') {
+            const vertLabel = new PIXI.Text({
+              text: shape.meta.name,
+              style: { fill: '#000000', fontSize: 14, align: 'center' },
+            });
+            vertLabel.anchor.set(0.5);
+            vertLabel.x = (w * ix) / 2;
+            vertLabel.y = h / 2;
+            vertLabel.rotation = -Math.PI / 2;
+            container.addChild(vertLabel);
+
+            const horizLabel = new PIXI.Text({
+              text: shape.meta.name,
+              style: { fill: '#000000', fontSize: 14, align: 'center' },
+            });
+            horizLabel.anchor.set(0.5);
+            horizLabel.x = w * ix + (w * (1 - ix)) / 2;
+            horizLabel.y = h * (1 - iy) + (h * iy) / 2;
+            container.addChild(horizLabel);
+          } else {
+            // T_shape label in top bar
+            const label = new PIXI.Text({
+              text: shape.meta.name,
+              style: { fill: '#000000', fontSize: 14, align: 'center' },
+            });
+            label.anchor.set(0.5);
+            label.x = w / 2;
+            label.y = (h * iy) / 2;
+            container.addChild(label);
+          }
+        }
+
+        viewport.addChild(container);
+      }
+
+      if (shape?.type === 'circle' || shape?.type === 'polygon') {
+        const scX = Number(shape?.scaleX ?? 1);
+        const scY = Number(shape?.scaleY ?? 1);
+        const sides = Number(shape?.sides || 5);
+        const radius = Number(shape?.radius || 50);
+
+        const gfx = new PIXI.Graphics();
+        if (shape.type === 'circle') {
+          gfx.circle(0, 0, radius);
+        } else {
+          // Regular polygon matching Konva formula
+          const points = [];
+          for (let i = 0; i < sides; i++) {
+            const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
+            points.push(radius * Math.cos(angle), radius * Math.sin(angle));
+          }
+          gfx.poly(points);
+        }
+
+        gfx.fill({ color: fillColor });
+        if (strokeW > 0) gfx.stroke({ color: strokeColor, width: strokeW });
+
+        const container = new PIXI.Container();
+        container.x = shapeX;
+        container.y = shapeY;
+        container.rotation = (shapeRotation * Math.PI) / 180;
+        container.scale.set(
+          (isSelected ? 1.05 : 1) * scX,
+          (isSelected ? 1.05 : 1) * scY
+        );
+        container.addChild(gfx);
+
+        gfx.eventMode = 'static';
+        gfx.cursor = isClickable ? 'pointer' : 'default';
+        gfx.on('pointertap', () => {
+          if (isClickable) {
+            zoomToShape(shape);
+            onSelect(shape);
+          }
+        });
+        gfx.on('pointerover', (e) => {
+          let cursor = 'not-allowed';
+          if (isClickable) cursor = 'pointer';
+          else if (isActuallyHeld) cursor = 'wait';
+          app.canvas.style.cursor = cursor;
+          showTooltip(shape, e.global.x, e.global.y);
+        });
+        gfx.on('pointermove', (e) => {
+          setTooltip((prev) =>
+            prev.visible ? { ...prev, x: e.global.x + 12, y: e.global.y + 12 } : prev
+          );
+        });
+        gfx.on('pointerout', () => {
+          app.canvas.style.cursor = 'default';
+          hideTooltip();
+        });
+
+        // Label for circular/polygonal shapes
+        if (shape?.display?.showLabel && shape?.meta?.name) {
+          const label = new PIXI.Text({
+            text: shape.meta.name,
+            style: { fill: '#000000', fontSize: 14, align: 'center' },
+          });
+          label.anchor.set(0.5);
+          label.x = 0;
+          label.y = 0;
+          container.addChild(label);
+        }
+
+        viewport.addChild(container);
       }
 
       if (shape?.type === 'line' && Array.isArray(shape?.points) && shape.points.length >= 2) {
@@ -366,14 +504,20 @@ const StallLayoutCanvas = ({
   }, [layout, selectedStallId, onSelect, getFillColor, appReady, showTooltip, hideTooltip]);
 
   // --- Tooltip UI ---
-  const tooltipStatus = tooltip.shape?.meta?.booked
+  const bookingStatus = tooltip.shape?.booking?.status?.toLowerCase();
+  const isActuallyBooked = tooltip.shape?.meta?.booked || bookingStatus === 'confirmed' || bookingStatus === 'pending';
+  const isActuallyHeld = bookingStatus === 'hold' || tooltip.shape?.booking?.is_held;
+
+  const tooltipStatus = isActuallyBooked
     ? 'Booked'
-    : tooltip.shape?.meta?.bookable
-      ? 'Available'
-      : 'Not Available';
+    : isActuallyHeld
+      ? 'On Hold'
+      : tooltip.shape?.meta?.bookable
+        ? 'Available'
+        : 'Not Available';
 
   return (
-    <div ref={containerRef} className="position-relative border rounded-3 overflow-hidden w-100 stall-layout-scope">
+    <div ref={containerRef} className="position-relative rounded-3 overflow-hidden w-100 stall-layout-scope">
       <div className="canvas-container" />
 
       {tooltip.visible && tooltip.shape && (

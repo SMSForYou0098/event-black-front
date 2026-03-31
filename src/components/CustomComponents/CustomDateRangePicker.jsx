@@ -36,6 +36,9 @@ const CustomDateRangePicker = ({
   onChange,
   placeholder = 'Select date range',
   className = '',
+  isSingle = false,
+  minDate = null,
+  maxDate = null,
 }) => {
   const [show, setShow] = useState(false);
   const [viewDate, setViewDate] = useState(() => {
@@ -101,8 +104,29 @@ const CustomDateRangePicker = ({
   const prevMonth = () => setViewDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
   const nextMonth = () => setViewDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
 
+  const isDateDisabled = useCallback((date) => {
+    const d = toDateOnly(date).getTime();
+    if (minDate) {
+      const min = toDateOnly(minDate).getTime();
+      if (d < min) return true;
+    }
+    if (maxDate) {
+      const max = toDateOnly(maxDate).getTime();
+      if (d > max) return true;
+    }
+    return false;
+  }, [minDate, maxDate]);
+
   const handleDayClick = useCallback(
     (date) => {
+      if (isDateDisabled(date)) return;
+
+      if (isSingle) {
+        onChange?.([date]);
+        setShow(false);
+        return;
+      }
+
       if (!selecting) {
         // First click – set start
         setSelecting(date);
@@ -118,12 +142,17 @@ const CustomDateRangePicker = ({
         setShow(false);
       }
     },
-    [selecting, onChange]
+    [selecting, onChange, isSingle, isDateDisabled]
   );
 
   const getDayClasses = (cell) => {
     const classes = ['text-center', 'py-1', 'rounded-1', 'calendar-day'];
     const d = toDateOnly(cell.date);
+
+    if (isDateDisabled(cell.date)) {
+      classes.push('text-muted', 'opacity-25');
+      return classes.join(' ');
+    }
 
     if (!cell.current) {
       classes.push('text-muted', 'opacity-50');
@@ -199,9 +228,13 @@ const CustomDateRangePicker = ({
               <div
                 key={idx}
                 className={getDayClasses(cell)}
-                style={{ cursor: 'pointer', fontSize: '0.875rem', lineHeight: '2' }}
+                style={{
+                  cursor: isDateDisabled(cell.date) ? 'not-allowed' : 'pointer',
+                  fontSize: '0.875rem',
+                  lineHeight: '2'
+                }}
                 onClick={() => handleDayClick(cell.date)}
-                onMouseEnter={() => selecting && setHovered(cell.date)}
+                onMouseEnter={() => selecting && !isDateDisabled(cell.date) && setHovered(cell.date)}
               >
                 {cell.day}
               </div>

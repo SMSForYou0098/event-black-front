@@ -4,160 +4,28 @@ import dynamic from 'next/dynamic';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '@/lib/axiosInterceptor';
-import { Alert, Button, Form, Modal, Spinner, Row, Col } from 'react-bootstrap';
-import CustomDrawer from '@/utils/CustomDrawer';
+import { Alert, Form, Spinner, Row, Col, InputGroup, Badge } from 'react-bootstrap';
+import { getUserByPhone } from '@/services/transferService';
 import ResponsiveModalDrawer from '@/utils/ResponsiveModalDrawer';
 import CustomBtn from '@/utils/CustomBtn';
 import BookingFooterLayout from '@/utils/BookingFooterLayout';
-import MobileTwoButtonFooter from '@/utils/MobileTwoButtonFooter';
 import { useMyContext } from '@/Context/MyContextProvider';
+import { useVendorProfile, useUpsertVendorProfile } from '@/services/vendorService';
 import LoginOffCanvas from '@/components/auth/LoginOffCanvas';
+import { LargeAndDesktop } from '@/utils/ResponsiveRenderer';
+import { CardContainer, CardHeader, DetailItem } from '@/utils/EventCardUtils';
+import { Ticket, Calendar, Pin, Phone, AlertCircle, CheckCircle, User } from 'lucide-react';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 const StallLayoutCanvas = dynamic(
   () => import('@/components/Bookings/StallLayoutCanvas'),
   { ssr: false }
 );
 
-const StallDetailsContent = ({ stall, onBook, onCancel }) => (
-  <div className="d-flex flex-column h-100 p-2 text-white">
-    <div className="flex-grow-1 overflow-auto">
-      <div className="mb-4 text-center">
-        <label className="text-muted small text-uppercase fw-bold mb-1 d-block">Stall Name</label>
-        <h4 className="fw-bold">{stall?.meta?.name || 'Unnamed Stall'}</h4>
-      </div>
+import StallDetailsContent from '@/components/Bookings/StallDetailsContent';
+import BookingFormContent from '@/components/Bookings/BookingFormContent';
 
-      <div className="mb-4 text-center">
-        <label className="text-muted small text-uppercase fw-bold mb-1 d-block">Pricing</label>
-        <h3 className="text-success fw-bold">₹{stall?.meta?.price ?? 'N/A'}</h3>
-      </div>
-      <div className="pb-5 mb-5"></div>
-    </div>
-
-    <MobileTwoButtonFooter
-      leftButton={
-        <CustomBtn
-          variant="secondary"
-          buttonText="Cancel"
-          HandleClick={onCancel}
-          hideIcon={true}
-          className="w-100"
-        />
-      }
-      rightButton={
-        <CustomBtn
-          variant="primary"
-          buttonText="Book Stall"
-          HandleClick={onBook}
-          hideIcon={true}
-          className="w-100"
-        />
-      }
-    />
-  </div >
-);
-
-const BookingFormContent = ({ form, setForm, onCancel, onProceed, isValid, isPending }) => (
-  <Form className="px-3">
-    <Row>
-      {/* <Col md={6}>
-        <Form.Group className="mb-3">
-          <Form.Label>Vendor ID</Form.Label>
-          <Form.Control
-            type="number"
-            className="card-glassmorphism__input"
-            value={form.vendor_id}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, vendor_id: event.target.value }))
-            }
-            placeholder="Enter Vendor ID"
-          />
-        </Form.Group>
-      </Col> */}
-      <Col md={6}>
-        <Form.Group className="mb-3">
-          <Form.Label>Expected Setup Date</Form.Label>
-          <Form.Control
-            type="date"
-            className="card-glassmorphism__input"
-            value={form.expected_setup_date}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, expected_setup_date: event.target.value }))
-            }
-          />
-        </Form.Group>
-      </Col>
-    </Row>
-
-    <Form.Group className="mb-3">
-      <Form.Label>Product Description</Form.Label>
-      <Form.Control
-        as="textarea"
-        rows={1}
-        className="card-glassmorphism__input"
-        value={form.product_description}
-        onChange={(event) =>
-          setForm((prev) => ({ ...prev, product_description: event.target.value }))
-        }
-        placeholder="What products will you be displaying?"
-      />
-    </Form.Group>
-
-    <Form.Group className="mb-3">
-      <Form.Label>Notes</Form.Label>
-      <Form.Control
-        as="textarea"
-        rows={1}
-        className="card-glassmorphism__input"
-        value={form.notes}
-        onChange={(event) =>
-          setForm((prev) => ({ ...prev, notes: event.target.value }))
-        }
-        placeholder="Any special requests or notes?"
-      />
-    </Form.Group>
-
-    <hr />
-
-    {/* <Row>
-      <Col xs={6}>
-        <Form.Group className="mb-3">
-          <Form.Label>Stall Number</Form.Label>
-          <Form.Control type="text" value={stall?.meta?.name || ''} disabled />
-        </Form.Group>
-      </Col>
-      <Col xs={6}>
-        <Form.Group className="mb-3">
-          <Form.Label>Amount</Form.Label>
-          <Form.Control type="text" value={`₹${stall?.meta?.price ?? ''}`} disabled />
-        </Form.Group>
-      </Col>
-    </Row> */}
-
-    <div className="pb-5 mb-5 text-transparent"></div>
-    <BookingFooterLayout>
-      <div className="d-flex gap-2 w-100 px-3 pb-2">
-        <CustomBtn
-          variant="secondary"
-          className=" w-100"
-          wrapperClassName="flex-grow-1"
-          buttonText="Cancel"
-          HandleClick={onCancel}
-          hideIcon={true}
-        />
-        <CustomBtn
-          variant="primary"
-          className="w-100"
-          wrapperClassName="flex-grow-1"
-          buttonText="Proceed to Payment"
-          HandleClick={onProceed}
-          disabled={!isValid || isPending}
-          loading={isPending}
-          hideIcon={true}
-        />
-      </div>
-    </BookingFooterLayout>
-  </Form>
-);
+// Components extracted to separate files in @/components/Bookings/
 
 const StallBookingPage = () => {
   const [layout, setLayout] = useState([]);
@@ -165,17 +33,93 @@ const StallBookingPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [error, setError] = useState('');
+  // Form States
+  const [currentStep, setCurrentStep] = useState(1);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [userFound, setUserFound] = useState(null);
+  const [targetUser, setTargetUser] = useState(null);
+  const [searchError, setSearchError] = useState('');
+
   const [bookingForm, setBookingForm] = useState({
     vendor_id: '',
     product_description: '',
-    expected_setup_date: '',
-    notes: ''
+    expected_setup_date: [],
+    notes: '',
+    stall_name: ''
+  });
+
+  const [vendorProfile, setVendorProfile] = useState({
+    business_name: '',
+    business_type: '',
+    gst_number: '',
+    address: '',
+    city: '',
+    state: '',
+    pincode: ''
   });
 
   const router = useRouter();
   const { layout_id, event_id } = router.query;
-  const { isLoggedIn } = useMyContext();
+  const { isLoggedIn, UserData } = useMyContext();
   const [showLogin, setShowLogin] = useState(false);
+
+  // Vendor Profile Hooks
+  const { data: profileData, isFetching: isFetchingProfile } = useVendorProfile(UserData?.id, {
+    enabled: showForm && currentStep === 1 && !!UserData?.id,
+    staleTime: 5 * 60 * 1000 // 5 minutes
+  });
+
+  const upsertProfileMutation = useUpsertVendorProfile();
+
+  // Reset state when user changes (login/logout/switch)
+  useEffect(() => {
+    setVendorProfile({
+      business_name: '',
+      business_type: '',
+      gst_number: '',
+      address: '',
+      city: '',
+      state: '',
+      pincode: ''
+    });
+    setBookingForm({
+      vendor_id: '',
+      product_description: '',
+      expected_setup_date: [],
+      notes: '',
+      stall_name: ''
+    });
+    setCurrentStep(1);
+  }, [UserData?.id]);
+
+  useEffect(() => {
+    if (profileData && (showForm && currentStep === 1)) {
+      setVendorProfile(profileData);
+    }
+  }, [profileData, showForm, currentStep]);
+
+  // Sync targetUser and phoneNumber with context
+  useEffect(() => {
+    if (isLoggedIn && UserData) {
+      setTargetUser(UserData);
+      setPhoneNumber(UserData.phone);
+    }
+  }, [isLoggedIn, UserData]);
+
+  const handleStepOneProceed = async () => {
+    upsertProfileMutation.mutate(vendorProfile, {
+      onSuccess: () => {
+        toast.success('Profile updated successfully');
+        setCurrentStep(2);
+      },
+      onError: (err) => {
+        toast.error(getErrorMessage(err, 'An error occurred while updating profile'));
+      }
+    });
+  };
+
+  const isUpdatingProfile = upsertProfileMutation.isPending;
 
   const lockStallMutation = useMutation({
     mutationFn: async (payload) => {
@@ -188,7 +132,7 @@ const StallBookingPage = () => {
       setShowForm(true);
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to lock stall. Please try again.');
+      toast.error(getErrorMessage(error, 'Failed to lock stall. Please try again.'));
     }
   });
 
@@ -225,10 +169,17 @@ const StallBookingPage = () => {
           );
         }
         closeModal();
+
+        const sessionId = data?.session_id || data?.application?.session_id || data?.id || '';
+        if (sessionId) {
+          router.push(`/events/exhibition/booking/summary?event_id=${event_id}&session_id=${sessionId}`);
+        } else {
+          router.push(`/events/exhibition/booking/summary?event_id=${event_id}`);
+        }
       }
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to initiate payment. Please try again.');
+      toast.error(getErrorMessage(error, 'Failed to initiate payment. Please try again.'));
     }
   });
 
@@ -242,6 +193,35 @@ const StallBookingPage = () => {
     enabled: !!layout_id,
   });
 
+  const eventDateRange = useMemo(() => {
+    const rangeStr = layoutRes?.data?.date_range || layoutRes?.data?.event?.date_range;
+    if (!rangeStr) return { min: null, max: null };
+    const [start, end] = rangeStr.split(',').map(d => d.trim());
+    return {
+      min: start ? new Date(start) : null,
+      max: end ? new Date(end) : null
+    };
+  }, [layoutRes]);
+
+  const eventData = layoutRes?.data?.event;
+  const eventDetails = [
+    {
+      icon: Ticket,
+      label: "Event Name",
+      value: eventData?.name || "Loading...",
+    },
+    {
+      icon: Calendar,
+      label: "Date Range",
+      value: eventData?.date_range?.replace(',', ' to ') || "Loading...",
+    },
+    {
+      icon: Pin,
+      label: "Location",
+      value: eventData?.venue ? `${eventData.venue.name}, ${eventData.venue.city}` : "Loading...",
+    },
+  ];
+
   useEffect(() => {
     if (layoutRes?.data?.canvas) {
       const canvasData = Array.isArray(layoutRes.data.canvas) ? layoutRes.data.canvas : [];
@@ -253,7 +233,8 @@ const StallBookingPage = () => {
         width: Number(shape?.width || 0),
         height: Number(shape?.height || 0),
         rotation: Number(shape?.rotation || 0),
-        radius: Number(shape?.radius || 0),
+        radius: Number(shape?.radius || (shape?.type === 'polygon' ? 55 : 0)),
+        sides: Number(shape?.sides || 5),
         points: Array.isArray(shape?.points) ? shape.points : [],
         stroke: shape?.stroke,
         strokeWidth: shape?.strokeWidth,
@@ -261,7 +242,12 @@ const StallBookingPage = () => {
         serverId: shape?.serverId,
         entityType: shape?.entityType || '',
         meta: shape?.meta || {},
-        display: shape?.display || {}
+        display: shape?.display || {},
+        booking: shape?.booking || {},
+        insetX: shape?.insetX ?? shape?.inset,
+        insetY: shape?.insetY ?? shape?.inset,
+        scaleX: shape?.scaleX,
+        scaleY: shape?.scaleY,
       }));
       setLayout(normalized);
       setError('');
@@ -278,61 +264,96 @@ const StallBookingPage = () => {
 
 
   const getFillColor = (shape) => {
-    if (shape?.entityType !== 'stall') return '#eee';
+    const bookingStatus = shape?.booking?.status?.toLowerCase();
+    const isActuallyBooked = shape?.meta?.booked || bookingStatus === 'confirmed' || bookingStatus === 'pending';
+    const isActuallyHeld = bookingStatus === 'hold' || shape?.booking?.is_held;
+
+    if (shape?.entityType !== 'stall') return shape?.style?.fill || '#eee';
     if (!shape?.meta?.bookable) return '#999';
-    if (shape?.meta?.booked) return '#ff4d4f';
-    return '#52c41a';
+    if (isActuallyBooked) return '#ff4d4f';
+    if (isActuallyHeld) return '#faad14'; // Orange for hold
+    return shape?.style?.fill || '#52c41a';
   };
 
   const handleSelect = (shape) => {
     if (shape?.entityType !== 'stall') return;
     if (!shape?.meta?.bookable) return;
-    if (shape?.meta?.booked) return;
+
+    const bookingStatus = shape?.booking?.status?.toLowerCase();
+    const isActuallyBooked = shape?.meta?.booked || bookingStatus === 'confirmed' || bookingStatus === 'pending';
+    const isActuallyHeld = bookingStatus === 'hold' || shape?.booking?.is_held;
+
+    if (isActuallyBooked || isActuallyHeld) return;
 
     setSelectedStall(shape);
     setShowDrawer(true);
   };
 
   const closeModal = () => {
+    // Reset all form states on close
     setShowForm(false);
-    setShowDrawer(false);
-    setSelectedStall(null);
+    setCurrentStep(1);
     setBookingForm({
       vendor_id: '',
       product_description: '',
-      expected_setup_date: '',
-      notes: ''
+      expected_setup_date: [],
+      notes: '',
+      stall_name: ''
+    });
+    setVendorProfile({
+      business_name: '',
+      business_type: '',
+      gst_number: '',
+      address: '',
+      city: '',
+      state: '',
+      pincode: ''
     });
   };
 
   const isFormValid = useMemo(() => {
     return (
-      bookingForm.product_description.trim() &&
-      bookingForm.expected_setup_date.trim()
+      // bookingForm.stall_name?.trim().length >= 3 &&
+      bookingForm.product_description?.trim().length >= 10 &&
+      Array.isArray(bookingForm.expected_setup_date) &&
+      bookingForm.expected_setup_date.length > 0
     );
   }, [bookingForm]);
 
   const handlePayment = () => {
     if (!selectedStall || !isFormValid) return;
 
+    const formatDate = (date) => {
+      if (!date) return '';
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const setupDateValue = bookingForm.expected_setup_date.length === 2
+      ? `${formatDate(bookingForm.expected_setup_date[0])} to ${formatDate(bookingForm.expected_setup_date[1])}`
+      : formatDate(bookingForm.expected_setup_date[0]);
+
     const payload = {
       event_id: Number(event_id),
       stall_slot_id: Number(selectedStall?.serverId || selectedStall?.id),
       product_description: bookingForm.product_description,
-      expected_setup_date: bookingForm.expected_setup_date,
-      notes: bookingForm.notes
+      expected_setup_date: setupDateValue,
+      notes: bookingForm.notes,
+      stall_name: bookingForm.stall_name,
+      booked_for_user_id: targetUser?.id // Send the verified user ID
     };
-
-    console.log('Booking Payload:', payload);
     initiatePaymentMutation.mutate(payload);
   };
 
   return (
-    <div>
-      <div className="row">
-        <div className="col-12">
+    <div className="px-3">
+      <Row>
+        <Col lg={8}>
           {isLoading && (
-            <div className="py-5 text-center">
+            <div className="py-5 text-center custom-dark-bg rounded-3">
               <Spinner animation="border" role="status" />
               <div className="mt-2">Loading stall layout...</div>
             </div>
@@ -347,12 +368,14 @@ const StallBookingPage = () => {
           {!isLoading && !error && (
             <>
               {layout.length > 0 ? (
-                <StallLayoutCanvas
-                  layout={layout}
-                  selectedStallId={selectedStall?.id}
-                  onSelect={handleSelect}
-                  getFillColor={getFillColor}
-                />
+                <div className="rounded-3 overflow-hidden shadow-lg custom-dark-bg">
+                  <StallLayoutCanvas
+                    layout={layout}
+                    selectedStallId={selectedStall?.id}
+                    onSelect={handleSelect}
+                    getFillColor={getFillColor}
+                  />
+                </div>
               ) : (
                 <div className="text-center text-muted py-5 border rounded bg-light">
                   No stalls available for this event.
@@ -363,35 +386,75 @@ const StallBookingPage = () => {
                 show={showDrawer}
                 onHide={() => setShowDrawer(false)}
                 title="Stall Details"
-                className="bg-dark text-white shadow-lg"
-                drawerProps={{ className: "bg-dark text-white border-start border-secondary" }}
+                className="text-white shadow-lg"
+                drawerProps={{ className: "text-white border-start border-secondary" }}
+                modalProps={{ headerClassName: "m-2" }}
               >
                 <StallDetailsContent
                   stall={selectedStall}
+                  eventDetails={eventDetails}
                   onBook={handleBookClick}
                   onCancel={() => setShowDrawer(false)}
                 />
               </ResponsiveModalDrawer>
             </>
           )}
-        </div>
-      </div>
+        </Col>
+
+        <Col lg={4}>
+          <LargeAndDesktop>
+            <CardContainer>
+              <CardHeader
+                icon={Ticket}
+                title="Event Details"
+                iconColor="text-warning"
+              />
+              {eventDetails.map((detail, index) => (
+                <DetailItem
+                  key={detail.label}
+                  icon={detail.icon}
+                  label={detail.label}
+                  value={detail.value}
+                  isLast={index === eventDetails.length - 1}
+                />
+              ))}
+            </CardContainer>
+          </LargeAndDesktop>
+        </Col>
+      </Row>
 
       <ResponsiveModalDrawer
         show={showForm}
         onHide={closeModal}
         title="Book Stall"
         size="lg"
+        drawerProps={{
+          className: "card-glassmorphism offcanvas-height-95",
+          placement: "bottom",
+          hideIndicator: true
+        }}
+        modalProps={{
+          className: "exhibition-booking-modal",
+          contentClassName: "card-glassmorphism text-white",
+          headerClassName: "m-2"
+        }}
       >
         <BookingFormContent
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+          profile={vendorProfile}
+          setProfile={setVendorProfile}
+          isFetchingProfile={isFetchingProfile}
+          isUpdatingProfile={isUpdatingProfile}
           form={bookingForm}
           setForm={setBookingForm}
           stall={selectedStall}
           event_id={event_id}
           onCancel={closeModal}
-          onProceed={handlePayment}
+          onProceed={currentStep === 1 ? handleStepOneProceed : handlePayment}
           isValid={isFormValid}
           isPending={initiatePaymentMutation.isPending}
+          eventDateRange={eventDateRange}
         />
       </ResponsiveModalDrawer>
       <LoginOffCanvas

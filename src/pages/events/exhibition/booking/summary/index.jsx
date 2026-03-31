@@ -102,8 +102,8 @@ const ExhibitionBookingSummary = () => {
                                                     <item.icon size={18} className="text-warning" />
                                                 </div>
                                                 <div>
-                                                    <small className="text-muted d-block">{item.label}</small>
-                                                    <span className="text-white fw-medium">{item.value}</span>
+                                                    <small className="text-muted d-block">{item?.label}</small>
+                                                    <span className="text-white fw-medium">{item?.value}</span>
                                                 </div>
                                             </div>
                                         ))}
