@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { Form, Row, Col, Spinner } from 'react-bootstrap';
+import { AlertCircle } from 'lucide-react';
+import { Form, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import CustomDateRangePicker from '@/components/CustomComponents/CustomDateRangePicker';
 import CustomBtn from '@/utils/CustomBtn';
 import MobileTwoButtonFooter from '@/utils/MobileTwoButtonFooter';
@@ -8,7 +9,8 @@ import UserInfoCard from './UserInfoCard';
 const BookingFormContent = (props) => {
   const {
     form, setForm, onCancel, onProceed, isValid, isPending, eventDateRange, stall,
-    currentStep, setCurrentStep, profile, setProfile, isFetchingProfile, isUpdatingProfile, targetUser, phoneNumber
+    currentStep, setCurrentStep, profile, setProfile, isFetchingProfile, isUpdatingProfile, 
+    targetUser, phoneNumber, error, setError
   } = props;
 
   const handleFieldChange = (step, field, value) => {
@@ -118,7 +120,21 @@ const BookingFormContent = (props) => {
                 <div className="text-muted mt-2">Fetching profile...</div>
               </div>
             ) : (
-              renderFields(step1Fields, 1, profile)
+              <>
+                {error && (
+                  <Alert
+                    variant="danger"
+                    dismissible
+                    onClose={() => setError('')}
+                    className="mb-3 small d-flex align-items-center"
+                    style={{ background: 'rgba(255, 77, 79, 0.1)', border: '1px solid rgba(255, 77, 79, 0.2)', color: '#ff4d4f' }}
+                  >
+                    <AlertCircle size={16} className="me-2 flex-shrink-0" />
+                    <div>{error}</div>
+                  </Alert>
+                )}
+                {renderFields(step1Fields, 1, profile)}
+              </>
             )}
           </div>
 
@@ -163,6 +179,19 @@ const BookingFormContent = (props) => {
             }}
           >
             {/* <UserInfoCard user={targetUser} phoneNumber={phoneNumber} /> */}
+
+            {error && (
+              <Alert
+                variant="danger"
+                dismissible
+                onClose={() => setError('')}
+                className="mb-3 small d-flex align-items-center"
+                style={{ background: 'rgba(255, 77, 79, 0.1)', border: '1px solid rgba(255, 77, 79, 0.2)', color: '#ff4d4f' }}
+              >
+                <AlertCircle size={16} className="me-2 flex-shrink-0" />
+                <div>{error}</div>
+              </Alert>
+            )}
 
             <Row>
               <Col md={6}>

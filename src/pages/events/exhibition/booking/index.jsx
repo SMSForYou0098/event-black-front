@@ -59,6 +59,8 @@ const StallBookingPage = () => {
     pincode: ''
   });
 
+  const [formError, setFormError] = useState('');
+
   const router = useRouter();
   const { layout_id, event_id } = router.query;
   const { isLoggedIn, UserData } = useMyContext();
@@ -91,6 +93,7 @@ const StallBookingPage = () => {
       stall_name: ''
     });
     setCurrentStep(1);
+    setFormError('');
   }, [UserData?.id]);
 
   useEffect(() => {
@@ -108,13 +111,14 @@ const StallBookingPage = () => {
   }, [isLoggedIn, UserData]);
 
   const handleStepOneProceed = async () => {
+    setFormError('');
     upsertProfileMutation.mutate(vendorProfile, {
       onSuccess: () => {
         toast.success('Profile updated successfully');
         setCurrentStep(2);
       },
       onError: (err) => {
-        toast.error(getErrorMessage(err, 'An error occurred while updating profile'));
+        setFormError(getErrorMessage(err, 'An error occurred while updating profile'));
       }
     });
   };
@@ -179,7 +183,7 @@ const StallBookingPage = () => {
       }
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Failed to initiate payment. Please try again.'));
+      setFormError(getErrorMessage(error, 'Failed to initiate payment. Please try again.'));
     }
   });
 
@@ -455,6 +459,8 @@ const StallBookingPage = () => {
           isValid={isFormValid}
           isPending={initiatePaymentMutation.isPending}
           eventDateRange={eventDateRange}
+          error={formError}
+          setError={setFormError}
         />
       </ResponsiveModalDrawer>
       <LoginOffCanvas

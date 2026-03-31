@@ -2,7 +2,7 @@ import { Html, Head, Main, NextScript } from 'next/document'
 
 export default function Document() {
   return (
-    <Html lang="en" data-bs-theme="dark" style={{ '--header-height': '74px' }}>
+    <Html lang="en" data-bs-theme="dark" style={{ '--header-height': '60px' }}>
       <Head>
         <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
 
