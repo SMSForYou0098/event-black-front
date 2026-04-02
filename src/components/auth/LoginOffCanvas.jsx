@@ -76,6 +76,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         return null;
     };
 
+    // Verify input type (Phone No or Email)
     const inputType = getInputType(credential);
 
     // TanStack Query Mutations
@@ -190,6 +191,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         },
     });
 
+    // Timer View
     useEffect(() => {
         let timer;
         if (timerVisible && countdown > 0) {
@@ -200,12 +202,14 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         return () => clearInterval(timer);
     }, [timerVisible, countdown]);
 
+    // Close timer view when count down === 0
     useEffect(() => {
         if (countdown === 0) {
             setTimerVisible(false);
         }
     }, [countdown]);
 
+    // Reset validation errors and touched when current view changes
     useEffect(() => {
         setValidationErrors({});
         setTouched({});
@@ -225,6 +229,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         return validateEmail(credential) || validatePhone(credential);
     };
 
+    // Give validation error message when user enter invalid credential in login modal
     useEffect(() => {
         if (!touched.credential) return;
         const errors = { ...validationErrors };
@@ -238,6 +243,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         setValidationErrors(errors);
     }, [credential, touched.credential]);
 
+    // Give validation error message when user enter invalid otp in otp modal
     useEffect(() => {
         if (!touched.otp) return;
         const errors = { ...validationErrors };
@@ -251,6 +257,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         setValidationErrors(errors);
     }, [otp, touched.otp]);
 
+    // Give validation error message when user enter invalid password in password modal
     useEffect(() => {
         if (!touched.password) return;
         const errors = { ...validationErrors };
@@ -262,6 +269,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         setValidationErrors(errors);
     }, [password, touched.password]);
 
+    // Give validation error message when user enter invalid name in sign up modal
     useEffect(() => {
         if (!touched.name) return;
         const errors = { ...validationErrors };
@@ -275,6 +283,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         setValidationErrors(errors);
     }, [name, touched.name]);
 
+    // Give validation error message when user enter invalid number in sign up modal
     useEffect(() => {
         if (!touched.number) return;
         const errors = { ...validationErrors };
@@ -288,6 +297,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         setValidationErrors(errors);
     }, [number, touched.number]);
 
+    // Give validation error message when user enter invalid email in sign up modal
     useEffect(() => {
         if (!touched.email) return;
         const errors = { ...validationErrors };
@@ -301,6 +311,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         setValidationErrors(errors);
     }, [email, touched.email]);
 
+    // Give validation error message when user enter invalid address in sign up modal
     useEffect(() => {
         if (!touched.address) return;
         const errors = { ...validationErrors };
@@ -314,6 +325,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         setValidationErrors(errors);
     }, [address, touched.address, is_address_required]);
 
+    // Give validation error message when user enter invalid terms in sign up modal
     useEffect(() => {
         if (!touched.terms) return;
         const errors = { ...validationErrors };
@@ -450,7 +462,13 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         if (!name.trim()) {
             errors.name = "Full name is required";
             isValid = false;
-        } else if (/[^a-zA-Z\s]/.test(name)) {
+            // } else if (/[^a-zA-Z\s]/.test(name)) {
+
+            //     errors.name = "Full name should only contain letters and spaces";
+            //     isValid = false;
+            // }
+
+        } else if (!validateName(name)) {
             errors.name = "Full name should only contain letters and spaces";
             isValid = false;
         }
