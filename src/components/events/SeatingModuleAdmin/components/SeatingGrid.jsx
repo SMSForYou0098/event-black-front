@@ -2,7 +2,7 @@
 
 import React, { useMemo, useCallback, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ZoomIn, ZoomOut, RotateCcw, LayoutGrid } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, LayoutGrid, Clock } from 'lucide-react';
 import { PRIMARY } from '@/utils/consts';
 import { IS_MOBILE } from '@/components/events/SeatingModule/components/constants';
 import { useMyContext } from '@/Context/MyContextProvider';
@@ -87,17 +87,153 @@ function getLayoutBounds(stage, sections) {
   };
 }
 
+/** Extra horizontal space between seat centers so labels stay readable (booking view only). */
+const BOOKING_MIN_SEAT_GAP_PX = 4;
+
+function getRowMinCenterPitch(seats) {
+  const maxR = Math.max(...(seats || []).map((s) => Number(s.radius) || 12));
+  return Math.max(28, maxR * 2) + BOOKING_MIN_SEAT_GAP_PX;
+}
+
+/**
+ * When layout data packs seat centers tighter than rendered hit targets, redistribute along X
+ * (re-centered) so adjacent seats don't overlap on the booking UI.
+ */
+function redistributeRowSeatX(seats) {
+  if (!seats || seats.length < 2) return null;
+  const pitch = getRowMinCenterPitch(seats);
+  const sorted = [...seats].sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0));
+  let minGap = Infinity;
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const d = (Number(sorted[i + 1].x) || 0) - (Number(sorted[i].x) || 0);
+    if (d < minGap) minGap = d;
+  }
+  if (!Number.isFinite(minGap) || minGap >= pitch) return null;
+
+  const out = new Map();
+  let prevX = null;
+  for (const s of sorted) {
+    const x = Number(s.x) || 0;
+    let nx = x;
+    if (prevX !== null) nx = Math.max(x, prevX + pitch);
+    out.set(s.id, nx);
+    prevX = nx;
+  }
+  const oldMin = Number(sorted[0].x) || 0;
+  const oldMax = Number(sorted[sorted.length - 1].x) || 0;
+  const oldCenter = (oldMin + oldMax) / 2;
+  const newVals = sorted.map((s) => out.get(s.id));
+  const newMin = Math.min(...newVals);
+  const newMax = Math.max(...newVals);
+  const newCenter = (newMin + newMax) / 2;
+  const shift = oldCenter - newCenter;
+  sorted.forEach((s) => out.set(s.id, out.get(s.id) + shift));
+  return out;
+}
+
+function buildBookingSeatDisplayCoords(sections) {
+  const map = new Map();
+  for (const section of sections || []) {
+    if (section.type === 'Standing') continue;
+    for (const row of section.rows || []) {
+      const seats = row.seats || [];
+      const xById = redistributeRowSeatX(seats);
+      if (!xById) continue;
+      for (const seat of seats) {
+        const nx = xById.get(seat.id);
+        if (nx !== undefined) {
+          map.set(seat.id, { x: nx, y: Number(seat.y) || 0 });
+        }
+      }
+    }
+  }
+  return map;
+}
+
+/** World-axis bounds of section + seats (uses display coords when present) for culling and bounds. */
+function expandBoundsWithPaintedSeats(baseBounds, sections, seatDisplayCoords) {
+  let minX = baseBounds.minX;
+  let minY = baseBounds.minY;
+  let maxX = baseBounds.minX + baseBounds.width;
+  let maxY = baseBounds.minY + baseBounds.height;
+  const pad = 8;
+
+  for (const s of sections || []) {
+    if (s.type === 'Standing') continue;
+    const sx = Number(s.x) || 0;
+    const sy = Number(s.y) || 0;
+    for (const row of s.rows || []) {
+      for (const seat of row.seats || []) {
+        const disp = seatDisplayCoords.get(seat.id);
+        const px = disp ? disp.x : Number(seat.x) || 0;
+        const py = disp ? disp.y : Number(seat.y) || 0;
+        const r = Number(seat.radius) || 12;
+        const half = Math.max(14, r);
+        const wx = sx + px;
+        const wy = sy + py;
+        minX = Math.min(minX, wx - half - pad);
+        maxX = Math.max(maxX, wx + half + pad);
+        minY = Math.min(minY, wy - half - pad);
+        maxY = Math.max(maxY, wy + half + pad);
+      }
+    }
+  }
+
+  return {
+    minX,
+    minY,
+    width: Math.max(1, maxX - minX),
+    height: Math.max(1, maxY - minY),
+  };
+}
+
+function getSectionLayoutRectForCull(section, seatDisplayCoords, boundsMin) {
+  const sx0 = Number(section.x) || 0;
+  const sy0 = Number(section.y) || 0;
+  let minX = sx0;
+  let minY = sy0;
+  let maxX = sx0 + (Number(section.width) || 600);
+  let maxY = sy0 + (Number(section.height) || 250);
+
+  if (section.type !== 'Standing') {
+    for (const row of section.rows || []) {
+      for (const seat of row.seats || []) {
+        const disp = seatDisplayCoords.get(seat.id);
+        const px = disp ? disp.x : Number(seat.x) || 0;
+        const py = disp ? disp.y : Number(seat.y) || 0;
+        const r = Number(seat.radius) || 12;
+        const half = Math.max(14, r);
+        const wx = sx0 + px;
+        const wy = sy0 + py;
+        minX = Math.min(minX, wx - half);
+        maxX = Math.max(maxX, wx + half);
+        minY = Math.min(minY, wy - half);
+        maxY = Math.max(maxY, wy + half);
+      }
+    }
+  }
+
+  return {
+    sx: minX - boundsMin.minX,
+    sy: minY - boundsMin.minY,
+    sw: Math.max(1, maxX - minX),
+    sh: Math.max(1, maxY - minY),
+  };
+}
+
 /** Renders a visual gap between seats (type: "blank") — dashed outline, no number, non-interactive. */
-function GapPlaceholder({ seat, radius }) {
+function GapPlaceholder({ seat, radius, layoutX, layoutY }) {
   const size = Math.max(28, (Number(radius) || 12) * 2);
+  const x = layoutX !== undefined ? layoutX : (Number(seat.x) || 0);
+  const y = layoutY !== undefined ? layoutY : (Number(seat.y) || 0);
   return (
     <div
       role="presentation"
       aria-hidden
       style={{
         position: 'absolute',
-        left: (Number(seat.x) || 0) - size / 2,
-        top: (Number(seat.y) || 0) - size / 2,
+        left: x - size / 2,
+        top: y - size / 2,
         width: size,
         height: size,
         minWidth: size,
@@ -111,7 +247,7 @@ function GapPlaceholder({ seat, radius }) {
   );
 }
 
-function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius }) {
+function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius, layoutX, layoutY }) {
   const { toTitleCase } = useMyContext();
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipHover, setTooltipHover] = useState(false);
@@ -119,8 +255,10 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius }) {
   const style = getSeatStyle(seat, isSelected);
   const size = Math.max(28, (Number(radius) || 12) * 2);
   const seatLabel = seat.label ?? seat.number;
-  const left = (Number(seat.x) || 0) - size / 2;
-  const top = (Number(seat.y) || 0) - size / 2;
+  const cx = layoutX !== undefined ? layoutX : (Number(seat.x) || 0);
+  const cy = layoutY !== undefined ? layoutY : (Number(seat.y) || 0);
+  const left = cx - size / 2;
+  const top = cy - size / 2;
 
   const handleMouseEnter = () => {
     showDelayRef.current = window.setTimeout(() => setShowTooltip(true), 400);
@@ -178,9 +316,24 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius }) {
           ...style,
         }}
         aria-pressed={isSelected}
-        aria-label={`Seat ${rowTitle}${seatLabel}${isSelected ? ' selected' : ''}`}
+        aria-label={
+          seat.status === 'hold' || seat.status === 'locked'
+            ? `Seat ${rowTitle}${seatLabel}, on hold`
+            : `Seat ${rowTitle}${seatLabel}${isSelected ? ' selected' : ''}`
+        }
       >
-        {seat.status === 'booked' ? '✕' : seatLabel}
+        {seat.status === 'booked' ? (
+          '✕'
+        ) : seat.status === 'hold' || seat.status === 'locked' ? (
+          <Clock
+            size={Math.max(14, Math.round(size * 0.52))}
+            strokeWidth={2.5}
+            aria-hidden
+            className="shrink-0"
+          />
+        ) : (
+          seatLabel
+        )}
       </button>
       {visible && (seat.ticket || seat.status === 'booked') && (
         <div
@@ -216,7 +369,7 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius }) {
   );
 }
 
-function SectionBlock({ section, selectedSeatIds, onSeatClick, onStandingSectionClick, bounds }) {
+function SectionBlock({ section, selectedSeatIds, onSeatClick, onStandingSectionClick, bounds, seatDisplayCoords }) {
   const sx = (Number(section.x) || 0) - bounds.minX;
   const sy = (Number(section.y) || 0) - bounds.minY;
   const sw = Number(section.width) || 600;
@@ -316,9 +469,12 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, onStandingSection
         rows.flatMap((row) =>
           (row.seats || []).map((seat) => {
             if (seat.type === 'blank') {
+              const disp = seatDisplayCoords?.get(seat.id);
+              const lx = disp ? disp.x : undefined;
+              const ly = disp ? disp.y : undefined;
               return (
                 <div key={seat.id} className="position-absolute" style={{ left: 0, top: 0, pointerEvents: 'none' }}>
-                  <GapPlaceholder seat={seat} radius={seat.radius} />
+                  <GapPlaceholder seat={seat} radius={seat.radius} layoutX={lx} layoutY={ly} />
                 </div>
               );
             }
@@ -330,6 +486,9 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, onStandingSection
               seat.status === 'hold' ||
               seat.status === 'locked' ||
               !seat.ticket;
+            const disp = seatDisplayCoords?.get(seat.id);
+            const lx = disp ? disp.x : undefined;
+            const ly = disp ? disp.y : undefined;
 
             return (
               <div key={seat.id} className="position-absolute" style={{ left: 0, top: 0, pointerEvents: 'auto' }}>
@@ -340,6 +499,8 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, onStandingSection
                   onClick={onSeatClick}
                   disabled={disabled}
                   radius={seat.radius}
+                  layoutX={lx}
+                  layoutY={ly}
                 />
               </div>
             );
@@ -352,6 +513,8 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, onStandingSection
 
 const STORAGE_KEY_PREFIX = 'seatingView_';
 const VIEW_PERSIST_DEBOUNCE_MS = 500;
+/** Ignore session restore when layout extent changed (e.g. admin edit or booking spacing fix). */
+const STORED_BOUNDS_EPS_PX = 2;
 
 const SeatingGrid = ({
   sections,
@@ -365,7 +528,8 @@ const SeatingGrid = ({
 }) => {
   const containerRef = useRef(null);
   const [containerReady, setContainerReady] = useState(false);
-  const [viewportSize, setViewportSize] = useState({ width: 400, height: 400 });
+  /** null until container measured — avoids fitting/restoring session with a fake 400×400 viewport. */
+  const [viewportSize, setViewportSize] = useState(null);
   const [zoom, setZoom] = useState(0.5);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -396,15 +560,17 @@ const SeatingGrid = ({
     return ids;
   }, [selectedSeats]);
 
-  const bounds = useMemo(
-    () => getLayoutBounds(stage, sections),
-    [stage, sections]
-  );
+  const { bounds, seatDisplayCoords } = useMemo(() => {
+    const base = getLayoutBounds(stage, sections);
+    const coords = buildBookingSeatDisplayCoords(sections);
+    const expanded = expandBoundsWithPaintedSeats(base, sections, coords);
+    return { bounds: expanded, seatDisplayCoords: coords };
+  }, [stage, sections]);
 
   const boundsRef = useRef(bounds);
-  const viewportSizeRef = useRef(viewportSize);
+  const viewportSizeRef = useRef({ width: 100, height: 100 });
   boundsRef.current = bounds;
-  viewportSizeRef.current = viewportSize;
+  if (viewportSize) viewportSizeRef.current = viewportSize;
 
   /** Clamp pan so the layout stays within the viewport (user cannot lose the layout off-screen). */
   const clampPan = useCallback((panVal, z, b, v) => {
@@ -422,19 +588,25 @@ const SeatingGrid = ({
 
   const visibleSections = useMemo(() => {
     if (!sections?.length) return [];
+    if (!viewportSize) return sections;
     const pad = 50;
     const left = (-pan.x - pad) / zoom;
     const top = (-pan.y - pad) / zoom;
     const width = (viewportSize.width + pad * 2) / zoom;
     const height = (viewportSize.height + pad * 2) / zoom;
     return sections.filter((s) => {
-      const sx = (Number(s.x) || 0) - bounds.minX;
-      const sy = (Number(s.y) || 0) - bounds.minY;
-      const sw = Number(s.width) || 600;
-      const sh = Number(s.height) || 250;
+      const { sx, sy, sw, sh } = getSectionLayoutRectForCull(s, seatDisplayCoords, bounds);
       return !(left > sx + sw || left + width < sx || top > sy + sh || top + height < sy);
     });
-  }, [sections, bounds.minX, bounds.minY, pan.x, pan.y, zoom, viewportSize.width, viewportSize.height]);
+  }, [
+    sections,
+    bounds,
+    seatDisplayCoords,
+    pan.x,
+    pan.y,
+    zoom,
+    viewportSize,
+  ]);
 
 
   useEffect(() => {
@@ -443,16 +615,19 @@ const SeatingGrid = ({
     const ro = new ResizeObserver(() => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
+        const next = { width: Math.max(100, width), height: Math.max(100, height) };
+        viewportSizeRef.current = next;
         setViewportSize((prev) => {
-          const next = { width: Math.max(100, width), height: Math.max(100, height) };
-          if (prev.width === next.width && prev.height === next.height) return prev;
+          if (prev && prev.width === next.width && prev.height === next.height) return prev;
           return next;
         });
       }
     });
     ro.observe(el);
     const rect = el.getBoundingClientRect();
-    setViewportSize({ width: Math.max(100, rect.width), height: Math.max(100, rect.height) });
+    const initial = { width: Math.max(100, rect.width), height: Math.max(100, rect.height) };
+    viewportSizeRef.current = initial;
+    setViewportSize(initial);
     return () => ro.disconnect();
   }, [sections?.length, containerReady]);
 
@@ -466,7 +641,7 @@ const SeatingGrid = ({
   );
 
   useEffect(() => {
-    if (bounds.width <= 0 || bounds.height <= 0) return;
+    if (!viewportSize || bounds.width <= 0 || bounds.height <= 0) return;
     const boundsChanged =
       prevBoundsRef.current.width !== bounds.width || prevBoundsRef.current.height !== bounds.height;
     if (boundsChanged) {
@@ -479,7 +654,19 @@ const SeatingGrid = ({
         const raw = sessionStorage.getItem(STORAGE_KEY_PREFIX + storageKey);
         if (raw) {
           const data = JSON.parse(raw);
-          if (typeof data.zoom === 'number' && data.pan && typeof data.pan.x === 'number' && typeof data.pan.y === 'number') {
+          const bw = data.boundsW;
+          const bh = data.boundsH;
+          const hasStoredBounds = typeof bw === 'number' && typeof bh === 'number';
+          const boundsStale =
+            !hasStoredBounds ||
+            Math.abs(bw - bounds.width) > STORED_BOUNDS_EPS_PX ||
+            Math.abs(bh - bounds.height) > STORED_BOUNDS_EPS_PX;
+          if (!boundsStale &&
+            typeof data.zoom === 'number' &&
+            data.pan &&
+            typeof data.pan.x === 'number' &&
+            typeof data.pan.y === 'number'
+          ) {
             const z = Math.max(0.2, Math.min(2, data.zoom));
             const restored = clampPan({ x: data.pan.x, y: data.pan.y }, z, bounds, viewportSize);
             setZoom(z);
@@ -510,23 +697,28 @@ const SeatingGrid = ({
       try {
         sessionStorage.setItem(
           STORAGE_KEY_PREFIX + storageKey,
-          JSON.stringify({ zoom, pan })
+          JSON.stringify({
+            zoom,
+            pan,
+            boundsW: bounds.width,
+            boundsH: bounds.height,
+          })
         );
       } catch (_) { }
     }, VIEW_PERSIST_DEBOUNCE_MS);
     return () => {
       if (viewPersistTimeoutRef.current) clearTimeout(viewPersistTimeoutRef.current);
     };
-  }, [storageKey, zoom, pan]);
+  }, [storageKey, zoom, pan, bounds.width, bounds.height]);
 
   useEffect(() => {
-    if (bounds.width <= 0 || bounds.height <= 0) return;
+    if (!viewportSize || bounds.width <= 0 || bounds.height <= 0) return;
     setPan((p) => {
       const c = clampPan(p, zoom, bounds, viewportSize);
       if (c.x === p.x && c.y === p.y) return p;
       return c;
     });
-  }, [zoom, viewportSize.width, viewportSize.height, bounds.width, bounds.height, clampPan]);
+  }, [zoom, viewportSize, bounds.width, bounds.height, clampPan]);
 
   const handleZoomIn = useCallback(() => {
     setZoom((z) => Math.min(2, z * 1.25));
@@ -537,25 +729,41 @@ const SeatingGrid = ({
   }, []);
 
   const handleResetView = useCallback(() => {
+    const el = containerRef.current;
+    const vp = viewportSize ??
+      (el
+        ? {
+            width: Math.max(100, el.getBoundingClientRect().width),
+            height: Math.max(100, el.getBoundingClientRect().height),
+          }
+        : { width: 100, height: 100 });
     const pad = 40;
-    const scaleW = (viewportSize.width - pad * 2) / bounds.width;
-    const scaleH = (viewportSize.height - pad * 2) / bounds.height;
+    const scaleW = (vp.width - pad * 2) / bounds.width;
+    const scaleH = (vp.height - pad * 2) / bounds.height;
     const fitScale = Math.min(scaleW, scaleH);
     const maxZoom = totalSeats <= 40 ? 1.4 : totalSeats <= 80 ? 1.2 : 1;
     const z = Math.max(0.15, Math.min(fitScale, maxZoom));
-    const px = (viewportSize.width - bounds.width * z) / 2;
+    const px = (vp.width - bounds.width * z) / 2;
     const py = pad;
     setZoom(z);
-    setPan(clampPan({ x: px, y: py }, z, bounds, viewportSize));
+    setPan(clampPan({ x: px, y: py }, z, bounds, vp));
   }, [bounds, viewportSize, totalSeats, clampPan]);
 
   const handleZoomToPoint = useCallback(
     (layoutCenterX, layoutCenterY, zoomLevel) => {
+      const el = containerRef.current;
+      const vp = viewportSize ??
+        (el
+          ? {
+              width: Math.max(100, el.getBoundingClientRect().width),
+              height: Math.max(100, el.getBoundingClientRect().height),
+            }
+          : { width: 100, height: 100 });
       const z = Math.max(0.9, Math.min(2, zoomLevel));
-      const px = viewportSize.width / 2 - layoutCenterX * z;
-      const py = viewportSize.height / 2 - layoutCenterY * z;
+      const px = vp.width / 2 - layoutCenterX * z;
+      const py = vp.height / 2 - layoutCenterY * z;
       setZoom(z);
-      setPan(clampPan({ x: px, y: py }, z, bounds, viewportSize));
+      setPan(clampPan({ x: px, y: py }, z, bounds, vp));
       userHasInteractedRef.current = true;
     },
     [viewportSize, bounds, clampPan]
@@ -567,26 +775,38 @@ const SeatingGrid = ({
       const byIndex = /^\d+$/.test(String(sectionId)) ? list[parseInt(sectionId, 10)] : null;
       const section = byIndex || list.find((s) => s.id === sectionId || String(s.id) === String(sectionId));
       if (!section || bounds.width <= 0 || bounds.height <= 0) return;
+      const layoutRect = getSectionLayoutRectForCull(section, seatDisplayCoords, bounds);
       const sx = (Number(section.x) || 0) - bounds.minX;
       const sy = (Number(section.y) || 0) - bounds.minY;
-      const sw = Number(section.width) || 600;
-      let centerX = sx + sw / 2;
-      let centerY = sy + (Number(section.height) || 250) / 2;
+      let centerX = layoutRect.sx + layoutRect.sw / 2;
+      let centerY = layoutRect.sy + layoutRect.sh / 2;
       if (rowTitle && section.rows?.length) {
         const row = section.rows.find((r) => (r.title || '').toUpperCase() === String(rowTitle).toUpperCase());
         if (row?.seats?.length) {
           const first = row.seats[0];
           const last = row.seats[row.seats.length - 1];
-          const rx = ((Number(first?.x) || 0) + (Number(last?.x) || 0)) / 2;
-          const ry = ((Number(first?.y) || 0) + (Number(last?.y) || 0)) / 2;
+          const df = seatDisplayCoords.get(first.id);
+          const dl = seatDisplayCoords.get(last.id);
+          const rx =
+            ((df?.x ?? (Number(first?.x) || 0)) + (dl?.x ?? (Number(last?.x) || 0))) / 2;
+          const ry =
+            ((df?.y ?? (Number(first?.y) || 0)) + (dl?.y ?? (Number(last?.y) || 0))) / 2;
           centerX = sx + rx;
           centerY = sy + ry;
         }
       }
-      const z = Math.max(0.9, Math.min(2, (viewportSize.width * 0.85) / sw));
+      const el = containerRef.current;
+      const vp = viewportSize ??
+        (el
+          ? {
+              width: Math.max(100, el.getBoundingClientRect().width),
+              height: Math.max(100, el.getBoundingClientRect().height),
+            }
+          : { width: 100, height: 100 });
+      const z = Math.max(0.9, Math.min(2, (vp.width * 0.85) / layoutRect.sw));
       handleZoomToPoint(centerX, centerY, z);
     },
-    [sections, bounds, viewportSize, handleZoomToPoint]
+    [sections, bounds, viewportSize, seatDisplayCoords, handleZoomToPoint]
   );
 
   useEffect(() => {
@@ -608,8 +828,11 @@ const SeatingGrid = ({
         if (sec) {
           const sx = (Number(sec.x) || 0) - bounds.minX;
           const sy = (Number(sec.y) || 0) - bounds.minY;
-          const seatCenterX = sx + (Number(seat.x) || 0);
-          const seatCenterY = sy + (Number(seat.y) || 0);
+          const disp = seatDisplayCoords.get(seat.id);
+          const lx = disp ? disp.x : (Number(seat.x) || 0);
+          const ly = disp ? disp.y : (Number(seat.y) || 0);
+          const seatCenterX = sx + lx;
+          const seatCenterY = sy + ly;
           const currentZoom = zoomRef.current;
           if (currentZoom < ZOOM_THRESHOLD_FOR_AUTO_ZOOM) {
             handleZoomToPoint(seatCenterX, seatCenterY, SEAT_ZOOM_LEVEL);
@@ -619,7 +842,7 @@ const SeatingGrid = ({
         }
       }
     },
-    [sections, bounds, onSeatClick, handleZoomToPoint]
+    [sections, bounds, seatDisplayCoords, onSeatClick, handleZoomToPoint]
   );
 
   const onPointerDown = useCallback(
@@ -895,6 +1118,7 @@ const SeatingGrid = ({
             onSeatClick={handleSeatClickWithZoom}
             onStandingSectionClick={onStandingSectionClick}
             bounds={bounds}
+            seatDisplayCoords={seatDisplayCoords}
           />
         ))}
       </div>

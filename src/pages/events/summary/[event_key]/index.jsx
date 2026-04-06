@@ -18,7 +18,6 @@ import { MdEmail, } from "react-icons/md";
 import Swal from 'sweetalert2';
 import CustomBtn from '../../../../utils/CustomBtn';
 import TicketDrawer from '../../../../components/Tickets/TicketDrawer';
-import BookingFooterLayout from '../../../../utils/BookingFooterLayout';
 
 const BookingSummary = () => {
     // All useState hooks at the top
@@ -27,7 +26,7 @@ const BookingSummary = () => {
     const [ticketType, setTicketType] = useState({ type: '', id: '' });
 
     // Context and router hooks
-    const { ErrorAlert, formatDateRange } = useMyContext();
+    const { ErrorAlert, formatDateRange, setTicketActions } = useMyContext();
     const router = useRouter();
 
     // Derived values from router
@@ -197,6 +196,37 @@ const BookingSummary = () => {
     };
     const attendees = mutation?.data?.attendee || [];
 
+    useEffect(() => {
+        if (!mutation.isSuccess || isApprovalRequired || !booking?.id) {
+            setTicketActions(null);
+            return;
+        }
+        const bookingId = booking.id;
+        setTicketActions({
+            ticketCount: quantity,
+            disableCombineButton: quantity > 1,
+            imageLoaded: true,
+            cardImageUrl: null,
+            showIndividualDownload: quantity > 1 ? isMaster : undefined,
+            handleDownloadClick: (type) => {
+                if (type === 'single') handleTicketPreview('single', bookingId);
+                else if (type === 'combine') handleTicketPreview('combine', bookingId);
+                else if (type === 'download') handleTicketPreview('individual', bookingId);
+            },
+            handleTransferClick: () => {},
+            ticketData: null,
+        });
+        return () => setTicketActions(null);
+    }, [
+        mutation.isSuccess,
+        isApprovalRequired,
+        quantity,
+        isMaster,
+        booking?.id,
+        setTicketActions,
+        handleTicketPreview,
+    ]);
+
     // NOW conditional returns AFTER all hooks
     if (!sessionId) return <p>Waiting for session id...</p>;
     if (mutation.isPending) return <BookingSummarySkeleton />;
@@ -269,6 +299,16 @@ const BookingSummary = () => {
                             attendees={attendees}
                             title="Event Attendees"
                         />
+                        {attendees?.length !== 0 && (
+                            <div className="d-block d-sm-none text-center my-3">
+                                <CustomBtn
+                                    size="sm"
+                                    variant="primary"
+                                    HandleClick={handleOpen}
+                                    buttonText="View Attendees"
+                                />
+                            </div>
+                        )}
                     </Col>
 
                     {/* Left Column */}
@@ -294,53 +334,6 @@ const BookingSummary = () => {
                                 </div>
                             </div>
                         )}
-
-                        <div className='d-block d-sm-none'>
-                            <BookingFooterLayout
-                                center={<div className='d-flex gap-2 justify-content-center align-items-center d-sm-none'>
-                                    {!isApprovalRequired && (
-                                        quantity === 1 ? (
-                                            <Button
-                                                variant="primary"
-                                                size="sm"
-                                                className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
-                                                onClick={() => handleTicketPreview('single', booking?.id)}
-                                            >
-                                                <i className="fa-solid fa-download"></i> Download
-                                            </Button>
-                                        ) : (
-                                            <Dropdown>
-                                                <Dropdown.Toggle
-                                                    variant="primary"
-                                                    size="sm"
-                                                    className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
-                                                >
-                                                    <i className="fa-solid fa-download"></i> Download
-                                                </Dropdown.Toggle>
-                                                <Dropdown.Menu align="end" className="custom-dropdown-menu">
-                                                    <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
-                                                        Group Ticket
-                                                    </Dropdown.Item>
-                                                    {isMaster && (
-                                                        <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
-                                                            Single Ticket
-                                                        </Dropdown.Item>
-                                                    )}
-                                                </Dropdown.Menu>
-                                            </Dropdown>
-                                        )
-                                    )}
-                                    {attendees?.length !== 0 && (
-                                        <CustomBtn
-                                            size="sm"
-                                            variant="primary"
-                                            HandleClick={handleOpen}
-                                            buttonText="View Attendees"
-                                        />
-                                    )}
-                                </div>}
-                            />
-                        </div>
 
                         {/* <div className='d-none d-sm-flex gap-2 justify-content-center align-items-center'> */}
                         <div

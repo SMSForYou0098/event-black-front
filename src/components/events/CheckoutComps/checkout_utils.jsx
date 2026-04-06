@@ -277,11 +277,25 @@ export const TicketDataSummary = (props) => {
 
   const { getCurrencySymbol } = useMyContext()
 
+  const sym = currency ? getCurrencySymbol(currency) : '₹'
+  const numPrice = Number(price) || 0
+  const numQty = Number(quantity) || 0
+  const subNum =
+    subTotal != null && subTotal !== '' ? Number(subTotal) : null
+  const computedLineSubtotal = numPrice * numQty
+  const displaySubTotal =
+    subNum != null && Number.isFinite(subNum)
+      ? numQty > 1 &&
+        Math.round(subNum * 100) === Math.round(numPrice * 100)
+        ? computedLineSubtotal
+        : subNum
+      : computedLineSubtotal
+
   return (
     <Card className="custom-dark-bg">
       <Card.Body className="p-4 pb-0">
-        <div className="d-flex justify-content-between align-items-start mb-3">
-          <div>
+        <div className="d-flex align-items-start gap-3 mb-3 flex-wrap">
+          <div className="flex-grow-1 min-w-0">
             <div className="text-white fw-bold" style={{ fontSize: '14px' }}>
               {eventName}
             </div>
@@ -290,9 +304,11 @@ export const TicketDataSummary = (props) => {
               <span className='text-warning fw-bold' style={{ fontSize: '14px' }}>{ticketName} * {quantity} </span>
             </div>
           </div>
-          <div className="text-end">
-            <div className='custom-text-secondary h5 fw-bold'> {currency ? getCurrencySymbol(currency) : '₹'} {price}</div>
-            <small>per ticket</small>
+          <div className="flex-shrink-0">
+            <small className="text-white">per ticket</small>
+            <div className="fw-bold mb-0 text-end">
+              {sym}{price}
+            </div>
           </div>
         </div>
         {/* 
@@ -315,19 +331,19 @@ export const TicketDataSummary = (props) => {
         {!hidePrices &&
           <>
             <div className="d-flex justify-content-between align-items-center mb-2" style={{ fontSize: '14px' }}>
-              <span>Subtotal</span>
-              <span className="text-white fw-bold">{currency ? getCurrencySymbol(currency) : '₹'}{subTotal}</span>
+              <h6>Subtotal</h6>
+              <span className="text-white fw-bold h6">{sym}{displaySubTotal}</span>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3" style={{ fontSize: '14px' }}>
               <span>Processing Fee</span>
-              <span className="text-white fw-bold">{currency ? getCurrencySymbol(currency) : '₹'}{processingFee || 0}</span>
+              <span className="text-white fw-bold">{sym}{processingFee || 0}</span>
             </div>
             {/* <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' /> */}
 
             <div className="d-none d-md-flex justify-content-between align-items-center">
               <h6 className="text-white fw-bold">Total Amount</h6>
-              <span className='custom-text-secondary fw-bold' style={{ fontSize: '18px' }}>{currency ? getCurrencySymbol(currency) : '₹'}{total}</span>
+              <span className='custom-text-secondary fw-bold' style={{ fontSize: '18px' }}>{sym}{total}</span>
             </div>
           </>
         }

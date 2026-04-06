@@ -6,7 +6,6 @@ import moment from "moment";
 import { useQuery } from "@tanstack/react-query";
 import imgLoader from "../../../assets/event/stock/loader111.gif";
 import Image from "next/image";
-import { Calendar, Clock, MapPin, User, SquareAsterisk, AlertCircle } from 'lucide-react';
 import { useMyContext } from "@/Context/MyContextProvider";
 import { publicApi } from "@/lib/axiosInterceptor";
 import TicketErrorDisplay from "@/components/errors/TicketErrorDisplay";

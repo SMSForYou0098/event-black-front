@@ -10,10 +10,10 @@ import {
   XCircle,
   Download,
   Share2,
-  MapPin,
   ChevronDown,
   IndianRupee,
   Armchair,
+  Ticket,
   AlertCircle,
   ArrowRightLeft
 } from 'lucide-react';
@@ -97,6 +97,16 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
     const isScanned = booking?.bookings
       ? booking.bookings.some(b => b.is_scanned === true)
       : (booking?.is_scanned === true);
+
+    const seatNameParts = booking?.bookings?.length
+      ? booking.bookings
+          .map((b) => b?.seat_name)
+          .filter((n) => n != null && String(n).trim() !== '')
+      : [normalizeBooking?.seat_name ?? booking?.seat_name].filter(
+          (n) => n != null && String(n).trim() !== ''
+        );
+    const seat_name_display = seatNameParts.length ? seatNameParts.join(', ') : null;
+
     return {
       ticket: normalizeBooking?.ticket,
       quantity: booking?.bookings ? booking?.bookings?.length : 1,
@@ -110,6 +120,7 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
       isScanned: isScanned,
       date_range: normalizeBooking?.event?.date_range,
       event_type: normalizeBooking?.event?.event_type,
+      seat_name_display,
     };
   }, [booking]);
 
@@ -192,10 +203,17 @@ const BookingCard = React.memo(({ booking, compact = false, onRefetch }) => {
             </small>
 
             <small className="text-muted d-block mt-1">
-              <Armchair size={14} className='text-success me-1' />
+              <Ticket size={14} className='text-success me-1' />
               {bookingData.ticket?.name} x{' '}
               <span className="text-success fw-bold">{bookingData.quantity}</span>
             </small>
+
+            {bookingData.seat_name_display && (
+              <small className="text-muted d-flex align-items-center gap-1 mt-1">
+                <Armchair size={14} className="text-success flex-shrink-0" />
+                <span>: {bookingData.seat_name_display}</span>
+              </small>
+            )}
 
             <small className="text-muted d-block mt-1">
               <IndianRupee size={14} className='text-warning me-1' />

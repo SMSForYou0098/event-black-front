@@ -62,6 +62,7 @@ const TicketCanvasView = forwardRef((props, ref) => {
         ? ticketData.bookings.map(b => b.seat_name || b.event_seat_status?.seat_name).filter(Boolean).join(', ')
         : null;
     const number = seatNames || ticketData?.seat_name || ticketData?.event_seat_status?.seat_name || 'N/A';
+    // console.log(number);
     const address = venue?.address || event?.address || 'Address Not Specified';
     const ticketBG = ticket?.background_image || '';
     const formattedDate = ticketData?.booking_date || event?.date_range || 'Date Not Available';
@@ -315,17 +316,18 @@ const TicketCanvasView = forwardRef((props, ref) => {
                 } else {
                     currentY += 10;
                 }
+                 // User number/seat
+                 if (number !== 'N/A' && number !== null && number !== undefined) {
+                    centerText(`Seat(s) : ${number}`, 15, 'Arial', canvas, currentY);
+                    currentY += 30;
+                }
+                // console.log(showDetails);
                 if (showDetails) {
 
                     // Booking Type
                     centerText(` ${bookingType}`, 12, 'Arial', canvas, currentY, { fontWeight: 'bold', fill: '#000' });
                     currentY += 30;
-
-                    // User number/seat
-                    if (number !== 'N/A') {
-                        centerText(`Seat: ${number}`, 15, 'Arial', canvas, currentY);
-                        currentY += 30;
-                    }
+                   
 
                     // Date Column (FIRST)
                     // The center x-coordinate for the Date column

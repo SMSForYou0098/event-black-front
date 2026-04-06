@@ -1,17 +1,40 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, memo } from 'react'
 import { useMyContext } from '../Context/MyContextProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import PushNotificationButton from './PushNotificationButton';
 import { checkAndClearSessionData } from './checkAndClearSessionData';
 import { logout, updateActivity } from '@/store/auth/authSlice';
 import { setupForegroundNotification } from './service/firebaseConfig';
-import { SEOHead } from '@/utils/seo/seo';
+import { SEOHead, DEFAULT_SEO_KEYWORDS } from '@/utils/seo/seo';
 import toast from 'react-hot-toast';
 import { getInactivityLimit, ACTIVITY_DEBOUNCE_MS } from '@/config/sessionConfig';
 import { store } from '@/store';
 import { setAuthToken, removeAuthToken } from '@/utils/cookieUtils';
+import { useRouter } from 'next/router';
+
+/**
+ * Default meta for pages that do not set their own <Head>.
+ * `routeKey` must change only on navigation so context-driven parent re-renders
+ * do not re-apply these tags after page-level SEO (e.g. EventSEO).
+ */
+const DefaultSiteSEO = memo(function DefaultSiteSEO({ routeKey }) {
+  const defaultSEO = useMemo(
+    () => ({
+      title: 'Get Your Ticket - Book Event Tickets Online',
+      description:
+        'Book tickets for concerts, garba, sports, arts, theater, family, shows, and nightlife events. Find your perfect event and book tickets online.',
+      keywords: DEFAULT_SEO_KEYWORDS,
+      image: '/images/default-og-image.jpg',
+      url: '',
+      type: 'website',
+    }),
+    []
+  );
+  return <SEOHead key={routeKey} {...defaultSEO} />;
+});
 
 function AppContent({ children }) {
+  const router = useRouter();
   const { userRole, api, systemSetting } = useMyContext();
   const dispatch = useDispatch();
   const logoutTimerRef = useRef(null);           // holds the setTimeout reference
@@ -125,18 +148,9 @@ function AppContent({ children }) {
     };
   }, []);
 
-  const defaultSEO = {
-    title: "Get Your Ticket - Book Event Tickets Online",
-    description: "Book tickets for concerts, garba, sports, arts, theater, family, shows, and nightlife events. Find your perfect event and book tickets online.",
-    keywords: "event tickets, book tickets, concerts, sports events, theater shows",
-    image: "/images/default-og-image.jpg",
-    url: "",
-    type: "website"
-  };
-
   return (
     <div className="App">
-      <SEOHead {...defaultSEO} />
+      <DefaultSiteSEO routeKey={router.asPath} />
       {systemSetting?.notify_req ? <PushNotificationButton /> : null}
       {children}
     </div>

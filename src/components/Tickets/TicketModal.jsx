@@ -3,7 +3,6 @@ import { Modal, Row, Col } from 'react-bootstrap';
 import TicketCanvasView from '../events/Tickets/TicketCanvasView';
 import { FaInstagram, FaTimes, FaYoutube } from 'react-icons/fa';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { useMyContext } from "@/Context/MyContextProvider";
 import { ArrowBigDownDash, Printer } from 'lucide-react';
 import CustomBtn from '../../utils/CustomBtn';
 import { useQuery } from '@tanstack/react-query';
@@ -21,7 +20,6 @@ const fetchTicketImage = async (path) => {
 };
 
 const TicketModal = (props) => {
-    const { convertTo12HourFormat, isMobile } = useMyContext()
     const { showPrintButton, showTicketDetails, show, handleCloseModal, ticketType, ticketData, formatDateRange } = props;
     const [isCanvasReady, setIsCanvasReady] = useState(false);
     const [activeSlideIndex, setActiveSlideIndex] = useState(0);

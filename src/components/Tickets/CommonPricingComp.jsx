@@ -14,7 +14,10 @@ const CommonPricingComp = ({ currency, isSale, price, salePrice, soldOut, bookin
   const sp = Number(salePrice);
 
   const fmt = (val) => (Number.isFinite(val) ? val.toLocaleString("en-IN") : "");
-  const onSale = isSale === 1 && Number.isFinite(sp);
+  // API may send sale as boolean true, 1, or "1" — not only numeric 1
+  const saleActive =
+    isSale === true || isSale === 1 || isSale === "1";
+  const onSale = saleActive && Number.isFinite(sp);
 
   return (
     <>

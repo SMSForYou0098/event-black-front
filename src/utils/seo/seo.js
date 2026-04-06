@@ -1,5 +1,39 @@
 // utils/seo.js
 import Head from 'next/head';
+import { DEFAULT_SEO_KEYWORDS } from './defaultKeywords';
+
+export { DEFAULT_SEO_KEYWORDS } from './defaultKeywords';
+
+/** Puts page-specific keywords first, then site-wide defaults. */
+export const mergeSeoKeywords = (dynamicKeywords) => {
+  const dyn =
+    dynamicKeywords != null && String(dynamicKeywords).replace(/\s+/g, ' ').trim();
+  if (!dyn) return DEFAULT_SEO_KEYWORDS;
+  return `${dyn}, ${DEFAULT_SEO_KEYWORDS}`;
+};
+
+export const getSiteBaseUrl = () =>
+  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SITE_URL
+    ? String(process.env.NEXT_PUBLIC_SITE_URL).replace(/\/$/, '')
+    : '');
+
+/** Collapse HTML / basic entities to a single line of plain text for meta and JSON-LD. */
+export const htmlToPlainTextForSeo = (raw) => {
+  if (!raw || typeof raw !== 'string') return '';
+  let t = raw.replace(/<br\s*\/?>/gi, ' ');
+  for (let i = 0; i < 5; i += 1) {
+    const next = t
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&lt;/gi, '<')
+      .replace(/&gt;/gi, '>')
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&amp;/g, '&');
+    if (next === t) break;
+    t = next;
+  }
+  return t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+};
 
 // SEO Meta Tags Component
 export const SEOHead = ({ 
@@ -13,11 +47,13 @@ export const SEOHead = ({
   structuredData = null,
   noIndex = false 
 }) => {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const siteUrl = getSiteBaseUrl();
   const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "Get Yout Ticket";
   
-  const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
-  const fullImage = image?.startsWith('http') ? image : `${siteUrl}${image}`;
+  const fullUrl =
+    siteUrl && url ? `${siteUrl}${url}` : siteUrl || undefined;
+  const fullImage =
+    image && (image.startsWith('http') ? image : siteUrl ? `${siteUrl}${image}` : image);
 
   return (
     <Head>
@@ -29,24 +65,24 @@ export const SEOHead = ({
       
       {/* Robots */}
       <meta name="robots" content={noIndex ? "noindex, nofollow" : "index, follow"} />
-      <link rel="canonical" href={fullUrl} />
+      {fullUrl ? <link rel="canonical" href={fullUrl} /> : null}
       
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
-      <meta property="og:url" content={fullUrl} />
+      {fullUrl ? <meta property="og:url" content={fullUrl} /> : null}
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:site_name" content={siteName} />
-      {image && <meta property="og:image" content={fullImage} />}
+      {image && fullImage ? <meta property="og:image" content={fullImage} /> : null}
       {image && <meta property="og:image:width" content="1200" />}
       {image && <meta property="og:image:height" content="630" />}
       
       {/* Twitter */}
       <meta property="twitter:card" content="summary_large_image" />
-      <meta property="twitter:url" content={fullUrl} />
+      {fullUrl ? <meta property="twitter:url" content={fullUrl} /> : null}
       <meta property="twitter:title" content={title} />
       <meta property="twitter:description" content={description} />
-      {image && <meta property="twitter:image" content={fullImage} />}
+      {image && fullImage ? <meta property="twitter:image" content={fullImage} /> : null}
       
       {/* Custom Tags */}
       {Object.entries(customTags).map(([key, value]) => (
@@ -68,28 +104,42 @@ export const SEOHead = ({
 
 // Event-specific SEO utility
 export const generateEventSEO = (eventData, event_key) => {
+  const es = eventData?.eventSeo || {};
   const {
-    meta_title,
-    meta_description,
-    meta_keyword,
-    meta_tag,
     name,
     description,
     image,
     date_range,
     venue,
     price_range,
-    category
+    category,
   } = eventData || {};
 
+  const meta_title = eventData?.meta_title ?? es.meta_title;
+  const meta_description = eventData?.meta_description ?? es.meta_description;
+  const meta_keyword =
+    eventData?.meta_keyword ?? es.meta_keyword ?? es.meta_keywords;
+  const meta_tag = eventData?.meta_tag ?? es.meta_tag;
+  const categoryLabel = category ?? es.category_name;
+
   const [startDate, endDate] = date_range?.split(",") || [];
+
+  const plainDescription =
+    meta_description ||
+    htmlToPlainTextForSeo(description) ||
+    (name ? `Book tickets for ${name}. Don't miss out!` : '');
+
+  const siteBase = getSiteBaseUrl();
+  const eventOfferUrl = siteBase
+    ? `${siteBase}/events/${event_key}`
+    : `/events/${event_key}`;
 
   // Generate structured data
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Event",
     "name": name,
-    "description": description || meta_description,
+    "description": plainDescription,
     "image": image,
     "startDate": startDate,
     "endDate": endDate,
@@ -110,7 +160,7 @@ export const generateEventSEO = (eventData, event_key) => {
       "price": price_range?.min,
       "priceCurrency": "INR",
       "availability": "https://schema.org/InStock",
-      "url": `${process.env.NEXT_PUBLIC_SITE_URL}/events/${event_key}`
+      "url": eventOfferUrl.startsWith('http') ? eventOfferUrl : undefined,
     },
     "performer": {
       "@type": "Organization", 
@@ -120,12 +170,18 @@ export const generateEventSEO = (eventData, event_key) => {
 
   const customTags = {};
   if (meta_tag) customTags["custom-tag"] = meta_tag;
-  if (category) customTags["event-category"] = category;
+  if (categoryLabel != null && categoryLabel !== '') {
+    customTags["event-category"] = String(categoryLabel);
+  }
+
+  const kwFallback = [name, 'event tickets', categoryLabel, 'book online']
+    .filter(Boolean)
+    .join(', ');
 
   return {
     title: meta_title || `${name} - Book Tickets Online`,
-    description: meta_description || description || `Book tickets for ${name}. Don't miss out!`,
-    keywords: meta_keyword || `${name}, event tickets, ${category}, book online`,
+    description: plainDescription,
+    keywords: mergeSeoKeywords(meta_keyword || kwFallback),
     image: image,
     url: `/events/${event_key}`,
     customTags,

@@ -636,7 +636,8 @@ const CartPage = () => {
       name: `${systemSetting?.app_name || 'Trava Get Your Ticket Pvt Ltd'}`,
       description: "Ticket Booking",
       order_id: orderData.order_id,
-      prefill: orderData.prefill || {
+      // prefill: orderData.prefill || {
+      prefill: {
         name: UserData?.name,
         email: UserData?.email,
         contact: UserData?.phone || UserData?.number

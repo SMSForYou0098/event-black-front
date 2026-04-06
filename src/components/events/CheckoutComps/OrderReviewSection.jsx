@@ -26,7 +26,10 @@ export const OrderReviewSection = (props) => {
   const isSale = Number(validatedData?.data?.sale) === 1;
   const price = isSale ? validatedData?.data?.sale_price : validatedData?.data?.price;
   const quantity = validatedData?.data?.quantity || 0;
-  const subTotal = validatedData?.data?.baseAmount || 0;
+  const basePerTicket = validatedData?.data?.baseAmount || 0;
+  const subTotal =
+    validatedData?.data?.totalBaseAmount ??
+    Number(basePerTicket) * Number(quantity);
   const processingFee = validatedData?.data?.totalConvenienceFee || 0;
   const total = validatedData?.data?.totalFinalAmount || 0;
   return (

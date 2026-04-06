@@ -123,10 +123,11 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
 
   ]);
 
-  // Show only if the exact path matches one in visibleRoutes OR it's a ticket page
+  // Show only if the exact path matches one in visibleRoutes OR it's a ticket / summary page
   const shouldShowMenu =
     visibleRoutes.has(currentPath) ||
     currentPath.startsWith("/t/") ||
+    currentPath.startsWith("/events/summary/") ||
     currentPath.startsWith("/events/category/");
 
   // Return null if menu should be hidden
@@ -180,7 +181,9 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
   ];
 
   const renderTicketActions = () => {
-    if (!ticketActions || !currentPath.startsWith("/t/")) return null;
+    const isTicketTokenPage = currentPath.startsWith("/t/");
+    const isSummaryPage = currentPath.startsWith("/events/summary/");
+    if (!ticketActions || (!isTicketTokenPage && !isSummaryPage)) return null;
 
     const {
       ticketData,
@@ -190,8 +193,10 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
       cardImageUrl,
       handleDownloadClick,
       handleTransferClick,
+      showIndividualDownload,
     } = ticketActions;
 
+    const showIndividual = showIndividualDownload !== false;
     const isDisabled = !imageLoaded && cardImageUrl;
     const canTransfer = ticketData?.controls?.ticket_transfer && UserData?.id === ticketData?.user_id;
 
@@ -213,11 +218,11 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
               Transfer
             </Button>
             {ticketCount > 1 ? (
-              <Dropdown className="flex-fill">
-                <Dropdown.Toggle
-                  as={Button}
+              !showIndividual ? (
+                <Button
                   variant="primary"
-                  className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap w-100"
+                  onClick={() => handleDownloadClick("combine")}
+                  className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap flex-fill"
                   style={{
                     background: 'var(--bs-primary)',
                     border: 'none',
@@ -227,14 +232,31 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
                 >
                   <Download size={18} />
                   Download
-                </Dropdown.Toggle>
-                <Dropdown.Menu className="custom-dropdown-menu w-100">
-                  {disableCombineButton && (
-                    <Dropdown.Item onClick={() => handleDownloadClick("combine")} className="custom-dropdown-item">Group</Dropdown.Item>
-                  )}
-                  <Dropdown.Item onClick={() => handleDownloadClick("download")} className="custom-dropdown-item">Single</Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
+                </Button>
+              ) : (
+                <Dropdown className="flex-fill">
+                  <Dropdown.Toggle
+                    as={Button}
+                    variant="primary"
+                    className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap w-100"
+                    style={{
+                      background: 'var(--bs-primary)',
+                      border: 'none',
+                      lineHeight: 1.7,
+                    }}
+                    disabled={isDisabled}
+                  >
+                    <Download size={18} />
+                    Download
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="custom-dropdown-menu w-100">
+                    {disableCombineButton && (
+                      <Dropdown.Item onClick={() => handleDownloadClick("combine")} className="custom-dropdown-item">Group</Dropdown.Item>
+                    )}
+                    <Dropdown.Item onClick={() => handleDownloadClick("download")} className="custom-dropdown-item">Single</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              )
             ) : (
               <Button
                 variant="primary"
@@ -255,22 +277,10 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
         ) : (
           <>
             {ticketCount > 1 ? (
-              <>
-                {disableCombineButton && (
-                  <Button
-                    variant="secondary"
-                    onClick={() => handleDownloadClick("combine")}
-                    className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap flex-fill"
-                    style={{ lineHeight: 1.7 }}
-                    disabled={isDisabled}
-                  >
-                    <Download size={18} />
-                    Group
-                  </Button>
-                )}
+              !showIndividual ? (
                 <Button
                   variant="primary"
-                  onClick={() => handleDownloadClick("download")}
+                  onClick={() => handleDownloadClick("combine")}
                   className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap flex-fill"
                   style={{
                     background: 'var(--bs-primary)',
@@ -280,9 +290,38 @@ const MobileBottomMenu = ({ hideMenu = false }) => {
                   disabled={isDisabled}
                 >
                   <Download size={18} />
-                  Single
+                  Download
                 </Button>
-              </>
+              ) : (
+                <>
+                  {disableCombineButton && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleDownloadClick("combine")}
+                      className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap flex-fill"
+                      style={{ lineHeight: 1.7 }}
+                      disabled={isDisabled}
+                    >
+                      <Download size={18} />
+                      Group
+                    </Button>
+                  )}
+                  <Button
+                    variant="primary"
+                    onClick={() => handleDownloadClick("download")}
+                    className="iq-button p-2 fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 text-nowrap flex-fill"
+                    style={{
+                      background: 'var(--bs-primary)',
+                      border: 'none',
+                      lineHeight: 1.7,
+                    }}
+                    disabled={isDisabled}
+                  >
+                    <Download size={18} />
+                    Single
+                  </Button>
+                </>
+              )
             ) : (
               <Button
                 variant="primary"

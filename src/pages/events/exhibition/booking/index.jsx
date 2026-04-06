@@ -14,7 +14,7 @@ import { useVendorProfile, useUpsertVendorProfile } from '@/services/vendorServi
 import LoginOffCanvas from '@/components/auth/LoginOffCanvas';
 import { LargeAndDesktop } from '@/utils/ResponsiveRenderer';
 import { CardContainer, CardHeader, DetailItem } from '@/utils/EventCardUtils';
-import { Ticket, Calendar, Pin, Phone, AlertCircle, CheckCircle, User } from 'lucide-react';
+import { Ticket, Calendar, Pin } from 'lucide-react';
 import { getErrorMessage } from '@/utils/errorUtils';
 
 const StallLayoutCanvas = dynamic(
