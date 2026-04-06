@@ -1,17 +1,23 @@
 import { memo, Fragment, useState, useEffect } from "react";
 import Link from "next/link";
-import { Container, Row, Col, Image } from "react-bootstrap";
+import { Container, Row, Col, Image, Form } from "react-bootstrap";
 import { useQuery } from '@tanstack/react-query';
 import { getFooterData } from "@/services/home";
 import DOMPurify from 'dompurify';
 import { MailCheck } from "lucide-react";
 import Logo from "./Logo";
 import Divider from '../../utils/Divider'
+import { getEmailError, validateNewsLetterEmail } from "@/utils/validations";
 const ORGANIZER_LOGIN_URL = "https://login.getyourticket.in/auth/register";
 
 const FooterMega = memo(() => {
   const [animationClass, setAnimationClass] = useState("animate__fadeIn");
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterError, setNewsletterError] = useState("");
+  const [newsletterSuccess, setNewsletterSuccess] = useState("");
+  // Validation states
+  const [touched, setTouched] = useState({});
 
   // Fetch footer data using TanStack Query
   const { data, isLoading, error, isSuccess } = useQuery({
@@ -43,6 +49,29 @@ const FooterMega = memo(() => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  // Computed live error — same pattern as LoginOffCanvas
+  const newsletterValidationError = touched.email ? getEmailError(newsletterEmail) : null;
+
+
+  const handleNewsletterSubmit = () => {
+    // Mark as touched on submit click
+    setTouched(prev => ({ ...prev, email: true }));
+
+    const { errors, isValid } = validateNewsLetterEmail({ email: newsletterEmail });
+
+    // If invalid → stop (error shows via computed newsletterValidationError)
+    if (!isValid) {
+      setNewsletterSuccess("");
+      return;
+    }
+
+    // If valid → show success, reset input
+    setTouched({});
+    setNewsletterSuccess("Subscribed successfully!");
+    setNewsletterEmail("");
+  };
+
 
   // Fix for the TypeScript error - safely handle the site_credit strin
 
@@ -196,23 +225,52 @@ const FooterMega = memo(() => {
                     <Col xl={12} lg={12} className="text-center d-flex justify-content-center flex-column align-items-center">
                       <h4 className="footer-link-title">Subscribe Newsletter</h4>
                       <div className="mailchimp mailchimp-dark w-50">
-                        <div className="input-group mb-3">
-                          <input
+                        <div className="input-group">
+                          <Form.Control
                             type="email"
-                            className="form-control mb-0 font-size-14"
+                            className="mb-0 font-size-14"
                             placeholder="Email*"
                             aria-describedby="button-addon2"
+                            value={newsletterEmail}
+                            isInvalid={touched.email && !!newsletterValidationError}
+                            onChange={(e) => {
+                              setNewsletterEmail(e.target.value);
+                              setTouched(prev => ({ ...prev, email: true }));
+                              setNewsletterSuccess(""); // hide success when user re-types
+                            }}
+                            onBlur={() => {
+                              // Mark as touched when user clicks outside the field
+                              setTouched(prev => ({ ...prev, email: true }));
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleNewsletterSubmit();
+                            }}
                           />
                           <div className="iq-button">
                             <button
-                              type="submit"
+                              type="button"
                               className="btn btn-sm"
                               id="button-addon2"
+                              onClick={handleNewsletterSubmit}
                             >
                               Subscribe
                             </button>
                           </div>
                         </div>
+                        {/* Error — forced visible via style since it's outside input-group */}
+                        <Form.Control.Feedback type="invalid"
+                          className="text-start mt-1"
+                          style={{ display: touched.email && newsletterValidationError ? "block" : "none", fontSize: "12px" }}
+                        >
+                          {newsletterValidationError}
+                        </Form.Control.Feedback>
+                        {/* Success message */}
+                        <Form.Control.Feedback type="valid"
+                          className="text-success text-start mt-1"
+                          style={{ display: newsletterSuccess ? "block" : "none", fontSize: "12px" }}
+                        >
+                          {newsletterSuccess}
+                        </Form.Control.Feedback>
                       </div>
                     </Col>
                     <Col md={12} className="text-center" >

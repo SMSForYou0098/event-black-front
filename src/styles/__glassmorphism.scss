@@ -68,6 +68,7 @@
     &.is-invalid {
       // Ensure red border propagates
       border-color: var(--bs-danger) !important;
+      // border-color: #b51515 !important;
     }
   }
 }
@@ -88,4 +89,18 @@
 // Styled checkbox for the glassmorphism card
 .card-glassmorphism__checkbox {
   accent-color: #e50914; // Netflix red for the checkmark
+}
+
+// Styled prefix icon for InputGroup (mail icon / flag)
+.card-glassmorphism__input-prefix {
+  background: rgb(0, 0, 0);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: none;
+  color: rgba(255, 255, 255, 0.6);
+
+  &.is-invalid {
+    border-color: #b51515 !important;
+    border-right: none !important;
+    background: rgba(20, 20, 20, 0.85);
+  }
 }

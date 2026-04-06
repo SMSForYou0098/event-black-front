@@ -16,7 +16,9 @@ import { useMyContext } from "@/Context/MyContextProvider";
 import Logo from "../partials/Logo";
 import { getErrorMessage } from "@/utils/errorUtils";
 import OtpInput from "@/components/common/OtpInput";
-
+import { getCredentialError, getEmailError, getNameError, getNumberError, getOtpError, getPasswordError, validateCredential, validateEmail, validateLoginForm, validateOtpForm, validatePasswordForm, validatePhone, validateSignUpForm } from "@/utils/validations";
+import { NameInputField, EmailInputField, PhoneInputField } from "../CustomComponents/FormsFields";
+// Modal views
 const MODAL_VIEWS = {
     SIGN_IN: "SIGN_IN",
     SIGN_UP: "SIGN_UP",
@@ -47,7 +49,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
 
     // Validation states
     const [touched, setTouched] = useState({});
-    const [validationErrors, setValidationErrors] = useState({});
+    // const [validationErrors, setValidationErrors] = useState({});
     const [serverError, setServerError] = useState("");
 
     const MAX_RESEND_ATTEMPTS = 10;
@@ -211,135 +213,26 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
 
     // Reset validation errors and touched when current view changes
     useEffect(() => {
-        setValidationErrors({});
         setTouched({});
         setServerError("");
     }, [currentView]);
 
-    const validateEmail = (email) => {
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return emailRegex.test(email);
+    // Validation errors
+    const validationErrors = {
+        credential: touched.credential ? getCredentialError(credential) : null,
+        otp: touched.otp ? getOtpError(otp) : null,
+        password: touched.password ? getPasswordError(password) : null,
+        name: touched.name ? getNameError(name) : null,
+        number: touched.number ? getNumberError(number) : null,
+        email: touched.email ? getEmailError(email) : null,
+        // address: touched.address ? getAddressError(address, is_address_required) : null,
+        terms: touched.terms ? (!termsAccepted ? "You must agree to the terms of use" : null) : null,
     };
 
-    const validatePhone = (phone) => {
-        return phone.length >= 10 && phone.length <= 12 && /^\d+$/.test(phone);
-    };
 
-    const validateCredential = (credential) => {
-        return validateEmail(credential) || validatePhone(credential);
-    };
-
-    // Give validation error message when user enter invalid credential in login modal
-    useEffect(() => {
-        if (!touched.credential) return;
-        const errors = { ...validationErrors };
-        if (!credential.trim()) {
-            errors.credential = "Email or mobile number is required";
-        } else if (!validateCredential(credential)) {
-            errors.credential = "Please enter a valid email or mobile number";
-        } else {
-            delete errors.credential;
-        }
-        setValidationErrors(errors);
-    }, [credential, touched.credential]);
-
-    // Give validation error message when user enter invalid otp in otp modal
-    useEffect(() => {
-        if (!touched.otp) return;
-        const errors = { ...validationErrors };
-        if (!otp.trim()) {
-            errors.otp = "OTP is required";
-        } else if (otp.length !== 6) {
-            errors.otp = "OTP must be 6 digits";
-        } else {
-            delete errors.otp;
-        }
-        setValidationErrors(errors);
-    }, [otp, touched.otp]);
-
-    // Give validation error message when user enter invalid password in password modal
-    useEffect(() => {
-        if (!touched.password) return;
-        const errors = { ...validationErrors };
-        if (!password.trim()) {
-            errors.password = "Password is required";
-        } else {
-            delete errors.password;
-        }
-        setValidationErrors(errors);
-    }, [password, touched.password]);
-
-    // Give validation error message when user enter invalid name in sign up modal
-    useEffect(() => {
-        if (!touched.name) return;
-        const errors = { ...validationErrors };
-        if (!name.trim()) {
-            errors.name = "Full name is required";
-        } else if (/[^a-zA-Z\s]/.test(name)) {
-            errors.name = "Full name should only contain letters and spaces";
-        } else {
-            delete errors.name;
-        }
-        setValidationErrors(errors);
-    }, [name, touched.name]);
-
-    // Give validation error message when user enter invalid number in sign up modal
-    useEffect(() => {
-        if (!touched.number) return;
-        const errors = { ...validationErrors };
-        if (!number.trim()) {
-            errors.number = "Phone number is required";
-        } else if (!validatePhone(number)) {
-            errors.number = "Please enter a valid phone number (10-12 digits)";
-        } else {
-            delete errors.number;
-        }
-        setValidationErrors(errors);
-    }, [number, touched.number]);
-
-    // Give validation error message when user enter invalid email in sign up modal
-    useEffect(() => {
-        if (!touched.email) return;
-        const errors = { ...validationErrors };
-        if (!email.trim()) {
-            errors.email = "Email is required";
-        } else if (!validateEmail(email)) {
-            errors.email = "Please enter a valid email address";
-        } else {
-            delete errors.email;
-        }
-        setValidationErrors(errors);
-    }, [email, touched.email]);
-
-    // Give validation error message when user enter invalid address in sign up modal
-    useEffect(() => {
-        if (!touched.address) return;
-        const errors = { ...validationErrors };
-        if (is_address_required && !address.trim()) {
-            errors.address = "Address is required";
-        } else if (/[#]/.test(address)) {
-            errors.address = "Special characters like # are not allowed in address";
-        } else {
-            delete errors.address;
-        }
-        setValidationErrors(errors);
-    }, [address, touched.address, is_address_required]);
-
-    // Give validation error message when user enter invalid terms in sign up modal
-    useEffect(() => {
-        if (!touched.terms) return;
-        const errors = { ...validationErrors };
-        if (!termsAccepted) {
-            errors.terms = "You must agree to the terms of use";
-        } else {
-            delete errors.terms;
-        }
-        setValidationErrors(errors);
-    }, [termsAccepted, touched.terms]);
-
+    // Close modal and reset all the states
     const handleModalClose = () => {
         setServerError("");
-        setValidationErrors({});
         setTouched({});
         setOTP("");
         setEmail("");
@@ -364,28 +257,23 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         onHide();
     };
 
+    // Login function it call on continue button click
     const handleLogin = async (event) => {
+        // Prevent default event
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
 
+        // Mark credential as touched
         setTouched({ credential: true });
 
-        const errors = {};
-        let isValid = true;
+        // Apply validation on credential
+        const { isValid } = validateLoginForm({ credential });
 
-        if (!credential.trim()) {
-            errors.credential = "Email or mobile number is required";
-            isValid = false;
-        } else if (!validateCredential(credential)) {
-            errors.credential = "Please enter a valid email or mobile number";
-            isValid = false;
-        }
-
-        setValidationErrors(errors);
-
+        // If validation fails, return
         if (!isValid) return;
+
 
         const lastResendKey = `lastOtpResendTime_${credential}`;
         const lastResendTime = localStorage.getItem(lastResendKey);
@@ -409,45 +297,49 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         }
 
         setServerError("");
+        // Api Call for verify user
         verifyUserMutation.mutate(credential);
     };
 
+    // Verify OTP function it call on verify button click
     const handleVerifyOtp = async (event, otpValue) => {
+        // Prevent default event
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
 
+        // Get current otp value
         const currentOtp = otpValue || otp;
 
+        // Mark otp as touched
         setTouched({ otp: true });
 
-        const errors = {};
-        let isValid = true;
+        // Apply validation on otp
+        const { isValid } = validateOtpForm({ otp: currentOtp });
 
-        if (!currentOtp.trim()) {
-            errors.otp = "OTP is required";
-            isValid = false;
-        } else if (currentOtp.length !== 6) {
-            errors.otp = "OTP must be 6 digits";
-            isValid = false;
-        }
-
-        setValidationErrors(errors);
-
+        // If validation fails or loading, return
         if (!isValid || isLoading) return;
 
+        // Clear server error
         setServerError("");
+
+        // Prepare login data
         const loginData = { otp: currentOtp, number: credential };
+
+        // Api Call for verify otp
         verifyOtpMutation.mutate(loginData);
     };
 
+    // Sign up function it call on sign up button click
     const handleSignUp = async (event) => {
+        // Prevent default event
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
 
+        // Mark all fields as touched
         setTouched({
             name: true,
             number: true,
@@ -456,55 +348,18 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             terms: true,
         });
 
-        const errors = {};
-        let isValid = true;
-
-        if (!name.trim()) {
-            errors.name = "Full name is required";
-            isValid = false;
-            // } else if (/[^a-zA-Z\s]/.test(name)) {
-
-            //     errors.name = "Full name should only contain letters and spaces";
-            //     isValid = false;
-            // }
-
-        } else if (!validateName(name)) {
-            errors.name = "Full name should only contain letters and spaces";
-            isValid = false;
-        }
-
-        if (!number.trim()) {
-            errors.number = "Phone number is required";
-            isValid = false;
-        } else if (!validatePhone(number)) {
-            errors.number = "Please enter a valid phone number (10-12 digits)";
-            isValid = false;
-        }
-
-        if (!email.trim()) {
-            errors.email = "Email is required";
-            isValid = false;
-        } else if (!validateEmail(email)) {
-            errors.email = "Please enter a valid email address";
-            isValid = false;
-        }
-
-        if (is_address_required && !address.trim()) {
-            errors.address = "Address is required";
-            isValid = false;
-        } else if (/[#]/.test(address)) {
-            errors.address = "Special characters like # are not allowed in address";
-            isValid = false;
-        }
+        // Apply validation on sign up form
+        const { errors, isValid } = validateSignUpForm({ name, number, email, address, is_address_required });
 
         // Terms are always accepted
 
-
-        setValidationErrors(errors);
-
+        // If validation fails, return
         if (!isValid) return;
 
+        // Clear server error
         setServerError("");
+
+        // Api Call for create user
         createUserMutation.mutate({
             name,
             email,
@@ -514,32 +369,33 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
         });
     };
 
+    // Verify password function it call on verify button click
     const handleVerifyPassword = async (event) => {
+        // Prevent default event
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
 
+        // Mark password as touched
         setTouched({ password: true });
 
-        const errors = {};
-        let isValid = true;
+        // Apply validation on password
+        const { isValid } = validatePasswordForm({ password });
 
-        if (!password.trim()) {
-            errors.password = "Password is required";
-            isValid = false;
-        }
-
+        // Check if session data is available
         if (!sessionData) {
             setServerError("Session expired. Please try again.");
             return;
         }
 
-        setValidationErrors(errors);
-
+        // If validation fails, return
         if (!isValid) return;
 
+        // Clear server error
         setServerError("");
+
+        // Prepare login data
         const loginData = {
             password,
             number: sessionData.data,
@@ -547,16 +403,19 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
             session_id: sessionData.session_id,
             auth_session: sessionData.auth_session,
         };
+
+        // Api Call for verify password
         verifyPasswordMutation.mutate(loginData);
     };
 
+    // Back button function it call on back button click
     const handleBack = () => {
         setCurrentView(MODAL_VIEWS.SIGN_IN);
-        setValidationErrors({});
         setTouched({});
         setServerError("");
     };
 
+    // Loading state
     const isLoading =
         verifyUserMutation.isPending ||
         createUserMutation.isPending ||
@@ -664,71 +523,36 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                 <Form noValidate onSubmit={handleSignUp} className="d-flex flex-column flex-grow-1">
                     <div className="p-3 d-flex flex-column flex-grow-1">
                         <Row className="mb-3 g-3">
+                            {/* Name Input field (Full Name) */}
                             <Col sm={12}>
-                                <Form.Group controlId="name">
-                                    <Form.Label>Full Name *</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Enter your name"
-                                        value={name}
-                                        required
-                                        className="card-glassmorphism__input"
-                                        onChange={(e) => {
-                                            const value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
-                                            setName(value);
-                                            setTouched(prev => ({ ...prev, name: true }));
-                                        }}
-                                        size={isMobile ? "sm" : ""}
-                                        autoFocus
-                                        isInvalid={touched.name && !!validationErrors.name}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {validationErrors.name}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
+                                <NameInputField
+                                    value={name}
+                                    setValue={(val) => {
+                                        setName(val)
+                                    }}
+                                    isMobile={isMobile}
+                                    autoFocus={true}
+                                />
                             </Col>
+                            {/* Phone no input field */}
                             <Col sm={12} md={6}>
-                                <Form.Group controlId="number">
-                                    <Form.Label>Phone Number *</Form.Label>
-                                    <Form.Control
-                                        type="tel"
-                                        placeholder="Enter phone number"
-                                        value={number}
-                                        className="card-glassmorphism__input"
-                                        maxLength={12}
-                                        required
-                                        size={isMobile ? "sm" : ""}
-                                        onChange={(e) => {
-                                            setNumber(e.target.value.replace(/\D/g, ""));
-                                            setTouched(prev => ({ ...prev, number: true }));
-                                        }}
-                                        isInvalid={touched.number && !!validationErrors.number}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {validationErrors.number}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
+                                <PhoneInputField
+                                    value={number}
+                                    setValue={(val) => {
+                                        setNumber(val)
+                                    }}
+                                    externalError={validationErrors.number}
+                                    isMobile={isMobile}
+                                />
                             </Col>
+                            {/* Email Input field */}
                             <Col sm={12} md={6}>
-                                <Form.Group controlId="email">
-                                    <Form.Label>Email *</Form.Label>
-                                    <Form.Control
-                                        type="email"
-                                        className="card-glassmorphism__input"
-                                        placeholder="Enter email"
-                                        value={email}
-                                        required
-                                        size={isMobile ? "sm" : ""}
-                                        onChange={(e) => {
-                                            setEmail(e.target.value.toLowerCase());
-                                            setTouched(prev => ({ ...prev, email: true }));
-                                        }}
-                                        isInvalid={touched.email && !!validationErrors.email}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {validationErrors.email}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
+                                <EmailInputField
+                                    value={email}
+                                    setValue={(val) => setEmail(val)}
+                                    externalError={validationErrors.email}
+                                    isMobile={isMobile}
+                                />
                             </Col>
                             {is_address_required && (
                                 <Col sm={12}>
@@ -757,7 +581,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                             )}
                         </Row>
 
-                        <div className="mb-3">
+                        <div className="mb-3 mb-sm-5">
                             <Form.Check
                                 type="checkbox"
                                 id="terms-agreement"
@@ -878,42 +702,43 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                         <Form.Group controlId="credential" className="mb-3">
                             {/* <Form.Label>Email or Mobile Number</Form.Label> */}
                             <InputGroup
-                                className={`card-glassmorphism__input rounded-3 ${touched.credential && validationErrors.credential ? 'is-invalid' : ''
-                                    }`}
                                 hasValidation
                             >
-                                {inputType && (
+                                {inputType && !(touched.credential && validationErrors.credential) && (
                                     <InputGroup.Text
-                                        className="card-glassmorphism__input-prefix"
+                                        className={`card-glassmorphism__input-prefix rounded-start-3 ${touched.credential && validationErrors.credential ? 'is-invalid' : ''}`}
                                     >
                                         {inputType === 'email' ? (
                                             <Mail size={18} />
                                         ) : (
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 900 600"
-                                                width="20"
-                                                height="14"
-                                                style={{ display: 'block' }}
-                                            >
-                                                <rect fill="#FF9933" width="900" height="200" />
-                                                <rect fill="#ffffff" y="200" width="900" height="200" />
-                                                <rect fill="#138808" y="400" width="900" height="200" />
-                                                <circle fill="#000080" cx="450" cy="300" r="80" />
-                                                <circle fill="#ffffff" cx="450" cy="300" r="70" />
-                                                <circle fill="#000080" cx="450" cy="300" r="12.5" />
-                                                {Array.from({ length: 24 }).map((_, i) => (
-                                                    <line
-                                                        key={i}
-                                                        x1="450"
-                                                        y1="300"
-                                                        x2={450 + 70 * Math.cos((i * 15 * Math.PI) / 180)}
-                                                        y2={300 + 70 * Math.sin((i * 15 * Math.PI) / 180)}
-                                                        stroke="#000080"
-                                                        strokeWidth="2"
-                                                    />
-                                                ))}
-                                            </svg>
+                                            <div className="d-flex align-items-center gap-2">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 900 600"
+                                                    width="20"
+                                                    height="14"
+                                                    style={{ display: 'block' }}
+                                                >
+                                                    <rect fill="#FF9933" width="900" height="200" />
+                                                    <rect fill="#ffffff" y="200" width="900" height="200" />
+                                                    <rect fill="#138808" y="400" width="900" height="200" />
+                                                    <circle fill="#000080" cx="450" cy="300" r="80" />
+                                                    <circle fill="#ffffff" cx="450" cy="300" r="70" />
+                                                    <circle fill="#000080" cx="450" cy="300" r="12.5" />
+                                                    {Array.from({ length: 24 }).map((_, i) => (
+                                                        <line
+                                                            key={i}
+                                                            x1="450"
+                                                            y1="300"
+                                                            x2={450 + 70 * Math.cos((i * 15 * Math.PI) / 180)}
+                                                            y2={300 + 70 * Math.sin((i * 15 * Math.PI) / 180)}
+                                                            stroke="#000080"
+                                                            strokeWidth="2"
+                                                        />
+                                                    ))}
+                                                </svg>
+                                                <p className="mb-0 text-white">+91</p>
+                                            </div>
                                         )}
                                     </InputGroup.Text>
                                 )}
@@ -921,6 +746,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                     type="text"
                                     placeholder="Enter mobile number or email address"
                                     value={credential}
+                                    className="card-glassmorphism__input"
                                     onChange={(e) => {
                                         setCredential(e.target.value);
                                         setTouched(prev => ({ ...prev, credential: true }));

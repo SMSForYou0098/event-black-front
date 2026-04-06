@@ -1,7 +1,7 @@
 // components/events/Profile/UserProfileModal.tsx
 import React, { useState, useEffect } from "react";
 import { Modal, Form } from "react-bootstrap";
-import { X, Save, LoaderCircle, ArrowLeft } from "lucide-react";
+import { X, Save, LoaderCircle, ArrowLeft, Target } from "lucide-react";
 import CustomBtn from "../../../utils/CustomBtn";
 import { CustomHeader } from "../../../utils/ModalUtils/CustomModalHeader";
 import { api } from "@/lib/axiosInterceptor";
@@ -9,7 +9,8 @@ import toast from "react-hot-toast";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { getErrorMessage } from "@/utils/errorUtils";
 import OtpInput from "@/components/common/OtpInput";
-
+import { validateProfileData } from "@/utils/validations";
+import { EmailInputField, NameInputField, AddressInputField } from "../../CustomComponents/FormsFields"
 
 const MODAL_VIEWS = {
   EDIT_FORM: "edit_form",
@@ -19,6 +20,7 @@ const MODAL_VIEWS = {
 const UserProfileModal = ({
   isEditing,
   formValues,
+  setFormValues,
   originalValues,
   handleChange,
   handleCloseEdit,
@@ -51,6 +53,9 @@ const UserProfileModal = ({
     otp: "",
   });
 
+  console.log(formValues, "formValues");
+
+
   // Reset state when modal closes
   useEffect(() => {
     if (!isEditing) {
@@ -73,30 +78,7 @@ const UserProfileModal = ({
     return () => clearInterval(timer);
   }, [countdown]);
 
-  const validate = () => {
-    const next = { name: "", email: "", phone: "", otp: "" };
-    let ok = true;
-
-    if (!formValues.name?.trim()) {
-      next.name = "Name is required";
-      ok = false;
-    }
-
-    if (!formValues.email?.trim()) {
-      next.email = "Email is required";
-      ok = false;
-    } else {
-      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRe.test(formValues.email)) {
-        next.email = "Enter a valid email";
-        ok = false;
-      }
-    }
-
-    setErrors(next);
-    return ok;
-  };
-
+  // validate otp
   const validateOtp = () => {
     if (!otp || otp.length !== 6) {
       setErrors((prev) => ({ ...prev, otp: "Please enter a valid 6-digit OTP" }));
@@ -162,9 +144,19 @@ const UserProfileModal = ({
 
   // Handle form submission - send OTP first (skip OTP if only address changed)
   const onSubmit = (e) => {
+    // prevent default
     e.preventDefault();
+    // if mutation is pending or otp is loading
     if (updateMutation?.isPending || otpLoading) return;
-    if (!validate()) return;
+
+    // validate form data
+    const validation = validateProfileData(formValues);
+    // set errors
+    setErrors(validation.errors);
+    // if form is not valid
+    if (!validation.isValid) return;
+
+    // if only address changed
     if (onlyAddressChanged) {
       handleEditSubmit(e);
     } else {
@@ -201,59 +193,49 @@ const UserProfileModal = ({
 
   return (
     <Modal show={isEditing} onHide={onClose} centered>
+      {/* Edit Modal */}
       {currentView === MODAL_VIEWS.EDIT_FORM ? (
         <Form onSubmit={onSubmit} noValidate>
           <CustomHeader title="Edit Profile" closable onClose={onClose} />
           <Modal.Body className="p-3">
-            <Form.Group className="mb-3" controlId="formName">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
+            {/* Name Input Field (Full name) */}
+            <div className="mb-2">
+              <NameInputField
                 name="name"
                 value={formValues.name}
-                onChange={(e) => {
-                  if (errors.name) setErrors((p) => ({ ...p, name: "" }));
-                  handleChange(e);
+                setValue={(val) => {
+                  if (errors.name) setErrors(prev => ({ ...prev, name: "" }));
+                  setFormValues((prev) => ({ ...prev, name: val }))
                 }}
-                className="card-glassmorphism__input"
-                placeholder="Enter name"
-                isInvalid={!!errors.name}
+                externalError={errors.name}
               />
-              <Form.Control.Feedback type="invalid">
-                {errors.name}
-              </Form.Control.Feedback>
-            </Form.Group>
+            </div>
 
-            <Form.Group className="mb-3" controlId="formEmail">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
+            <div className="mb-2">
+              {/* Email Input Field */}
+              <EmailInputField
                 name="email"
-                className="card-glassmorphism__input"
-                type="email"
                 value={formValues.email}
-                onChange={(e) => {
-                  if (errors.email) setErrors((p) => ({ ...p, email: "" }));
-                  handleChange(e);
+                setValue={(val) => {
+                  if (errors.email) setErrors(prev => ({ ...prev, email: "" }));
+                  setFormValues((prev) => ({ ...prev, email: val }))
                 }}
-                placeholder="Enter email"
-                isInvalid={!!errors.email}
+                externalError={errors.email}
               />
-              <Form.Control.Feedback type="invalid">
-                {errors.email}
-              </Form.Control.Feedback>
-            </Form.Group>
+            </div>
 
-            <Form.Group className="mb-3" controlId="formAddress">
-              <Form.Label>Address</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
+            {/* Address Input Field */}
+            <div className="mb-3">
+              <AddressInputField
                 name="address"
-                className="card-glassmorphism__input"
                 value={formValues.address}
-                onChange={handleChange}
-                placeholder="Enter your address"
+                setValue={(val) => {
+                  if (errors.address) setErrors(prev => ({ ...prev, address: "" }));
+                  setFormValues((prev) => ({ ...prev, address: val }))
+                }}
+                externalError={errors.address}
               />
-            </Form.Group>
+            </div>
 
             <div className="text-muted text-center small">
               To change your photo, click the camera icon below the profile picture.

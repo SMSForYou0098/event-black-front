@@ -5,7 +5,7 @@ import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { Modal, Form, Badge, Image, ListGroup, InputGroup, Button, Card, Row, Col } from 'react-bootstrap';
 import { Search, X, Clock, TrendingUp, Calendar, MapPin, Tag } from 'lucide-react';
 import { getErrorMessage } from "@/utils/errorUtils";
-
+import { GlobalSearchInputField } from '../CustomComponents/FormsFields';
 
 const GlobalSearch = ({ show, handleShow }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -259,36 +259,15 @@ const GlobalSearch = ({ show, handleShow }) => {
     >
       <Modal.Header className="border-bottom border-secondary border-opacity-25 pb-3">
         <div className="w-100">
-          <InputGroup className="bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25">
-            <InputGroup.Text className="bg-transparent border-0 text-muted">
-              <Search size={20} />
-            </InputGroup.Text>
-            <Form.Control
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search events, movies, shows..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-transparent border-0 text-white shadow-none"
-              autoFocus
-            />
-            {searchTerm && (
-              <Button
-                variant="link"
-                className="text-muted text-decoration-none"
-                onClick={() => setSearchTerm('')}
-              >
-                <X size={18} />
-              </Button>
-            )}
-            {/* <Button
-              variant="link"
-              className="text-muted text-decoration-none"
-              onClick={handleShow}
-            >
-              <Badge bg="secondary" className="text-white">Esc</Badge>
-            </Button> */}
-          </InputGroup>
+          {/* Global Search Input Field */}
+          <GlobalSearchInputField
+            value={searchTerm}
+            setValue={(val) => {
+              setSearchTerm(val)
+            }}
+            placeholder="Search events, movies, shows..."
+            autoFocus
+          />
         </div>
       </Modal.Header>
 

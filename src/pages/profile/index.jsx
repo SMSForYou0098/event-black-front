@@ -61,8 +61,8 @@ const UserProfile = () => {
     onSuccess: (data) => {
       // Only update specific profile fields in Redux store
       if (data?.user) {
-        const { name, email, number, photo } = data.user;
-        dispatch(updateUser({ name, email, number, photo }));
+        const { name, email, number, photo, address } = data.user;
+        dispatch(updateUser({ name, email, number, photo, address }));
       }
       refetch();
       toast.success("Profile updated");
@@ -145,6 +145,7 @@ const UserProfile = () => {
       <UserProfileModal
         isEditing={isEditing}
         formValues={formValues}
+        setFormValues={setFormValues}
         originalValues={{ name: profile?.name || "", email: profile?.email || "", address: profile?.address || "" }}
         handleChange={handleChange}
         handleCloseEdit={handleCloseEdit}
