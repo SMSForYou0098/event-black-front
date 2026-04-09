@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useMemo, useCallback, useRef, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useMemo, useCallback, useRef, useState, useEffect, useLayoutEffect } from 'react';
 import { ZoomIn, ZoomOut, RotateCcw, LayoutGrid, Clock } from 'lucide-react';
 import { PRIMARY } from '@/utils/consts';
 import { IS_MOBILE } from '@/components/events/SeatingModule/components/constants';
@@ -248,7 +247,7 @@ function GapPlaceholder({ seat, radius, layoutX, layoutY }) {
 }
 
 function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius, layoutX, layoutY }) {
-  const { toTitleCase } = useMyContext();
+  const { toTitleCase, isMobile } = useMyContext();
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipHover, setTooltipHover] = useState(false);
   const showDelayRef = useRef(null);
@@ -261,6 +260,7 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius, lay
   const top = cy - size / 2;
 
   const handleMouseEnter = () => {
+    if (isMobile) return;
     showDelayRef.current = window.setTimeout(() => setShowTooltip(true), 400);
   };
   const handleMouseLeave = () => {
@@ -283,7 +283,7 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius, lay
     onClick(seat, seat.sectionId, seat.rowId);
   };
 
-  const visible = showTooltip || tooltipHover;
+  const visible = !isMobile && (showTooltip || tooltipHover);
 
   // const statusText = seat.status === 'booked' ? 'Booked' : isSelected ? 'Selected' : 'Available';
   // const statusText = toTitleCase(seat.status);
@@ -549,6 +549,7 @@ const SeatingGrid = ({
   const isPanningRef = useRef(false);
   const DRAG_THRESHOLD_PX = 10;
   const [disableTransformTransition, setDisableTransformTransition] = useState(false);
+  const [hasInitialViewApplied, setHasInitialViewApplied] = useState(false);
   const viewPersistTimeoutRef = useRef(null);
   const appliedDeepLinkRef = useRef(false);
 
@@ -584,6 +585,11 @@ const SeatingGrid = ({
       x: Math.max(minX, Math.min(maxX, panVal.x)),
       y: Math.max(minY, Math.min(maxY, panVal.y)),
     };
+  }, []);
+
+  const logViewGeometry = useCallback((phase, payload) => {
+    // Debug helper to compare initial fit vs reset geometry in browser console.
+    console.log(`[SeatingGrid] ${phase}`, payload);
   }, []);
 
   const visibleSections = useMemo(() => {
@@ -640,18 +646,43 @@ const SeatingGrid = ({
     [sections]
   );
 
-  useEffect(() => {
+  const applyResetPlacement = useCallback((vp, phase = 'after-reset-click') => {
+    const pad = 40;
+    const scaleW = (vp.width - pad * 2) / bounds.width;
+    const scaleH = (vp.height - pad * 2) / bounds.height;
+    const fitScale = Math.min(scaleW, scaleH);
+    const maxZoom = totalSeats <= 40 ? 1.4 : totalSeats <= 80 ? 1.2 : 1;
+    const z = Math.max(0.15, Math.min(fitScale, maxZoom));
+    const px = (vp.width - bounds.width * z) / 2;
+    const py = pad;
+    const nextPan = clampPan({ x: px, y: py }, z, bounds, vp);
+    logViewGeometry(phase, {
+      viewport: vp,
+      bounds: { minX: bounds.minX, minY: bounds.minY, width: bounds.width, height: bounds.height },
+      zoom: z,
+      pan: nextPan,
+      computedPanBeforeClamp: { x: px, y: py },
+      totalSeats,
+    });
+    setZoom(z);
+    setPan(nextPan);
+    setHasInitialViewApplied(true);
+  }, [bounds, totalSeats, clampPan, logViewGeometry]);
+
+  useLayoutEffect(() => {
     if (!viewportSize || bounds.width <= 0 || bounds.height <= 0) return;
     const boundsChanged =
       prevBoundsRef.current.width !== bounds.width || prevBoundsRef.current.height !== bounds.height;
     if (boundsChanged) {
       prevBoundsRef.current = { width: bounds.width, height: bounds.height };
       userHasInteractedRef.current = false;
+      setHasInitialViewApplied(false);
     }
     if (userHasInteractedRef.current) return;
     if (storageKey && typeof window !== 'undefined') {
       try {
-        const raw = sessionStorage.getItem(STORAGE_KEY_PREFIX + storageKey);
+        const key = STORAGE_KEY_PREFIX + storageKey;
+        const raw = window.localStorage.getItem(key) ?? window.sessionStorage.getItem(key);
         if (raw) {
           const data = JSON.parse(raw);
           const bw = data.boundsW;
@@ -669,9 +700,19 @@ const SeatingGrid = ({
           ) {
             const z = Math.max(0.2, Math.min(2, data.zoom));
             const restored = clampPan({ x: data.pan.x, y: data.pan.y }, z, bounds, viewportSize);
+            logViewGeometry('initial-render-restored-from-storage', {
+              viewport: viewportSize,
+              bounds: { minX: bounds.minX, minY: bounds.minY, width: bounds.width, height: bounds.height },
+              zoom: z,
+              pan: restored,
+              rawStoredPan: { x: data.pan.x, y: data.pan.y },
+              totalSeats,
+              storageKey,
+            });
             setZoom(z);
             setPan(restored);
             userHasInteractedRef.current = true;
+            setHasInitialViewApplied(true);
             return;
           }
         }
@@ -685,9 +726,19 @@ const SeatingGrid = ({
     const z = Math.max(0.15, Math.min(fitScale, maxZoom));
     const px = (viewportSize.width - bounds.width * z) / 2;
     const py = pad;
+    const nextPan = clampPan({ x: px, y: py }, z, bounds, viewportSize);
+    logViewGeometry('initial-render-auto-fit', {
+      viewport: viewportSize,
+      bounds: { minX: bounds.minX, minY: bounds.minY, width: bounds.width, height: bounds.height },
+      zoom: z,
+      pan: nextPan,
+      computedPanBeforeClamp: { x: px, y: py },
+      totalSeats,
+    });
     setZoom(z);
-    setPan(clampPan({ x: px, y: py }, z, bounds, viewportSize));
-  }, [bounds, viewportSize, totalSeats, storageKey, clampPan]);
+    setPan(nextPan);
+    setHasInitialViewApplied(true);
+  }, [bounds, viewportSize, totalSeats, storageKey, clampPan, logViewGeometry]);
 
   useEffect(() => {
     if (!storageKey || typeof window === 'undefined') return;
@@ -728,26 +779,20 @@ const SeatingGrid = ({
     setZoom((z) => Math.max(0.2, z / 1.25));
   }, []);
 
-  const handleResetView = useCallback(() => {
+  const getCurrentViewport = useCallback(() => {
     const el = containerRef.current;
-    const vp = viewportSize ??
+    return viewportSize ??
       (el
         ? {
             width: Math.max(100, el.getBoundingClientRect().width),
             height: Math.max(100, el.getBoundingClientRect().height),
           }
         : { width: 100, height: 100 });
-    const pad = 40;
-    const scaleW = (vp.width - pad * 2) / bounds.width;
-    const scaleH = (vp.height - pad * 2) / bounds.height;
-    const fitScale = Math.min(scaleW, scaleH);
-    const maxZoom = totalSeats <= 40 ? 1.4 : totalSeats <= 80 ? 1.2 : 1;
-    const z = Math.max(0.15, Math.min(fitScale, maxZoom));
-    const px = (vp.width - bounds.width * z) / 2;
-    const py = pad;
-    setZoom(z);
-    setPan(clampPan({ x: px, y: py }, z, bounds, vp));
-  }, [bounds, viewportSize, totalSeats, clampPan]);
+  }, [viewportSize]);
+
+  const handleResetView = useCallback(() => {
+    applyResetPlacement(getCurrentViewport(), 'after-reset-click');
+  }, [applyResetPlacement, getCurrentViewport]);
 
   const handleZoomToPoint = useCallback(
     (layoutCenterX, layoutCenterY, zoomLevel) => {
@@ -1065,12 +1110,9 @@ const SeatingGrid = ({
   }, []);
 
   return (
-    <motion.div
+    <div
       ref={setContainerRef}
       onPointerDown={onPointerDown}
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="custom-dark-bg rounded-3 overflow-hidden position-relative user-select-none w-100"
       style={{
         minHeight: IS_MOBILE ? '65vh' : 490,
@@ -1085,10 +1127,11 @@ const SeatingGrid = ({
           left: 0,
           top: 0,
           width: bounds.width,
-          height: bounds.height,
+          height: bounds.height, 
+          opacity: hasInitialViewApplied ? 1 : 0,
           transformOrigin: '0 0',
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-          transition: disableTransformTransition
+          transition: !hasInitialViewApplied || disableTransformTransition
             ? 'none'
             : 'transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           pointerEvents: 'auto',
@@ -1128,6 +1171,8 @@ const SeatingGrid = ({
         className="d-flex flex-wrap gap-3 align-items-center p-2 px-2 rounded-3 small text-white user-select-none"
         style={{
           ...overlayStyle,
+          opacity: hasInitialViewApplied ? 1 : 0,
+          pointerEvents: hasInitialViewApplied ? 'auto' : 'none',
           width: '240px',
           bottom: 10,
           left: '50%', transform: 'translateX(-50%)',
@@ -1174,6 +1219,8 @@ const SeatingGrid = ({
         className="d-flex flex-column gap-2 align-items-center p-2 rounded-3 user-select-none"
         style={{
           ...overlayStyle,
+          opacity: hasInitialViewApplied ? 1 : 0,
+          pointerEvents: hasInitialViewApplied ? 'auto' : 'none',
           bottom: IS_MOBILE ? 66 : 12,
           right: IS_MOBILE ? 5 : 12,
           background: 'rgba(0,0,0,0.5)',
@@ -1208,7 +1255,7 @@ const SeatingGrid = ({
           <RotateCcw size={18} strokeWidth={2.5} />
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

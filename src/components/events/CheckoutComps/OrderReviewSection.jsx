@@ -31,7 +31,9 @@ export const OrderReviewSection = (props) => {
     validatedData?.data?.totalBaseAmount ??
     Number(basePerTicket) * Number(quantity);
   const processingFee = validatedData?.data?.totalConvenienceFee || 0;
-  const total = validatedData?.data?.totalFinalAmount || 0;
+  const grossTotal = Number(validatedData?.data?.totalFinalAmount) || 0;
+  const discount = Number(summaryData?.discount) || 0;
+  const total = Math.max(0, grossTotal - discount);
   return (
     <MotionWrapper
       variant="fadeInRight"

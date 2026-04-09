@@ -1,13 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
-import { Container, Row, Col, Card, Dropdown, Button } from 'react-bootstrap';
-import { Calendar, Clock, Mail, MapPin, User, AlertCircle, SquareAsterisk } from 'lucide-react';
-import CartSteps from '../../../../utils/BookingUtils/CartSteps';
-import { CUSTOM_SECONDORY, PRIMARY } from '../../../../utils/consts';
+import { Container, Dropdown, Button } from 'react-bootstrap';
+import { AlertCircle } from 'lucide-react';
+import { PRIMARY } from '../../../../utils/consts';
 import { useRouter } from "next/router";
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import ReactDOMServer from "react-dom/server";
-import { AttendeesOffcanvas, ETicketAlert, TicketDataSummary, BookingMetadataCard } from '../../../../components/events/CheckoutComps/checkout_utils';
+import { AttendeesOffcanvas } from '../../../../components/events/CheckoutComps/checkout_utils';
+import CommonTicketInfoSection from '../../../../components/events/CheckoutComps/CommonTicketInfoSection';
 import { api } from "@/lib/axiosInterceptor"
 import { useMyContext } from "@/Context/MyContextProvider";
 import { getErrorMessage } from "@/utils/errorUtils";
@@ -47,8 +47,9 @@ const BookingSummary = () => {
             }
 
             const res = await api.post("/verify-booking", { session_id: sid });
+            const normalizedResponse = res?.data?.data ?? res?.data;
 
-            if (res.data.status) {
+            if (normalizedResponse?.status) {
                 Swal.fire({
                     title: 'Booking Confirmed',
                     html: `<p style="display:flex;justify-content:center;align-items:center;gap:10px">
@@ -63,7 +64,7 @@ const BookingSummary = () => {
                     confirmButtonColor: PRIMARY
                 });
 
-                return res.data;
+                return normalizedResponse;
             }
 
             throw new Error('Booking verification failed');
@@ -146,6 +147,24 @@ const BookingSummary = () => {
 
     // Derived data from mutation (before conditional returns)
     const isMaster = mutation.data?.isMaster || false;
+    const rawBookingTax =
+        mutation.data?.bookings_tax ??
+        mutation.data?.booking_tax ??
+        mutation.data?.bookings?.bookings_tax ??
+        mutation.data?.bookings?.booking_tax ??
+        mutation.data?.data?.bookings_tax ??
+        mutation.data?.data?.booking_tax ??
+        mutation.data?.bookings?.bookings?.[0]?.bookings_tax ??
+        mutation.data?.bookings?.bookings?.[0]?.booking_tax ??
+        mutation.data?.taxes ??
+        mutation.data?.bookings?.taxes ??
+        mutation.data?.data?.taxes ??
+        {};
+    const bookingTax = Array.isArray(rawBookingTax) ? rawBookingTax[0] || {} : rawBookingTax;
+    const toAmount = (value, fallback = 0) => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : fallback;
+    };
 
     // For display purposes (user info, dates etc), use first individual booking
     const booking = isMaster ? mutation.data?.bookings?.bookings?.[0] || {} : mutation.data?.bookings || {};
@@ -274,115 +293,111 @@ const BookingSummary = () => {
             />
             <Container >
                 {/* <CartSteps id={'last'} /> */}
-                <ETicketAlert />
-                <Row>
-                    {/* Right Column */}
-                    <Col lg={8}>
-                        <TicketDataSummary
-                            eventName={event?.name}
-                            ticketName={ticket?.name}
-                            price={ticket?.price}
-                            quantity={quantity}
-                            hidePrices={false}
-                            handleOpen={handleOpen}
-                            attendees={attendees}
-                            sale_price={ticket?.sale_price}
-                            currency={ticket?.currency}
-                            showAttBtn={true}
-                            subTotal={mutation?.data?.taxes?.base_amount ?? 0}
-                            processingFee={mutation?.data?.taxes?.total_tax ?? 0}
-                            total={mutation?.data?.taxes?.final_amount ?? 0}
-                        />
-                        <AttendeesOffcanvas
-                            show={showAttendees}
-                            handleClose={handleClose}
-                            attendees={attendees}
-                            title="Event Attendees"
-                        />
-                        {attendees?.length !== 0 && (
-                            <div className="d-block d-sm-none text-center my-3">
-                                <CustomBtn
-                                    size="sm"
-                                    variant="primary"
-                                    HandleClick={handleOpen}
-                                    buttonText="View Attendees"
-                                />
-                            </div>
-                        )}
-                    </Col>
-
-                    {/* Left Column */}
-                    <Col lg={4}>
-                        <BookingMetadataCard
-                            eventDates={getEventDates()}
-                            bookingDate={formatDate(booking?.created_at)}
-                            seatName={seat_name}
-                            bookedForDate={booking?.booking_date ? formatDate(booking?.booking_date) : null}
-                            entryTime={event?.entry_time}
-                            startTime={event?.start_time}
-                            venueAddress={venue?.address || event?.address}
-                            userName={user?.name}
-                            userNumber={user?.number}
-                        />
-                        {/* Pending Approval Message */}
-                        {isApprovalRequired && (
-                            <div className="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
-                                <AlertCircle size={20} className="flex-shrink-0 mt-1" />
-                                <div>
-                                    <strong>Booking Pending Approval</strong>
-                                    <p className="mb-0 small">Your booking is awaiting approval from the event organizer. You will receive your tickets once approved.</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* <div className='d-none d-sm-flex gap-2 justify-content-center align-items-center'> */}
-                        <div
-                            className=" d-none d-sm-flex gap-2 justify-content-center align-items-center"
-                        >
-                            {!isApprovalRequired && (
-                                quantity === 1 ? (
-                                    <Button
-                                        variant="primary"
+                <CommonTicketInfoSection
+                    summaryProps={{
+                        eventName: event?.name,
+                        ticketName: ticket?.name,
+                        price: ticket?.price,
+                        quantity,
+                        hidePrices: false,
+                        handleOpen,
+                        attendees,
+                        sale_price: ticket?.sale_price,
+                        currency: ticket?.currency,
+                        showAttBtn: true,
+                        subTotal: toAmount(bookingTax.base_amount ?? bookingTax.total_base_amount, 0),
+                        processingFee:
+                            toAmount(bookingTax.total_tax ?? bookingTax.total_tax_total, 0) +
+                            toAmount(bookingTax.convenience_fee ?? bookingTax.total_convenience_fee, 0),
+                        total: toAmount(bookingTax.final_amount ?? bookingTax.total_final_amount, 0),
+                    }}
+                    metadataProps={{
+                        eventDates: getEventDates(),
+                        bookingDate: formatDate(booking?.created_at),
+                        seatName: seat_name,
+                        bookedForDate: booking?.booking_date ? formatDate(booking?.booking_date) : null,
+                        entryTime: event?.entry_time,
+                        startTime: event?.start_time,
+                        venueAddress: venue?.address || event?.address,
+                        userName: user?.name,
+                        userNumber: user?.number,
+                    }}
+                    leftExtra={
+                        <>
+                            <AttendeesOffcanvas
+                                show={showAttendees}
+                                handleClose={handleClose}
+                                attendees={attendees}
+                                title="Event Attendees"
+                            />
+                            {attendees?.length !== 0 && (
+                                <div className="d-block d-sm-none text-center my-3">
+                                    <CustomBtn
                                         size="sm"
-                                        className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
-                                        onClick={() => handleTicketPreview('single', booking?.id)}
-                                    >
-                                        <i className="fa-solid fa-download"></i> Download
-                                    </Button>
-                                ) : (
-                                    <Dropdown>
-                                        <Dropdown.Toggle
+                                        variant="primary"
+                                        HandleClick={handleOpen}
+                                        buttonText="View Attendees"
+                                    />
+                                </div>
+                            )}
+                        </>
+                    }
+                    rightExtra={
+                        <>
+                            {isApprovalRequired && (
+                                <div className="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
+                                    <AlertCircle size={20} className="flex-shrink-0 mt-1" />
+                                    <div>
+                                        <strong>Booking Pending Approval</strong>
+                                        <p className="mb-0 small">Your booking is awaiting approval from the event organizer. You will receive your tickets once approved.</p>
+                                    </div>
+                                </div>
+                            )}
+                            <div className=" d-none d-sm-flex gap-2 justify-content-center align-items-center">
+                                {!isApprovalRequired && (
+                                    quantity === 1 ? (
+                                        <Button
                                             variant="primary"
                                             size="sm"
                                             className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                                            onClick={() => handleTicketPreview('single', booking?.id)}
                                         >
                                             <i className="fa-solid fa-download"></i> Download
-                                        </Dropdown.Toggle>
-                                        <Dropdown.Menu align="end" className="custom-dropdown-menu">
-                                            <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
-                                                Group Ticket
-                                            </Dropdown.Item>
-                                            {isMaster && (
-                                                <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
-                                                    Single Ticket
+                                        </Button>
+                                    ) : (
+                                        <Dropdown>
+                                            <Dropdown.Toggle
+                                                variant="primary"
+                                                size="sm"
+                                                className="iq-button fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+                                            >
+                                                <i className="fa-solid fa-download"></i> Download
+                                            </Dropdown.Toggle>
+                                            <Dropdown.Menu align="end" className="custom-dropdown-menu">
+                                                <Dropdown.Item onClick={() => handleTicketPreview('combine', booking?.id)} className="custom-dropdown-item">
+                                                    Group Ticket
                                                 </Dropdown.Item>
-                                            )}
-                                        </Dropdown.Menu>
-                                    </Dropdown>
-                                )
-                            )}
-                            {attendees?.length !== 0 && (
-                                <CustomBtn
-                                    size="sm"
-                                    variant="primary"
-                                    HandleClick={handleOpen}
-                                    buttonText="View Attendees"
-                                />
-                            )}
-                        </div>
-
-                    </Col>
-                </Row>
+                                                {isMaster && (
+                                                    <Dropdown.Item onClick={() => handleTicketPreview('individual', booking?.id)} className="custom-dropdown-item">
+                                                        Single Ticket
+                                                    </Dropdown.Item>
+                                                )}
+                                            </Dropdown.Menu>
+                                        </Dropdown>
+                                    )
+                                )}
+                                {attendees?.length !== 0 && (
+                                    <CustomBtn
+                                        size="sm"
+                                        variant="primary"
+                                        HandleClick={handleOpen}
+                                        buttonText="View Attendees"
+                                    />
+                                )}
+                            </div>
+                        </>
+                    }
+                />
             </Container>
         </div>
     );

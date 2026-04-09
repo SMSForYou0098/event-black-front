@@ -4,6 +4,10 @@ import { Modal, Button } from 'react-bootstrap';
 import { CustomHeader } from '../ModalUtils/CustomModalHeader';
 import CustomBtn from '../CustomBtn';
 import { useRouter } from 'next/router';
+
+/** Booking session length from `timestamp` (milliseconds). Keep logic and copy in sync. */
+const SESSION_DURATION_MS = 6 * 60 * 1000;
+
 const Timer = ({ timestamp, onExpire, navigateOnExpire }) => {
     const [timeLeft, setTimeLeft] = useState(0);
     const [showModal, setShowModal] = useState(false);
@@ -12,8 +16,7 @@ const Timer = ({ timestamp, onExpire, navigateOnExpire }) => {
         const calculateTimeLeft = () => {
             const now = Date.now();
             const startTime = parseInt(timestamp);
-            const tenMinutesInMs = 10 * 60 * 1000; // 10 minutes in milliseconds
-            const targetTime = startTime + tenMinutesInMs;
+            const targetTime = startTime + SESSION_DURATION_MS;
             const difference = targetTime - now;
 
             if (difference > 0) {
@@ -26,10 +29,8 @@ const Timer = ({ timestamp, onExpire, navigateOnExpire }) => {
             const now = Date.now();
             const startTime = parseInt(timestamp);
             const timeDiff = now - startTime;
-            const tenMinutesInMs = 10 * 60 * 1000;
-
-            // If more than 10 minutes have passed since timestamp
-            if (timeDiff > tenMinutesInMs) {
+            // If more than session duration has passed since timestamp
+            if (timeDiff > SESSION_DURATION_MS) {
                 setShowModal(true);
                 if (!hasExpired && onExpire) {
                     // console.log('⏰ Timer expired - calling onExpire callback');
@@ -128,7 +129,7 @@ const Timer = ({ timestamp, onExpire, navigateOnExpire }) => {
                 />
                 <Modal.Body className='p-4'>
                     {/* 🐛 BUG #9: Vague error message */}
-                    {/* ❌ OLD: "More than 10 minutes have passed here." - unclear */}
+                    {/* ❌ OLD: "More than 6 minutes have passed here." - unclear */}
                     {/* ✅ NEW: Clear, actionable message */}
                     <div className="text-center">
                         <img
@@ -137,7 +138,7 @@ const Timer = ({ timestamp, onExpire, navigateOnExpire }) => {
                             className="img-fluid mb-3"
                         />
                         {/* <p className="mb-3">
-                            Your booking session has expired after 10 minutes of inactivity.
+                            Your booking session has expired after 6 minutes of inactivity.
                         </p>
                         <p className="text-muted mb-0">
                             Please start a new booking to continue.

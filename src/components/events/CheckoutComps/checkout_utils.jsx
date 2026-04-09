@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Alert, Form, Button, Table, Card, InputGroup, Spinner, Offcanvas, ListGroup, Row, Col } from 'react-bootstrap';
-import { Receipt, Tag, ChevronDown, Ticket, Crown, InstagramIcon, Calendar, Clock, MapPin, User, SquareAsterisk } from 'lucide-react';
+import { Receipt, Tag, ChevronDown, Ticket, Crown, InstagramIcon, Calendar, Clock, MapPin, User, SquareAsterisk, X } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
-import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY } from '../../../utils/consts';
+import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY, PRIMARY } from '../../../utils/consts';
 import { decrypt } from '../../../utils/crypto';
 import Image from "next/image";
 import { FaInstagram, FaYoutube } from "react-icons/fa";
@@ -196,6 +196,9 @@ export const PromoCodeSection = ({
   setCouponCode,
   handleApplyCoupon,
   promoCodeLoading,
+  handleRemoveCoupon,
+  appliedPromoCode,
+  appliedDiscount = 0,
 }) => (
   <MotionWrapper variant="fadeIn" delay={0.4} className="py-2 border-bottom">
     <InputGroup>
@@ -207,7 +210,7 @@ export const PromoCodeSection = ({
         className="custom-dark-content-bg rounded-3 rounded-start-0 border-0"
         placeholder="Enter promo code"
         value={couponCode}
-        onChange={(e) => setCouponCode(e.target.value)}
+        onChange={(e) => setCouponCode((e.target.value || "").toUpperCase().replace(/[^A-Z0-9]/g, ""))}
       />
       <CustomBtn
         variant="primary"
@@ -220,6 +223,23 @@ export const PromoCodeSection = ({
         hideIcon={true}
       />
     </InputGroup>
+    {!!appliedPromoCode && (
+      <div className="d-flex justify-content-between align-items-center mt-2">
+        <small className="text-success">
+          Applied: {appliedPromoCode} {Number(appliedDiscount) > 0 ? `( -₹${Number(appliedDiscount).toLocaleString()} )` : ""}
+        </small>
+        <Button
+          type="button"
+          variant="light"
+          size="sm"
+          className="p-0 py-1 px-1"
+          style={{lineHeight: 0}}
+          onClick={handleRemoveCoupon}
+        >
+          <X size={14} color={PRIMARY}/>
+        </Button>
+      </div>
+    )}
   </MotionWrapper>
 );
 
@@ -319,15 +339,14 @@ export const TicketDataSummary = (props) => {
           </div>
           <span className="text-white fw-bold fs-6">{quantity}</span>
         </div> */}
-        {
-          summaryData?.seats?.length > 0 &&
+        {summaryData?.seats?.length > 0 && (
           <div className="d-flex justify-content-between align-items-center mb-2" style={{ fontSize: '14px' }}>
             <span>Seats</span>
             <span className="text-white fw-bold">
-              {summaryData.seats.map(seat => seat.seat_name).join(', ')}
+              {summaryData.seats.map((seat) => seat.seat_name).join(', ')}
             </span>
           </div>
-        }
+        )}
         {!hidePrices &&
           <>
             <div className="d-flex justify-content-between align-items-center mb-2" style={{ fontSize: '14px' }}>
@@ -341,7 +360,7 @@ export const TicketDataSummary = (props) => {
             </div>
             {/* <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' /> */}
 
-            <div className="d-none d-md-flex justify-content-between align-items-center">
+            <div className="d-flex justify-content-between align-items-center">
               <h6 className="text-white fw-bold">Total Amount</h6>
               <span className='custom-text-secondary fw-bold' style={{ fontSize: '18px' }}>{sym}{total}</span>
             </div>
@@ -470,6 +489,17 @@ export const BookingMetadataCard = ({
     <Card className="custom-dark-bg mb-4">
       <Card.Body className="p-4">
         <Row className="g-3 mb-3">
+          {seatName && (
+            <Col xs={12}>
+              <div className="d-flex align-items-center">
+                <SquareAsterisk size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+                <div>
+                  <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Seats</div>
+                  <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{seatName}</div>
+                </div>
+              </div>
+            </Col>
+          )}
           <Col xs={6}>
             <div className="d-flex align-items-center">
               <Calendar size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
@@ -488,19 +518,6 @@ export const BookingMetadataCard = ({
               </div>
             </div>
           </Col>
-          {
-            seatName && (
-              <Col xs={6}>
-                <div className="d-flex align-items-center">
-                  <SquareAsterisk size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
-                  <div>
-                    <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Seats</div>
-                    <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{seatName}</div>
-                  </div>
-                </div>
-              </Col>
-            )
-          }
           {
             bookedForDate && (
               <Col xs={6}>

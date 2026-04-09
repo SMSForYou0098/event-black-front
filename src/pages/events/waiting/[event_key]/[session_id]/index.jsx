@@ -53,8 +53,16 @@ const PaymentWaiting = () => {
         };
     }, [status]);
 
+    const cartPath = event_key
+        ? `/events/cart/${encodeURIComponent(event_key)}`
+        : null;
+
     useEffect(() => {
         if (!session_id || !event_key) return;
+
+        const goToCart = () => {
+            router.push(`/events/cart/${encodeURIComponent(event_key)}`);
+        };
 
         // Set timeout for no response scenario
         timeoutRef.current = setTimeout(() => {
@@ -66,7 +74,7 @@ const PaymentWaiting = () => {
 
             // Wait 5 seconds showing the reassuring message, then redirect
             setTimeout(() => {
-                router.push('/');
+                goToCart();
             }, 5000);
         }, TIMEOUT_DURATION);
 
@@ -101,6 +109,34 @@ const PaymentWaiting = () => {
                             const isCancelled = data.status === 'cancelled' || data.payment_status === 'cancelled';
                             setErrorMessage(getErrorMessage(data, isCancelled ? 'Payment was cancelled.' : 'Payment failed. Please try again.'));
                             eventSource.close();
+                            setTimeout(() => {
+                                goToCart();
+                            }, 1500);
+                        } else {
+                            const statusVal = (data.status ?? data.payment_status ?? '')
+                                .toString()
+                                .toLowerCase();
+                            const waitingStates = new Set([
+                                'pending',
+                                'processing',
+                                'awaiting',
+                                'awaiting_payment',
+                                'initiated',
+                                'created',
+                                'in_progress',
+                                'in-progress',
+                            ]);
+                            if (statusVal && !waitingStates.has(statusVal)) {
+                                if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                                setStatus('failed');
+                                setErrorMessage(
+                                    getErrorMessage(data, 'Payment could not be completed.')
+                                );
+                                eventSource.close();
+                                setTimeout(() => {
+                                    goToCart();
+                                }, 1500);
+                            }
                         }
 
                     } catch (parseError) {
@@ -120,7 +156,7 @@ const PaymentWaiting = () => {
                         setMessage('Taking longer than expected...');
 
                         setTimeout(() => {
-                            router.push('/');
+                            goToCart();
                         }, 5000);
                     }
                 };
@@ -132,7 +168,7 @@ const PaymentWaiting = () => {
                 setMessage('Taking longer than expected...');
 
                 setTimeout(() => {
-                    router.push('/');
+                    goToCart();
                 }, 5000);
             }
         }, 3000); // 3 second delay
@@ -150,7 +186,7 @@ const PaymentWaiting = () => {
                 clearTimeout(timeoutRef.current);
             }
         };
-    }, [session_id, event_key]);
+    }, [session_id, event_key, router, authToken]);
 
     const getStatusIcon = () => {
         switch (status) {
@@ -164,11 +200,7 @@ const PaymentWaiting = () => {
     };
 
     const handleRetry = () => {
-        router.push(`/events/cart/${event_key}`);
-    };
-
-    const handleViewBookings = () => {
-        router.push('/bookings');
+        if (cartPath) router.push(cartPath);
     };
 
     if (!session_id) {
@@ -214,14 +246,20 @@ const PaymentWaiting = () => {
                         <p className="text-muted mb-4">
                             {status === 'pending' && 'Please wait while we confirm your payment.'}
                             {status === 'confirmed' && 'Redirecting to your booking summary...'}
-                            {status === 'failed' && errorMessage}
+                            {status === 'failed' && (
+                                <>
+                                    {errorMessage}
+                                    <br />
+                                    <small className="text-muted">Redirecting to your cart...</small>
+                                </>
+                            )}
                             {status === 'timeout' && (
                                 <>
                                     <span className="text-warning fw-semibold">Wait a moment!</span> We are still confirming your booking status.
                                     <br />
                                     If your payment was successful, you will receive your tickets via WhatsApp shortly.
                                     <br />
-                                    <small>Redirecting to home page...</small>
+                                    <small>Redirecting to your cart...</small>
                                 </>
                             )}
                         </p>
@@ -244,20 +282,15 @@ const PaymentWaiting = () => {
                             </div>
                         )}
 
-                        {/* Action Buttons for failed status */}
-                        {status === 'failed' && (
-                            <div className="d-flex gap-3 justify-content-center">
+                        {/* Optional: go to cart immediately while redirect is pending */}
+                        {status === 'failed' && cartPath && (
+                            <div className="d-flex justify-content-center">
                                 <button
-                                    className="btn btn-outline-secondary"
-                                    onClick={handleViewBookings}
-                                >
-                                    View Bookings
-                                </button>
-                                <button
+                                    type="button"
                                     className="btn btn-primary"
                                     onClick={handleRetry}
                                 >
-                                    Try Again
+                                    Go to cart now
                                 </button>
                             </div>
                         )}

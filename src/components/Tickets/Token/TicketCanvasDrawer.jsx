@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Row, Col } from "react-bootstrap";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper";
+import { useQuery } from "@tanstack/react-query";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -14,6 +15,17 @@ import MobileTwoButtonFooter from "@/utils/MobileTwoButtonFooter";
 import { TbBrandInstagramFilled, TbBrandYoutubeFilled } from 'react-icons/tb';
 import imgLoader from "../../../assets/event/stock/loader111.gif";
 import { YOUTUBE_LINK, INSTAGRAM_LINK } from "@/utils/consts";
+import { api } from "@/lib/axiosInterceptor";
+
+const fetchTicketImage = async (path) => {
+    if (!path) return null;
+    const response = await api.post(
+        "get-image/retrive",
+        { path },
+        { responseType: "blob" }
+    );
+    return URL.createObjectURL(response.data);
+};
 
 const TicketCanvasDrawer = ({
     showDrawer,
@@ -37,6 +49,54 @@ const TicketCanvasDrawer = ({
     const handleCanvasReady = React.useCallback(() => {
         setIsCanvasReady(true);
     }, [setIsCanvasReady]);
+
+    const normalizedBookings = Array.isArray(ticketData?.bookings) && ticketData.bookings.length > 0
+        ? ticketData.bookings
+        : (Array.isArray(ticketData?.data) ? ticketData.data : []);
+
+    const firstBooking = normalizedBookings[0] || {};
+    const mergedTicket = firstBooking?.ticket || ticketData?.ticket || {};
+    const mergedEvent = mergedTicket?.event || ticketData?.event || {};
+    const mergedUser = firstBooking?.user || firstBooking?.attendee || ticketData?.user || {};
+    const defaultBg = mergedTicket?.background_image || ticketData?.card_url || "";
+    const ticketBgUrl = defaultBg;
+
+    // Match summary page behavior: prefetch background immediately on drawer open.
+    const {
+        data: cachedBgImage,
+        isLoading: isBgLoading,
+        isError: isBgError,
+    } = useQuery({
+        queryKey: ["token-ticket-drawer-bg", ticketBgUrl],
+        queryFn: () => fetchTicketImage(ticketBgUrl),
+        enabled: !!showDrawer && !!ticketBgUrl,
+        staleTime: 1000 * 60 * 30,
+        retry: 1,
+    });
+
+    const drawerPreloadedImage = cardImageUrl || cachedBgImage || undefined;
+    const isDrawerImageReady = !isBgLoading || isBgError || !ticketBgUrl;
+
+    const combinedCanvasData = {
+        ...ticketData,
+        ticket: {
+            ...mergedTicket,
+            event: mergedEvent,
+            background_image: mergedTicket?.background_image || defaultBg,
+        },
+        event: mergedEvent,
+        user: mergedUser,
+        bookings: normalizedBookings,
+        booking_date: firstBooking?.booking_date || ticketData?.booking_date,
+        seat_name:
+            firstBooking?.seat_name ||
+            firstBooking?.event_seat_status?.seat_name ||
+            ticketData?.seat_name,
+        order_id:
+            drawerType === "single"
+                ? (firstBooking?.token || ticketData?.token || orderId)
+                : (ticketData?.order_id || orderId),
+    };
 
     return (
         <CustomDrawer
@@ -128,6 +188,7 @@ const TicketCanvasDrawer = ({
                                 className="w-100"
                                 wrapperClassName="w-100"
                                 HandleClick={handleGenerateTicket}
+                                loading={!isDrawerImageReady}
                             />
                         </div>
                     </>
@@ -153,40 +214,16 @@ const TicketCanvasDrawer = ({
                                                     <TicketCanvasView
                                                         ref={singleCanvasRef}
                                                         showDetails={false}
-                                                        preloadedImage={cardImageUrl}
+                                                        preloadedImage={drawerPreloadedImage}
                                                         ticketNumber={drawerType === "single" ? 1 : undefined}
                                                         ticketLabel={drawerType === "single" ? "(I)" : "(G)"}
                                                         onReady={handleCanvasReady}
-                                                        ticketData={{
-                                                            ticket: {
-                                                                name: ticketData?.ticket?.name || "Event Ticket",
-                                                                price: ticketData?.ticket?.price,
-                                                                currency: ticketData?.ticket?.currency,
-                                                                background_image: cardImageUrl,
-                                                                event: {
-                                                                    name: ticketData?.event?.name,
-                                                                    date_range: ticketData?.event?.date_range,
-                                                                    start_time: ticketData?.event?.start_time,
-                                                                    entry_time: ticketData?.event?.entry_time,
-                                                                    address: ticketData?.event?.address || "Venue not specified",
-                                                                },
-                                                            },
-                                                            user: {
-                                                                name: ticketData?.user?.name || "Guest",
-                                                                number: ticketData?.user?.number || "N/A",
-                                                            },
-                                                            order_id:
-                                                                drawerType === "single" && ticketData?.data?.[0]?.token
-                                                                    ? ticketData.data[0].token
-                                                                    : orderId,
-                                                            booking_type: ticketData?.booking_type,
-                                                            booking_date: ticketData?.data?.[0]?.booking_date,
-                                                        }}
+                                                        ticketData={combinedCanvasData}
                                                     />
                                                 </div>
                                             </div>
                                         ) : (
-                                            ticketData?.data?.length > 0 && (
+                                            normalizedBookings.length > 0 && (
                                                 <Swiper
                                                     modules={[Navigation, Pagination]}
                                                     spaceBetween={20}
@@ -196,38 +233,26 @@ const TicketCanvasDrawer = ({
                                                     onSlideChange={(swiper) => setActiveSlideIndex(swiper.activeIndex)}
                                                     className="w-100 py-4"
                                                 >
-                                                    {ticketData?.data?.map((item, index) => (
-                                                        <SwiperSlide key={item.token}>
+                                                    {normalizedBookings.map((item, index) => (
+                                                        <SwiperSlide key={item?.token || item?.id || index}>
                                                             <div className="text-center w-100 d-flex justify-content-center">
                                                                 <TicketCanvasView
                                                                     ref={(el) => {
                                                                         swiperCanvasRefs.current[index] = el;
                                                                     }}
                                                                     showDetails={false}
-                                                                    preloadedImage={cardImageUrl}
+                                                                    preloadedImage={drawerPreloadedImage}
                                                                     ticketNumber={index + 1}
                                                                     ticketLabel="(I)"
                                                                     onReady={handleCanvasReady}
                                                                     ticketData={{
-                                                                        ticket: {
-                                                                            name: ticketData?.ticket?.name || "Event Ticket",
-                                                                            price: ticketData?.ticket?.price,
-                                                                            currency: ticketData?.ticket?.currency,
-                                                                            background_image: cardImageUrl,
-                                                                            event: {
-                                                                                name: ticketData?.event?.name,
-                                                                                date_range: ticketData?.event?.date_range,
-                                                                                start_time: ticketData?.event?.start_time,
-                                                                                entry_time: ticketData?.event?.entry_time,
-                                                                                address: ticketData?.event?.address || "Venue not specified",
-                                                                            },
-                                                                        },
-                                                                        user: {
-                                                                            name: ticketData?.user?.name || "Guest",
-                                                                            number: ticketData?.user?.number || "N/A",
-                                                                        },
+                                                                        ...item,
+                                                                        ticket: item?.ticket || mergedTicket,
+                                                                        event: item?.ticket?.event || mergedEvent,
+                                                                        user: item?.user || item?.attendee || mergedUser,
                                                                         attendee: item?.attendee || null,
-                                                                        order_id: item.token,
+                                                                        seat_name: item?.seat_name || item?.event_seat_status?.seat_name,
+                                                                        order_id: item?.token || item?.order_id || orderId,
                                                                         booking_type: ticketData?.booking_type || "individual",
                                                                         booking_date: item?.booking_date,
                                                                     }}

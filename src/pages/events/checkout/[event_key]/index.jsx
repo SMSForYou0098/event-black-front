@@ -134,6 +134,15 @@ const CartPage = () => {
     });
   };
 
+  const handleRemoveCoupon = () => {
+    setPromo({
+      discount: 0,
+      discountType: "",
+      appliedCode: "",
+    });
+    setCouponCode("");
+  };
+
   // const { data: taxData } = useQuery({
   //   queryKey: ["taxes", 1],
   //   queryFn: async () => {
@@ -791,6 +800,9 @@ const CartPage = () => {
                 couponCode={couponCode}
                 setCouponCode={setCouponCode}
                 handleApplyCoupon={handleApplyCoupon}
+                handleRemoveCoupon={handleRemoveCoupon}
+                appliedPromoCode={promo.appliedCode}
+                appliedDiscount={discountAmount}
                 isExpanded={isExpanded}
                 setIsExpanded={setIsExpanded}
                 promoCodeLoading={applyCouponMutation.isPending}
@@ -813,6 +825,9 @@ const CartPage = () => {
                 couponCode={couponCode}
                 setCouponCode={setCouponCode}
                 handleApplyCoupon={handleApplyCoupon}
+                handleRemoveCoupon={handleRemoveCoupon}
+                appliedPromoCode={promo.appliedCode}
+                appliedDiscount={discountAmount}
                 promoCodeLoading={applyCouponMutation.isPending}
                 isExpanded={isExpanded}
                 setIsExpanded={setIsExpanded}

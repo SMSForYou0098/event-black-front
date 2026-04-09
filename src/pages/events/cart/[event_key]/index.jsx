@@ -9,7 +9,7 @@ import { LargeAndDesktop } from "@/utils/ResponsiveRenderer";
 
 import { useMyContext } from "@/Context/MyContextProvider";
 import BookingMobileFooter from "../../../../utils/BookingUtils/BookingMobileFooter";
-import { publicApi, api } from "@/lib/axiosInterceptor";
+import { api } from "@/lib/axiosInterceptor";
 import { store } from "@/store"; // needed to read fresh auth state after re-login
 import { useRouter } from "next/router";
 import BookingTickets from "../../../../utils/BookingUtils/BookingTickets";

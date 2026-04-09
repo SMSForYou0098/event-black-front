@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/router";
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import Swal from "sweetalert2";
 import moment from "moment";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +10,7 @@ import { useMyContext } from "@/Context/MyContextProvider";
 import { publicApi } from "@/lib/axiosInterceptor";
 import TicketErrorDisplay from "@/components/errors/TicketErrorDisplay";
 import { getErrorMessage } from "@/utils/errorUtils";
-import { ETicketAlert, TicketDataSummary, BookingMetadataCard } from "@/components/events/CheckoutComps/checkout_utils";
+import CommonTicketInfoSection from "@/components/events/CheckoutComps/CommonTicketInfoSection";
 
 
 // Extracted Components
@@ -114,15 +114,89 @@ const UserCard = () => {
     retry: 1,
   });
 
+  const bookingPayload = useMemo(() => {
+    return ticketData?.data?.status ? ticketData.data : ticketData;
+  }, [ticketData]);
+
+  const normalizedTicketData = useMemo(() => {
+    if (!bookingPayload) return null;
+
+    if (Array.isArray(bookingPayload?.bookings)) {
+      return bookingPayload;
+    }
+
+    if (Array.isArray(bookingPayload?.bookings?.bookings)) {
+      return {
+        ...bookingPayload,
+        bookings: bookingPayload.bookings.bookings,
+      };
+    }
+
+    // Non-master gen-card shape: bookings is a single booking object.
+    if (bookingPayload?.bookings && !Array.isArray(bookingPayload.bookings)) {
+      const singleBooking = bookingPayload.bookings;
+      const singleTicket = singleBooking?.ticket || bookingPayload?.ticket || {};
+      const singleEvent = singleTicket?.event || bookingPayload?.event || {};
+      const singleUser = singleBooking?.user || {
+        name: singleBooking?.name || bookingPayload?.user?.name,
+        number: singleBooking?.number || bookingPayload?.user?.number,
+        email: singleBooking?.email || bookingPayload?.user?.email,
+      };
+
+      return {
+        ...bookingPayload,
+        ticket: singleTicket,
+        event: singleEvent,
+        user: singleUser,
+        bookings: [{
+          ...singleBooking,
+          ticket: singleTicket,
+          user: singleUser,
+          seat_name:
+            singleBooking?.seat_name ||
+            singleBooking?.event_seat_status?.seat_name ||
+            "",
+          booking_type: singleBooking?.booking_type || bookingPayload?.booking_type,
+          booking_date: singleBooking?.booking_date || bookingPayload?.booking_date,
+        }],
+      };
+    }
+
+    const fallbackTicket = bookingPayload?.ticket || {};
+    const fallbackEvent = fallbackTicket?.event || bookingPayload?.event || {};
+    const fallbackUser = bookingPayload?.user || {};
+    const sourceBookings = Array.isArray(bookingPayload?.data) ? bookingPayload.data : [];
+
+    const bookings = sourceBookings.map((item) => ({
+      ...item,
+      ticket: item?.ticket || {
+        ...fallbackTicket,
+        event: fallbackEvent,
+      },
+      user: item?.user || item?.attendee || fallbackUser,
+      seat_name: item?.seat_name || item?.event_seat_status?.seat_name || "",
+      booking_type: item?.booking_type || bookingPayload?.booking_type,
+      booking_date: item?.booking_date || bookingPayload?.booking_date,
+    }));
+
+    return {
+      ...bookingPayload,
+      ticket: fallbackTicket,
+      event: fallbackEvent,
+      user: fallbackUser,
+      bookings,
+    };
+  }, [bookingPayload]);
+
   // Query 3: Fetch card image
   const {
     data: cardImage,
     isLoading: isImageLoading,
     isError: isImageError,
   } = useQuery({
-    queryKey: ["card-image", ticketData?.card_url],
-    queryFn: () => fetchCardImage(ticketData?.card_url),
-    enabled: !!ticketData?.card_url,
+    queryKey: ["card-image", bookingPayload?.card_url],
+    queryFn: () => fetchCardImage(bookingPayload?.card_url),
+    enabled: !!bookingPayload?.card_url,
     staleTime: 1000 * 60 * 30,
     retry: 1,
   });
@@ -135,14 +209,14 @@ const UserCard = () => {
       img.src = cardImage;
       img.onload = () => setImageLoaded(true);
       img.onerror = () => setImageLoaded(true);
-    } else if (ticketData && !ticketData.card_url) {
+    } else if (bookingPayload && !bookingPayload.card_url) {
       // No card URL - proceed with white fallback
       setImageLoaded(true);
     } else if (isImageError) {
       // Image fetch failed - proceed with white fallback
       setImageLoaded(true);
     }
-  }, [cardImage, ticketData, isImageError]);
+  }, [cardImage, bookingPayload, isImageError]);
 
   // Cleanup blob URL on unmount
   useEffect(() => {
@@ -163,7 +237,82 @@ const UserCard = () => {
     }
   }, [isTokenError, tokenError, isTicketError, ticketError, ErrorAlert]);
 
-  const ticketCount = useMemo(() => ticketData?.data?.length || 0, [ticketData]);
+  const bookingsList = normalizedTicketData?.bookings || [];
+  const isMaster = Boolean(normalizedTicketData?.isMaster || bookingsList.length > 1);
+  const booking = bookingsList[0] || {};
+  const ticket = booking?.ticket || normalizedTicketData?.ticket || {};
+  const event = ticket?.event || normalizedTicketData?.event || {};
+  const user = {
+    name: booking?.user?.name || booking?.name || normalizedTicketData?.user?.name,
+    number: booking?.user?.number || booking?.number || normalizedTicketData?.user?.number,
+  };
+  const seatName = bookingsList
+    .map((b) => b?.seat_name || b?.event_seat_status?.seat_name)
+    .filter(Boolean)
+    .join(", ");
+
+  const ticketCount = useMemo(() => {
+    if (isMaster) return bookingsList.length || 0;
+    return bookingsList.length > 0 ? 1 : 0;
+  }, [isMaster, bookingsList, booking]);
+
+  const bookingPricing = useMemo(() => {
+    const rawTax =
+      bookingPayload?.bookings_tax ??
+      bookingPayload?.booking_tax ??
+      bookingPayload?.bookings?.bookings_tax ??
+      bookingPayload?.bookings?.booking_tax ??
+      bookingPayload?.data?.bookings_tax ??
+      bookingPayload?.data?.booking_tax ??
+      bookingPayload?.bookings?.bookings?.[0]?.bookings_tax ??
+      bookingPayload?.bookings?.bookings?.[0]?.booking_tax ??
+      bookingPayload?.taxes ??
+      bookingPayload?.bookings?.taxes ??
+      bookingPayload?.data?.taxes ??
+      normalizedTicketData?.bookings_tax ??
+      normalizedTicketData?.booking_tax ??
+      normalizedTicketData?.bookings?.bookings_tax ??
+      normalizedTicketData?.bookings?.booking_tax ??
+      normalizedTicketData?.data?.bookings_tax ??
+      normalizedTicketData?.data?.booking_tax ??
+      normalizedTicketData?.bookings?.bookings?.[0]?.bookings_tax ??
+      normalizedTicketData?.bookings?.bookings?.[0]?.booking_tax ??
+      normalizedTicketData?.taxes ??
+      normalizedTicketData?.bookings?.taxes ??
+      normalizedTicketData?.data?.taxes ??
+      booking?.bookings_tax ??
+      booking?.booking_tax ??
+      {};
+
+    const tax = Array.isArray(rawTax) ? rawTax[0] || {} : rawTax;
+    const toAmount = (value, fallback = 0) => {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    };
+
+    const subTotal = toAmount(tax.base_amount ?? tax.total_base_amount, 0);
+    const processingFee =
+      toAmount(tax.total_tax ?? tax.total_tax_total, 0) +
+      toAmount(tax.convenience_fee ?? tax.total_convenience_fee, 0);
+    const parsedTotal = toAmount(tax.final_amount ?? tax.total_final_amount, NaN);
+    const fallbackTotal = subTotal + processingFee;
+    const discountAmount = toAmount(
+      tax.discount ??
+      tax.total_discount ??
+      booking?.discount ??
+      normalizedTicketData?.discount,
+      0
+    );
+
+    // Keep tax total when valid, otherwise use derived total.
+    // Also guard against inconsistent totals when no discount exists.
+    let total = Number.isFinite(parsedTotal) ? parsedTotal : fallbackTotal;
+    if (discountAmount <= 0 && Math.abs(total - fallbackTotal) > 0.009) {
+      total = fallbackTotal;
+    }
+
+    return { subTotal, processingFee, total };
+  }, [bookingPayload, normalizedTicketData, booking]);
   // Computed values
 
 
@@ -174,14 +323,14 @@ const UserCard = () => {
 
 
   const timeString = useMemo(() => {
-    const entry = ticketData?.event?.entry_time || "";
-    const start = ticketData?.event?.start_time;
+    const entry = event?.entry_time || "";
+    const start = event?.start_time;
     return `${entry}${start ? ` - ${start}` : ""}`.trim();
-  }, [ticketData]);
+  }, [event]);
 
   const formattedDate = useMemo(
-    () => formatDateRange(ticketData?.event?.date_range) || "Date not specified",
-    [ticketData]
+    () => formatDateRange(event?.date_range) || "Date not specified",
+    [event]
   );
 
   // Handle download click (opens drawer with notice)
@@ -216,9 +365,9 @@ const UserCard = () => {
   }, [UserData]);
 
   useEffect(() => {
-    if (ticketData) {
+    if (normalizedTicketData) {
       setTicketActions({
-        ticketData,
+        ticketData: normalizedTicketData,
         ticketCount,
         disableCombineButton,
         imageLoaded,
@@ -228,7 +377,7 @@ const UserCard = () => {
       });
     }
     return () => setTicketActions(null);
-  }, [ticketData, ticketCount, disableCombineButton, imageLoaded, cardImageUrl, setTicketActions, handleDownloadClick, handleTransferClick]);
+  }, [normalizedTicketData, ticketCount, disableCombineButton, imageLoaded, cardImageUrl, setTicketActions, handleDownloadClick, handleTransferClick]);
 
 
   // Handle "Generate Ticket" click inside drawer
@@ -253,7 +402,7 @@ const UserCard = () => {
               unoptimized
             />
           </div>
-        ) : ticketData ? (
+        ) : normalizedTicketData ? (
           <>
             {/* Logo */}
             {systemSetting?.footer_logo && (
@@ -270,42 +419,32 @@ const UserCard = () => {
               </div>
             )}
 
-            <ETicketAlert />
-
-            <Row>
-              {/* Left Column */}
-              <Col lg={8}>
-                {/* Ticket Information Card */}
-                <TicketDataSummary
-                  eventName={ticketData?.event?.name}
-                  ticketName={ticketData?.ticket?.name}
-                  price={ticketData?.ticket?.price || 0}
-                  quantity={ticketCount}
-                  hidePrices={false}
-                  currency={ticketData?.ticket?.currency}
-                  subTotal={ticketData?.ticket?.amount || 0}
-                  processingFee={ticketData?.ticket?.tax || 0}
-                  total={ticketData?.ticket?.amount || 0}
-                />
-
-
-              </Col>
-
-              {/* Right Column */}
-              <Col lg={4}>
-                <BookingMetadataCard
-                  eventDates={formattedDate}
-                  bookingDate={moment(ticketData?.created_at).format("MMM D, YYYY")}
-                  entryTime={ticketData?.event?.entry_time}
-                  startTime={ticketData?.event?.start_time}
-                  venueAddress={ticketData?.event?.address}
-                  userName={ticketData?.user?.name}
-                  userNumber={ticketData?.user?.number}
-                />
-
+            <CommonTicketInfoSection
+              summaryProps={{
+                eventName: event?.name,
+                ticketName: ticket?.name,
+                price: ticket?.price || 0,
+                quantity: ticketCount,
+                hidePrices: false,
+                currency: ticket?.currency,
+                subTotal: bookingPricing.subTotal,
+                processingFee: bookingPricing.processingFee,
+                total: bookingPricing.total,
+              }}
+              metadataProps={{
+                eventDates: formattedDate,
+                bookingDate: moment(booking?.created_at).format("MMM D, YYYY"),
+                seatName,
+                entryTime: event?.entry_time,
+                startTime: event?.start_time,
+                venueAddress: event?.venue?.address || event?.address,
+                userName: user?.name,
+                userNumber: user?.number,
+              }}
+              rightExtra={
                 <div className="d-none d-sm-block">
                   <DesktopActionButtons
-                    ticketData={ticketData}
+                    ticketData={normalizedTicketData}
                     ticketCount={ticketCount}
                     disableCombineButton={disableCombineButton}
                     imageLoaded={imageLoaded}
@@ -314,8 +453,8 @@ const UserCard = () => {
                     handleTransferClick={handleTransferClick}
                   />
                 </div>
-              </Col>
-            </Row>
+              }
+            />
           </>
         ) : (
           <TicketErrorDisplay
@@ -334,7 +473,7 @@ const UserCard = () => {
           singleCanvasRef={singleCanvasRef}
           cardImageUrl={cardImageUrl}
           setIsCanvasReady={setIsCanvasReady}
-          ticketData={ticketData}
+          ticketData={normalizedTicketData}
           orderId={orderId}
           swiperCanvasRefs={swiperCanvasRefs}
           setActiveSlideIndex={setActiveSlideIndex}
@@ -354,11 +493,11 @@ const UserCard = () => {
           }}
         />
 
-        {showTransferDrawer && ticketData && (
+        {showTransferDrawer && normalizedTicketData && (
           <TokenTransferDrawer
             show={showTransferDrawer}
             onHide={() => setShowTransferDrawer(false)}
-            ticketData={ticketData}
+            ticketData={normalizedTicketData}
             token={orderId}
             onTransferSuccess={() => {
               // Refetch data when transfer succeeds or reload the page
@@ -367,7 +506,7 @@ const UserCard = () => {
           />
         )}
         {/* Terms & Conditions */}
-        <TermsAndConditionsCard ticketData={ticketData} />
+        <TermsAndConditionsCard ticketData={normalizedTicketData} />
       </Container>
     </div>
   );

@@ -271,7 +271,6 @@ const BookingLayout = (props) => {
               onSeatClick={handleSeatClickWithLimit}
               onStandingSectionClick={handleStandingSectionClick}
               stage={stage}
-              storageKey={layoutId ? `layout_${layoutId}` : undefined}
               scrollToSectionId={scrollToSectionId}
               scrollToRowTitle={scrollToRowTitle}
             />
