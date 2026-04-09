@@ -12,6 +12,7 @@ import GlassCard from './../../../utils/ProfileUtils/GlassCard';
 import CustomBtn from '../../../utils/CustomBtn';
 import { MobileOnly, TabletAndDesktop, DesktopOnly } from "@/utils/ResponsiveRenderer";
 import { getErrorMessage } from '@/utils/errorUtils';
+import { SearchByFilter } from '../../CustomComponents/FormsFields';
 
 
 // Constants
@@ -363,17 +364,16 @@ const BookingsTab = () => {
         <Modal.Body className='p-3'>
           <Form>
             <Form.Group className="mb-3">
-              <InputGroup>
-                {/* <InputGroup.Text className="bg-dark">
+              {/* <InputGroup.Text className="bg-dark">
                   <SearchIcon size={18} />
                 </InputGroup.Text> */}
-                <Form.Control
-                  type="text"
-                  placeholder="Event name, ID, etc."
-                  value={tempSearchTerm}
-                  onChange={(e) => setTempSearchTerm(e.target.value)}
-                />
-              </InputGroup>
+              <SearchByFilter
+                value={tempSearchTerm}
+                setValue={(val) => {
+                  setTempSearchTerm(val)
+                }}
+              />
+
             </Form.Group>
 
             <Form.Group className="mb-3">

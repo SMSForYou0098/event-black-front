@@ -10,7 +10,7 @@ import { useMyContext } from "@/Context/MyContextProvider";
 import { getErrorMessage } from "@/utils/errorUtils";
 import OtpInput from "@/components/common/OtpInput";
 import { validateProfileData } from "@/utils/validations";
-import { EmailInputField, NameInputField, AddressInputField } from "../../CustomComponents/FormsFields"
+import { EmailInputField, NameInputField, TextareaInputField } from "../../CustomComponents/FormsFields"
 
 const MODAL_VIEWS = {
   EDIT_FORM: "edit_form",
@@ -226,7 +226,7 @@ const UserProfileModal = ({
 
             {/* Address Input Field */}
             <div className="mb-3">
-              <AddressInputField
+              <TextareaInputField
                 name="address"
                 value={formValues.address}
                 setValue={(val) => {
@@ -234,6 +234,9 @@ const UserProfileModal = ({
                   setFormValues((prev) => ({ ...prev, address: val }))
                 }}
                 externalError={errors.address}
+                label="Address"
+                placeholder="Enter your address"
+                rows={5}
               />
             </div>
 

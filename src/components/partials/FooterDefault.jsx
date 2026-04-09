@@ -1,6 +1,6 @@
 import { memo, Fragment, useState, useEffect } from "react";
 import Link from "next/link";
-import { Container, Row, Col, Image, Form } from "react-bootstrap";
+import { Container, Row, Col, Image, Form, InputGroup } from "react-bootstrap";
 import { useQuery } from '@tanstack/react-query';
 import { getFooterData } from "@/services/home";
 import DOMPurify from 'dompurify';
@@ -225,10 +225,10 @@ const FooterMega = memo(() => {
                     <Col xl={12} lg={12} className="text-center d-flex justify-content-center flex-column align-items-center">
                       <h4 className="footer-link-title">Subscribe Newsletter</h4>
                       <div className="mailchimp mailchimp-dark w-50">
-                        <div className="input-group">
+                        <InputGroup>
                           <Form.Control
                             type="email"
-                            className="mb-0 font-size-14"
+                            className="mb-0 font-size-14 rounded"
                             placeholder="Email*"
                             aria-describedby="button-addon2"
                             value={newsletterEmail}
@@ -252,11 +252,13 @@ const FooterMega = memo(() => {
                               className="btn btn-sm"
                               id="button-addon2"
                               onClick={handleNewsletterSubmit}
+                              disabled={!!newsletterValidationError || !newsletterEmail}
                             >
                               Subscribe
                             </button>
                           </div>
-                        </div>
+                        </InputGroup>
+
                         {/* Error — forced visible via style since it's outside input-group */}
                         <Form.Control.Feedback type="invalid"
                           className="text-start mt-1"

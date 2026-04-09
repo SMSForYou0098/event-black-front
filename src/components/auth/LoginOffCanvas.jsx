@@ -637,6 +637,7 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                         handleVerifyPassword(e);
                                     }
                                 }}
+                                autoFocus={true}
                                 isInvalid={touched.password && !!validationErrors.password}
                             />
                             <Form.Control.Feedback
@@ -748,12 +749,15 @@ const LoginModal = memo(({ show, onHide, eventKey, redirectPath, onSuccess: onSu
                                     value={credential}
                                     className="card-glassmorphism__input"
                                     onChange={(e) => {
-                                        setCredential(e.target.value);
+                                        setCredential(e.target.value.trim());
                                         setTouched(prev => ({ ...prev, credential: true }));
                                     }}
                                     autoFocus
                                     onKeyDown={(e) => {
                                         if (e.key === "Enter") handleLogin(e);
+                                        if (e.key === " ") {
+                                            e.preventDefault(); // Blocks the space character completely
+                                        }
                                     }}
                                     isInvalid={touched.credential && !!validationErrors.credential}
                                     required

@@ -19,6 +19,9 @@ import { useSelector } from "react-redux";
 import { selectCheckoutDataByKey, updateAttendees } from "@/store/customSlices/checkoutDataSlice";
 import CustomBtn from "../../../utils/CustomBtn";
 import { getErrorMessage } from "@/utils/errorUtils";
+import { getEmailError, getNumberError } from "@/utils/validations";
+import Select from "react-select";
+import { ThemedSelectField } from "../../CustomComponents/FormsFields";
 
 
 const DynamicAttendeeForm = ({
@@ -54,6 +57,7 @@ const DynamicAttendeeForm = ({
   const [showModal, setShowModal] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [showAddAttendeeModal, setShowAddAttendeeModal] = useState(false);
+  const [touchedFields, setTouchedFields] = useState({});
   const [errors, setErrors] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -134,21 +138,121 @@ const DynamicAttendeeForm = ({
   }, [attendeeList]);
 
   // Field change handler
-  const handleFieldChange = (fieldName, value) => {
-    setAttendeeData((prev) => ({ ...prev, [fieldName]: value }));
-    // Clear error for this field as user types
-    setErrors((prev) => {
-      if (!prev[fieldName]) return prev;
+  // const handleFieldChange = (fieldName, value) => {
+  //   setAttendeeData((prev) => ({ ...prev, [fieldName]: value }));
+  //   // Clear error for this field as user types
+  //   setErrors((prev) => {
+  //     if (!prev[fieldName]) return prev;
+  //     const updated = { ...prev };
+  //     delete updated[fieldName];
+  //     return updated;
+  //   });
+  // };
+
+  // Trigger validation when user leaves a field
+  const handleBlur = (fieldName) => {
+    setTouchedFields(prev => ({ ...prev, [fieldName]: true }));
+    const freshErrors = validateAttendeeData(attendeeData, requiredFields, apiData);
+
+    setErrors(prev => {
       const updated = { ...prev };
-      delete updated[fieldName];
+      if (freshErrors[fieldName]) updated[fieldName] = freshErrors[fieldName];
       return updated;
     });
   };
 
+  // Field change handler (Live validates instantly as you type)
+  const handleFieldChange = (fieldName, value) => {
+    // 1. Calculate the new data first
+    const updatedData = { ...attendeeData, [fieldName]: value };
+
+    // 2. Set the newly typed data
+    setAttendeeData(updatedData);
+
+    // 3. Immediately validate the freshly typed data
+    const freshErrors = validateAttendeeData(updatedData, requiredFields, apiData);
+
+    // 4. Update the errors state independently in a pure way
+    setErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+
+      if (!freshErrors[fieldName]) {
+        delete newErrors[fieldName];
+      } else {
+        // Look here: No touchedFields check! Instantly applies live error
+        newErrors[fieldName] = freshErrors[fieldName];
+      }
+
+      return newErrors;
+    });
+  };
+
+
+
   // Comprehensive validation: checks ALL fields from apiData + attendeeData keys
   // Required fields → emptiness + format, Non-required fields → format only (if filled)
+  // const validateAttendeeData = (attData = {}, requiredFieldsList = [], allFields = []) => {
+  //   const newErrors = {};
+
+  //   // Helper to format field name (e.g., 'first_name' -> 'First name')
+  //   const formatFieldName = (name) => {
+  //     if (!name) return "";
+  //     const cleaned = name.replace(/_/g, " "); // Replace underscores with spaces
+  //     return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+  //   };
+
+  //   // Gather all field names from apiData AND attendeeData keys (deduplicated)
+  //   const apiFieldNames = allFields.map((f) => f.field_name);
+  //   const dataKeys = Object.keys(attData).filter((k) => k !== 'missingFields' && k !== 'id');
+  //   const allFieldNames = [...new Set([...apiFieldNames, ...dataKeys])];
+
+  //   allFieldNames.forEach((field) => {
+  //     const value = attData[field] ?? "";
+  //     const isRequired = requiredFieldsList.includes(field);
+  //     const lower = field.toLowerCase();
+  //     const isEmailField = /email/i.test(field);
+  //     const isPhoneField = ["number", "phone number", "mobile number", "contact_number", "mo", "phone", "contact number"].includes(lower) || /phone|contact|mobile/i.test(field);
+
+  //     // Check if value is empty
+  //     const isEmpty = value instanceof File ? !value
+  //       : typeof value === "string" ? !value.trim()
+  //         : !value;
+
+  //     // Required field: must not be empty
+  //     if (isRequired && isEmpty) {
+  //       newErrors[field] = `${formatFieldName(field)} is required`;
+  //       return;
+  //     }
+
+  //     // Format checks (only if field has a value)
+  //     if (!isEmpty) {
+  //       if (isEmailField && typeof value === "string") {
+  //         const err = getEmailError(value);
+  //         if (err) newErrors[field] = err;
+
+  //       }
+  //       if (isPhoneField) {
+  //         const err = getNumberError(value);
+  //         if (err) newErrors[field] = err;
+  //       }
+  //     }
+  //   });
+
+  //   return newErrors;
+  // };
+
   const validateAttendeeData = (attData = {}, requiredFieldsList = [], allFields = []) => {
     const newErrors = {};
+    console.log("attData", attData);
+    console.log("requiredFieldsList", requiredFieldsList);
+    console.log("allFields", allFields);
+
+    // Helper to format field name (e.g., 'first_name' -> 'First name')
+    const formatFieldName = (name) => {
+      if (!name) return "";
+      const cleaned = name.replace(/_/g, " "); // Replace underscores with spaces
+      return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+    };
 
     // Gather all field names from apiData AND attendeeData keys (deduplicated)
     const apiFieldNames = allFields.map((f) => f.field_name);
@@ -156,33 +260,82 @@ const DynamicAttendeeForm = ({
     const allFieldNames = [...new Set([...apiFieldNames, ...dataKeys])];
 
     allFieldNames.forEach((field) => {
-      const value = attData[field] ?? "";
+      // Fetch value (don't default to "" here so we can strictly check arrays/booleans)
+      const value = attData[field];
       const isRequired = requiredFieldsList.includes(field);
       const lower = field.toLowerCase();
-      const isEmailField = /email/i.test(field);
+
+      // Find the specific field configuration from the API schema to know its exact type
+      const fieldConfig = allFields.find((f) => f.field_name === field) || {};
+      const fieldType = (fieldConfig.field_type || "text").toLowerCase();
+
+      const isEmailField = /email/i.test(field) || fieldType === "email";
       const isPhoneField = ["number", "phone number", "mobile number", "contact_number", "mo", "phone", "contact number"].includes(lower) || /phone|contact|mobile/i.test(field);
 
-      // Check if value is empty
-      const isEmpty = value instanceof File ? !value
-        : typeof value === "string" ? !value.trim()
-          : !value;
-
-      // Required field: must not be empty
-      if (isRequired && isEmpty) {
-        newErrors[field] = `${field} is required`;
-        return;
+      // Determine if the value is empty based on its specific data type
+      let isEmpty = false;
+      if (value === undefined || value === null || value === "") {
+        isEmpty = true;
+      } else if (value instanceof File) {
+        isEmpty = false;   // File object is uploaded
+      } else if (Array.isArray(value)) {
+        isEmpty = value.length === 0;  // Multi-select or Checkbox group array is empty
+      } else if (typeof value === "string") {
+        isEmpty = !value.trim(); // Standard text/date string is empty
+      } else if (typeof value === "boolean") {
+        isEmpty = value === false; // If a required switch/checkbox is untoggled, it's considered empty/invalid
       }
 
-      // Format checks (only if field has a value)
+      // 1. Required Field Validation with dynamic messaging based on input type
+      if (isRequired && isEmpty) {
+        // Use fieldConfig.lable if it exists, otherwise fall back to formatted field name
+        const displayName = fieldConfig.lable || formatFieldName(field);
+
+        switch (fieldType) {
+          case "select":
+          case "multi_select":
+          case "multi select":
+            newErrors[field] = `Please select ${displayName}`;
+            break;
+          case "checkbox":
+          case "radio":
+            newErrors[field] = `Please choose an option for ${displayName}`;
+            break;
+          case "file":
+            newErrors[field] = `Please upload a file for ${displayName}`;
+            break;
+          case "date":
+            newErrors[field] = `Please pick a valid date for ${displayName}`;
+            break;
+          case "color":
+          case "color picker":
+            newErrors[field] = `Please pick a color for ${displayName}`;
+            break;
+          case "switch":
+            newErrors[field] = `${displayName} must be enabled`;
+            break;
+          default:
+            newErrors[field] = `${displayName} is required`;
+            break;
+        }
+        return; // Stop validating this field if it's empty but required
+      }
+
+      // 2. Format checks (only if field has a value)
       if (!isEmpty) {
         if (isEmailField && typeof value === "string") {
-          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-            newErrors[field] = `${field} must be a valid email address`;
-          }
+          const err = getEmailError(value);
+          if (err) newErrors[field] = err;
         }
-        if (isPhoneField) {
-          if (!/^\d{10}$/.test(String(value || ""))) {
-            newErrors[field] = `${field} must be a valid 10-digit number`;
+        else if (isPhoneField) {
+          // Convert array/number to string just in case before regex check
+          const err = getNumberError(String(value));
+          if (err) newErrors[field] = err;
+        }
+        else if (fieldType === "date" && typeof value === "string") {
+          // Extra optional check to guarantee the date isn't mangled text
+          if (isNaN(new Date(value).getTime())) {
+            newErrors[field] = `${formatFieldName(field)} must be a properly formatted date`;
           }
         }
       }
@@ -190,6 +343,7 @@ const DynamicAttendeeForm = ({
 
     return newErrors;
   };
+
 
   const handleOpenModal = (index = null) => {
     if (index !== null && attendeeList[index]) {
@@ -200,12 +354,14 @@ const DynamicAttendeeForm = ({
       setEditingIndex(null);
     }
     setErrors({});
+    setTouchedFields({});
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setErrors({});
+    setTouchedFields({});
     setAttendeeData({});
   };
 
@@ -255,7 +411,6 @@ const DynamicAttendeeForm = ({
     });
   };
 
-  // Add this helper function at the top of your component (after imports)
   // Add this helper function at the top of your component (after imports)
   const parseFieldOptions = (options) => {
     if (!options) return [];
@@ -328,7 +483,10 @@ const DynamicAttendeeForm = ({
       handleFieldChange(field_name, val);
     };
 
-    switch (field_type) {
+    // Normalize field type to lowercase in case API sends "Text", "Select", etc.
+    const fieldTypeLower = (field_type || "").toLowerCase();
+
+    switch (fieldTypeLower) {
       case "text":
       case "email":
         const isPhone = ["number", "phone number", "mobile number", "contact_number", "mo", "phone", "contact number"].includes(field_name.toLowerCase()) || /phone|contact|mobile/i.test(field_name);
@@ -346,6 +504,7 @@ const DynamicAttendeeForm = ({
                 if (isPhone && val.length > 10) return;
                 onChange(e);
               }}
+              onBlur={() => handleBlur(field_name)}
               required={required}
               isInvalid={!!errors[field_name]}
               maxLength={isPhone ? 10 : undefined}
@@ -356,32 +515,62 @@ const DynamicAttendeeForm = ({
           </Form.Group>
         );
 
-      case "select":
-        const selectOptions = parseFieldOptions(field_options);
+      // case "select":
+      //   const selectOptions = parseFieldOptions(field_options);
+      //   return (
+      //     <Form.Group className="mb-2">
+      //       <Form.Label className="text-white mb-1" style={{ fontSize: '13px' }} dangerouslySetInnerHTML={{ __html: lbl }} />
+      //       <Form.Select
+      //         className={`card-glassmorphism__input ${errors[field_name] ? 'border-danger' : ''}`}
+      //         // style={{ fontSize: '12px', ... (errors[field_name] ? { border: '1px solid #b51515' } : {}) }}
+      //         // TO THIS:
+      //         style={{ fontSize: '12px', ... (errors[field_name] ? { border: '1px solid #b51515', boxShadow: '0 0 0 1px #b51515', outline: 'none' } : {}) }}
+      //         size="sm"
+      //         value={value}
+      //         onChange={onChange}
+      //         onBlur={() => handleBlur(field_name)}
+      //         required={required}
+      //         isInvalid={!!errors[field_name]}
+      //       >
+      //         <option value="">Select {lable}</option>
+      //         {selectOptions.map((option, idx) => (
+      //           <option key={idx} value={option}>
+      //             {option}
+      //           </option>
+      //         ))}
+      //       </Form.Select>
+      //       {errors[field_name] && (
+      //         <Form.Text className="fw-bold d-block mt-1" style={{ color: '#b51515', fontSize: '11px' }}>{errors[field_name]}</Form.Text>
+      //       )}
+      //     </Form.Group>
+      //   );
+      case "select": {
+        // react-select requires options to be in { label, value } format
+        const reactSelectOptions = parseFieldOptions(field_options).map(opt => ({ label: opt, value: opt }));
+        const selectedValue = reactSelectOptions.find(opt => opt.value === value) || null;
+
         return (
-          <Form.Group className="mb-2">
-            <Form.Label className="text-white mb-1" style={{ fontSize: '13px' }} dangerouslySetInnerHTML={{ __html: lbl }} />
-            <Form.Select
-              className={`card-glassmorphism__input ${errors[field_name] ? 'border-danger' : ''}`}
-              style={{ fontSize: '12px', ... (errors[field_name] ? { border: '1px solid #b51515' } : {}) }}
-              size="sm"
-              value={value}
-              onChange={onChange}
-              required={required}
-              isInvalid={!!errors[field_name]}
-            >
-              <option value="">Select {lable}</option>
-              {selectOptions.map((option, idx) => (
-                <option key={idx} value={option}>
-                  {option}
-                </option>
-              ))}
-            </Form.Select>
-            {errors[field_name] && (
-              <Form.Text className="fw-bold d-block mt-1" style={{ color: '#b51515', fontSize: '11px' }}>{errors[field_name]}</Form.Text>
-            )}
-          </Form.Group>
+          <ThemedSelectField
+            key={field_name}
+            id={field_name}
+            label={lbl}
+            options={reactSelectOptions}
+            value={selectedValue}
+            // Simply pass your onChange logic directly into the new component!
+            onChange={(selected) => handleFieldChange(field_name, selected ? selected.value : "")}
+            onBlur={() => handleBlur(field_name)}
+            placeholder={`Select ${lable}`}
+            error={errors[field_name]}
+            required={required}
+            isClearable={!required}
+            height={"32px"}
+            errSize={"11px"}
+            isBold={true}
+          />
         );
+      }
+
+
 
       case "radio":
         const radioOptions = parseFieldOptions(field_options);
@@ -478,6 +667,7 @@ const DynamicAttendeeForm = ({
               size="sm"
               value={value}
               onChange={onChange}
+              onBlur={() => handleBlur(field_name)}
               required={required}
               isInvalid={!!errors[field_name]}
             />
@@ -503,6 +693,7 @@ const DynamicAttendeeForm = ({
                 if (isPhone && val.length > 10) return;
                 onChange(e);
               }}
+              onBlur={() => handleBlur(field_name)}
               required={required}
               isInvalid={!!errors[field_name]}
               maxLength={isPhone ? 10 : undefined}
@@ -525,6 +716,7 @@ const DynamicAttendeeForm = ({
               size="sm"
               value={value}
               onChange={onChange}
+              onBlur={() => handleBlur(field_name)}
               required={required}
               isInvalid={!!errors[field_name]}
             />
@@ -557,6 +749,7 @@ const DynamicAttendeeForm = ({
                 size="sm"
                 accept="image/*"
                 onChange={onChange}
+                onBlur={() => handleBlur(field_name)}
                 required={required && !value}
                 isInvalid={!!errors[field_name]}
               />
@@ -580,6 +773,84 @@ const DynamicAttendeeForm = ({
           </div>
         );
       }
+
+      case "multi_select":
+      case "multi select":
+      case "multiselect": {
+        const multiSelectOptions = parseFieldOptions(field_options);
+        return (
+          <Form.Group className="mb-2">
+            <Form.Label className="text-white mb-1" style={{ fontSize: '13px' }} dangerouslySetInnerHTML={{ __html: lbl }} />
+            <Form.Select
+              className={`card-glassmorphism__input ${errors[field_name] ? 'border-danger' : ''}`}
+              style={{ fontSize: '12px', ... (errors[field_name] ? { border: '1px solid #b51515' } : {}) }}
+              size="sm"
+              multiple
+              value={Array.isArray(value) ? value : []}
+              onChange={(e) => {
+                const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+                handleFieldChange(field_name, selectedOptions);
+              }}
+              onBlur={() => handleBlur(field_name)}
+              required={required && (!value || value.length === 0)}
+              isInvalid={!!errors[field_name]}
+            >
+              {multiSelectOptions.map((option, idx) => (
+                <option key={idx} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Form.Select>
+            {errors[field_name] && (
+              <Form.Text className="fw-bold d-block mt-1" style={{ color: '#b51515', fontSize: '11px' }}>{errors[field_name]}</Form.Text>
+            )}
+          </Form.Group>
+        );
+      }
+
+      case "color":
+      case "color picker":
+      case "color_picker":
+        return (
+          <Form.Group className="mb-2">
+            <Form.Label className="text-white mb-1" style={{ fontSize: '13px' }} dangerouslySetInnerHTML={{ __html: lbl }} />
+            <Form.Control
+              className={`card-glassmorphism__input ${errors[field_name] ? 'border-danger' : ''}`}
+              // Notice explicitly adding height so it renders nicely like a standard color block
+              style={{ fontSize: '12px', height: '32px', padding: '2px', ... (errors[field_name] ? { border: '1px solid #b51515' } : {}) }}
+              type="color"
+              size="sm"
+              value={value || "#000000"}
+              onChange={onChange}
+              onBlur={() => handleBlur(field_name)}
+              required={required}
+              isInvalid={!!errors[field_name]}
+            />
+            {errors[field_name] && (
+              <Form.Text className="fw-bold d-block mt-1" style={{ color: '#b51515', fontSize: '11px' }}>{errors[field_name]}</Form.Text>
+            )}
+          </Form.Group>
+        );
+
+      case "switch":
+        return (
+          <Form.Group className="mb-2">
+            <Form.Label className="text-white mb-1" style={{ fontSize: '13px' }} dangerouslySetInnerHTML={{ __html: lbl }} />
+            <br />
+            <Form.Check
+              type="switch"
+              className={errors[field_name] ? 'is-invalid' : ''}
+              id={field_name}
+              checked={!!value}
+              onChange={(e) => handleFieldChange(field_name, e.target.checked)}
+              required={required}
+              isInvalid={!!errors[field_name]}
+            />
+            {errors[field_name] && (
+              <Form.Text className="fw-bold d-block mt-1" style={{ color: '#b51515', fontSize: '11px' }}>{errors[field_name]}</Form.Text>
+            )}
+          </Form.Group>
+        );
 
       default:
         return null;

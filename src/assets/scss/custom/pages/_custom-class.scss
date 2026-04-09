@@ -148,10 +148,7 @@
   line-height: normal;
   background-color: #fff;
   // background-image: url("/assets/images/pages/texure.webp");
-   filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2))
-         drop-shadow(-2px -2px 2px rgba(0, 0, 0, 0.2))
-         drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.2))
-         drop-shadow(2px -2px 2px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2)) drop-shadow(-2px -2px 2px rgba(0, 0, 0, 0.2)) drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.2)) drop-shadow(2px -2px 2px rgba(0, 0, 0, 0.2));
   // -webkit-text-stroke: 1px #000;
 }
 
@@ -194,7 +191,7 @@
   .section-padding {
     // padding: 1.875rem 0;
     // padding: 6.25rem 0;
-    padding: 5rem 0;
+    padding: 3rem 0;
   }
 
   .section-padding-top {

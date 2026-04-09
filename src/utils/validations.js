@@ -2,7 +2,7 @@
 
 // Validate email
 export const validateEmail = (email) => {
-    const emailRegex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[A-Za-z0-9]+([._+-]?[A-Za-z0-9]+)*@[A-Za-z0-9]+(-[A-Za-z0-9]+)*(\.[A-Za-z0-9]+(-[A-Za-z0-9]+)*)+$/;
     return emailRegex.test(email);
 };
 
@@ -90,17 +90,23 @@ export const getSearchError = (searchTerm, is_required = false) => {
     return null;
 };
 
-
-// Get address error message
-export const getAddressError = (address, is_address_required) => {
-    if (is_address_required && !address.trim()) return "Address is required";
-    if (address.trim().length < 5) return "Address is too short";
-    if (address.trim().length > 255) return "Address is too long";
-    if (!/^[a-zA-Z0-9\s,.\-\/\(\)]+$/.test(address))
-        return "Address contains invalid characters";
+// Get textarea input error message
+export const getTextareaError = (value, is_required, label) => {
+    if (is_required && !value.trim()) return `${label} is required`;
+    if (value.trim().length < 5) return `${label} is too short`;
+    if (value.trim().length > 255) return `${label} is too long`;
+    if (!/^[a-zA-Z0-9\s,.\-\/\(\)]+$/.test(value))
+        return `${label} contains invalid characters`;
     return null;
 };
 
+// ================== Contact Us Form Validators ==================
+
+// Get select error message
+export const getSelectError = (query) => {
+    if (!query) return "Please select a subject";
+    return null;
+}
 
 // ================= Form-Level Validators (return { errors, isValid }) =================
 
@@ -177,7 +183,7 @@ export const validateProfileData = (formValues) => {
         errors.email = emailError;
     }
 
-    const addressError = getAddressError(formValues.address, true);
+    const addressError = getTextareaError(formValues.address, true, "Address");
     if (addressError) {
         errors.address = addressError;
     }
@@ -185,12 +191,29 @@ export const validateProfileData = (formValues) => {
     return { errors, isValid: Object.keys(errors).length === 0 };
 };
 
-// Validate search term
-// export const validateSearchTerm = (searchTerm) => {
-//     const errors = {};
+// Contact Us form validation
+export const validateContactUsForm = ({ name, phone, email, query, message }) => {
+    const errors = {};
 
-//     const searchError = getSearchError(searchTerm);
-//     if (searchError) errors.search = searchError;
+    // name validation
+    const nameError = getNameError(name);
+    if (nameError) errors.name = nameError;
 
-//     return { errors, isValid: Object.keys(errors).length === 0 };
-// }
+    // email validation
+    const emailError = getEmailError(email);
+    if (emailError) errors.email = emailError;
+
+    // phone validation
+    const phoneError = getNumberError(phone);
+    if (phoneError) errors.phone = phoneError;
+
+    // select validation
+    const selectError = getSelectError(query);
+    if (selectError) errors.query = selectError;
+
+    // message validation
+    const messageError = getTextareaError(message, true, "Message");
+    if (messageError) errors.message = messageError;
+
+    return { errors, isValid: Object.keys(errors).length === 0 };
+};
