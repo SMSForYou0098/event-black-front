@@ -212,7 +212,7 @@ const ContactPage = memo(() => {
                       textSize={""}
                       padLeft={"6px"}
                       errSize={"14px"}
-                
+                      bgColor="rgba(20, 20, 20, 0.7)"
                     />
 
                   </Col>

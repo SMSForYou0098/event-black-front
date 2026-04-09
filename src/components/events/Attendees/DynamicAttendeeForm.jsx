@@ -395,18 +395,18 @@ const DynamicAttendeeForm = ({
     ).then((confirmed) => {
       if (!confirmed) return;
 
-      // 1️⃣ Create the updated attendee list (remove deleted one)
+      // Create the updated attendee list (remove deleted one)
       const updatedList = attendeeList.filter((_, i) => i !== index);
       setAttendeesList(updatedList);
 
-      // 2️⃣ Keep only those selected attendees whose IDs are still present
+      // Keep only those selected attendees whose IDs are still present
       const validIds = new Set(updatedList.map((a) => a.id));
       const updatedSelected = selectedAttendees.filter((attendee) =>
         validIds.has(attendee.id)
       );
       setSelectedAttendees(updatedSelected);
 
-      // 3️⃣ Success message
+      // Success message
       successAlert?.("The attendee has been deleted.");
     });
   };
@@ -515,35 +515,6 @@ const DynamicAttendeeForm = ({
           </Form.Group>
         );
 
-      // case "select":
-      //   const selectOptions = parseFieldOptions(field_options);
-      //   return (
-      //     <Form.Group className="mb-2">
-      //       <Form.Label className="text-white mb-1" style={{ fontSize: '13px' }} dangerouslySetInnerHTML={{ __html: lbl }} />
-      //       <Form.Select
-      //         className={`card-glassmorphism__input ${errors[field_name] ? 'border-danger' : ''}`}
-      //         // style={{ fontSize: '12px', ... (errors[field_name] ? { border: '1px solid #b51515' } : {}) }}
-      //         // TO THIS:
-      //         style={{ fontSize: '12px', ... (errors[field_name] ? { border: '1px solid #b51515', boxShadow: '0 0 0 1px #b51515', outline: 'none' } : {}) }}
-      //         size="sm"
-      //         value={value}
-      //         onChange={onChange}
-      //         onBlur={() => handleBlur(field_name)}
-      //         required={required}
-      //         isInvalid={!!errors[field_name]}
-      //       >
-      //         <option value="">Select {lable}</option>
-      //         {selectOptions.map((option, idx) => (
-      //           <option key={idx} value={option}>
-      //             {option}
-      //           </option>
-      //         ))}
-      //       </Form.Select>
-      //       {errors[field_name] && (
-      //         <Form.Text className="fw-bold d-block mt-1" style={{ color: '#b51515', fontSize: '11px' }}>{errors[field_name]}</Form.Text>
-      //       )}
-      //     </Form.Group>
-      //   );
       case "select": {
         // react-select requires options to be in { label, value } format
         const reactSelectOptions = parseFieldOptions(field_options).map(opt => ({ label: opt, value: opt }));
@@ -569,8 +540,6 @@ const DynamicAttendeeForm = ({
           />
         );
       }
-
-
 
       case "radio":
         const radioOptions = parseFieldOptions(field_options);
@@ -907,6 +876,7 @@ const DynamicAttendeeForm = ({
         buttonText={editingIndex !== null ? "Update" : "Save"}
         style={{ fontSize: '14px' }}
         size='sm'
+        disabled={Object.values(errors).length > 0}
       />
     </div>
   );
