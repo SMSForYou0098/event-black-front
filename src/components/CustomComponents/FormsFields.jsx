@@ -394,7 +394,7 @@ export const ThemedSelectField = ({
                     control: (base) => ({
                         ...base,
                         minHeight: height,
-                        backgroundColor: error ? "rgba(181, 21, 21, 0.1)" : "#000",
+                        backgroundColor: error ? "rgba(181, 21, 21, 0.1)" : bgColor,
                         borderColor: error ? "#b51515" : "rgba(255, 255, 255, 0.2)",
                         boxShadow: error ? "0 0 0 1px #b51515" : "none",
                         borderRadius: '8px',
@@ -404,7 +404,7 @@ export const ThemedSelectField = ({
                     }),
                     menu: (base) => ({
                         ...base,
-                        backgroundColor: "#000",
+                        backgroundColor: bgColor,
                         border: "1px solid rgba(255, 255, 255, 0.1)",
                         borderRadius: '8px',
                         overflow: "hidden",
