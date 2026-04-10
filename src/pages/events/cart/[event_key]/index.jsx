@@ -24,7 +24,7 @@ import { useCheckoutData } from "../../../../hooks/useCheckoutData";
 import { useMutation } from "@tanstack/react-query";
 import LoaderComp from "../../../../utils/LoaderComp";
 import { CardContainer, CardHeader, DetailItem } from '@/utils/EventCardUtils';
-import { Calendar, Pin, Ticket, Users, Check, User } from "lucide-react";
+import { Calendar, Pin, Ticket, Users, Check, User, Sofa } from "lucide-react";
 import { useHeaderSimple } from "../../../../Context/HeaderContext";
 import BookingSummarySkeleton from "../../../../utils/SkeletonUtils/BookingSummarySkeleton";
 import BookingLayout from "../../../../components/events/SeatingModuleAdmin/Bookinglayout";
@@ -583,10 +583,11 @@ const CartPage = () => {
 
                   <div className="css_prefix-woocommerce-cart-box table-responsive">
                     {selectedTickets?.seats?.length > 0 && (
-                      <span className="text-white small">
-                        <strong>Seats:</strong> {selectedTickets.seats.map((s) => s.seat_name).join(", ")}
+                      <span className="text-white small d-flex align-items-center gap-1 px-1">
+                        <Sofa size={14}  className="text-success"/> : {selectedTickets.seats.map((s) => s.seat_name).join(", ")}
                       </span>
                     )}
+                    <hr className="my-2" />
                     <Table className="table mb-0">
                       <tbody>
                         {cartData.map((row) => (

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Alert, Form, Button, Table, Card, InputGroup, Spinner, Offcanvas, ListGroup, Row, Col } from 'react-bootstrap';
-import { Receipt, Tag, ChevronDown, Ticket, Crown, InstagramIcon, Calendar, Clock, MapPin, User, SquareAsterisk, X } from 'lucide-react';
+import { Receipt, Tag, ChevronDown, Ticket, Crown, InstagramIcon, Calendar, Clock, MapPin, User, Sofa, X } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
 import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY, PRIMARY } from '../../../utils/consts';
 import { decrypt } from '../../../utils/crypto';
@@ -341,7 +341,9 @@ export const TicketDataSummary = (props) => {
         </div> */}
         {summaryData?.seats?.length > 0 && (
           <div className="d-flex justify-content-between align-items-center mb-2" style={{ fontSize: '14px' }}>
-            <span>Seats</span>
+            <span className="d-flex align-items-center gap-1">
+              <Sofa size={14} className="text-success"/>
+            </span>
             <span className="text-white fw-bold">
               {summaryData.seats.map((seat) => seat.seat_name).join(', ')}
             </span>
@@ -492,9 +494,8 @@ export const BookingMetadataCard = ({
           {seatName && (
             <Col xs={12}>
               <div className="d-flex align-items-center">
-                <SquareAsterisk size={18} style={{ color: '#b0b0b0', marginRight: '10px' }} />
+              <Sofa size={14}  className="text-success"/> :
                 <div>
-                  <div style={{ color: '#b0b0b0', fontSize: '12px' }}>Seats</div>
                   <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{seatName}</div>
                 </div>
               </div>
