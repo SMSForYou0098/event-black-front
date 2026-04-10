@@ -372,9 +372,9 @@ const BookingLayout = (props) => {
                         <h6>Booking Summary</h6>
                         <div className="p-3 bg-light rounded">
                             <div className="d-flex justify-content-between mb-2">
-                                <span>Total Seats:</span>
-                                <strong>{selectedSeats.length}</strong>
+                                <span><Sofa size={14} className="text-success"/> : {selectedSeats.length}</span>
                             </div>
+
                             {Object.entries(ticketCategoryCounts).map(([name, data]) => (
                                 <div key={name} className="d-flex justify-content-between mb-1">
                                     <span>{name} × {data.count}:</span>

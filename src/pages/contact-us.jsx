@@ -212,7 +212,6 @@ const ContactPage = memo(() => {
                       textSize={""}
                       padLeft={"6px"}
                       errSize={"14px"}
-
                     />
 
                   </Col>

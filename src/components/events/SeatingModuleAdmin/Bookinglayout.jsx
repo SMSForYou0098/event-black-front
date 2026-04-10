@@ -62,6 +62,9 @@ const BookingLayout = (props) => {
   // Same as SeatingModule/Bookinglayout: enforce per-ticket selection_limit (single-object selectedSeats).
   // Returns false when selection is rejected (e.g. limit reached) so SeatingGrid only centers on success.
   const handleSeatClickWithLimit = async (seat, sectionId, rowId) => {
+    if (seat?.status === 'reserved') {
+      return false;
+    }
     const current = selectedSeatsRef.current;
     const ticketId = seat.ticket?.id != null ? Number(seat.ticket.id) : null;
     const isAlreadySelected = (current?.seats || []).some((s) => s.seat_id === seat.id);

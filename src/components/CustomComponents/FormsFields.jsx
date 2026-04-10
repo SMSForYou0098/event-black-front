@@ -328,7 +328,8 @@ export const ThemedSelectField = ({
     textSize,
     padLeft,
     errSize,
-    isBold
+    isBold,
+    bgColor = "#000"
 }) => {
     // 1. Create the reference
     const selectRef = useRef(null);

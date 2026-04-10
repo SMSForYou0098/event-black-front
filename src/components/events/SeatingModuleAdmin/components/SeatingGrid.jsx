@@ -30,6 +30,12 @@ const SEAT_STYLES = {
     color: 'rgba(255,255,255,0.4)',
     cursor: 'not-allowed',
   },
+  reserved: {
+    background: 'rgba(255,193,7,0.12)',
+    border: '1px solid rgba(255,193,7,0.85)',
+    color: '#ffc107',
+    cursor: 'not-allowed',
+  },
   disabled: {
     background: '#1f2937',
     border: '1px solid rgba(255,255,255,0.1)',
@@ -44,8 +50,17 @@ const SEAT_STYLES = {
   },
 };
 
+const LEGEND_ITEMS = [
+  { key: 'available', label: 'Available', styleKey: 'available' },
+  { key: 'selected', label: 'Selected', styleKey: 'selected' },
+  { key: 'booked', label: 'Booked', styleKey: 'booked' },
+  { key: 'reserved', label: 'Reserved', styleKey: 'reserved' },
+  { key: 'disabled', label: 'Disabled', styleKey: 'disabled' },
+];
+
 function getSeatStyle(seat, isSelected) {
   if (!seat.ticket) return SEAT_STYLES.noTicket;
+  if (seat.status === 'reserved') return SEAT_STYLES.reserved;
   if (seat.status === 'booked') return SEAT_STYLES.booked;
   if (seat.status === 'disabled') return SEAT_STYLES.disabled;
   if (seat.status === 'hold' || seat.status === 'locked') return SEAT_STYLES.booked;
@@ -287,7 +302,13 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius, lay
 
   // const statusText = seat.status === 'booked' ? 'Booked' : isSelected ? 'Selected' : 'Available';
   // const statusText = toTitleCase(seat.status);
-  const statusText = (seat.status);
+  const statusText = seat.status;
+  const statusClass =
+    statusText === 'available'
+      ? 'text-success'
+      : statusText === 'reserved'
+        ? 'text-warning'
+        : 'text-white-50';
 
   return (
     <div
@@ -360,7 +381,7 @@ function SeatButton({ seat, rowTitle, isSelected, onClick, disabled, radius, lay
           ) : (
             <div className="text-secondary">Unavailable</div>
           )}
-          <div className={`small mt-1 ${statusText === 'Available' ? 'text-success' : 'text-white-50'}`}>
+          <div className={`small mt-1 ${statusClass}`}>
             {statusText}
           </div>
         </div>
@@ -482,6 +503,7 @@ function SectionBlock({ section, selectedSeatIds, onSeatClick, onStandingSection
             const isSelected = selectedSeatIds.has(seat.id);
             const disabled =
               seat.status === 'booked' ||
+              seat.status === 'reserved' ||
               seat.status === 'disabled' ||
               seat.status === 'hold' ||
               seat.status === 'locked' ||
@@ -1168,12 +1190,11 @@ const SeatingGrid = ({
 
       {/* Legend + Go to section: bottom center on desktop, bottom-left on mobile */}
       <div
-        className="d-flex flex-wrap gap-3 align-items-center p-2 px-2 rounded-3 small text-white user-select-none"
+        className="p-2 px-2 rounded-3 small text-white user-select-none"
         style={{
           ...overlayStyle,
           opacity: hasInitialViewApplied ? 1 : 0,
           pointerEvents: hasInitialViewApplied ? 'auto' : 'none',
-          width: '240px',
           bottom: 10,
           left: '50%', transform: 'translateX(-50%)',
           background: 'rgba(0,0,0,0.65)',
@@ -1181,37 +1202,14 @@ const SeatingGrid = ({
           backdropFilter: 'blur(6px)',
         }}
       >
-        <span className="d-flex align-items-center gap-1">
-          <span className="rounded" style={{ width: 12, height: 12, ...SEAT_STYLES.available }} />
-          Available
-        </span>
-        <span className="d-flex align-items-center gap-1">
-          <span className="rounded" style={{ width: 12, height: 12, ...SEAT_STYLES.selected }} />
-          Selected
-        </span>
-        <span className="d-flex align-items-center gap-1">
-          <span className="rounded" style={{ width: 12, height: 12, ...SEAT_STYLES.booked }} />
-          Booked
-        </span>
-        {/* {sections.length > 1 && (
-          <select
-            className="form-select form-select-sm text-white border-secondary ms-2 small"
-            style={{ width: 'auto', fontSize: '0.7rem', backgroundColor: 'transparent' }}
-            aria-label="Go to section"
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v) {
-                handleZoomToSection(v);
-                e.target.value = '';
-              }
-            }}
-          >
-            <option value="">Go to section…</option>
-            {sections.map((s) => (
-              <option key={s.id} value={s.id}>{s.name || s.id}</option>
-            ))}
-          </select>
-        )} */}
+        <div className="d-flex align-items-center gap-2 flex-nowrap">
+          {LEGEND_ITEMS.map((item) => (
+            <span key={item.key} className="d-flex align-items-center gap-1 text-nowrap">
+                <span className="rounded" style={{ width: 12, height: 12, ...SEAT_STYLES[item.styleKey] }} />
+                {item.label}
+              </span>
+          ))}
+        </div>
       </div>
 
       {/* Zoom / Reset: floating bottom-right */}
