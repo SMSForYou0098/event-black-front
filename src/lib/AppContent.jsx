@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import { getInactivityLimit, ACTIVITY_DEBOUNCE_MS } from '@/config/sessionConfig';
 import { store } from '@/store';
 import { setAuthToken, removeAuthToken } from '@/utils/cookieUtils';
+import { parseSafeContinuePath } from '@/utils/authContinuePath';
 import { useRouter } from 'next/router';
 
 /**
@@ -134,6 +135,18 @@ function AppContent({ children }) {
       removeAuthToken();
     }
   }, [authToken]);
+
+  // ─── Resume private route after middleware → /?continue= (cookie race) ───
+  useEffect(() => {
+    if (!router.isReady) return;
+    const raw = router.query.continue;
+    const encoded = Array.isArray(raw) ? raw[0] : raw;
+    if (!encoded) return;
+    const path = parseSafeContinuePath(encoded);
+    if (!path || !authToken) return;
+    setAuthToken(authToken, 2);
+    router.replace(path);
+  }, [router.isReady, router.query.continue, authToken, router]);
 
   // ─── Initial app setup (runs once) ────────────────────────────────────────
   useEffect(() => {
