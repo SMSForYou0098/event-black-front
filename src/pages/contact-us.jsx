@@ -128,7 +128,7 @@ const ContactPage = memo(() => {
   return (
     <Fragment>
       <div className="section-padding">
-        {/* contact info card */}
+        {/* contact info cards */}
         <Container>
           <Row className="g-4">
             {
@@ -212,7 +212,7 @@ const ContactPage = memo(() => {
                       textSize={""}
                       padLeft={"6px"}
                       errSize={"14px"}
-                
+
                     />
 
                   </Col>

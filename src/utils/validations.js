@@ -95,8 +95,12 @@ export const getTextareaError = (value, is_required, label) => {
     if (is_required && !value.trim()) return `${label} is required`;
     if (value.trim().length < 5) return `${label} is too short`;
     if (value.trim().length > 255) return `${label} is too long`;
-    if (!/^[a-zA-Z0-9\s,.\-\/\(\)]+$/.test(value))
+    if (!/^[a-zA-Z0-9\s,.\-\/\(\)\|]+$/.test(value)) {
         return `${label} contains invalid characters`;
+    }
+    if (/[,.\-\/\(\)\|]{2,}|\|\s*\|/.test(value)) {
+        return `${label} contains consecutive special characters`;
+    }
     return null;
 };
 

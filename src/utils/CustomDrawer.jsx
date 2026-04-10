@@ -93,8 +93,8 @@ const CustomDrawer = ({
 
   const drawerContent = (
     <>
-      <Offcanvas.Header className={`${headerClassName} d-flex justify-content-center align-items-center pt-3 text-center`}>
-        <Offcanvas.Title>{title}</Offcanvas.Title>
+      <Offcanvas.Header className={`${headerClassName} d-flex justify-content-center align-items-center pt-3 text-center w-100`}>
+        <Offcanvas.Title className="w-100">{title}</Offcanvas.Title>
       </Offcanvas.Header>
 
       {/* ✅ Key fix: body uses flex-column so children can use flex:1 + scroll */}
