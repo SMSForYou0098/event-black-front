@@ -223,7 +223,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
                 </div>
                 <div className="d-flex gap-3 mb-2 justify-content-center justify-content-sm-start">
                     {eventData?.event_type && (
-                        <CustomBadge variant="warning" className="text-black">
+                        <CustomBadge variant="warning" className="text-black text-capitalize">
                             <i className="fa-regular fa-calendar me-1"></i>
                             {eventData?.event_type}
                         </CustomBadge>
@@ -261,7 +261,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
                             >
                                 Read More
                             </a>
-                        )}
+                        )}z
                 </div>
 
                 {/* Event Meta Information */}

@@ -211,6 +211,12 @@ export const PromoCodeSection = ({
         placeholder="Enter promo code"
         value={couponCode}
         onChange={(e) => setCouponCode((e.target.value || "").toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleApplyCoupon();
+          }
+        }}
       />
       <CustomBtn
         variant="primary"
@@ -233,10 +239,10 @@ export const PromoCodeSection = ({
           variant="light"
           size="sm"
           className="p-0 py-1 px-1"
-          style={{lineHeight: 0}}
+          style={{ lineHeight: 0 }}
           onClick={handleRemoveCoupon}
         >
-          <X size={14} color={PRIMARY}/>
+          <X size={14} color={PRIMARY} />
         </Button>
       </div>
     )}
@@ -292,7 +298,7 @@ export const parseUrlData = (data, ticket, edata) => {
 };
 
 export const TicketDataSummary = (props) => {
-  const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, currency, summaryData } = props;
+  const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, currency, summaryData, discount } = props;
   // const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, netAmount, sale_price, currency, handleOpen, attendees, showAttBtn } = props;
 
   const { getCurrencySymbol } = useMyContext()
@@ -342,7 +348,7 @@ export const TicketDataSummary = (props) => {
         {summaryData?.seats?.length > 0 && (
           <div className="d-flex justify-content-between align-items-center mb-2" style={{ fontSize: '14px' }}>
             <span className="d-flex align-items-center gap-1">
-              <Sofa size={14} className="text-success"/>
+              <Sofa size={14} className="text-success" />
             </span>
             <span className="text-white fw-bold">
               {summaryData.seats.map((seat) => seat.seat_name).join(', ')}
@@ -359,6 +365,10 @@ export const TicketDataSummary = (props) => {
             <div className="d-flex justify-content-between align-items-center mb-3" style={{ fontSize: '14px' }}>
               <span>Processing Fee</span>
               <span className="text-white fw-bold">{sym}{processingFee || 0}</span>
+            </div>
+            <div className="d-flex justify-content-between align-items-center mb-3" style={{ fontSize: '14px' }}>
+              <span>Discount</span>
+              <span className="text-success fw-bold">- {sym}{discount || 0}</span>
             </div>
             {/* <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' /> */}
 
@@ -494,7 +504,7 @@ export const BookingMetadataCard = ({
           {seatName && (
             <Col xs={12}>
               <div className="d-flex align-items-center">
-              <Sofa size={14}  className="text-success"/> :
+                <Sofa size={14} className="text-success" /> :
                 <div>
                   <div className="text-white fw-bold" style={{ fontSize: '14px' }}>{seatName}</div>
                 </div>

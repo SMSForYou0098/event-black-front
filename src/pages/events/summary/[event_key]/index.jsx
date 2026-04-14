@@ -232,7 +232,7 @@ const BookingSummary = () => {
                 else if (type === 'combine') handleTicketPreview('combine', bookingId);
                 else if (type === 'download') handleTicketPreview('individual', bookingId);
             },
-            handleTransferClick: () => {},
+            handleTransferClick: () => { },
             ticketData: null,
         });
         return () => setTicketActions(null);
@@ -307,9 +307,10 @@ const BookingSummary = () => {
                         showAttBtn: true,
                         subTotal: toAmount(bookingTax.base_amount ?? bookingTax.total_base_amount, 0),
                         processingFee:
-                            toAmount(bookingTax.total_tax ?? bookingTax.total_tax_total, 0) +
-                            toAmount(bookingTax.convenience_fee ?? bookingTax.total_convenience_fee, 0),
-                        total: toAmount(bookingTax.final_amount ?? bookingTax.total_final_amount, 0),
+                            toAmount(bookingTax?.total_tax ?? bookingTax?.total_tax_total, 0) +
+                            toAmount(bookingTax?.convenience_fee ?? bookingTax?.total_convenience_fee, 0),
+                        total: toAmount(bookingTax?.final_amount ?? bookingTax?.total_final_amount, 0),
+                        discount: toAmount(booking?.discount ?? booking?.total_discount, 0),
                     }}
                     metadataProps={{
                         eventDates: getEventDates(),

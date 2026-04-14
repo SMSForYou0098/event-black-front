@@ -430,6 +430,7 @@ const UserCard = () => {
                 subTotal: bookingPricing.subTotal,
                 processingFee: bookingPricing.processingFee,
                 total: bookingPricing.total,
+                discount: bookingPricing.discount,
               }}
               metadataProps={{
                 eventDates: formattedDate,

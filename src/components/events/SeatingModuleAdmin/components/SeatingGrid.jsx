@@ -806,9 +806,9 @@ const SeatingGrid = ({
     return viewportSize ??
       (el
         ? {
-            width: Math.max(100, el.getBoundingClientRect().width),
-            height: Math.max(100, el.getBoundingClientRect().height),
-          }
+          width: Math.max(100, el.getBoundingClientRect().width),
+          height: Math.max(100, el.getBoundingClientRect().height),
+        }
         : { width: 100, height: 100 });
   }, [viewportSize]);
 
@@ -822,9 +822,9 @@ const SeatingGrid = ({
       const vp = viewportSize ??
         (el
           ? {
-              width: Math.max(100, el.getBoundingClientRect().width),
-              height: Math.max(100, el.getBoundingClientRect().height),
-            }
+            width: Math.max(100, el.getBoundingClientRect().width),
+            height: Math.max(100, el.getBoundingClientRect().height),
+          }
           : { width: 100, height: 100 });
       const z = Math.max(0.9, Math.min(2, zoomLevel));
       const px = vp.width / 2 - layoutCenterX * z;
@@ -866,9 +866,9 @@ const SeatingGrid = ({
       const vp = viewportSize ??
         (el
           ? {
-              width: Math.max(100, el.getBoundingClientRect().width),
-              height: Math.max(100, el.getBoundingClientRect().height),
-            }
+            width: Math.max(100, el.getBoundingClientRect().width),
+            height: Math.max(100, el.getBoundingClientRect().height),
+          }
           : { width: 100, height: 100 });
       const z = Math.max(0.9, Math.min(2, (vp.width * 0.85) / layoutRect.sw));
       handleZoomToPoint(centerX, centerY, z);
@@ -1149,7 +1149,7 @@ const SeatingGrid = ({
           left: 0,
           top: 0,
           width: bounds.width,
-          height: bounds.height, 
+          height: bounds.height,
           opacity: hasInitialViewApplied ? 1 : 0,
           transformOrigin: '0 0',
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
@@ -1189,7 +1189,7 @@ const SeatingGrid = ({
       </div>
 
       {/* Legend + Go to section: bottom center on desktop, bottom-left on mobile */}
-      <div
+      {/* <div
         className="p-2 px-2 rounded-3 small text-white user-select-none"
         style={{
           ...overlayStyle,
@@ -1210,7 +1210,7 @@ const SeatingGrid = ({
               </span>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Zoom / Reset: floating bottom-right */}
       <div
