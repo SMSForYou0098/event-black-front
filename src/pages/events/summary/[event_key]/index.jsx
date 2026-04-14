@@ -310,7 +310,7 @@ const BookingSummary = () => {
                             toAmount(bookingTax?.total_tax ?? bookingTax?.total_tax_total, 0) +
                             toAmount(bookingTax?.convenience_fee ?? bookingTax?.total_convenience_fee, 0),
                         total: toAmount(bookingTax?.final_amount ?? bookingTax?.total_final_amount, 0),
-                        discount: toAmount(booking?.discount ?? booking?.total_discount, 0),
+                        discount: toAmount(mutation?.data?.bookings?.discount ?? mutation?.data?.bookings?.total_discount ?? booking?.discount ?? booking?.total_discount, 0),
                     }}
                     metadataProps={{
                         eventDates: getEventDates(),

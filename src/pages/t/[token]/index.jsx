@@ -297,10 +297,14 @@ const UserCard = () => {
     const parsedTotal = toAmount(tax.final_amount ?? tax.total_final_amount, NaN);
     const fallbackTotal = subTotal + processingFee;
     const discountAmount = toAmount(
+      bookingPayload?.bookings?.discount ??
+      bookingPayload?.bookings?.total_discount ??
+      normalizedTicketData?.discount ??
+      normalizedTicketData?.total_discount ??
       tax.discount ??
       tax.total_discount ??
       booking?.discount ??
-      normalizedTicketData?.discount,
+      booking?.total_discount,
       0
     );
 
@@ -311,7 +315,7 @@ const UserCard = () => {
       total = fallbackTotal;
     }
 
-    return { subTotal, processingFee, total };
+    return { subTotal, processingFee, total, discount: discountAmount };
   }, [bookingPayload, normalizedTicketData, booking]);
   // Computed values
 

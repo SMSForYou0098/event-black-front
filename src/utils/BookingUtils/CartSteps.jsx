@@ -44,7 +44,7 @@ const CartSteps = ({ id, showAttendee }) => {
     </>
   );
   return (
-    <div className="main-cart">
+    <div className="main-cart pt-3">
       <ul className="cart-page-items d-flex justify-content-center list-inline align-items-center gap-3 gap-md-5 flex-wrap">
         {CART_STEPS.map((step, index) => (
           <CartStep

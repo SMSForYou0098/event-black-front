@@ -23,6 +23,8 @@ import { SavingsHighlight } from "../../../../components/events/CheckoutComps/ch
 import Image from "next/image";
 import TermsAccordion from "../../../../components/events/EventDetails/TermsAccordion";
 import AddressUpdateDrawer from "../../../../components/events/CheckoutComps/AddressUpdateDrawer";
+import CustomDrawer from "../../../../utils/CustomDrawer";
+import MobileTwoButtonFooter from "../../../../utils/MobileTwoButtonFooter";
 const CartPage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -51,6 +53,7 @@ const CartPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isTimerExpired, setIsTimerExpired] = useState(false);
   const [showTermsDrawer, setShowTermsDrawer] = useState(false);
+  const [showConfirmDrawer, setShowConfirmDrawer] = useState(false);
 
 
   const data = useSelector((state) =>
@@ -332,7 +335,13 @@ const CartPage = () => {
     }
 
     if (!ValidateBooking()) return;
-    // Show confirmation dialog
+
+    if (isMobile) {
+      setShowConfirmDrawer(true);
+      return;
+    }
+
+    // Show confirmation dialog for desktop
     const result = await Swal.fire({
       title: 'Confirm Booking',
       text: "Are you sure you want to proceed?",
@@ -340,21 +349,26 @@ const CartPage = () => {
       showCancelButton: true,
       confirmButtonText: 'Yes, Book Now!',
       cancelButtonText: 'Cancel',
+      reverseButtons: true
     });
 
     if (!result.isConfirmed) return;
 
+    executeBookingSetup();
+  };
+
+  const executeBookingSetup = async () => {
     setIsLoading(true);
 
     try {
       const payload = createBookingPayload();
       const response = await initiateBooking(payload);
       await handleBookingResponse(response);
-
     } catch (error) {
       handleBookingError(error);
     } finally {
       setIsLoading(false);
+      setShowConfirmDrawer(false);
     }
   };
 
@@ -847,6 +861,52 @@ const CartPage = () => {
             showTrigger={false}
             loading={isLoading}
           />
+
+          <CustomDrawer
+            hideIndicator={true}
+            showOffcanvas={showConfirmDrawer}
+            setShowOffcanvas={() => setShowConfirmDrawer(false)}
+          >
+            <div className=" text-white px-3 d-flex flex-column align-items-center justify-content-center" style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingBottom: '80px', }}>
+              <div className="text-center w-100 mb-4">
+                <div className="d-flex justify-content-center align-items-center mx-auto mb-4" style={{ width: '80px', height: '80px', borderRadius: '50%', border: '4px solid #f8bb86' }}>
+                  <span style={{ color: '#f8bb86', fontSize: '60px', position: 'relative', top: '-4px', fontWeight: '300' }}>!</span>
+                </div>
+                <h2 className="fw-bold mb-3" style={{ fontSize: '28px' }}>Confirm Booking</h2>
+                <div style={{ fontSize: '16px' }}>Are you sure you want to proceed?</div>
+              </div>
+            </div>
+
+            <MobileTwoButtonFooter
+              rightButton={
+                <div className="d-flex w-100 gap-2 px-1">
+                  <div className="w-50">
+                    <CustomBtn
+                      variant="secondary"
+                      className="border-0 w-100"
+
+                      buttonText="Cancel"
+                      HandleClick={() => setShowConfirmDrawer(false)}
+                      disabled={isLoading}
+                      hideIcon={true}
+                    />
+                  </div>
+                  <div className="w-50">
+                    <CustomBtn
+                      variant="primary"
+                      className="border-0 w-100"
+
+                      buttonText="Yes, Book Now!"
+                      HandleClick={executeBookingSetup}
+                      loading={isLoading}
+                      disabled={isLoading}
+                      hideIcon={true}
+                    />
+                  </div>
+                </div>
+              }
+            />
+          </CustomDrawer>
 
           <AddressUpdateDrawer
             open={showAddressDrawer}

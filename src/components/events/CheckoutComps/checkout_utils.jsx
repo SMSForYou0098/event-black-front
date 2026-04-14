@@ -366,13 +366,15 @@ export const TicketDataSummary = (props) => {
               <span>Processing Fee</span>
               <span className="text-white fw-bold">{sym}{processingFee || 0}</span>
             </div>
-            <div className="d-flex justify-content-between align-items-center mb-3" style={{ fontSize: '14px' }}>
-              <span>Discount</span>
-              <span className="text-success fw-bold">- {sym}{discount || 0}</span>
-            </div>
+            {Number(discount) > 0 && (
+              <div className="d-flex justify-content-between align-items-center mb-3" style={{ fontSize: '14px' }}>
+                <span>Discount</span>
+                <span className="text-success fw-bold">- {sym}{discount}</span>
+              </div>
+            )}
             {/* <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' /> */}
 
-            <div className="d-flex justify-content-between align-items-center">
+            <div className="d-none d-sm-flex justify-content-between align-items-center">
               <h6 className="text-white fw-bold">Total Amount</h6>
               <span className='custom-text-secondary fw-bold' style={{ fontSize: '18px' }}>{sym}{total}</span>
             </div>
