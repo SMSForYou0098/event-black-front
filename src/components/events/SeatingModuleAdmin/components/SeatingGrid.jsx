@@ -5,6 +5,7 @@ import { ZoomIn, ZoomOut, RotateCcw, LayoutGrid, Clock } from 'lucide-react';
 import { PRIMARY } from '@/utils/consts';
 import { IS_MOBILE } from '@/components/events/SeatingModule/components/constants';
 import { useMyContext } from '@/Context/MyContextProvider';
+import { getBackgroundWithOpacity } from '@/components/setting/elements/getBackgroundWithOpacity';
 
 /**
  * HTML/CSS seating chart using same coordinates as admin canvas (API: x, y, width, height, radius).
@@ -31,9 +32,9 @@ const SEAT_STYLES = {
     cursor: 'not-allowed',
   },
   reserved: {
-    background: 'rgba(255,193,7,0.12)',
-    border: '1px solid rgba(255,193,7,0.85)',
-    color: '#ffc107',
+    background: 'rgb(152, 124, 39)',
+    border: '2px solid rgb(152, 124, 39)',
+    color: '#000',
     cursor: 'not-allowed',
   },
   disabled: {
@@ -64,8 +65,21 @@ function getSeatStyle(seat, isSelected) {
   if (seat.status === 'booked') return SEAT_STYLES.booked;
   if (seat.status === 'disabled') return SEAT_STYLES.disabled;
   if (seat.status === 'hold' || seat.status === 'locked') return SEAT_STYLES.booked;
-  if (isSelected || seat.status === 'selected') return SEAT_STYLES.selected;
-  return SEAT_STYLES.available;
+  const seatColor = seat?.color || PRIMARY;
+  if (isSelected || seat.status === 'selected') {
+    return {
+      ...SEAT_STYLES.selected,
+      background: getBackgroundWithOpacity(seatColor, 0.3),
+      border: `2px solid ${seatColor}`,
+      color: '#fff',
+    };
+  }
+  return {
+    ...SEAT_STYLES.available,
+    background: getBackgroundWithOpacity(seatColor, 0.12),
+    border: `2px solid ${seatColor}`,
+    color: seatColor,
+  };
 }
 
 function getLayoutBounds(stage, sections) {
