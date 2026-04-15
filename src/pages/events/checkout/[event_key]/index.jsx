@@ -808,7 +808,7 @@ const CartPage = () => {
             {summaryData?.discount > 0 && (
               <SavingsHighlight totalSavings={summaryData?.discount} />
             )}
-            <Col className="d-none d-sm-block" lg="8" md="5">
+            <Col className="d-none d-sm-block" lg="8" md="7">
               <CheckoutSummarySection
                 summaryData={summaryData}
                 couponCode={couponCode}

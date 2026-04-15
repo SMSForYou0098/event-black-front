@@ -261,7 +261,7 @@ const DetailsHeader = ({ eventData, event_key }) => {
                             >
                                 Read More
                             </a>
-                        )}z
+                        )}
                 </div>
 
                 {/* Event Meta Information */}

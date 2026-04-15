@@ -8,6 +8,7 @@ import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY, PRIMARY } from
 import { decrypt } from '../../../utils/crypto';
 import Image from "next/image";
 import { FaInstagram, FaYoutube } from "react-icons/fa";
+import { useRouter } from "next/router";
 
 export const getBreakdownData = (summaryData) => [
   {
@@ -299,6 +300,8 @@ export const parseUrlData = (data, ticket, edata) => {
 
 export const TicketDataSummary = (props) => {
   const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, currency, summaryData, discount } = props;
+  const router = useRouter();
+  const isCheckoutPage = router.pathname.includes('/checkout');
   // const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, netAmount, sale_price, currency, handleOpen, attendees, showAttBtn } = props;
 
   const { getCurrencySymbol } = useMyContext()
@@ -374,10 +377,12 @@ export const TicketDataSummary = (props) => {
             )}
             {/* <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' /> */}
 
-            <div className="d-none d-sm-flex justify-content-between align-items-center">
-              <h6 className="text-white fw-bold">Total Amount</h6>
-              <span className='custom-text-secondary fw-bold' style={{ fontSize: '18px' }}>{sym}{total}</span>
-            </div>
+            {!isCheckoutPage && (
+              <div className=" d-flex justify-content-between align-items-center">
+                <h6 className="text-white fw-bold">Total Amount</h6>
+                <span className='custom-text-secondary fw-bold' style={{ fontSize: '18px' }}>{sym}{total}</span>
+              </div>
+            )}
           </>
         }
         {/* {(netAmount || sale_price) &&
