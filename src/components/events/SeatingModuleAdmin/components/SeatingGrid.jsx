@@ -19,17 +19,17 @@ const SEAT_STYLES = {
     color: '#fff',
     cursor: 'pointer',
   },
-  selected: {
-    background: PRIMARY,
-    border: `2px solid ${PRIMARY}`,
-    color: '#fff',
-    cursor: 'pointer',
-  },
   booked: {
     background: 'rgba(255,255,255,0.06)',
     border: '1px solid rgba(255,255,255,0.15)',
     color: 'rgba(255,255,255,0.4)',
     cursor: 'not-allowed',
+  },
+  selected: {
+    background: PRIMARY,
+    border: `2px solid ${PRIMARY}`,
+    color: '#fff',
+    cursor: 'pointer',
   },
   reserved: {
     background: 'rgb(152, 124, 39)',
@@ -69,7 +69,7 @@ function getSeatStyle(seat, isSelected) {
   if (isSelected || seat.status === 'selected') {
     return {
       ...SEAT_STYLES.selected,
-      background: getBackgroundWithOpacity(seatColor, 0.3),
+      background: seatColor,
       border: `2px solid ${seatColor}`,
       color: '#fff',
     };
