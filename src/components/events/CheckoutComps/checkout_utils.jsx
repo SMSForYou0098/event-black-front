@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useMyContext } from "@/Context/MyContextProvider";
-import { motion, AnimatePresence } from 'framer-motion';
-import { Alert, Form, Button, Table, Card, InputGroup, Spinner, Offcanvas, ListGroup, Row, Col } from 'react-bootstrap';
-import { Receipt, Tag, ChevronDown, Ticket, Crown, InstagramIcon, Calendar, Clock, MapPin, User, Sofa, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Alert, Form, Button, Table, Card, InputGroup, Offcanvas, ListGroup, Row, Col } from 'react-bootstrap';
+import {  Tag, ChevronDown, Ticket, Calendar, Clock, MapPin, User, Sofa, X } from 'lucide-react';
 import CustomBtn from '../../../utils/CustomBtn';
-import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, CUSTOM_SECONDORY, PRIMARY } from '../../../utils/consts';
+import { ANIMATION_TIMINGS, ANIMATION_VARIANTS, PRIMARY } from '../../../utils/consts';
 import { decrypt } from '../../../utils/crypto';
 import Image from "next/image";
 import { FaInstagram, FaYoutube } from "react-icons/fa";
@@ -22,7 +22,7 @@ export const getBreakdownData = (summaryData) => [
     className: "custom-text-secondary fw-semibold",
     isNumber: false
   },
-  ...(summaryData.discount > 0 ? [{
+  ...(summaryData?.discount > 0 ? [{
     label: "Discount",
     value: summaryData?.discount,
     className: "text-success fw-semibold",
@@ -55,6 +55,7 @@ export const getBreakdownData = (summaryData) => [
     lableStyle: { fontSize: '0.65rem' }
   },
 ];
+
 export const SavingsHighlight = ({ totalSavings }) => (
   <MotionWrapper
     variant="scale"
@@ -271,7 +272,6 @@ export const BreakdownRow = ({ item, index }) => (
 
 export const BreakdownTable = ({ summaryData }) => {
   const breakdownData = getBreakdownData(summaryData);
-
   return (
     <div className="rounded-2">
       <Table className="table-sm mb-0" style={{ fontSize: "14px" }}>

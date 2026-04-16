@@ -5,7 +5,7 @@ const getFieldType = (key) => {
     if (normalizedKey?.includes("phone") || normalizedKey?.includes("contact")) return "phone";
     return "other";
 };
-export const checkForDuplicateAttendees = (attendees, setErrorMessages, setShowErrorModal) => {
+export const checkForDuplicateAttendees = (attendees) => {
     if (!attendees || !Array.isArray(attendees)) return false;
 
     const duplicates = {};
@@ -53,8 +53,6 @@ export const checkForDuplicateAttendees = (attendees, setErrorMessages, setShowE
 
     // Log the error messages for debugging
     if (errorMessages.length > 0) {
-        setErrorMessages(errorMessages);
-        setShowErrorModal(true);
         return true;
     }
     else {

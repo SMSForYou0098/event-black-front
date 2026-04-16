@@ -3,11 +3,6 @@ import { BreakdownTable, ETicketAlert, MotionWrapper, PromoCodeSection, SavingsH
 import { ANIMATION_VARIANTS } from "../../../utils/consts";
 import { motion } from "framer-motion";
 export const CheckoutSummarySection = ({
-  calculatedTotal,
-  couponCode,
-  setCouponCode,
-  handleApplyCoupon,
-  promoCodeLoading,
   isExpanded,
   setIsExpanded,
   summaryData

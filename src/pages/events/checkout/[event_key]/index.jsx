@@ -11,7 +11,7 @@ import { OrderReviewSection } from "../../../../components/events/CheckoutComps/
 import { useSelector, useDispatch } from "react-redux";
 import { selectCheckoutDataByKey, clearCheckoutData } from "@/store/customSlices/checkoutDataSlice";
 import { api } from "@/lib/axiosInterceptor";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { getErrorMessage } from "@/utils/errorUtils";
 
 import { checkForDuplicateAttendees, sanitizeInput, validateAttendeeData } from "../../../../components/CustomComponents/AttendeeStroreUtils";
@@ -31,20 +31,11 @@ const CartPage = () => {
   const { isMobile, ErrorAlert, successAlert, UserData, systemSetting } = useMyContext();
   const { event_key, k } = router.query;
   const [isLoading, setIsLoading] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [error, setError] = useState('');
   const [checkoutData, setCheckoutData] = useState(null);
-  const [errorMessages, setErrorMessages] = useState([]);
   // State management
   const [couponCode, setCouponCode] = useState("");
-  const [isExpanded, setIsExpanded] = useState(false);
-  // const [charges, setCharges] = useState({
-  //   taxData: null,
-  //   commissionData: null,
-  //   centralGST: 0,
-  //   stateGST: 0,
-  //   convenienceFees: 0,
-  // });
+  const [isExpanded, setIsExpanded] = useState(true);
+
   const [promo, setPromo] = useState({
     discount: 0,
     discountType: "",
@@ -146,23 +137,6 @@ const CartPage = () => {
     setCouponCode("");
   };
 
-  // const { data: taxData } = useQuery({
-  //   queryKey: ["taxes", 1],
-  //   queryFn: async () => {
-  //     const res = await api.get(`/taxes/1`);
-  //     return res.data?.taxes || null;
-  //   },
-  // });
-
-  // Fetch commission data
-  // const { data: commissionData } = useQuery({
-  //   queryKey: ["commissions", 1],
-  //   queryFn: async () => {
-  //     const res = await api.get(`/commissions/1`);
-  //     return res.data?.commission || null;
-  //   },
-  // });
-
   // const orderDataBase = createOrderData(checkoutData?.data, charges);
 
   const discountAmount = useMemo(() => {
@@ -191,49 +165,6 @@ const CartPage = () => {
     ...checkoutData?.data,
     discount: discountAmount,
   };
-
-  // useEffect(() => {
-  //   if ( !checkoutData?.data) return;
-
-  //   const ticketTotal = Number(checkoutData?.data?.subtotal) || 0;
-  //   const quantity = Number(checkoutData?.data?.newQuantity) || 0;
-  //   // console.log(checkoutData?.data);
-  //   if (ticketTotal <= 0) {
-  //     setCharges({
-  //       // taxData,
-  //       // commissionData,
-  //       centralGST: 0,
-  //       stateGST: 0,
-  //       convenienceFees: 0,
-  //     });
-  //     return;
-  //   }
-
-  //   // GST Calculation
-  //   let gstValue = Number(taxData.rate) || 0;
-  //   if (taxData.rate_type === "Percentage") {
-  //     gstValue = (ticketTotal * gstValue) / 100;
-  //   } else if (taxData.rate_type === "Fixed") {
-  //     gstValue = gstValue * quantity;
-  //   }
-  //   // Commission Calculation
-  //   let commissionValue = Number(commissionData.commission_rate) || 0;
-  //   if (commissionData.commission_type === "Percentage") {
-  //     commissionValue = (ticketTotal * commissionValue) / 100;
-  //   } else if (commissionData.commission_type === "Fixed") {
-  //     commissionValue = commissionValue * quantity;
-  //   }
-
-  //   const cgst = (commissionValue * 9) / 100;
-  //   const sgst = (commissionValue * 9) / 100;
-  //   setCharges({
-  //     taxData,
-  //     commissionData,
-  //     centralGST: cgst,
-  //     stateGST: sgst,
-  //     convenienceFees: commissionValue,
-  //   });
-  // }, [taxData, commissionData, checkoutData]);
 
   const validatePricingIntegrity = () => {
     const baseAmount = Number(checkoutData?.data?.totalBaseAmount) || 0;
@@ -309,7 +240,7 @@ const CartPage = () => {
       }
 
       // Check for duplicate attendees
-      const isDuplicate = checkForDuplicateAttendees(attendees, setErrorMessages, setShowErrorModal);
+      const isDuplicate = checkForDuplicateAttendees(attendees);
       if (isDuplicate) {
         return false;
       }
@@ -712,9 +643,6 @@ const CartPage = () => {
 
     const shouldRetry = isServerError || isNetworkError;
 
-    setError(errorMessage);
-
-
     // 🔧 Offer retry for recoverable errors
     if (shouldRetry) {
       Swal.fire({
@@ -810,16 +738,9 @@ const CartPage = () => {
             )}
             <Col className="d-none d-sm-block" lg="8" md="7">
               <CheckoutSummarySection
-                summaryData={summaryData}
-                couponCode={couponCode}
-                setCouponCode={setCouponCode}
-                handleApplyCoupon={handleApplyCoupon}
-                handleRemoveCoupon={handleRemoveCoupon}
-                appliedPromoCode={promo.appliedCode}
-                appliedDiscount={discountAmount}
                 isExpanded={isExpanded}
+                summaryData={summaryData}
                 setIsExpanded={setIsExpanded}
-                promoCodeLoading={applyCouponMutation.isPending}
               />
             </Col>
             <Col lg="4" md="5">

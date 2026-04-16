@@ -31,8 +31,10 @@ export const OrderReviewSection = (props) => {
     validatedData?.data?.totalBaseAmount ??
     Number(basePerTicket) * Number(quantity);
   const processingFee = validatedData?.data?.totalConvenienceFee || 0;
+  // console.log('processing fee',processingFee)
   const grossTotal = Number(validatedData?.data?.totalFinalAmount) || 0;
   const discount = Number(summaryData?.discount) || 0;
+  // console.log(summaryData)
   const total = Math.max(0, grossTotal - discount);
   return (
     <MotionWrapper
@@ -57,13 +59,8 @@ export const OrderReviewSection = (props) => {
 
           <CheckoutSummarySection
             summaryData={summaryData}
-            // calculatedTotal={calculatedTotal}
-            couponCode={couponCode}
-            setCouponCode={setCouponCode}
-            handleApplyCoupon={handleApplyCoupon}
             isExpanded={isExpanded}
             setIsExpanded={setIsExpanded}
-            promoCodeLoading={promoCodeLoading}
           />
         </div>
         <PromoCodeSection {...props} />
