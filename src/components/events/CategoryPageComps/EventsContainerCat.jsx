@@ -61,6 +61,7 @@ const EventsContainerCat = ({ events = [], loading = false, error = null, title 
               )}/${createSlug(data.name)}/${data.event_key}`}
               lowest_ticket_price={data.lowest_ticket_price}
               lowest_sale_price={data.lowest_sale_price}
+              message={data.message}
               on_sale={data.on_sale}
               countValue={index + 1}
             />

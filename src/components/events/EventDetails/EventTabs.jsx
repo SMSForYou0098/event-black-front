@@ -129,7 +129,8 @@ const EventTabs = ({ eventData }) => {
                   </Card>
                 </Col>
               </Row>
-              <Row className="g-3">
+              {/* Date Range and Timings */}
+              {/* <Row className="g-3">
                 <Col md="4">
                   <Card className="border-0 shadow-sm">
                     <Card.Body>
@@ -192,7 +193,7 @@ const EventTabs = ({ eventData }) => {
                     </Card.Body>
                   </Card>
                 </Col>
-              </Row>
+              </Row> */}
             </Tab.Pane>
             <Tab.Pane eventKey="layout" className="p-4 rounded">
               <Row>

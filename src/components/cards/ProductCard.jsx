@@ -2,6 +2,7 @@ import { memo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import 'sweetalert2/src/sweetalert2.scss'
+import { Badge } from "react-bootstrap";
 
 const ProductCard = memo((props) => {
   const isSale = props.on_sale;
@@ -67,35 +68,43 @@ const ProductCard = memo((props) => {
                 {props?.product_name}
               </Link>
             </p>
-            <div >
-              <span className="price">
-                {
-                  !props?.noPrice &&
-                  <>
-                    {props.lowest_ticket_price == 0 ? (
-                      <span className="text-primary fw-bold">Free</span>
-                    ) : props.on_sale &&
-                      Number(props.lowest_sale_price) < props.lowest_ticket_price ? (
-                      <>
-                        <del className="text-muted">
-                          ₹{props.lowest_ticket_price}
-                        </del>
-                        <span className="ms-1 fw-bold">
-                          ₹{props.lowest_sale_price}
-                        </span>
-                        <small className="ms-1 text-warning">onwards</small>
-                      </>
-                    ) : (
-                      <>
-                        <span className="fw-bold">
-                          ₹{props.lowest_ticket_price || 0}
-                        </span>
-                        <span className="ms-2">onwards</span>
-                      </>
-                    )}
-                  </>
-                }
-              </span>
+            <div>
+              {props.message ? (
+                <Badge className="fw-light">
+                  <span>
+                    {props.message}
+                  </span>
+                </Badge>
+              ) : (
+                <span className="price">
+                  {
+                    !props?.noPrice &&
+                    <>
+                      {props.lowest_ticket_price == 0 ? (
+                        <span className="text-primary fw-bold">Free</span>
+                      ) : props.on_sale &&
+                        Number(props.lowest_sale_price) < props.lowest_ticket_price ? (
+                        <>
+                          <del className="text-muted">
+                            ₹{props.lowest_ticket_price}
+                          </del>
+                          <span className="ms-1 fw-bold">
+                            ₹{props.lowest_sale_price}
+                          </span>
+                          <small className="ms-1 text-warning">onwards</small>
+                        </>
+                      ) : (
+                        <>
+                          <span className="fw-bold">
+                            ₹{props.lowest_ticket_price || 0}
+                          </span>
+                          <span className="ms-2">onwards</span>
+                        </>
+                      )}
+                    </>
+                  }
+                </span>
+              )}
             </div>
             <span>{props?.city}</span>
             <div className="container-rating">

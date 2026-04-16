@@ -96,7 +96,10 @@ const CardStyle = memo((props) => {
               <h6 style={{ fontSize: "14px" }} className="text-capitalize">
                 <Link href={props.link || "#"}>{props.title}</Link>
               </h6>
-              <PriceData {...props} />
+              {(props.lowest_ticket_price && props.lowest_sale_price) && (
+                // <PriceData {...props} />
+                <></>
+              )}
             </div>
           </div>
         </div>
