@@ -17,6 +17,7 @@ const CustomDrawer = ({
   bodyClassName = '',
   headerClassName = '',
   style,
+  allowDragClose = true,
   ...props
 }) => {
   const isMobile = useMediaQuery({ maxWidth: 575 });
@@ -133,23 +134,25 @@ const CustomDrawer = ({
             flexDirection: 'column',
           }}
         >
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label="Drag down to close"
-            onTouchStart={handlePointerDown}
-            onMouseDown={handlePointerDown}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: DRAG_HANDLE_HEIGHT,
-              cursor: 'grab',
-              touchAction: 'none',
-              zIndex: 1,
-            }}
-          />
+          {allowDragClose && (
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="Drag down to close"
+              onTouchStart={handlePointerDown}
+              onMouseDown={handlePointerDown}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: DRAG_HANDLE_HEIGHT,
+                cursor: 'grab',
+                touchAction: 'none',
+                zIndex: 1,
+              }}
+            />
+          )}
           {drawerContent}
         </div>
       ) : (

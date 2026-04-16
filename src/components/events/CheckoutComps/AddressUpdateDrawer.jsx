@@ -14,6 +14,7 @@ import { updateUserAddress } from '@/store/auth/authSlice';
 import { PenLine } from 'lucide-react';
 
 import { useMediaQuery } from 'react-responsive';
+import { useRouter } from 'next/router';
 
 const AddressUpdateDrawer = ({ open, onClose, userData, onSuccess }) => {
     const [address, setAddress] = useState('');
@@ -22,6 +23,7 @@ const AddressUpdateDrawer = ({ open, onClose, userData, onSuccess }) => {
     const [addressError, setAddressError] = useState(null);
     const { successAlert, ErrorAlert } = useMyContext();
     const dispatch = useDispatch();
+    const router = useRouter();
     const isMobile = useMediaQuery({ maxWidth: 575 });
     const textareaRef = useRef(null);
 
@@ -130,13 +132,24 @@ const AddressUpdateDrawer = ({ open, onClose, userData, onSuccess }) => {
                 )}
             </Form.Group>
 
-            <div className="d-flex flex-column gap-3">
-                <CustomBtn
-                    HandleClick={handleAction}
-                    buttonText={isEditing ? (loading ? "Updating..." : "Update & Proceed") : "Confirm & Proceed"}
-                    disabled={loading || !!addressError}
-                    className="w-100 custom-primary-bg border-0"
-                />
+            <div className="d-flex gap-3">
+                <div style={{ flex: 1 }}>
+                    <CustomBtn
+                        HandleClick={() => router.back()}
+                        buttonText="Back"
+                        icon={<i className="fa-solid fa-arrow-left"></i>}
+                        variant="secondary"
+                        className="w-100 border-0"
+                    />
+                </div>
+                <div style={{ flex: 1 }}>
+                    <CustomBtn
+                        HandleClick={handleAction}
+                        buttonText={isEditing ? (loading ? "Updating..." : "Update & Proceed") : "Confirm & Proceed"}
+                        disabled={loading || !!addressError}
+                        className="w-100 custom-primary-bg border-0"
+                    />
+                </div>
             </div>
         </div>
     );
@@ -165,6 +178,9 @@ const AddressUpdateDrawer = ({ open, onClose, userData, onSuccess }) => {
                 setShowOffcanvas={onClose}
                 placement="bottom"
                 style={{ height: 'auto', minHeight: '40vh' }}
+                backdrop="static"
+                keyboard={false}
+                allowDragClose={false}
             >
                 {renderFormContent()}
             </CustomDrawer>

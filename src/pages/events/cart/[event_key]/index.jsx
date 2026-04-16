@@ -391,6 +391,11 @@ const CartPage = () => {
       edata: eventSummary,
     });
 
+    // Guard: ensure event_key exists
+    if (!event_key) {
+      return '';
+    }
+
     // Alternative: Manual navigation
 
     if (categoryData?.attendy_required === true || event?.eventControls?.attendee_required === true) {

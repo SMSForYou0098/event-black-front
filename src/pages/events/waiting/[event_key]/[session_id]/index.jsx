@@ -1,303 +1,32 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Container, Card, Spinner } from 'react-bootstrap';
+import React from 'react';
 import { useRouter } from 'next/router';
-import { useMyContext } from '@/Context/MyContextProvider';
-import { CheckCircle, XCircle, Clock } from 'lucide-react';
-import Image from 'next/image';
-import { getErrorMessage } from '@/utils/errorUtils';
-
-
-// Rotating messages to display while waiting
-const WAITING_MESSAGES = [
-    'Processing your payment...',
-    'Confirming with your bank...',
-    'Almost there, securing your tickets...',
-    'Just a moment, finalizing your booking...',
-    'Verifying payment details...',
-    'Preparing your e-tickets...',
-];
-
-// Timeout duration in milliseconds (60 seconds)
-const TIMEOUT_DURATION = 60000;
+import PaymentWaitingComponent from '@/components/PaymentWaitingComponent';
 
 const PaymentWaiting = () => {
     const router = useRouter();
-    // Since this file is in [session_id]/index.jsx, session_id is available in router.query
     const { event_key, session_id } = router.query;
-    const { ErrorAlert, authToken } = useMyContext();
 
-    const [status, setStatus] = useState('pending'); // pending, confirmed, failed, timeout
-    const [message, setMessage] = useState(WAITING_MESSAGES[0]);
-    const [messageIndex, setMessageIndex] = useState(0);
-    const [errorMessage, setErrorMessage] = useState('');
-    const eventSourceRef = useRef(null);
-    const messageIntervalRef = useRef(null);
-    const timeoutRef = useRef(null);
-
-    // Rotate messages every 10 seconds
-    useEffect(() => {
-        if (status !== 'pending') return;
-
-        messageIntervalRef.current = setInterval(() => {
-            setMessageIndex((prevIndex) => {
-                const nextIndex = (prevIndex + 1) % WAITING_MESSAGES.length;
-                setMessage(WAITING_MESSAGES[nextIndex]);
-                return nextIndex;
-            });
-        }, 10000);
-
-        return () => {
-            if (messageIntervalRef.current) {
-                clearInterval(messageIntervalRef.current);
-            }
-        };
-    }, [status]);
-
-    const cartPath = event_key
-        ? `/events/cart/${encodeURIComponent(event_key)}`
-        : null;
-
-    useEffect(() => {
-        if (!session_id || !event_key) return;
-
-        const goToCart = () => {
-            router.push(`/events/cart/${encodeURIComponent(event_key)}`);
-        };
-
-        // Set timeout for no response scenario
-        timeoutRef.current = setTimeout(() => {
-            if (eventSourceRef.current) {
-                eventSourceRef.current.close();
-            }
-            setStatus('timeout');
-            setMessage('Taking longer than expected...');
-
-            // Wait 5 seconds showing the reassuring message, then redirect
-            setTimeout(() => {
-                goToCart();
-            }, 5000);
-        }, TIMEOUT_DURATION);
-
-        // Try EventSource for real-time updates
-        // Delay EventSource creation by 3 seconds
-        const eventSourceTimeout = setTimeout(() => {
-            try {
-                const eventSource = new EventSource(`${process.env.NEXT_PUBLIC_API_PATH}payments/status-stream/${session_id}?token=${authToken}`);
-                eventSourceRef.current = eventSource;
-                eventSource.onmessage = (event) => {
-                    try {
-                        const data = JSON.parse(event.data);
-
-                        if (data.payment_status === 'confirmed' || data.payment_status === 'success' || data.status === 'confirmed' || data.status === 'success') {
-                            // Clear timeout since we got a response
-                            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-                            setStatus('confirmed');
-                            setMessage('Payment Successful!');
-                            eventSource.close();
-
-                            // Navigate to summary page
-                            setTimeout(() => {
-                                router.push(
-                                    `/events/summary/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(session_id)}`
-                                );
-                            }, 1500);
-                        } else if (data.status === 'failed' || data.payment_status === 'failed' || data.status === 'error' || data.payment_status === 'error' || data.status === 'cancelled' || data.payment_status === 'cancelled') {
-                            // Clear timeout since we got a response
-                            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-                            setStatus('failed');
-                            const isCancelled = data.status === 'cancelled' || data.payment_status === 'cancelled';
-                            setErrorMessage(getErrorMessage(data, isCancelled ? 'Payment was cancelled.' : 'Payment failed. Please try again.'));
-                            eventSource.close();
-                            setTimeout(() => {
-                                goToCart();
-                            }, 1500);
-                        } else {
-                            const statusVal = (data.status ?? data.payment_status ?? '')
-                                .toString()
-                                .toLowerCase();
-                            const waitingStates = new Set([
-                                'pending',
-                                'processing',
-                                'awaiting',
-                                'awaiting_payment',
-                                'initiated',
-                                'created',
-                                'in_progress',
-                                'in-progress',
-                            ]);
-                            if (statusVal && !waitingStates.has(statusVal)) {
-                                if (timeoutRef.current) clearTimeout(timeoutRef.current);
-                                setStatus('failed');
-                                setErrorMessage(
-                                    getErrorMessage(data, 'Payment could not be completed.')
-                                );
-                                eventSource.close();
-                                setTimeout(() => {
-                                    goToCart();
-                                }, 1500);
-                            }
-                        }
-
-                    } catch (parseError) {
-                        console.error('Error parsing SSE data:', parseError);
-                    }
-                };
-
-                eventSource.onerror = (error) => {
-                    console.error('EventSource error:', error);
-                    eventSource.close();
-
-                    // Don't immediately fail, let the timeout handle it for better UX
-                    // Only set failed if we haven't already timed out
-                    if (timeoutRef.current) {
-                        clearTimeout(timeoutRef.current);
-                        setStatus('timeout');
-                        setMessage('Taking longer than expected...');
-
-                        setTimeout(() => {
-                            goToCart();
-                        }, 5000);
-                    }
-                };
-
-            } catch (error) {
-                console.error('EventSource not supported or failed:', error);
-                if (timeoutRef.current) clearTimeout(timeoutRef.current);
-                setStatus('timeout');
-                setMessage('Taking longer than expected...');
-
-                setTimeout(() => {
-                    goToCart();
-                }, 5000);
-            }
-        }, 3000); // 3 second delay
-
-        // Cleanup
-        return () => {
-            clearTimeout(eventSourceTimeout);
-            if (eventSourceRef.current) {
-                eventSourceRef.current.close();
-            }
-            if (messageIntervalRef.current) {
-                clearInterval(messageIntervalRef.current);
-            }
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-        };
-    }, [session_id, event_key, router, authToken]);
-
-    const getStatusIcon = () => {
-        switch (status) {
-            case 'confirmed':
-                return <CheckCircle size={80} className="text-success" />;
-            case 'failed':
-                return <XCircle size={80} className="text-danger" />;
-            default:
-                return <Clock size={80} className="text-warning" />;
-        }
+    const getSuccessRedirectPath = () => {
+        return `/events/summary/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(session_id)}`;
     };
 
-    const handleRetry = () => {
-        if (cartPath) router.push(cartPath);
+    const getFailureRedirectPath = () => {
+        return `/events/cart/${encodeURIComponent(event_key)}`;
     };
 
-    if (!session_id) {
-        return (
-            <div className="cart-page">
-                <Container className="py-5 text-center">
-                    <p className="text-muted">Loading...</p>
-                </Container>
-            </div>
-        );
-    }
+    const getTimeoutRedirectPath = () => {
+        return `/events/cart/${encodeURIComponent(event_key)}`;
+    };
 
     return (
-        <div className="cart-page">
-            <Container className="py-5">
-                <Card className="custom-dark-bg text-center mx-auto" style={{ maxWidth: '500px' }}>
-                    <Card.Body className="p-5">
-                        {/* Status Icon */}
-                        <div className="mb-4">
-                            {status === 'pending' ? (
-                                <div className="position-relative d-inline-block">
-                                    <Image
-                                        src="/assets/stock/payment_processing.gif"
-                                        alt="Processing"
-                                        width={120}
-                                        height={120}
-                                        className="rounded"
-                                    />
-                                </div>
-                            ) : (
-                                getStatusIcon()
-                            )}
-                        </div>
-
-                        {/* Status Message */}
-                        <h4 className="text-white mb-3">
-                            {status === 'pending' && message}
-                            {status === 'confirmed' && 'Payment Successful!'}
-                            {status === 'failed' && 'Payment Failed'}
-                            {status === 'timeout' && 'Status Pending'}
-                        </h4>
-
-                        <p className="text-muted mb-4">
-                            {status === 'pending' && 'Please wait while we confirm your payment.'}
-                            {status === 'confirmed' && 'Redirecting to your booking summary...'}
-                            {status === 'failed' && (
-                                <>
-                                    {errorMessage}
-                                    <br />
-                                    <small className="text-muted">Redirecting to your cart...</small>
-                                </>
-                            )}
-                            {status === 'timeout' && (
-                                <>
-                                    <span className="text-warning fw-semibold">Wait a moment!</span> We are still confirming your booking status.
-                                    <br />
-                                    If your payment was successful, you will receive your tickets via WhatsApp shortly.
-                                    <br />
-                                    <small>Redirecting to your cart...</small>
-                                </>
-                            )}
-                        </p>
-
-                        {/* Loading Spinner for pending */}
-                        {status === 'pending' && (
-                            <div className="mb-4">
-                                <Spinner animation="border" variant="primary" size="sm" />
-                                <span className="ms-2 text-muted small">Waiting for confirmation...</span>
-                            </div>
-                        )}
-
-                        {/* Timeout info */}
-                        {status === 'timeout' && (
-                            <div className="mb-4">
-                                <Clock size={40} className="text-warning mb-2" />
-                                <p className="text-muted small mb-0">
-                                    You can check your booking status in <strong>"My Bookings"</strong> soon.
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Optional: go to cart immediately while redirect is pending */}
-                        {status === 'failed' && cartPath && (
-                            <div className="d-flex justify-content-center">
-                                <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    onClick={handleRetry}
-                                >
-                                    Go to cart now
-                                </button>
-                            </div>
-                        )}
-                    </Card.Body>
-                </Card>
-            </Container>
-        </div>
+        <PaymentWaitingComponent
+            event_key={event_key}
+            session_id={session_id}
+            getSuccessRedirectPath={getSuccessRedirectPath}
+            getFailureRedirectPath={getFailureRedirectPath}
+            getTimeoutRedirectPath={getTimeoutRedirectPath}
+            showTimeoutAsSuccess={false}
+        />
     );
 };
 

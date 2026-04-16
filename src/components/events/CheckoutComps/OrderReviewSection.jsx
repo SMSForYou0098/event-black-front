@@ -83,24 +83,27 @@ export const OrderReviewSection = (props) => {
             />
           </div>
 
-          <div className="d-none d-sm-block">
-            <div className="d-flex align-items-center justify-content-between w-100 mt-2 gap-3">
-              <CustomBtn
-                style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                variant="secondary"
-                className="w-100"
-                disabled={!validatedData?.data}
-                HandleClick={() => window.history.back()}
-                buttonText={"Back"}
-                icon={<i className="fa-solid fa-arrow-left"></i>}
-              />
-              <CustomBtn
-                disabled={isLoading}
-                HandleClick={handleProcess}
-                buttonText={"Checkout"}
-                className="w-100"
-                loading={isLoading}
-              />
+          <div className="d-none d-sm-block w-100">
+            <div className="d-flex gap-3 w-100 mt-2">
+              <div style={{ flex: 1 }}>
+                <CustomBtn
+                  variant="secondary"
+                  disabled={!validatedData?.data}
+                  HandleClick={() => window.history.back()}
+                  buttonText={"Back"}
+                  className="w-100"
+                  icon={<i className="fa-solid fa-arrow-left"></i>}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <CustomBtn
+                  disabled={isLoading}
+                  HandleClick={handleProcess}
+                  buttonText={"Checkout"}
+                  className="w-100"
+                  loading={isLoading}
+                />
+              </div>
             </div>
           </div>
         </div>

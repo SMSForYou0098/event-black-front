@@ -209,6 +209,7 @@ export const PromoCodeSection = ({
       </InputGroup.Text>
       <Form.Control
         type="text"
+        size="sm"
         className="custom-dark-content-bg rounded-3 rounded-start-0 border-0"
         placeholder="Enter promo code"
         value={couponCode}
@@ -304,7 +305,7 @@ export const TicketDataSummary = (props) => {
   const isCheckoutPage = router.pathname.includes('/checkout');
   // const { eventName, ticketName, price, quantity, subTotal, processingFee, total, hidePrices, netAmount, sale_price, currency, handleOpen, attendees, showAttBtn } = props;
 
-  const { getCurrencySymbol } = useMyContext()
+  const { getCurrencySymbol, isMobile } = useMyContext()
 
   const sym = (currency && currency !== 'undefined') ? getCurrencySymbol(currency) : '₹'
   const numPrice = Number(price) || 0
@@ -377,7 +378,7 @@ export const TicketDataSummary = (props) => {
             )}
             {/* <div style={{ borderTop: '1px solid #3a3a3a' }} className='my-2' /> */}
 
-            {!isCheckoutPage && (
+            {!(isCheckoutPage && isMobile) && (
               <div className=" d-flex justify-content-between align-items-center">
                 <h6 className="text-white fw-bold">Total Amount</h6>
                 <span className='custom-text-secondary fw-bold' style={{ fontSize: '18px' }}>{sym}{total}</span>
