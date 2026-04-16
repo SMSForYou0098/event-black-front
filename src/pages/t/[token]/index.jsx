@@ -294,6 +294,11 @@ const UserCard = () => {
     const processingFee =
       toAmount(tax.total_tax ?? tax.total_tax_total, 0) +
       toAmount(tax.convenience_fee ?? tax.total_convenience_fee, 0);
+    const directTotal = toAmount(
+      bookingPayload?.bookings?.total_amount ??
+      normalizedTicketData?.bookings?.total_amount,
+      NaN
+    );
     const parsedTotal = toAmount(tax.final_amount ?? tax.total_final_amount, NaN);
     const fallbackTotal = subTotal + processingFee;
     const discountAmount = toAmount(
@@ -308,10 +313,14 @@ const UserCard = () => {
       0
     );
 
-    // Keep tax total when valid, otherwise use derived total.
-    // Also guard against inconsistent totals when no discount exists.
-    let total = Number.isFinite(parsedTotal) ? parsedTotal : fallbackTotal;
-    if (discountAmount <= 0 && Math.abs(total - fallbackTotal) > 0.009) {
+    // Prioritize total_amount from bookings object (direct from API),
+    // then tax total, then derived fallback.
+    let total = Number.isFinite(directTotal)
+      ? directTotal
+      : Number.isFinite(parsedTotal)
+        ? parsedTotal
+        : fallbackTotal;
+    if (!Number.isFinite(directTotal) && discountAmount <= 0 && Math.abs(total - fallbackTotal) > 0.009) {
       total = fallbackTotal;
     }
 

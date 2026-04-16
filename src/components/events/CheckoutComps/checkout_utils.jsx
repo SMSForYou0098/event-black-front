@@ -306,7 +306,7 @@ export const TicketDataSummary = (props) => {
 
   const { getCurrencySymbol } = useMyContext()
 
-  const sym = currency ? getCurrencySymbol(currency) : '₹'
+  const sym = (currency && currency !== 'undefined') ? getCurrencySymbol(currency) : '₹'
   const numPrice = Number(price) || 0
   const numQty = Number(quantity) || 0
   const subNum =
