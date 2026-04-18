@@ -682,9 +682,18 @@ const CartPage = () => {
       },
       modal: {
         ondismiss: function () {
-          setIsLoading(false);
-          setIsProcessing(false); // 🔧 Reset processing state
-          ErrorAlert('Payment was cancelled.');
+          redirectInProgressRef.current = true;
+          setIsLoading(true);
+          setIsProcessing(false);
+
+          if (sessionId) {
+            router.replace(
+              `/events/canceled/${encodeURIComponent(event_key)}/${encodeURIComponent(sessionId)}`
+            );
+            return;
+          }
+
+          router.replace(`/events/canceled/${encodeURIComponent(event_key)}`);
         },
         escape: false, // 🔧 Prevent accidental dismissal
         backdropclose: false,
@@ -768,11 +777,6 @@ const CartPage = () => {
 
   useEffect(() => {
     if (event?.eventControls?.use_preprinted_cards && UserData?.address !== undefined) {
-      // Open drawer if preprinted cards are used
-      // We might want to check if address is empty? 
-      // User said: "display UserData?.address, it it should not be null, undefined, ... provide two button conditionwise, update address or without updating address"
-      // Implicitly, always show it to confirm? Or only if missing? 
-      // "if this field is true then you need to open a drawer" -> implies always open to confirm.
       setShowAddressDrawer(true);
     }
   }, [event, UserData?.address, event?.eventControls?.use_preprinted_cards]);
