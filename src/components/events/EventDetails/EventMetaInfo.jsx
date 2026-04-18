@@ -257,7 +257,7 @@ const EventMetaInfo = ({ metaInfo, event_key, eventData, handleShare }) => {
           )}
 
           {eventStatus.disabled && (
-            <Row className="mt-4 mb-3 align-items-center border-dashed rounded-3 g-2 p-3">
+            <Row className="mt-4 mb-3 align-items-center rounded-3 g-2">
               <Col md={6}>
                 <Button
                   size="sm"

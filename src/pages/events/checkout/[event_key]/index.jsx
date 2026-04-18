@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { useMyContext } from "@/Context/MyContextProvider";
 import { useRouter } from "next/router";
@@ -25,6 +25,7 @@ import TermsAccordion from "../../../../components/events/EventDetails/TermsAcco
 import AddressUpdateDrawer from "../../../../components/events/CheckoutComps/AddressUpdateDrawer";
 import CustomDrawer from "../../../../utils/CustomDrawer";
 import MobileTwoButtonFooter from "../../../../utils/MobileTwoButtonFooter";
+import { clearPendingPaymentFlow, getPendingPaymentFlow, setPendingPaymentFlow } from "@/utils/paymentSessionFlow";
 const CartPage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -45,6 +46,8 @@ const CartPage = () => {
   const [isTimerExpired, setIsTimerExpired] = useState(false);
   const [showTermsDrawer, setShowTermsDrawer] = useState(false);
   const [showConfirmDrawer, setShowConfirmDrawer] = useState(false);
+  const hasHandledBackNavigationRef = useRef(false);
+  const redirectInProgressRef = useRef(false);
 
 
   const data = useSelector((state) =>
@@ -64,6 +67,57 @@ const CartPage = () => {
       setCheckoutData(data);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (!router.isReady || !event_key || hasHandledBackNavigationRef.current) return;
+
+    const shouldHandlePaymentReturn = () => {
+      const flow = getPendingPaymentFlow();
+      if (!flow || flow.status !== "pending") return null;
+
+      const sameEvent = flow.event_key?.toString() === event_key?.toString();
+      if (!sameEvent) return null;
+
+      const navigationEntry = window.performance?.getEntriesByType?.("navigation")?.[0];
+      const isBackForward = navigationEntry?.type === "back_forward";
+      const referrer = document.referrer || "";
+      const knownGateways = /(razorpay|cashfree|payu|paytm|phonepe|billdesk|ccavenue|stripe)/i;
+      const fromGatewayReferrer = knownGateways.test(referrer);
+
+      if (isBackForward || fromGatewayReferrer) {
+        return flow;
+      }
+
+      return null;
+    };
+
+    const redirectToCancelledPage = (flow) => {
+      hasHandledBackNavigationRef.current = true;
+      if (!flow?.session_id) {
+        router.replace(`/events/canceled/${encodeURIComponent(event_key)}`);
+        return;
+      }
+      router.replace(
+        `/events/canceled/${encodeURIComponent(event_key)}/${encodeURIComponent(flow.session_id)}`
+      );
+    };
+
+    const flow = shouldHandlePaymentReturn();
+    if (flow) {
+      redirectToCancelledPage(flow);
+    }
+
+    const handlePageShow = (event) => {
+      if (!event.persisted || hasHandledBackNavigationRef.current) return;
+      const persistedFlow = getPendingPaymentFlow();
+      if (!persistedFlow || persistedFlow.status !== "pending") return;
+      if (persistedFlow.event_key?.toString() !== event_key?.toString()) return;
+      redirectToCancelledPage(persistedFlow);
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [router.isReady, event_key, router]);
 
 
 
@@ -289,7 +343,9 @@ const CartPage = () => {
   };
 
   const executeBookingSetup = async () => {
+    redirectInProgressRef.current = false;
     setIsLoading(true);
+    setIsProcessing(true);
 
     try {
       const payload = createBookingPayload();
@@ -298,7 +354,10 @@ const CartPage = () => {
     } catch (error) {
       handleBookingError(error);
     } finally {
-      setIsLoading(false);
+      if (!redirectInProgressRef.current) {
+        setIsLoading(false);
+      }
+      setIsProcessing(false);
       setShowConfirmDrawer(false);
     }
   };
@@ -447,16 +506,24 @@ const CartPage = () => {
     return formData;
   };
 
+  const buildPendingPaymentData = (sessionId, gateway, paymentUrl = null) => {
+    const qty = Number(summaryData?.quantity) || 0;
+    const eventId = checkoutData?.event?.id || checkoutData?.event?.event_id || null;
+
+    return {
+      session_id: sessionId || null,
+      event_key,
+      event_id: eventId,
+      quantity: qty,
+      is_master: qty > 1,
+      gateway,
+      payment_url: paymentUrl,
+    };
+  };
+
 
   // Initiate booking API call
   const initiateBooking = async (payload) => {
-    // const apiCall = async () => {
-    //   return await api.post(`/initiate-payment`, payload, {
-    //     headers: {
-    //       'Content-Type': 'multipart/form-data',
-    //     }
-    //   });
-    // };
 
     const MAX_RETRIES = 1;
     let lastError;
@@ -494,16 +561,23 @@ const CartPage = () => {
   const handleBookingResponse = async (response) => {
     // Handle free booking
     if (Number(summaryData.totalFinalAmount) === 0 && response.data.status) {
+      clearPendingPaymentFlow();
+      redirectInProgressRef.current = true;
       await handleFreeBooking(response.data);
       return;  // ✅ Exit early for free bookings
     }
 
     if (response.data.status || response.data?.result?.status === 1 || response.data?.result?.success || response.data?.payment_url) {
       // Store session data for paid bookings
-      const sessionId =
-        response.data?.session_id ||
+      const actualSessionId = response.data?.session_id || null;
+      const fallbackSessionId =
         response.data?.txnid ||
         response.data?.order_data?.cf_order_id;
+      const sessionId = actualSessionId || fallbackSessionId;
+
+      if (!sessionId) {
+        throw new Error('Session ID missing from payment response.');
+      }
 
       const sessionData = {
         session_id: sessionId,
@@ -536,6 +610,7 @@ const CartPage = () => {
       }
       // Handle Razorpay
       if (response.data.callback_url) {
+        setPendingPaymentFlow(buildPendingPaymentData(sessionId, "razorpay", response.data.callback_url));
         handleRazorpayPayment(response.data, systemSetting, sessionId);
         return;  // ✅ Exit after initiating Razorpay
       }
@@ -543,6 +618,8 @@ const CartPage = () => {
       // Handle other payment gateways
       const paymentUrl = response.data?.url || response.data?.payment_url;
       if (paymentUrl) {
+        setPendingPaymentFlow(buildPendingPaymentData(sessionId, "redirect", paymentUrl));
+        redirectInProgressRef.current = true;
         window.location.href = paymentUrl;
         return;  // ✅ Exit after redirect (important!)
       } else {
@@ -622,6 +699,7 @@ const CartPage = () => {
   // Verify payment and redirect to waiting page
   const verifyPaymentAndRedirect = (rzpResponse, sessionId) => {
     if (sessionId) {
+      clearPendingPaymentFlow();
       const r_url = `/events/waiting/${encodeURIComponent(event_key)}/${encodeURIComponent(sessionId)}`
       // router.push(`/events/waiting/${encodeURIComponent(event_key)}?session_id=${encodeURIComponent(sessionId)}`);
       router.push(r_url);
