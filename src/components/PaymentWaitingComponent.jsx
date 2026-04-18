@@ -71,22 +71,19 @@ const PaymentWaitingComponent = ({
 
     useEffect(() => {
         if (!session_id || !event_key) return;
+        // Wait for Next.js to hydrate query params before acting
+        if (!router.isReady) return;
 
-        // Check if status is already provided in URL query params
         const urlStatus = router.query.status;
+
         if (urlStatus) {
             const statusVal = urlStatus.toString().toLowerCase();
-            
-            // Handle terminal states from URL
+
             if (statusVal === 'confirmed' || statusVal === 'success') {
-                setStatus('confirmed');
-                setMessage('Payment Successful!');
-                setTimeout(() => {
-                    const redirectPath = getSuccessRedirectPath();
-                    router.push(redirectPath);
-                }, 1500);
-                return;
+                // Gateway reports success — verify via SSE before redirecting
+                // (falls through to SSE block below)
             } else if (statusVal === 'failed' || statusVal === 'error' || statusVal.includes('cancel')) {
+                // Terminal failure — show UI directly, no SSE needed
                 setStatus('failed');
                 const isCancelled = statusVal.includes('cancel');
                 setErrorMessage(
@@ -100,8 +97,12 @@ const PaymentWaitingComponent = ({
                     router.push(redirectPath);
                 }, 1500);
                 return;
+            } else {
+                // Unrecognised status value — show pending UI as-is, no SSE
+                return;
             }
         }
+        // No status in URL, OR status=confirmed/success → start SSE connection
 
         // Set timeout for no response scenario
         timeoutRef.current = setTimeout(() => {
@@ -130,9 +131,11 @@ const PaymentWaitingComponent = ({
                 eventSource.onmessage = (event) => {
                     try {
                         const data = JSON.parse(event.data);
-                        const statusVal = (data.status ?? data.payment_status ?? '')
-                            .toString()
-                            .toLowerCase();
+
+                        // Prefer payment_status (human-readable) over status (numeric code like "0")
+                        const rawStatus = data.payment_status || data.status || '';
+                        const statusVal = rawStatus.toString().toLowerCase();
+
 
                         // Check for success
                         if (statusVal === 'confirmed' || statusVal === 'success') {
@@ -237,7 +240,7 @@ const PaymentWaitingComponent = ({
                 clearTimeout(timeoutRef.current);
             }
         };
-    }, [session_id, event_key, router, authToken, getSuccessRedirectPath, getFailureRedirectPath, getTimeoutRedirectPath]);
+    }, [session_id, event_key, router.isReady, router.query.status, authToken, getSuccessRedirectPath, getFailureRedirectPath, getTimeoutRedirectPath]);
 
     const getStatusIcon = () => {
         switch (status) {
@@ -255,9 +258,12 @@ const PaymentWaitingComponent = ({
         router.push(redirectPath);
     };
 
-    const handleViewBookings = () => {
-        router.push('/bookings');
+    const handleGoToCart = () => {
+        router.push(`/events/cart/${event_key}`);
     };
+    // const handleViewBookings = () => {
+    //     router.push('/bookings');
+    // };
 
     if (!session_id) {
         return (
@@ -357,17 +363,24 @@ const PaymentWaitingComponent = ({
                                 <button
                                     type="button"
                                     className="btn btn-outline-secondary"
+                                    onClick={getFailureRedirectPath}
+                                >
+                                    Go to Cart
+                                </button>
+                                {/* <button
+                                    type="button"
+                                    className="btn btn-outline-secondary"
                                     onClick={handleViewBookings}
                                 >
                                     View Bookings
-                                </button>
-                                <button
+                                </button> */}
+                                {/* <button
                                     type="button"
                                     className="btn btn-primary"
                                     onClick={handleRetry}
                                 >
                                     Try Again
-                                </button>
+                                </button> */}
                             </div>
                         )}
                     </Card.Body>

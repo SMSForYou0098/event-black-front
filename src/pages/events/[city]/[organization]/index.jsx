@@ -71,6 +71,7 @@ const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
     refetchOnMount: false,
     refetchInterval: BANNER_REFRESH_INTERVAL
   });
+  console.log(bannersRaw);
 
   // Fetch organization details by slug
   const {

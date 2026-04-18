@@ -2,12 +2,14 @@ import { Fragment, memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-const SaleTag = () => (
+// sale tag
+const SaleTag = (props) => (
   <span className="bg-primary text-white fs-6 position-relative p-1 me-2 rounded-3">
-    Sale!
+    {props.text}
   </span>
 );
 
+// price data
 const PriceData = (props) => {
   return (
     <>
@@ -76,10 +78,16 @@ const CardStyle = memo((props) => {
         <div className="block-image position-relative">
           <div className="img-box">
             <Link href={props.link || "#"} className="overly-images">
-              {props.on_sale && (
+              {props.message ? (
                 <span className="position-absolute top-0 end-0 m-2 z-index-3">
-                  <SaleTag />
+                  <SaleTag text={props.message} />
                 </span>
+              ) : (
+                props.on_sale && (
+                  <span className="position-absolute top-0 end-0 m-2 z-index-3">
+                    <SaleTag text="Sale!" />
+                  </span>
+                )
               )}
               <Image
                 src={imageSrc}
@@ -96,10 +104,11 @@ const CardStyle = memo((props) => {
               <h6 style={{ fontSize: "14px" }} className="text-capitalize">
                 <Link href={props.link || "#"}>{props.title}</Link>
               </h6>
-              {(props.lowest_ticket_price && props.lowest_sale_price) && (
-                // <PriceData {...props} />
+              {props.message ? (
                 <></>
-              )}
+              ) :
+                <PriceData {...props} />
+              }
             </div>
           </div>
         </div>
