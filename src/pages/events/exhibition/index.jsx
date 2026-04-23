@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import ProductCard from "@/components/cards/ProductCard";
 import SectionSlider from "@/components/slider/SectionSlider";
 import SkeletonLoader from "@/utils/SkeletonUtils/SkeletonLoader";
+import { Alert } from "react-bootstrap";
 
 const ExhibitionPage = () => {
     const router = useRouter();
@@ -54,9 +55,12 @@ const ExhibitionPage = () => {
                     )}
                 </SectionSlider>
             ) : (
-                <div className="border rounded bg-light text-center py-5 px-3">
-                    <h6 className="mb-2">No exhibition events available</h6>
-                    <p className="text-muted mb-0">Please check back later for upcoming events.</p>
+                // No events available
+                <div className="  text-center py-5 px-3">
+                    <Alert variant="warning">
+                        <h6 className="mb-2">No exhibition events available</h6>
+                        <p className="text-muted mb-0">Please check back later for upcoming events.</p>
+                    </Alert>
                 </div>
             )}
         </div>

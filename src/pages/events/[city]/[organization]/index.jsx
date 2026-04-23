@@ -117,6 +117,8 @@ const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
     );
   }
 
+  console.log(organization);
+
   if (orgLoading) {
     return (
       <div className="p-3 text-center">
@@ -188,6 +190,7 @@ const EventsByOrgs = ({ organization: initialOrg, city: initialCity }) => {
           type="organization"
           banners={bannersRaw}
           loading={bannersLoading}
+          autoPlay={true}
         />
       </div>
 

@@ -97,7 +97,11 @@ const SectionSlider = ({
                 spaceBetween: 0,
               },
               768: {
-                slidesPerView: 3,
+                slidesPerView: 4,
+                spaceBetween: 0,
+              },
+              992: {
+                slidesPerView: 6,
                 spaceBetween: 0,
               },
               1025: {

@@ -12,6 +12,7 @@ import CardBlogGridSkeleton from "../../utils/SkeletonUtils/blogs/CardBlogGridSk
 import { useBreadcrumb } from "@/utilities/usePage";
 import { publicApi } from "@/lib/axiosInterceptor";
 import { SEOHead } from "@/utils/seo/seo";
+import NoDataFound from "@/components/CustomComponents/NoDataFound";
 
 // Sort options
 const sortOptions = [
@@ -227,7 +228,7 @@ const BLogs = memo(() => {
                     ))
                   ) : !isLoading ? (
                     <Col>
-                      <Alert variant="warning" className="text-center">No blogs found.</Alert>
+                      <NoDataFound message="No blogs found." variant="warning" />
                     </Col>
                   ) : null}
                 </Row>

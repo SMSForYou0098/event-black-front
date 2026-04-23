@@ -50,7 +50,8 @@ const DetailsHeader = ({ eventData, event_key }) => {
             icon: "fa-solid fa-location-dot",
             value: (
                 <>
-                    {eventData?.venue?.address}, {eventData?.venue?.city}, {eventData?.venue?.state}
+                    {eventData?.venue?.address}
+                    {/* , {eventData?.venue?.city}, {eventData?.venue?.state} */}
                     ...{" "}
                     <a
                         href={eventData?.venue?.map_url}

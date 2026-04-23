@@ -76,19 +76,8 @@ const CardStyle = memo((props) => {
     <Fragment>
       <div className="iq-top-ten-block">
         <div className="block-image position-relative">
-          <div className="img-box">
+          <div className="img-box rounded-3 overflow-hidden">
             <Link href={props.link || "#"} className="overly-images">
-              {props.message ? (
-                <span className="position-absolute top-0 end-0 m-2 z-index-3">
-                  <SaleTag text={props.message} />
-                </span>
-              ) : (
-                props.on_sale && (
-                  <span className="position-absolute top-0 end-0 m-2 z-index-3">
-                    <SaleTag text="Sale!" />
-                  </span>
-                )
-              )}
               <Image
                 src={imageSrc}
                 alt="movie-card"
@@ -97,6 +86,17 @@ const CardStyle = memo((props) => {
                 height={270}
                 className="img-fluid card-img"
               />
+              {props.message ? (
+                <span className="position-absolute top-0 start-0 m-2 z-index-3">
+                  <SaleTag text={props.message} />
+                </span>
+              ) : (
+                props.on_sale && (
+                  <span className="position-absolute top-0 start-0 m-2 z-index-3">
+                    <SaleTag text="Sale!" />
+                  </span>
+                )
+              )}
             </Link>
           </div>
           <div className="evnt-desc mt-3">

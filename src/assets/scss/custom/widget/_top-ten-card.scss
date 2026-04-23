@@ -20,15 +20,21 @@
   .block-image {
     padding: 0 0.9375rem;
 
+    .img-box,
     .overly-images {
+      overflow: hidden;
       position: relative;
       z-index: 1;
       display: block;
 
       img {
         width: 100%;
-        // border-radius: $border-radius;
-        transition: all 0.6s ease 0s;
+        transition: transform 0.6s ease-in-out;
+      }
+
+      .z-index-3 {
+        z-index: 5 !important;
+        transform: translateZ(10px); // Keep on top of scaled image
       }
     }
 
@@ -44,11 +50,17 @@
   }
 
   &:hover {
-    .block-image {
-      .top-ten-numbers {
-        bottom: -38px;
-      }
+
+    /* Force the same scale across all hover entry points (title or image) */
+    .block-image img,
+    .overly-images img {
+      transform: scale(1.1) !important;
     }
+  }
+
+  /* Ensure the base image has the transition defined */
+  .block-image img {
+    transition: transform 0.6s ease-in-out;
   }
 }
 

@@ -1,4 +1,4 @@
-import {memo} from "react";
+import { memo } from "react";
 import EventsContainer from "@/utils/EventUtils/EventsContainer";
 
 const EventsSection = memo(() => {
@@ -10,6 +10,7 @@ const EventsSection = memo(() => {
       loadingText="Loading Events..."
       errorText="Failed to load events. Please try again later."
       useReactQuery={false}
+      autoplay={true}
     />
   );
 });

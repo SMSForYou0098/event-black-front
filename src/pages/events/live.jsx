@@ -26,7 +26,7 @@ const OffersPage = () => {
     enabled: !!searchQuery, // prevents call if searchQuery is empty
   });
 
-  if (isLoading) return <div>Loading offers...</div>;
+  if (isLoading) return <div>Loading Live Events...</div>;
   if (isError) return <div>Error: {getErrorMessage(error)}</div>;
 
 

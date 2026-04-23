@@ -5,6 +5,7 @@ import ProductCard from "@/components/cards/ProductCard";
 import { useMyContext } from "../../Context/MyContextProvider";
 import SectionList from "../../components/slider/SectionList";
 import { getErrorMessage } from "@/utils/errorUtils";
+import NoDataFound from "../../components/CustomComponents/NoDataFound";
 
 
 // Make this accept params (even if you keep them static for now)
@@ -61,7 +62,12 @@ const OffersPage = () => {
         )}
       </SectionList>
 
-      {items.length === 0 && <p className="px-3">No offers found.</p>}
+      {/* No Data Found */}
+      {items.length === 0 &&
+        <div className="container-fluid">
+          <NoDataFound />
+        </div>
+      }
     </div>
   );
 };

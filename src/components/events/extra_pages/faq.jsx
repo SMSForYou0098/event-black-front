@@ -3,11 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { publicApi } from "@/lib/axiosInterceptor";
 
 // React Bootstrap
-import { Col, Container, Row, Spinner } from "react-bootstrap";
+import { Alert, Col, Container, Row, Spinner } from "react-bootstrap";
 
 // Custom Hook
 import { useBreadcrumb } from "@/utilities/usePage";
 import { getErrorMessage } from "@/utils/errorUtils";
+import NoDataFound from "../../CustomComponents/NoDataFound";
 
 
 const FAQPage = memo(() => {
@@ -34,11 +35,11 @@ const FAQPage = memo(() => {
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
-    retry: 2,
+    retry: false,
     onSuccess: (data) => {
       // Set the first FAQ item to be open by default after data is loaded
       if (data.length > 0 && activeId === null) {
-        setActiveId(data.id);
+        setActiveId(data[0].id);
       }
     },
     onError: (error) => {
@@ -62,7 +63,7 @@ const FAQPage = memo(() => {
   }, [faqs]);
 
   // Handle loading and error states
-  if (isLoading) {
+  if (isLoading && faqs.length === 0) {
     return (
       <div >
         <Container>
@@ -86,10 +87,13 @@ const FAQPage = memo(() => {
         <Container>
           <Row>
             <Col lg="12" sm="12">
-              <div className="text-center text-danger">
-                Error: {getErrorMessage(error, "Failed to fetch FAQs")}
-              </div>
-
+              {
+                faqs.length === 0 && (
+                  <div className="text-center text-primary">
+                    <NoDataFound />
+                  </div>
+                )
+              }
             </Col>
           </Row>
         </Container>

@@ -11,8 +11,8 @@ import ProductCard from "../cards/ProductCard";
 const OurEvents = memo(({ type }) => {
   const [title] = useState("Events Categories");
   const [watching, setWatching] = useState(
-    Array.from({ length: 8 }, (_, i) => ({
-      image: generateImgPath(`/assets/our-events/${String(i + 1).padStart(2, "0")}.webp`),
+    Array.from({ length: 12 }, (_, i) => ({
+      image: generateImgPath(`/assets/our-events/${String(12 - i).padStart(2, "0")}.webp`),
       value: Math.floor(Math.random() * 100), // Optional: random progress for demo
     }))
   );

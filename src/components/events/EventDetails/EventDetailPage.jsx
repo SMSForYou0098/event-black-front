@@ -19,6 +19,7 @@ import { Star } from "lucide-react";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/utils/errorUtils";
 import TermsAccordion from "./TermsAccordion";
+import RelatedEvents from "./RelatedEvents";
 
 
 const EventDetailPage = memo(({ eventData, event_key }) => {
@@ -130,6 +131,7 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
           <EventTabs
             eventData={eventData}
           />
+
           {/* Add EventCrew component here */}
           <EventPhotoGallery eventPhotos={eventData?.eventMedia?.images || []} />
 
@@ -143,6 +145,8 @@ const EventDetailPage = memo(({ eventData, event_key }) => {
             )
           }
         </Container>
+        {/* Related Events directly below tabs */}
+        <RelatedEvents eventData={eventData} />
       </div>
     </Fragment>
   );

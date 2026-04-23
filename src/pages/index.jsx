@@ -192,7 +192,7 @@ const OTT = memo(() => {
   return (
     <>
       {/* Critical: Load immediately - Above fold only */}
-      <CommonBannerSlider />
+      <CommonBannerSlider autoPlay={true} />
 
       {/* High Priority: Preload when user scrolls close */}
       <PreloadSection
