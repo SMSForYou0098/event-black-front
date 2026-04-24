@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useMyContext } from '@/Context/MyContextProvider';
 import SectionSlider from '@/components/slider/SectionSlider';
 import ProductCard from '@/components/cards/ProductCard';
+import EventsContainerCat from '../CategoryPageComps/EventsContainerCat';
 
 const fetchOrgDetailsBySlug = async ({ queryKey }) => {
     const [, { slug, city }] = queryKey;
@@ -50,19 +51,19 @@ const RelatedEvents = ({ eventData }) => {
     if (!isLoading && relatedEvents.length === 0) return null;
 
     return (
-        <div className="mt-5 related-events-slider">
+        <div className="overflow-hidden card-style-slider">
             <SectionSlider
                 title={<span className='fw-bold'>More Events From This Organizer</span>}
                 list={relatedEvents}
                 slidesPerView={6}
                 autoplay={true}
-                spaceBetween={15}
+                spaceBetween={20}
             >
                 {(data, index) => (
                     <ProductCard
                         key={data.id}
-                        thumbnail={data.thumbnail || data?.eventMedia?.thumbnail}
-                        product_name={data.name}
+                        image={data.thumbnail || data?.eventMedia?.thumbnail}
+                        title={data.name}
                         lowest_ticket_price={data.lowest_ticket_price}
                         lowest_sale_price={data.lowest_sale_price}
                         message={data.message}
@@ -85,6 +86,13 @@ const RelatedEvents = ({ eventData }) => {
                 }
             `}</style>
         </div>
+        // <section className="py-5 px-3">
+        //     <EventsContainerCat
+        //         events={orgData}
+        //         loading={orgLoading}
+        //         title={<span className='fw-bold'>More Events From This Organizer</span>}
+        //     />
+        // </section>
     );
 };
 

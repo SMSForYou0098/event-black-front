@@ -10,110 +10,106 @@ const SaleTag = (props) => (
 );
 
 // price data
-const PriceData = (props) => {
+export const PriceData = (props) => {
   return (
-    <>
-      {props.lowest_ticket_price !== undefined &&
-        props.lowest_ticket_price !== null && (
-          <div className="movie-price" style={{ fontSize: '12px' }}>
-            <div className="d-flex align-items-center gap-2">
-              {props.lowest_ticket_price === 0 ? (
-                <span className="text-primary fw-bold">Free</span>
-              ) : props.on_sale &&
-                Number(props.lowest_sale_price) < props.lowest_ticket_price ? (
-                <div className="d-flex align-items-center gap-2">
-                  <del className="text-muted">
-                    ₹{props.lowest_ticket_price}
-                  </del>
-                  <div>
-                    <span className="fw-bold">
-                      ₹{props.lowest_sale_price || 0}
+    <div className="product-caption" style={{ fontSize: '12px' }}>
+      <p className="fs-6 my-0 fw-bold">
+        <Link
+          href={props?.link || '#'}
+          style={{ fontSize: "14px" }}
+          className="title-link"
+        >
+          {props.title}
+        </Link>
+      </p>
+      <div>
+        {props.message ? (
+          <></>
+        ) : (
+          <span className="price">
+            {
+              !props?.noPrice &&
+              <>
+                {props.lowest_ticket_price == 0 ? (
+                  <span className="text-primary fw-bold">Free</span>
+                ) : props.on_sale &&
+                  Number(props.lowest_sale_price) < props.lowest_ticket_price ? (
+                  <>
+                    <del className="text-muted">
+                      ₹{props.lowest_ticket_price}
+                    </del>
+                    <span className="ms-1 fw-bold">
+                      ₹{props.lowest_sale_price}
                     </span>
                     <small className="ms-1 text-warning">onwards</small>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <span className="fw-bold">
-                    ₹{props.lowest_ticket_price}
-                  </span>
-                  <div className="text-fw-normal">onwards</div>
-                </>
-              )}
-              {/* <div className="d-none d-sm-block">
-                {props.on_sale && <SaleTag />}
-              </div> */}
-            </div>
-          </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="fw-bold">
+                      ₹{props.lowest_ticket_price || 0}
+                    </span>
+                    <span className="ms-2">onwards</span>
+                  </>
+                )}
+              </>
+            }
+          </span>
         )}
-    </>
+      </div>
+      <span>{props?.city}</span>
+      <div className="container-rating">
+        <div className="star-rating text-primary">
+          {/* <RatingStar count={props.rating} count1={props.count1} starColor="text-warning" /> */}
+        </div>
+      </div>
+    </div>
   );
 };
 
-const CardStyle = memo((props) => {
-  const rawImage = props?.image;
-
-  // Normalize src for next/image
-  const getImageSrc = (src) => {
-    if (!src) {
-      return "https://placehold.co/500x400";
-    }
-
-    // If already full URL (http/https) → use as is
-    if (src.startsWith("http://") || src.startsWith("https://")) {
-      return src;
-    }
-
-    // If you want to serve it from your backend server:
-    // e.g. src = "gallery/events/thumbnail/..."
-    const BASE_URL = "http://192.168.0.164:8000/"; // or from env: process.env.NEXT_PUBLIC_API_URL
-    return BASE_URL + src.replace(/^\/+/, ""); // remove any leading slashes just in case
-  };
-
-  const imageSrc = getImageSrc(rawImage);
+export const ProductBlock = (props) => {
+  const rawImage = props.image;
 
   return (
-    <Fragment>
-      <div className="iq-top-ten-block">
-        <div className="block-image position-relative">
-          <div className="img-box rounded-3 overflow-hidden">
-            <Link href={props.link || "#"} className="overly-images">
-              <Image
-                src={imageSrc}
-                alt="movie-card"
-                loading="lazy"
-                width={180}
-                height={270}
-                className="img-fluid card-img"
-              />
-              {props.message ? (
+    <div className="product-block">
+      <div className="block-image position-relative">
+        <div className="img-box rounded-3 overflow-hidden">
+          <Link href={props.link || "#"} className="overly-images">
+            <Image
+              src={rawImage}
+              alt="movie-card"
+              loading="lazy"
+              width={180}
+              height={270}
+              className="img-fluid card-img"
+            />
+            {props.message ? (
+              <span className="position-absolute top-0 start-0 m-2 z-index-3">
+                <SaleTag text={props.message} />
+              </span>
+            ) : (
+              props.on_sale && (
                 <span className="position-absolute top-0 start-0 m-2 z-index-3">
-                  <SaleTag text={props.message} />
+                  <SaleTag text="Sale!" />
                 </span>
-              ) : (
-                props.on_sale && (
-                  <span className="position-absolute top-0 start-0 m-2 z-index-3">
-                    <SaleTag text="Sale!" />
-                  </span>
-                )
-              )}
-            </Link>
-          </div>
-          <div className="evnt-desc mt-3">
-            <div>
-              <h6 style={{ fontSize: "14px" }} className="text-capitalize">
-                <Link href={props.link || "#"}>{props.title}</Link>
-              </h6>
-              {props.message ? (
-                <></>
-              ) :
-                <PriceData {...props} />
-              }
-            </div>
-          </div>
+              )
+            )}
+          </Link>
+        </div>
+        <div className="evnt-desc mt-3">
+          <PriceData {...props} />
         </div>
       </div>
-    </Fragment>
+    </div>
+  )
+}
+
+const CardStyle = memo((props) => {
+
+
+  return (
+    <div className="swiper-wrapper swiper-slide">
+      <ProductBlock {...props} />
+    </div>
   );
 });
 

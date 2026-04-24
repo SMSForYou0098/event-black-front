@@ -37,7 +37,7 @@ const PromotionalEvents = () => {
         {(event, index) => (
           <ProductCard
             key={index}
-            thumbnail={event?.image}
+            image={event?.image}
             link={`/events/${createSlug(event.org?.city).toLowerCase()}/${createSlug(event?.org?.organisation).toLowerCase()}`}
             countValue={index + 1}
             noPrice={true}

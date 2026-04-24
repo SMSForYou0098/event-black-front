@@ -217,7 +217,7 @@ const BLogs = memo(() => {
                         <CardBlogGrid
                           title={item.title}
                           content={item?.content}
-                          thumbnail={item.thumbnail}
+                          image={item.thumbnail}
                           description={item.description || item.excerpt || ""}
                           username={item.user_data?.name || item.username || "Unknown"}
                           date={item.created_at}

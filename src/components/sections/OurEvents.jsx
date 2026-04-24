@@ -29,7 +29,7 @@ const OurEvents = memo(({ type }) => {
       >
         {(data) => (
           <ProductCard
-            thumbnail={data.image}
+            image={data.image}
             imageOnly={true}
           // progressValue={data.value}
           // dataLeftTime={data.leftTime}

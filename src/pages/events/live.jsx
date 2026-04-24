@@ -38,8 +38,8 @@ const OffersPage = () => {
         {(item, index) => (
           <ProductCard
             key={item?.event_key || item?.id || index}
-            thumbnail={item?.event_media?.thumbnail}
-            product_name={item?.name}
+            image={item?.event_media?.thumbnail}
+            title={item?.name}
             noPrice={true}
             count1={index + 1}
             on_sale={item?.on_sale}

@@ -9,7 +9,7 @@ const EventDetailPageSkeleton = memo(() => {
 
   return (
     <Fragment>
-      <div className="section-padding-top product-detail py-0 py-sm-4">
+      <div className="product-detail py-0 py-sm-4">
         <Container>
           {/* Details Header Skeleton */}
           <DetailsHeaderSkeleton />

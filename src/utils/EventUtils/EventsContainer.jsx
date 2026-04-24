@@ -95,8 +95,8 @@ const EventsContainer = memo(({
             />
           ) : (
             <ProductCard
-              thumbnail={data?.thumbnail || data?.eventMedia?.thumbnail}
-              product_name={data.name}
+              image={data?.thumbnail || data?.eventMedia?.thumbnail}
+              title={data.name}
               lowest_ticket_price={data.lowest_ticket_price}
               lowest_sale_price={data.lowest_sale_price}
               message={data.message}

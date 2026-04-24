@@ -176,7 +176,7 @@ const PostPage = () => {
                 <CardBlogGrid
                   title={item.title}
                   content={item.content_length}
-                  thumbnail={item.thumbnail}
+                  image={item.thumbnail}
                   description={item?.content || item.excerpt || ""}
                   username={item.user_data?.name || item.username || "Unknown"}
                   date={item.created_at}

@@ -18,6 +18,7 @@ const HomeArtists = memo(({ type }) => {
   );
 
 
+
   return (
     <Fragment>
       <SectionSlider
@@ -30,7 +31,7 @@ const HomeArtists = memo(({ type }) => {
       >
         {(data) => (
           <ProductCard
-            thumbnail={data.image}
+            image={data.image}
             imageOnly={true}
 
           />

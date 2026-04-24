@@ -43,8 +43,8 @@ const ExhibitionPage = () => {
                     {(item, index) => (
                         <ProductCard
                             key={item?.event_key || index}
-                            thumbnail={item?.thumbnail}
-                            product_name={item?.name}
+                            image={item?.thumbnail}
+                            title={item?.name}
                             lowest_ticket_price={item?.lowest_ticket_price}
                             lowest_sale_price={item?.lowest_sale_price}
                             on_sale={item?.on_sale}

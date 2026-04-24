@@ -42,7 +42,7 @@ const BlogSection = () => {
             {allBlogs.slice(0, 10).map((data, index) => (
               <Col lg="3" md="4" sm="6" key={index} className="mb-4">
                 <CardBlogGrid
-                  thumbnail={data.thumbnail}
+                  image={data.thumbnail}
                   username={data.user_data?.name || data.username || "Admin"}
                   title={data.title}
                   link={`/blogs/${createSlug(data?.title)}?key=${data?.id}`}

@@ -5,12 +5,6 @@ import MobileBottomMenu from "../components/partials/MobileBottonMenu";
 
 //breadcrumb
 import BreadCrumbWidget from "@/components/BreadcrumbWidget";
-
-//seetingoffCanvas
-import SettingOffCanvas from "../components/setting/SettingOffCanvas";
-
-import StickyContent from "../utils/StickyContent";
-import HeaderDecider from "./HeaderDecider";
 import { HeaderProvider } from "@/Context/HeaderContext";
 import { useRouter } from "next/router";
 const Frontend = (({ children }) => {

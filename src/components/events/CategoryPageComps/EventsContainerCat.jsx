@@ -44,12 +44,12 @@ const EventsContainerCat = ({ events = [], loading = false, error = null, title 
 
   return (
     <div>
-      <Row >
+      <Row className="g-3">
         <Col xs={12}>
           {title && <h5 className="main-title text-capitalize mb-3">{title}</h5>}
         </Col>
         {events?.map((data, index) => (
-          <Col xs={6} md={2} key={index}>
+          <Col xs={6} md={2} className="px-0" key={index}>
             <CardStyle
               key={data.id}
               image={data.thumbnail || data?.eventMedia?.thumbnail}
@@ -64,6 +64,7 @@ const EventsContainerCat = ({ events = [], loading = false, error = null, title 
               message={data.message}
               on_sale={data.on_sale}
               countValue={index + 1}
+              city={data.city}
             />
           </Col>
         ))}
