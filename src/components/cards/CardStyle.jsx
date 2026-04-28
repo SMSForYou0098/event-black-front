@@ -4,7 +4,7 @@ import Image from "next/image";
 
 // sale tag
 const SaleTag = (props) => (
-  <span className="bg-primary text-white fs-6 position-relative p-1 me-2 rounded-3">
+  <span className="bg-primary text-white fs-0 position-relative p-1 me-2 rounded-3" style={{ fontSize: "15px" }}>
     {props.text}
   </span>
 );
@@ -74,14 +74,16 @@ export const ProductBlock = (props) => {
       <div className="block-image position-relative">
         <div className="img-box rounded-3 overflow-hidden">
           <Link href={props.link || "#"} className="overly-images">
-            <Image
-              src={rawImage}
-              alt="movie-card"
-              loading="lazy"
-              width={180}
-              height={270}
-              className="img-fluid card-img"
-            />
+            <div className="product-image rounded-3 overflow-hidden">
+              <Image
+                src={rawImage}
+                alt="movie-card"
+                loading="lazy"
+                width={180}
+                height={270}
+                className="img-fluid card-img"
+              />
+            </div>
             {props.message ? (
               <span className="position-absolute top-0 start-0 m-2 z-index-3">
                 <SaleTag text={props.message} />
@@ -96,7 +98,15 @@ export const ProductBlock = (props) => {
           </Link>
         </div>
         <div className="evnt-desc mt-3">
-          <PriceData {...props} />
+          {
+            props?.imageOnly ? (
+              <></>
+            ) : (
+              <>
+                <PriceData {...props} />
+              </>
+            )
+          }
         </div>
       </div>
     </div>
